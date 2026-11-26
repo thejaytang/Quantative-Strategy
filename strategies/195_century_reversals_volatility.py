@@ -1,3 +1,23 @@
+"""195_century_reversals_volatility
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; non-author review: PASS; publication gate: Codex.
+Run (one command): python strategies/195_century_reversals_volatility.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 7f58470906099142d2404cd2e681f0aaa17db946 on 2026-11-26 16:09 Europe/Oslo, exit 0, output sha256 69fbb3fce473a5981a95a9e43d4c6fc0707ead77373dedb8f7820680f3767703
+Data source: 免费 Yahoo Finance 日频行情，经 yfinance 获取 SPY、BIL 的开盘价和收盘价，以及 ^VIX 的收盘值。优先读取本地行情缓存。见 config.yaml:2-5、strategy.py:18-38、README.md:17。
+Data fetched: 2026-11-26 16:09 Europe/Oslo (run time)
+Sample period: 行情请求区间为 2006-10-01 至 2025-12-31（含截止日），回测开始前的数据用于预热。日志记录的实际执行区间为 2008-01-02 至 2025-12-31，共 4,529 个交易日。见 config.yaml:6-12、strategy.py:33-36、strategy.py:230-232、logs/run_20261125_123225.log:1、logs/run_20261125_123225.log:87。   data_range (from output): 2008-01-02 to 2025-12-31
+IS/OOS split: 按执行日期划分，样本内为 2008-01-02 至 2017-12-31（2,518 个交易日），样本外为 2018-01-01 至 2025-12-31（2,011 个交易日）。样本外为历史留出期，承接样本内期末仓位。README 记载信号采用冻结候选 C41，论文的历史研究窗口覆盖部分留出期。见 config.yaml:7-12、strategy.py:230-248、README.md:18-19、logs/run_20261125_123225.log:87。
+Costs and slippage: 默认每笔单边成交收取 5 bps，敏感性情景为 0 和 15 bps。设 r 为 bps/10000，买入资金乘以 1/(1+r)，卖出所得乘以 1−r。常规信号日两买两卖，全期首日从现金建仓时为信号日三笔、非信号日一笔，基准仅收首笔买入成本。固定成本合并近似点差、佣金与滑点，滑点未单独建模。见 config.yaml:18-20、strategy.py:108-128、strategy.py:224-228、README.md:19、README.md:24。
+Signal lag: 交易日 t 收盘后，以 SPY 复权收盘到收盘收益严格低于 −0.75% 且 t−1 的 VIX 严格高于截至 t−1 的 252 个 SPY 交易日滚动第 75 百分位为主策略信号。t+1 指下一交易日，在该日开盘切换至 SPY，当日收盘切回 BIL。隔夜与非信号时段持有 BIL，全期首日从现金建仓。见 config.yaml:13-16、strategy.py:78-100、strategy.py:119-127、README.md:11-13、README.md:19。
+Price adjustment: 行情以 auto_adjust=True 下载，使用 SPY 和 BIL 的复权开盘价及收盘价，另取 ^VIX 收盘值。ETF 复权收益包含分配再投资近似。见 strategy.py:18-24、strategy.py:33-38、README.md:17。
+Survivorship bias: 使用固定的 SPY、BIL 实际 ETF 历史，避免用当前成分股回建历史。事后选用存续 ETF 仍有产品选择偏差。见 config.yaml:2-5、strategy.py:18-20、strategy.py:33-38、README.md:24。
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.00644148893618568, ann_vol=0.09130698336488569, sharpe=0.11619453815376701, max_drawdown=-0.19224831404634213, total_return=0.06626016492660658, n_trades=649
+    oos: cagr=0.0273988791332076, ann_vol=0.07397386643649242, sharpe=0.4017180841775113, max_drawdown=-0.16933536047180697, total_return=0.24073713929498775, n_trades=544
+    full: cagr=0.015693851583082008, ann_vol=0.0840462344358443, sharpe=0.22717879797260454, max_drawdown=-0.23257666901525054, total_return=0.32294858677523397, n_trades=1193
+    benchmark  full: cagr=0.10972798585559906, ann_vol=0.19952102526721355, sharpe=0.6217441446056416, max_drawdown=-0.5242303578613339, total_return=5.495935111193818, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

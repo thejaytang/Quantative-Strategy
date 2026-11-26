@@ -1,23 +1,3 @@
-"""316_hidden_cost_etf_investing
-研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
-Author: Codex; non-author review: PASS; publication gate: Codex.
-Run (one command): python strategies/316_hidden_cost_etf_investing.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit 14eecadd0b176b2fbb95eb0893f41d9c752319be on 2026-11-26 16:07 Europe/Oslo, exit 0, output sha256 fbe4ba8b869e76c8c85eee0995822044ec57a8ad6b9d230e715cd69f1c27156a
-Data source: Free Yahoo Finance daily ETF open and close prices via yfinance for SPY (hedge and benchmark), IVV, VOO, RSP, and VTI. The recorded run used the local Yahoo price cache.
-Data fetched: 2026-11-26 16:07 Europe/Oslo (run time)
-Sample period: Requested price range 2011-01-01 through 2025-12-31 inclusive, with pre-reporting observations used for warmup. The run reports trading sessions from 2012-01-03 through 2025-12-31.   data_range (from output): 2012-01-03 to 2025-12-31
-IS/OOS split: Inclusive calendar bounds: IS 2012-01-01 through 2018-12-31; OOS 2019-01-01 through 2025-12-31. The code simulates a continuous daily_results and slices it for reporting. The rolling estimation and positions can carry across the boundary. OOS is a retrospective historical holdout.
-Costs and slippage: 2 bps per side on the sum of absolute dollar position changes across ETF legs at each simulated open or close fill, including entries, exits, and rebalances. The fee is deducted from equity and target positions are sized using after-fee equity. Slippage is not modeled separately. The simulation uses the daily open and close as execution price proxies and has no bid-ask spread or market-impact model.
-Signal lag: The new monthly signal uses 126 sessions through the previous month's final close. The overnight strategy first enters the new target at the next trading session's close and exits at the following session's open. The intraday comparison first uses its new target at the next trading session's open and exits at that session's close. The continuous comparison first uses the new day target at that open and the new night target at that close.
-Price adjustment: The download uses yfinance with auto_adjust=True and keeps adjusted Open and Close. Cache hits load those columns from the Yahoo adjusted price CSV. Overnight returns use adjusted current open divided by adjusted prior close minus one, and intraday returns use adjusted close divided by adjusted same-day open minus one.
-Survivorship bias: The ETF universe is a fixed, retrospectively selected set of surviving funds. The README identifies fund selection and survivorship bias and states that the strategy does not use current index constituents.
-Parameter combinations tried: 1
-Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=-0.07284780751546638, ann_vol=0.006851987616185599, sharpe=-11.033693189136146, max_drawdown=-0.41141331267253234, total_return=-0.4103712928864762, turnover=3519.187268451583, n_trades=10557
-    oos: cagr=-0.08273864468630465, ann_vol=0.01422377323756139, sharpe=-6.063572829770127, max_drawdown=-0.4535831283006372, total_return=-0.4529248027769014, turnover=3519.210063946159, n_trades=10557
-    full: cagr=-0.07780648632706832, ann_vol=0.01116735167437549, sharpe=-7.246553110896458, max_drawdown=-0.6775810352188381, total_return=-0.6774287587674679, turnover=7038.3973323977425, n_trades=21114
-    benchmark: cagr=0.14747107455880726, ann_vol=0.16667140909442013, sharpe=0.9090917034243933, max_drawdown=-0.33717234140507113, total_return=5.831056694609669, turnover=1.9923911443031805, n_trades=2
-"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

@@ -2,9 +2,9 @@
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; non-author review: PASS; publication gate: Codex.
 Run (one command): python strategies/100_etf_asset_momentum_corr_hedge.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit 584a8537efba9be61705bb4fe23e9804b99e7d54 on 2026-11-26 13:09 Europe/Oslo, exit 0, output sha256 02c4e1ee8154ee93ea9a320989eef0e98a879103457b81733f2fd4cf8fdfd244
+Backtest reproduced: run of this file's code at commit e45e81ae3a3f162e8a4d3aa6588411ed39316f30 on 2026-11-26 13:10 Europe/Oslo, exit 0, output sha256 2609c110c5b77e013237670c949bfffe62636743c5021969eee4a182d1d8decf
 Data source: Yahoo Finance（yfinance）ETF 日线开盘价和收盘价，优先读取本地行情缓存。风险资产为 SPY、IWM、EFA、EEM、IYR、QQQ、LQD、IEF、TIP、GLD、USO、DBC、FXE，现金收益代理为 BIL。（config.yaml:4-5，strategy.py:21-26，strategy.py:46-55，strategy.py:205-206，README.md:11-12）
-Data fetched: 2026-11-26 13:09 Europe/Oslo (run time)
+Data fetched: 2026-11-26 13:10 Europe/Oslo (run time)
 Sample period: 日志记录的实际回测区间为 2008-07-01 至 2026-11-24。行情请求起始日为 2007-06-01，用于信号预热。（logs/run_20261125_094846.log:1，config.yaml:6-12，strategy.py:213-218，README.md:16）   data_range (from output): 2008-07-01 to 2026-11-24
 IS/OOS split: 样本内为 2008-07-01 至 2023-02-28，样本外为 2023-03-01 至 2026-11-24。每个情景先连续模拟持仓，再按区间切分收益。README 说明分界取自原文资料区间终点，样本外起始日早于原文发表，仍属历史回测。（config.yaml:7-12，strategy.py:162-163，strategy.py:200-204，strategy.py:234-238，README.md:16-17，logs/run_20261125_094846.log:2）
 Costs and slippage: 基准交易费为每美元买入或卖出名义金额 5 bps，含空头回补，在调仓时从开盘净值扣减，目标权重按扣费后的净值确定。现金余额（含卖空所得）按 BIL 计息。上个收盘的空头名义金额按实际经过的日历天数和 365 天年基准计提年化 100 bps 借券费及 25 bps 空头所得利率折减。另运行零费用毛收益、交易费 0 和 15 bps、借券费年化 300 bps 情景。未建模滑点，成交采用复权开盘价，未单独模拟买卖价差或市场冲击。（config.yaml:22-27，strategy.py:113-153，strategy.py:219-232，README.md:12，README.md:24）
@@ -13,10 +13,10 @@ Price adjustment: yfinance 下载显式使用 auto_adjust=True，缓存保存复
 Survivorship bias: 全样本使用固定的 13 只风险 ETF，沿用原文事后选定的资产池。存在潜在存续和选样偏差。加载器从所有标的均有有效开盘和收盘价的第一个日期起使用共同历史，并拒绝其后的无效行情或缺失值。（config.yaml:4-5，strategy.py:28-44，strategy.py:205-218，README.md:22）
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=0.07162552378073839, ann_vol=0.1398083154611496, sharpe=0.5654432185184469, max_drawdown=-0.29812505562110414, total_return=1.7571911678913374, turnover=112.23451047750538
-    oos: cagr=0.08868331190207424, ann_vol=0.14072746624878407, sharpe=0.6761681665613964, max_drawdown=-0.16617515886636292, total_return=0.37374868286465746, turnover=30.884620830343273
-    full: cagr=0.07506861934526832, ann_vol=0.13998056788713414, sharpe=0.5880761098245768, max_drawdown=-0.29812505562110414, total_return=2.7876877352968092, turnover=143.11913130784865
-    benchmark: 
+    is: cagr=0.07162566073221677, ann_vol=0.1398082749807784, sharpe=0.5654442567755426, max_drawdown=-0.2981251493417135, total_return=1.7571963339601178, turnover=112.23451252250881
+    oos: cagr=0.08868327950935284, ann_vol=0.14072745523855276, sharpe=0.6761679956461814, max_drawdown=-0.1661751588663628, total_return=0.37374853010960996, turnover=30.884621625801135
+    full: cagr=0.07506872233162931, ann_vol=0.13998053340366046, sharpe=0.5880769053765496, max_drawdown=-0.2981251493417135, total_return=2.7876944110013215, turnover=143.11913414830997
+    benchmark: cagr=0.05318178530090534, ann_vol=0.12751991314141278, sharpe=0.47085320407409675, max_drawdown=-0.3927906774656982, total_return=1.5943255850281126, turnover=7.602589200374794
 """
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---

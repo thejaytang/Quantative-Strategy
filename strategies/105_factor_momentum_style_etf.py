@@ -2,9 +2,9 @@
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; non-author review: PASS; publication gate: Codex.
 Run (one command): python strategies/105_factor_momentum_style_etf.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit 584a8537efba9be61705bb4fe23e9804b99e7d54 on 2026-11-26 13:09 Europe/Oslo, exit 0, output sha256 d5bbf825dac09f238f676a5552009df7b2d44833ec21d59107416258d65238a4
+Backtest reproduced: run of this file's code at commit e45e81ae3a3f162e8a4d3aa6588411ed39316f30 on 2026-11-26 13:10 Europe/Oslo, exit 0, output sha256 97bd5c7997faa73a24b836225ad22f34c30e54af589ea57c196f6aa3bbe22606
 Data source: Yahoo Finance daily ETF opens and closes via yfinance. Style ETFs are VLUE, MTUM, QUAL, USMV and SIZE, with SPY as the market benchmark and BIL for unallocated slots. The loader reads its CSV cache when available and calls Yahoo Finance on a cache miss. The supplied run used the cached CSV.
-Data fetched: 2026-11-26 13:09 Europe/Oslo (run time)
+Data fetched: 2026-11-26 13:10 Europe/Oslo (run time)
 Sample period: Evaluated trading sessions were 2016-01-04 through 2025-12-31. The configured price request starts on 2014-10-01 to provide signal warm-up history.   data_range (from output): 2016-01-04 to 2025-12-31
 IS/OOS split: Configured IS is 2016-01-01 through 2022-12-31 and configured OOS is 2023-01-01 through 2025-12-31. Actual IS sessions ran 2016-01-04 through 2022-12-30 and OOS sessions ran 2023-01-03 through 2025-12-31. OOS is a historical time holdout. Each portfolio is simulated continuously, with holdings carried across the split and daily results sliced for reporting.
 Costs and slippage: The simulation charges 5 bps on each buy and each sell, including initial purchases and BIL trades, using gross traded notional. At each rebalance it solves for post-fee NAV before assigning the target holdings. The same fee rate applies to both benchmarks, and final holdings are marked to market. Slippage is not modelled. The simulation uses the adjusted opening price with no separate spread or market-impact adjustment.
@@ -13,9 +13,9 @@ Price adjustment: The Yahoo Finance download sets auto_adjust=True and retains t
 Survivorship bias: The fixed ETF pool uses currently available fund price histories and can have fund-level selection and survivorship bias. The signal uses the funds' own historical price series, with no reconstruction from current constituent stocks.
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=0.09175398788464784, ann_vol=0.16653148589295652, sharpe=0.6108937814091725, max_drawdown=-0.33554535978873945, total_return=0.847442503318327, turnover=35.656258992577186
-    oos: cagr=0.170149637236648, ann_vol=0.13524762999474724, sharpe=1.229679291389422, max_drawdown=-0.14827674207599195, total_return=0.5982363725876625, turnover=8.476996253898488
-    full: cagr=0.11463690071119692, ann_vol=0.15780944623978677, sharpe=0.7670642532160133, max_drawdown=-0.33554535978873945, total_return=1.9526498050677659, turnover=44.13325524647567
+    is: cagr=0.09175394345342092, ann_vol=0.16653140082207998, sharpe=0.6108937593957354, max_drawdown=-0.33554527864178263, total_return=0.8474419776161672, turnover=35.65626069803559
+    oos: cagr=0.17014972208243084, ann_vol=0.13524772948923133, sharpe=1.229679022711243, max_drawdown=-0.14827682249571705, total_return=0.5982367184053481, turnover=8.476995600799574
+    full: cagr=0.11463689309321756, ann_vol=0.1578094088618508, sharpe=0.7670643508346912, max_drawdown=-0.33554527864178263, total_return=1.9526496037495646, turnover=44.133256298835164
     benchmark: 
 """
 # === CODE START ===

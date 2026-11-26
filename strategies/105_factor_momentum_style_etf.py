@@ -16,7 +16,8 @@ Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.09175394345342092, ann_vol=0.16653140082207998, sharpe=0.6108937593957354, max_drawdown=-0.33554527864178263, total_return=0.8474419776161672, turnover=35.65626069803559
     oos: cagr=0.17014972208243084, ann_vol=0.13524772948923133, sharpe=1.229679022711243, max_drawdown=-0.14827682249571705, total_return=0.5982367184053481, turnover=8.476995600799574
     full: cagr=0.11463689309321756, ann_vol=0.1578094088618508, sharpe=0.7670643508346912, max_drawdown=-0.33554527864178263, total_return=1.9526496037495646, turnover=44.133256298835164
-    benchmark: 
+    benchmark SPY full: cagr=0.14939789205577836, ann_vol=0.18003768382026733, sharpe=0.8638433629230811, max_drawdown=-0.33717250635618634, total_return=3.0111064877078144, turnover=0.9995002498750625
+    benchmark equal_weight_styles full: cagr=0.12551064175467785, ann_vol=0.17314826524040675, sharpe=0.7699484956403495, max_drawdown=-0.35822467985783346, total_return=2.252920479069663, turnover=2.481186257883435
 """
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---

@@ -1,3 +1,23 @@
+"""110_cointegration_etf_pairs
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; non-author review: PASS; publication gate: Codex.
+Run (one command): python strategies/110_cointegration_etf_pairs.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit ad594150a0142009ae8f6ffab0995de08b2f8304 on 2026-11-26 13:49 Europe/Oslo, exit 0, output sha256 79a08d1fd28355f3685266725ec9a66d1d8277854bd0a8a384be2ed13df889b9
+Data source: Yahoo Finance via yfinance, daily Open and Close for SPY/IVV, QQQ/QQQM, IWM/VTWO, XLE/VDE, XLF/VFH and XLK/VGT. SPY also serves as the benchmark. The loader reuses a validated local CSV when available.
+Data fetched: 2026-11-26 13:49 Europe/Oslo (run time)
+Sample period: Configured data warm-up begins 2020-11-01 and the requested end is 2026-10-31 inclusive. The logged evaluation uses trading sessions from 2022-01-03 through 2026-10-30.   data_range (from output): 2022-01-03 to 2026-10-30
+IS/OOS split: Configured IS 2022-01-01 through 2023-12-31 and OOS 2024-01-01 through 2026-10-31, inclusive. Logged sessions are IS 2022-01-03 through 2023-12-29 and OOS 2024-01-02 through 2026-10-30. Each scenario runs continuously across the split, so positions can carry across it. OOS uses the same fixed signal settings with rolling monthly estimation on prior closes.
+Costs and slippage: Base fee is 5 bps per dollar traded on each leg at the simulated open, including entries, exits and monthly rehedges. Short borrow is 30 bps annualized on prior-close short notional, prorated by elapsed calendar days over 365. Engle–Granger fee/borrow scenarios are 5/30, 0/0, 0/30, 15/30 and 5/100 bps. The SPY benchmark pays the 5 bps fee on its initial open purchase. Slippage is not modelled. Both legs use their recorded open with no spread or market-impact adjustment.
+Signal lag: A score computed from the close of session t is used at the next recorded session's open. Signal-driven entries and exits and monthly rehedges use that opening price. The monthly fit uses the 252 sessions ending at the preceding month's final close. The execution session's close is used for end-of-day marking after fills.
+Price adjustment: The loader requests yfinance auto_adjust=True and selects Open and Close. The README describes both prices as adjusted for dividends and splits. A valid cached panel supplies the same fields.
+Survivorship bias: The strategy uses six preselected pairs of US equity ETFs. Selection of surviving ETFs can introduce survivorship and selection bias. The code uses the fixed list directly and has no point-in-time universe or delisting reconstruction.
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=-0.007486264879071558, ann_vol=0.0018329838756229809, sharpe=-4.0985841108281305, max_drawdown=-0.014828358574163203, total_return=-0.014828358574163203, turnover=30.35259602326775, n_trades=31
+    oos: cagr=-0.006140933385227143, ann_vol=0.0043280923917790905, sharpe=-1.4210499371288308, max_drawdown=-0.018779959376628574, total_return=-0.01722946873056741, turnover=36.83504673840699, n_trades=46
+    full: cagr=-0.0066972690980858784, ann_vol=0.003517336039747437, sharpe=-1.9086957510381422, max_drawdown=-0.0333298419791479, total_return=-0.03180234256435244, turnover=67.18764276167474, n_trades=77
+    benchmark: cagr=0.11522343422856451, ann_vol=0.17237938384586732, sharpe=0.7187019137245715, max_drawdown=-0.2449637857580499, total_return=0.6896164211492797, turnover=0.9995002498750626, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

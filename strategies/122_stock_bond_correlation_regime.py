@@ -1,3 +1,23 @@
+"""122_stock_bond_correlation_regime
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; non-author review: PASS; publication gate: Codex.
+Run (one command): python strategies/122_stock_bond_correlation_regime.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit ad594150a0142009ae8f6ffab0995de08b2f8304 on 2026-11-26 13:49 Europe/Oslo, exit 0, output sha256 6d8e95203ed486e0654d58e8213782ee8811db17c718fca65b3baea3822c5547
+Data source: Yahoo Finance daily ETF prices via yfinance for SPY, IEF, GLD and BIL. The loader uses the matching local CSV on a cache hit and downloads on a miss.
+Data fetched: 2026-11-26 13:49 Europe/Oslo (run time)
+Sample period: Requested price window 2008-01-01 through 2025-12-31, with data before the 2009-01-01 scoring start used for warm-up. The recorded scored sessions run from 2009-01-02 through 2025-12-31.   data_range (from output): 2009-01-02 to 2025-12-31
+IS/OOS split: Configured IS is 2009-01-01 through 2020-12-31 and OOS is 2021-01-01 through 2025-12-31. The recorded session ranges are IS 2009-01-02 through 2020-12-31 and OOS 2021-01-04 through 2025-12-31. The regime and static benchmark carry holdings across the split. Only the second benchmark uses mean IS entry and rebalance target weights, frozen for OOS. The OOS split is a retrospective chronological holdout and includes dates before the cited paper's publication.
+Costs and slippage: 5 bps per side on the dollar value of each buy or sell, including initial entry. At each simulated opening trade, the solver deducts the fee on the sum of absolute position changes from available NAV before setting target holdings. Slippage and market impact are not separately modelled, and the simulator applies no separate taxes.
+Signal lag: At month-end session t, the rule uses the rolling Pearson correlation of 126 daily SPY and IEF adjusted close-to-close returns through close t. A finite signal sets the target for the open of the next session, the first session of the new month. Existing holdings earn the overnight move and post-trade holdings earn the open-to-close move. If the correlation is unavailable, the monthly target is omitted and holdings carry forward.
+Price adjustment: The download sets auto_adjust=False. The loader uses Yahoo's Adj Close for closes and raw Open multiplied by that session's Adj Close / raw Close for adjusted opens. It caches those two adjusted fields.
+Survivorship bias: The strategy uses four fixed ETFs. It does not select historical securities from today's index constituents. Retrospectively selecting ETFs that remained in existence can still introduce selection bias.
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.10755861509088471, ann_vol=0.09941406720946781, sharpe=1.0775814228193914, max_drawdown=-0.18855155250564437, total_return=2.4030823589813366, turnover=4.607190133792889, n_trades=296
+    oos: cagr=0.09152764563665872, ann_vol=0.10833385503976842, sharpe=0.8626297080896611, max_drawdown=-0.20060790887330637, total_return=0.5467461414623578, turnover=4.1206749673575, n_trades=188
+    full: cagr=0.10282929099397098, ann_vol=0.10210076028504925, sharpe=1.0099163972519734, max_drawdown=-0.20060790887330593, total_return=4.263704507833003, turnover=8.727865101150389, n_trades=484
+    benchmark: cagr=0.0993358948799905, ann_vol=0.10222447459288463, sharpe=0.9777660270222724, max_drawdown=-0.2120087675966812, total_return=3.9878251165404066, turnover=4.75155622924156, n_trades=408
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

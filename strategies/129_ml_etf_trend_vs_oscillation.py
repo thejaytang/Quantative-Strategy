@@ -1,3 +1,23 @@
+"""129_ml_etf_trend_vs_oscillation
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; non-author review: PASS; publication gate: Codex.
+Run (one command): python strategies/129_ml_etf_trend_vs_oscillation.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit ad594150a0142009ae8f6ffab0995de08b2f8304 on 2026-11-26 13:49 Europe/Oslo, exit 0, output sha256 609f2bbbbbe5c388eb937e892538ecd399263a1b5bd3991093eec22b3fd865f1
+Data source: Free Yahoo Finance daily data via yfinance: SPY, QQQ, IWM and DIA ETF OHLC, BIL ETF OHLC for the cash benchmark, and ^VIX daily close for the model. SPY also serves as the equity benchmark and session calendar. The implementation omits the paper's economic-release calendar and 10-year Treasury rate.
+Data fetched: 2026-11-26 13:49 Europe/Oslo (run time)
+Sample period: Price history is requested for 2009-01-01 through 2025-12-31 inclusive, with pre-2015 data used for indicator warm-up and initial training. The logged evaluation sessions span 2015-01-02 through 2025-12-31.   data_range (from output): 2015-01-02 to 2025-12-31
+IS/OOS split: Configured IS: 2015-01-01 through 2019-12-31. Configured OOS: 2020-01-01 through 2025-12-31. Both are evaluated walk-forward. The model refits in January and July using the preceding five-year window, restricted to completed sessions strictly before the first prediction session of each block. Later OOS refits can use already completed OOS labels.
+Costs and slippage: 2 bps per side on simulated execution notional. Each active intraday sleeve scales its opening notional so the purchase and entry fee fit its allocation, then deducts the exit fee from the closing notional. The trend-only comparison uses the same calculation. SPY and BIL buy-and-hold benchmarks pay at the first open and last close of the full evaluation interval. Slippage is not modelled.
+Signal lag: The ETF feature values from session t and the VIX close available after its own session-t close feed the signal for session t+1. The simulated long enters at the ETF's next trading-session open and exits at that session's close.
+Price adjustment: Yahoo Finance downloads use yfinance auto_adjust=True. The code uses adjusted ETF open, high, low and close and the ^VIX close. It reads existing *_adj.csv cache files directly, validates fields and data coverage, and does not independently recompute the adjustments.
+Survivorship bias: The backtest uses a fixed selection of SPY, QQQ, IWM and DIA throughout. The code has no point-in-time universe or delisted-fund inclusion logic. The README flags possible selection bias from choosing surviving, liquid funds.
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=-0.005462314752323505, ann_vol=0.01828126769252659, sharpe=-0.29046170033491203, max_drawdown=-0.06689376721845741, total_return=-0.026972533167399337, n_trades=270
+    oos: cagr=-0.011147996442886221, ann_vol=0.06023778614082779, sharpe=-0.1559524134800642, max_drawdown=-0.2017913161823165, total_return=-0.06488490438630945, n_trades=2384
+    full: cagr=-0.00856614180659876, ann_vol=0.04614791543138984, sharpe=-0.1633159490129353, max_drawdown=-0.2017913161823166, total_return=-0.0901073273180858, n_trades=2654
+    benchmark: cagr=0.13403806956844977, ann_vol=0.17790098400375673, sharpe=0.7963944600457266, max_drawdown=-0.33717290201020067, total_return=2.9774370639070105, n_trades=2
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

@@ -1,3 +1,23 @@
+"""106_low_ivol_low_max
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; non-author review: PASS; publication gate: Codex.
+Run (one command): python strategies/106_low_ivol_low_max.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit ad594150a0142009ae8f6ffab0995de08b2f8304 on 2026-11-26 13:49 Europe/Oslo, exit 0, output sha256 8c1bc39084f5c56eef55c0b0b3e847e8c042619b3f85450319eceae399b1bd6d
+Data source: Yahoo Finance daily Open and Close via yfinance for the fixed US24 universe (AAPL, MSFT, AMZN, GOOGL, META, NVDA, JPM, BAC, GS, MS, XOM, CVX, COP, SLB, WMT, COST, PG, KO, PEP, JNJ, PFE, MRK, HD, LOW) and the SPY ETF market proxy. The signal uses SPY Close. The loader uses the local price cache if present.
+Data fetched: 2026-11-26 13:49 Europe/Oslo (run time)
+Sample period: Price data requested from 2012-06-01 for warmup through 2025-12-31 inclusive. The recorded evaluation covers trading sessions from 2013-01-02 through 2025-12-31.   data_range (from output): 2013-01-02 to 2025-12-31
+IS/OOS split: Chronological inclusive date ranges: IS 2013-01-01 through 2019-12-31 and OOS 2020-01-01 through 2025-12-31. Each portfolio is simulated continuously and its daily results are sliced for reporting, so positions carry across the boundary. The README states that neither interval was used for parameter tuning.
+Costs and slippage: Baseline 5 bps per dollar traded, applied at each opening rebalance to the sum of absolute buy and sell notionals using opening prices. The simulator solves for post-fee NAV and sizes positions from that NAV. The same rule applies to the equal-weight benchmark. Sensitivity runs use 0 and 15 bps. Slippage is not modelled. Fills use the adjusted opening quote with no spread, price impact, or opening execution deviation model.
+Signal lag: The signal uses close-to-close returns through the last session of the month, t. Targets are dated to the next session in the price index, t+1, and filled at that session's adjusted open. The fill-day opening quote is also used to check fill availability.
+Price adjustment: The Yahoo Finance download explicitly sets yfinance auto_adjust=True and keeps adjusted Open and Close. The cache supplies those same fields when present. Simulated fills use adjusted Open, valuation uses adjusted Close, and stock and SPY signal returns use adjusted Close.
+Survivorship bias: The fixed 24-name US large-cap basket was selected retrospectively from surviving names. The README identifies survivorship and selection bias in both IS and OOS. The same configured ticker list is used throughout, with monthly eligibility based on complete return history in the lookback window.
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.13354604267031078, ann_vol=0.11944797905739339, sharpe=1.1094783378903714, max_drawdown=-0.16092030437462734, total_return=1.4023821862265917, turnover=10.168120199465026, n_trades=710
+    oos: cagr=0.09576398227079963, ann_vol=0.17355173080188777, sharpe=0.6137576849836357, max_drawdown=-0.22875745948413362, total_return=0.7285092087351968, turnover=9.526209180808367, n_trades=599
+    full: cagr=0.11596319232313723, ann_vol=0.14687418905305982, sharpe=0.8206469484361287, max_drawdown=-0.22875745948413362, total_return=3.1525397317940254, turnover=9.872095179240485, n_trades=1309
+    benchmark  full: cagr=0.18997075411164976, ann_vol=0.16917210760235027, sharpe=1.1133397390273228, max_drawdown=-0.34266084292636223, total_return=8.553736509704272, turnover=0.6104076586634933, n_trades=3744
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

@@ -1,3 +1,23 @@
+"""109_factor_etf_vol_matched
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; non-author review: PASS; publication gate: Codex.
+Run (one command): python strategies/109_factor_etf_vol_matched.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit ad594150a0142009ae8f6ffab0995de08b2f8304 on 2026-11-26 13:49 Europe/Oslo, exit 0, output sha256 9d3c84e0c03fa4c364a7e3b2b4000ec37a6ef5d5356dc9521abe63249520cb24
+Data source: Yahoo Finance daily ETF closes via yfinance for VTV, MTUM, QUAL, USMV, BIL, SPY, IWD, IWF and VUG. The loader uses a matching local price cache when present.
+Data fetched: 2026-11-26 13:49 Europe/Oslo (run time)
+Sample period: Requested price history starts 2014-01-01 for warm-up and ends 2025-12-31. The run reports an evaluation range of 2015-01-02 through 2025-12-31.   data_range (from output): 2015-01-02 to 2025-12-31
+IS/OOS split: IS 2015-01-02 through 2020-12-31 and OOS 2021-01-01 through 2025-12-31, inclusive calendar bounds applied to trading sessions. OOS carries forward the existing holdings. The target uses expanding gross returns of the invested IS equal-weight benchmark, requires 63 observations, and is frozen after IS. The equity cap applies before the target becomes available. Portfolio weights continue updating in OOS. This is a historical holdout, with some dates before the cited paper was published.
+Costs and slippage: Both portfolios pay 5 bps per dollar bought or sold, including initial entry and BIL trades. At each rebalance close the simulator marks existing holdings to market, then solves for post-cost NAV so the cost equals 0.0005 times the sum of absolute dollar changes from drifted holdings to post-cost targets. Slippage is not modelled. Spread variation, market impact, taxes and close execution deviations are also omitted.
+Signal lag: The month-end close at t enters the rolling volatility calculation and the target available as of t. Both portfolios fill at the next trading session's close. Existing holdings earn the return ending at the fill close, and new holdings first earn the return after that close.
+Price adjustment: The download requests auto_adjust=True and uses the resulting Close series, documented as dividend- and split-adjusted. Daily returns are percentage changes without filling missing prices. The loader rejects nonfinite or nonpositive closes. The README notes that the provider may revise adjusted data.
+Survivorship bias: The backtest uses a fixed list of surviving ETFs. The README identifies fund-selection and survivorship bias, and the loader requires valid prices for the configured panel over the requested range.
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.08638592852885196, ann_vol=0.14920180091349677, sharpe=0.6304253068459139, max_drawdown=-0.30956009534617357, total_return=0.6434708154172832, turnover=1.8771067336973837, n_trades=320
+    oos: cagr=0.11011197628160962, ann_vol=0.13560513493073997, sharpe=0.8382469446599866, max_drawdown=-0.1943691490350299, total_return=0.6824176093321819, turnover=1.0547369277444154, n_trades=256
+    full: cagr=0.09708749816782114, ann_vol=0.1431686366934139, sharpe=0.719138747893456, max_drawdown=-0.30956009534617357, total_return=1.7650042402815638, turnover=1.5039779894924035, n_trades=576
+    benchmark: cagr=0.11951982286135254, ann_vol=0.16431315786599207, sharpe=0.7696625844365412, max_drawdown=-0.3440864991820125, total_return=2.4528860227243383, turnover=0.22642132623103045, n_trades=528
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

@@ -1,3 +1,23 @@
+"""112_regime_switching_pairs
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; non-author review: PASS; publication gate: Codex.
+Run (one command): python strategies/112_regime_switching_pairs.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit ad594150a0142009ae8f6ffab0995de08b2f8304 on 2026-11-26 13:49 Europe/Oslo, exit 0, output sha256 eff9b32ee86bf33a9a9f21d9299312696e66f864f4933c4f53ebc56ae3ee8a96
+Data source: Yahoo Finance 公开日频复权开盘价和收盘价，通过 yfinance 下载或从同口径 CSV 缓存读取。股票配对为 XOM/CVX、KO/PEP、HD/LOW、JPM/BAC，基准为 SPY ETF。（strategy.py:16-35, strategy.py:39-65, strategy.py:236-239, config.yaml:3-9, README.md:9）
+Data fetched: 2026-11-26 13:49 Europe/Oslo (run time)
+Sample period: 请求的数据区间为 2008-01-01 至 2025-12-31。日志中的首个预热交易日为 2008-01-02，回测报告区间为 2010-01-04 至 2025-12-31。（config.yaml:11-17, strategy.py:231-247, logs/run_20261125_100714.log:1-4, backtest_results.md:14-17）   data_range (from output): 2010-01-04 to 2025-12-31
+IS/OOS split: 配置的 IS 为 2010-01-01 至 2018-12-31，OOS 为 2019-01-01 至 2025-12-31。实际交易日分别为 2010-01-04 至 2018-12-31 和 2019-01-02 至 2025-12-31。组合自 IS 首日空仓启动，连续模拟至 OOS 结束，再按区间切片统计。对冲比率和半衰期在 OOS 中仍按当时的历史窗口更新。README 记载两段均未用于调参。（config.yaml:11-25, logs/run_20261125_100714.log:2-4, strategy.py:87-113, strategy.py:128-132, strategy.py:243-262, README.md:25）
+Costs and slippage: 每腿每边按实际成交绝对名义金额收取 5 bps，并在开盘成交时扣减现金。文档将该费用作为佣金和滑点的合并估计。滑点未单独建模，配对两腿按当日复权开盘价模拟成交。借券费年化 50 bps，以上一交易日收盘空头市值乘以相邻交易日之间的自然日数并按 365 天折算。SPY 买入持有基准在首日开盘计一次 5 bps 买入成本。（config.yaml:27-28, strategy.py:121-125, strategy.py:137-164, strategy.py:183-187, strategy.py:252-256, README.md:19-20, README.md:30）
+Signal lag: 交易日 t 收盘计算的进出场信号最早在下一交易日开盘执行。每月首个交易日开盘平掉旧仓，并取消上月尚未成交的入场信号。SPY 基准首日开盘买入，无收盘信号。（strategy.py:137-178, strategy.py:183-187, strategy.py:241-242, README.md:18-19）
+Price adjustment: yfinance 下载设置 auto_adjust=True，使用拆股和股息复权的 Open 和 Close。CSV 缓存存储相同的复权字段。成交使用复权开盘价，信号和日终估值使用复权收盘价。（strategy.py:16-42, strategy.py:57-65, strategy.py:87-107, strategy.py:117-122, strategy.py:148-169, README.md:30）
+Survivorship bias: 固定四对股票由事后已知仍存续的标的组成，README 明示存在生存者偏差和配对选择偏差。代码按配置中的固定清单取数。（README.md:9, README.md:30, config.yaml:3-9, strategy.py:236-239）
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=-0.012485446688506041, ann_vol=0.023672319425127573, sharpe=-0.5189047543657448, max_drawdown=-0.11657362205416566, total_return=-0.10673945217602732, turnover=106.11861120656947, n_trades=213
+    oos: cagr=0.0034355844554012638, ann_vol=0.024304851680974023, sharpe=0.1532359902339233, max_drawdown=-0.06823567538692588, total_return=0.02424262251041509, turnover=75.77618337845905, n_trades=150
+    full: cagr=-0.005553293487243871, ann_vol=0.023953257742309983, sharpe=-0.2205187803621582, max_drawdown=-0.131314437943842, total_return=-0.08508447391168472, turnover=181.8947945850285, n_trades=363
+    benchmark  full: cagr=-0.003031142626246597, ann_vol=0.028101991170201387, sharpe=-0.09399361558063295, max_drawdown=-0.08334559850200107, total_return=-0.04731937804610442, turnover=228.9200655462535, n_trades=457
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

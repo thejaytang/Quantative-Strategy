@@ -1,23 +1,3 @@
-"""309_intangible_value_sixth_factor
-研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
-Author: Codex; non-author review: PASS; publication gate: Codex.
-Run (one command): python strategies/309_intangible_value_sixth_factor.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit 2b23c5bbf706aea933c0cba5f5805efb450ee206 on 2026-11-26 14:27 Europe/Oslo, exit 0, output sha256 b31686813b2d8793e32b69f585f8d7b26ab46aeae25e7e65d7c7e42ab8d04325
-Data source: Yahoo Finance 的 yfinance 日线复权收盘价，标的为 SPY、ITAN、IWD、IWF。优先读取按标的和日期命名的 data_cache CSV，缺失时下载。（config.yaml:4-12；strategy.py:35-49、61-68）
-Data fetched: 2026-11-26 14:27 Europe/Oslo (run time)
-Sample period: 配置请求 2021-06-28 至 2026-11-20（含首尾）。日志记录的共同复权收盘价为 2021-06-29 至 2026-11-20，主组合账本为 2021-06-30 至 2026-11-20，对冲组合账本为 2022-01-03 至 2026-11-20。（config.yaml:10-12；strategy.py:19-24；logs/run_20261125_134645.log:1、3、17）   data_range (from output): 2021-06-30 to 2026-11-20
-IS/OOS split: 按时间顺序预设。配置 IS 为 2021-06-28 至 2023-12-31，OOS 为 2024-01-01 至 2026-11-20。主组合实际 IS 为 2021-06-30 至 2023-12-29，实际 OOS 为 2024-01-02 至 2026-11-20。每个组合先连续模拟，再切片统计，持仓和滚动回归历史跨越分界。README 记载未使用 IS 或 OOS 结果调参。（config.yaml:13-18；logs/run_20261125_134645.log:17；strategy.py:81-89、135-136、214-223；README.md:16、20-22）
-Costs and slippage: 买入和卖出均按实际成交金额收取单边 5 bps，包括首次建仓。按执行日收盘价将旧头寸盯市后，以各标的成交绝对金额之和计费，并按扣费后的净值设定目标头寸。未单独建模滑点、买卖价差或市场冲击。现金收益、卖空借券费、融资和税费按零处理。（config.yaml:22；strategy.py:102-131、217-219；README.md:15、26）
-Signal lag: 对冲信号使用截至交易日 t 收盘的最近 126 个收盘到收盘收益。在下一交易日为计划月度调仓日时，于该日收盘执行。两组固定 80/20 组合与 SPY 买入持有基准在首个共同收盘价后的下一交易日收盘建仓。两组固定权重组合随后在每月首个交易日收盘恢复目标权重，SPY 基准只在首次建仓时调整。执行日的收盘到收盘收益归旧头寸，收盘调仓后的权重从下一交易日开始承接价格变动。（config.yaml:20-21；strategy.py:81-89、113-131、200-215；README.md:13-15）
-Price adjustment: yfinance 设为 interval="1d" 和 auto_adjust=True，并读取 Close。README 说明该日收盘价经拆股和分红调整。以复权收盘价计算收盘到收盘收益，并按复权收盘价模拟成交。（strategy.py:40-49、102-119、200-201；README.md:15）
-Survivorship bias: 固定 ETF 池为 SPY、ITAN、IWD、IWF，回测从四只 ETF 都有可用报价后开始。README 指出事后选择存续至今的基金可能带来选择及幸存者偏差。代码未建立包含退市基金的历史投资池。（config.yaml:4-8；strategy.py:19-24、186-201；README.md:9、26）
-Parameter combinations tried: 1
-Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=0.0538121207409854, ann_vol=0.1871998846624729, sharpe=0.3735338761010503, max_drawdown=-0.25632858424556837, total_return=0.14000819577767065, turnover=1.096716420873872, n_trades=62
-    oos: cagr=0.15680877782536862, ann_vol=0.1574745940955662, sharpe=1.003595881457223, max_drawdown=-0.19099556499306158, total_return=0.5214356424740434, turnover=0.1660836508626889, n_trades=70
-    full: cagr=0.10776069989766413, ann_vol=0.1718827162675224, sharpe=0.6812919092091535, max_drawdown=-0.25632858424556837, total_return=0.7344491017686734, turnover=1.2628000717365606, n_trades=132
-    benchmark  full: cagr=0.10737901080843382, ann_vol=0.16292051430753932, sharpe=0.7074762665567756, max_drawdown=-0.23260592837132532, total_return=0.7312357614669642, turnover=1.3879875352130118, n_trades=132
-"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

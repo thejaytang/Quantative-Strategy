@@ -170,8 +170,8 @@ def simulate(open_prices, close_prices, targets, fee_rate):
     return pd.DataFrame(rows, index=close_prices.index, columns=["return", "turnover"])
 
 
-def metrics(ledger, sessions_per_year):
-    returns = ledger["return"]
+def metrics(daily_results, sessions_per_year):
+    returns = daily_results["return"]
     equity = (1.0 + returns).cumprod().to_numpy()
     drawdown = equity / np.maximum.accumulate(np.maximum(equity, 1.0)) - 1.0
     vol = returns.std(ddof=1)
@@ -181,7 +181,7 @@ def metrics(ledger, sessions_per_year):
         "sharpe": returns.mean() / vol * sqrt(sessions_per_year) if vol > 0 else np.nan,
         "max_drawdown": drawdown.min(),
         "total_return": equity[-1] - 1.0,
-        "turnover": ledger["turnover"].sum(),
+        "turnover": daily_results["turnover"].sum(),
     }
     return {key: float(value) if isfinite(value) else None for key, value in values.items()}
 
@@ -237,9 +237,9 @@ def main():
         first_session = simulation.index[0]
         if first_session not in weights.index or weights.loc[first_session].isna().any():
             raise ValueError(f"Insufficient warmup history for {name} on {first_session.date()}.")
-        ledger = simulate(simulation["Open"], simulation["Close"], weights, fee_rate)
+        daily_results = simulate(simulation["Open"], simulation["Close"], weights, fee_rate)
         results[name] = {
-            period: metrics(ledger.loc[dates], config["sessions_per_year"])
+            period: metrics(daily_results.loc[dates], config["sessions_per_year"])
             for period, dates in periods.items()
         }
 

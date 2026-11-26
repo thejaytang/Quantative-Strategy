@@ -1,3 +1,23 @@
+"""338_optimal_portfolio_using_factor
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; non-author review: PASS; publication gate: Codex.
+Run (one command): python strategies/338_optimal_portfolio_using_factor.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 3140bbcffa77faae04956fc55adbc5be3b33f896 on 2026-11-26 16:06 Europe/Oslo, exit 0, output sha256 109fb81aeb4221f3c326e925fcf47ee9f2ac6073729b7900f3ca22b435705216
+Data source: Yahoo Finance 免费公开历史行情接口的日频 ETF 开盘价和收盘价。配置资产为 XLB、XLE、XLF、XLI、XLK、XLP、XLU、XLV、XLY，SPY 仅用作市场因子收益。优先读取同一数据源的 CSV 缓存。（strategy.py:25-45, strategy.py:51-58, strategy.py:132-138, strategy.py:218-219, strategy.py:242, config.yaml:3-4, README.md:23）
+Data fetched: 2026-11-26 16:06 Europe/Oslo (run time)
+Sample period: 请求行情区间为 2006-01-01 至 2025-12-31，含边界；2008 年之前的数据用于滚动估计预热。日志所报实际回测区间为 2008-01-02 至 2025-12-31。（config.yaml:5-12, strategy.py:25-45, strategy.py:236-250, strategy.py:252-254, README.md:19, logs/run_20261125_151042.log:11）   data_range (from output): 2008-01-02 to 2025-12-31
+IS/OOS split: IS 为 2008-01-01 至 2018-12-31，OOS 为 2019-01-01 至 2025-12-31，两段均含日期边界。连续模拟后按日期切分统计，进入 OOS 时延续持仓。OOS 沿用固定参数，每月用截至信号日的 252 个日收益更新协方差。（config.yaml:7-16, strategy.py:121-139, strategy.py:223-225, strategy.py:236-248, README.md:17-19）
+Costs and slippage: 每笔买入和卖出均按成交额收取 10 bps，首次建仓也计费。调仓开盘先让原持仓经历隔夜价格变动，再按买卖成交额绝对值之和扣费，并以扣费后的净值确定目标持仓金额。未建模滑点、开盘价差、市场冲击或税负。（config.yaml:18, strategy.py:143-171, strategy.py:226, README.md:17, README.md:31）
+Signal lag: 每月最后一个交易日 t 收盘后，根据截至该日调整收盘价的滚动收益生成权重，次月首个交易日开盘执行。原持仓承担隔夜收益，新持仓承担执行日开盘至收盘的收益。（strategy.py:121-139, strategy.py:143-171, README.md:5-7）
+Price adjustment: 收盘使用 Yahoo Finance 的 adjclose，文档称其含分红调整，近似分红再投资。开盘使用当日原始开盘价 ×（当日调整收盘价 ÷ 当日原始收盘价）。（strategy.py:25-45, README.md:5, README.md:23, README.md:31）
+Survivorship bias: 全期使用同一组九只存续行业 ETF，存在 ETF 选择及存续偏差。代码按固定代码清单要求全期价格对齐、有效，未构造逐时点可选 ETF 池。（config.yaml:3, strategy.py:51-67, strategy.py:217-219, strategy.py:236-238, README.md:31）
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.07975698487863792, ann_vol=0.15175559939808453, sharpe=0.5815936676931344, max_drawdown=-0.43889583105495245, total_return=1.3237505486024719, turnover=0.9998032627272362
+    oos: cagr=0.12187969920436137, ann_vol=0.16192038377171347, sharpe=0.7916093749763168, max_drawdown=-0.30676408310173386, total_return=1.2327043959669814, turnover=1.0923051474607448
+    full: cagr=0.0959349329372805, ann_vol=0.1557716299933948, sharpe=0.666182564775382, max_drawdown=-0.43889583105495245, total_return=4.188248064995411, turnover=1.0357501201198118
+    benchmark: cagr=0.09908658752953903, ann_vol=0.19123539148875363, sharpe=0.5900179930129155, max_drawdown=-0.5180190730474141, total_return=4.463042387393912, turnover=0.34935276930890585
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

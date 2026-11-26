@@ -167,8 +167,8 @@ def simulate(returns, targets, cost_rate):
     return pd.DataFrame(records, index=returns.index, columns=columns)
 
 
-def metrics(ledger, start, end, periods_per_year):
-    segment = ledger.loc[start:end]
+def metrics(daily_results, start, end, periods_per_year):
+    segment = daily_results.loc[start:end]
     result = dict.fromkeys(["cagr", "ann_vol", "sharpe", "max_drawdown", "total_return", "turnover"])
     result.update(n_trades=0, n_days=len(segment), data_range=None)
     if segment.empty:
@@ -251,9 +251,9 @@ def main():
     reports = {}
     for name, weights in targets.items():
         weights = weights.reindex(columns=tickers, fill_value=0.0)
-        ledger = simulate(returns, weights, cost_bps / 10000.0)
+        daily_results = simulate(returns, weights, cost_bps / 10000.0)
         reports[name] = {
-            period: metrics(ledger, left, right, periods_per_year)
+            period: metrics(daily_results, left, right, periods_per_year)
             for period, (left, right) in splits.items()
         }
 

@@ -1,3 +1,23 @@
+"""324_volatility_conditions_weekend_effect
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; non-author review: PASS; publication gate: Codex.
+Run (one command): python strategies/324_volatility_conditions_weekend_effect.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 3140bbcffa77faae04956fc55adbc5be3b33f896 on 2026-11-26 16:06 Europe/Oslo, exit 0, output sha256 c5cc1df8764f97ff69a8a33143e06d45a52201b83892d210508f806186348b00
+Data source: Yahoo Finance adjusted daily closes via yfinance for U.S. equity ETFs SPY, IWM and QUAL, plus the VIX volatility index (^VIX) for the signal.
+Data fetched: 2026-11-26 16:06 Europe/Oslo (run time)
+Sample period: Reported trading sessions 2016-01-04 through 2025-12-31. The configured data range starts 2015-01-01, with 2015 sessions used for warm-up.   data_range (from output): 2016-01-04 to 2025-12-31
+IS/OOS split: Configured IS 2016-01-01 through 2023-12-31 and OOS 2024-01-01 through 2025-12-31, inclusive. Reported sessions are IS 2016-01-04 through 2023-12-29 and OOS 2024-01-02 through 2025-12-31. The strategy keeps each entry and exit within the same split and carries prior price history into the rolling rank.
+Costs and slippage: 5 bps per side on absolute spread notional at entry and exit, with exit notional estimated from adjusted close price ratios. Short borrow costs 50 bps per year on initial short notional, prorated by calendar days held divided by 365. The SPY buy-and-hold benchmark pays one 5 bps buy cost at the start of each report period. The backtest has no explicit slippage model.
+Signal lag: The ^VIX close at session t is ranked over the 252 sessions ending at t, using average ranks for ties. The rank is shifted by one trading session. If the next session is an eligible Friday and the rank is at or below 50%, the strategy enters at that Friday's adjusted close and exits at the immediately following eligible Monday's adjusted close.
+Price adjustment: The Yahoo download sets auto_adjust=True and reads Close. The cache stores the resulting adjusted closes. Spread P&L and estimated exit notional both use ratios of adjusted closes.
+Survivorship bias: The universe is a fixed list of three ETF proxies. The README identifies selection bias from choosing ETFs that still trade today, and the implementation has no point-in-time universe or delisting treatment.
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=-0.02327086560398106, ann_vol=0.008669456151541412, sharpe=-2.711365337179041, max_drawdown=-0.17181053432777016, total_return=-0.17137230775531942, turnover=382.27445856708147, n_trades=191
+    oos: cagr=-0.027600941870314366, ann_vol=0.009296937143096134, sharpe=-3.011595179771147, max_drawdown=-0.054332463297737665, total_return=-0.054332463297737665, turnover=76.1173092447298, n_trades=38
+    full: cagr=-0.024112281949736802, ann_vol=0.00879715308399614, sharpe=-2.773981843436604, max_drawdown=-0.21644929394821422, total_return=-0.2163936914316924, turnover=458.39176781181123, n_trades=229
+    benchmark: cagr=0.14886308711635587, ann_vol=0.18003735870183768, sharpe=0.8623737650767168, max_drawdown=-0.33717239100465857, total_return=3.000530654041155, turnover=0.9995002498750625, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

@@ -6,7 +6,7 @@ Backtest reproduced: run of this file's code at commit 2b23c5bbf706aea933c0cba5f
 Data source: Free Yahoo Finance daily ETF open and close prices via yfinance for SPY (hedge and benchmark), IVV, VOO, RSP, and VTI. The recorded run used the local Yahoo price cache.
 Data fetched: 2026-11-26 14:27 Europe/Oslo (run time)
 Sample period: Requested price range 2011-01-01 through 2025-12-31 inclusive, with pre-reporting observations used for warmup. The run reports trading sessions from 2012-01-03 through 2025-12-31.   data_range (from output): 2012-01-03 to 2025-12-31
-IS/OOS split: Inclusive calendar bounds: IS 2012-01-01 through 2018-12-31; OOS 2019-01-01 through 2025-12-31. The code simulates a continuous ledger and slices it for reporting. The rolling estimation and positions can carry across the boundary. OOS is a retrospective historical holdout.
+IS/OOS split: Inclusive calendar bounds: IS 2012-01-01 through 2018-12-31; OOS 2019-01-01 through 2025-12-31. The code simulates a continuous daily_results and slices it for reporting. The rolling estimation and positions can carry across the boundary. OOS is a retrospective historical holdout.
 Costs and slippage: 2 bps per side on the sum of absolute dollar position changes across ETF legs at each simulated open or close fill, including entries, exits, and rebalances. The fee is deducted from equity and target positions are sized using after-fee equity. Slippage is not modeled separately. The simulation uses the daily open and close as execution price proxies and has no bid-ask spread or market-impact model.
 Signal lag: The new monthly signal uses 126 sessions through the previous month's final close. The overnight strategy first enters the new target at the next trading session's close and exits at the following session's open. The intraday comparison first uses its new target at the next trading session's open and exits at that session's close. The continuous comparison first uses the new day target at that open and the new night target at that close.
 Price adjustment: The download uses yfinance with auto_adjust=True and keeps adjusted Open and Close. Cache hits load those columns from the Yahoo adjusted price CSV. Overnight returns use adjusted current open divided by adjusted prior close minus one, and intraday returns use adjusted close divided by adjusted same-day open minus one.
@@ -175,8 +175,8 @@ def finite_float(value):
     return float(value) if np.isfinite(value) else None
 
 
-def metrics(ledger, annual_sessions):
-    returns = ledger["return"].to_numpy()
+def metrics(daily_results, annual_sessions):
+    returns = daily_results["return"].to_numpy()
     equity = np.r_[1.0, np.cumprod(1.0 + returns)]
     std = returns.std(ddof=1) if len(returns) > 1 else np.nan
     return {
@@ -185,15 +185,15 @@ def metrics(ledger, annual_sessions):
         "sharpe": finite_float(returns.mean() / std * np.sqrt(annual_sessions)) if std > 0 else None,
         "max_drawdown": finite_float((equity / np.maximum.accumulate(equity) - 1.0).min()),
         "total_return": finite_float(equity[-1] - 1.0),
-        "n_trades": int(ledger["n_trades"].sum()),
-        "turnover": finite_float(ledger["turnover"].sum()),
+        "n_trades": int(daily_results["n_trades"].sum()),
+        "turnover": finite_float(daily_results["turnover"].sum()),
     }
 
 
-def summarize(ledger, periods, annual_sessions):
+def summarize(daily_results, periods, annual_sessions):
     result = {}
     for name, (start, end) in periods.items():
-        period = ledger.loc[start:end]
+        period = daily_results.loc[start:end]
         if period.empty:
             raise ValueError(f"No sessions in reporting period {name}")
         result[name] = metrics(period, annual_sessions)
@@ -266,8 +266,8 @@ def main():
     }
     reports = {}
     for name, (close_targets, open_targets) in portfolios.items():
-        ledger = simulate(dates, overnight, intraday, close_targets, open_targets, cost_rate)
-        reports[name] = summarize(ledger, periods, annual_sessions)
+        daily_results = simulate(dates, overnight, intraday, close_targets, open_targets, cost_rate)
+        reports[name] = summarize(daily_results, periods, annual_sessions)
 
     strategy_report = reports["Overnight spread"]
     benchmark = reports[benchmark_name]

@@ -1,0 +1,284 @@
+# === CODE START ===
+# --- single-file shim: the strategy's config.yaml is embedded here ---
+import builtins as _b, io as _io, os as _os
+_CONFIG_YAML = "strategy: 310_factor_beta_overnight_intraday\nuniverse:\n  quality: QUAL\n  market: SPY\n  growth: IWF\n\n# Date bounds are inclusive. The earlier data is used only to initialize the hedge.\ndata_start: '2014-01-01'\nin_sample:\n  start: '2015-01-01'\n  end: '2023-05-31'\nout_of_sample:\n  start: '2023-06-01'\n  end: '2025-12-31'\n\nbeta_lookback_sessions: 126\ngross_exposure: 1.0\ntransaction_cost_bps_per_fill: 1.0\nsessions_per_year: 252\n"
+_orig_open = _b.open
+def _open(f, *a, **k):
+    try:
+        if _os.path.basename(str(f)) == 'config.yaml' and not _os.path.exists(f):
+            return _io.StringIO(_CONFIG_YAML)
+    except TypeError:
+        pass
+    return _orig_open(f, *a, **k)
+_b.open = _open
+_io.open = _open
+# --- end shim ---
+"""Backtest the C101 US ETF proxy for session-specific profitability exposure."""
+
+import json
+from pathlib import Path
+import re
+from tempfile import TemporaryDirectory
+
+import numpy as np
+import pandas as pd
+from scipy.optimize import brentq
+import yaml
+import yfinance as yf
+
+
+ROOT = Path(__file__).resolve().parent
+CACHE = ROOT / "data_cache"
+PRICE_COLUMNS = ["Open", "Close"]
+
+
+def load_prices(symbols, start, end):
+    CACHE.mkdir(exist_ok=True)
+    prices = {}
+    # Keep yfinance's auxiliary cache local and separate from the price CSVs.
+    with TemporaryDirectory(dir=CACHE) as yahoo_cache:
+        yf.set_tz_cache_location(yahoo_cache)
+        for symbol in symbols:
+            path = CACHE / f"{symbol}_{start.date()}_{end.date()}_adjusted.csv"
+            cached = path.exists()
+            if cached:
+                frame = pd.read_csv(path, index_col="date", parse_dates=["date"])
+            else:
+                frame = yf.Ticker(symbol).history(
+                    start=start.date().isoformat(),
+                    end=(end + pd.Timedelta(days=1)).date().isoformat(),
+                    interval="1d",
+                    auto_adjust=True,
+                    actions=False,
+                    timeout=15,
+                )
+                if frame.empty:
+                    raise ValueError(f"Yahoo Finance returned no daily prices for {symbol}")
+                frame.index = frame.index.tz_localize(None)
+
+            frame = frame[PRICE_COLUMNS].loc[start:end]
+            values = frame.to_numpy()
+            coverage_margin = pd.Timedelta(days=7)
+            if (
+                frame.empty
+                or not frame.index.is_unique
+                or not frame.index.is_monotonic_increasing
+                or frame.index[0] > start + coverage_margin
+                or frame.index[-1] < end - coverage_margin
+                or not np.isfinite(values).all()
+                or (values <= 0).any()
+            ):
+                raise ValueError(f"Invalid or incomplete adjusted daily prices for {symbol}")
+
+            if not cached:
+                temp = Path(yahoo_cache) / path.name
+                frame.to_csv(temp, index_label="date")
+                temp.replace(path)
+            prices[symbol] = frame
+
+    calendar = prices[symbols[0]].index
+    for symbol, frame in prices.items():
+        if not frame.index.equals(calendar):
+            raise ValueError(f"Daily price dates do not match for {symbol} and {symbols[0]}")
+    panel = pd.concat(prices, axis=1)
+    return panel.xs("Open", axis=1, level=1), panel.xs("Close", axis=1, level=1)
+
+
+def month_starts(index):
+    month = index.to_period("M")
+    return np.r_[True, month[1:] != month[:-1]]
+
+
+def hedge_betas(opens, closes, market, long_legs, lookback):
+    overnight = opens.div(closes.shift(1)).sub(1)
+    intraday = closes.div(opens).sub(1)
+    # Pool two observations per date, ordered by when each return is known.
+    sessions = pd.concat({"overnight": overnight, "intraday": intraday})
+    dates_and_sessions = pd.MultiIndex.from_product(
+        [closes.index, ["overnight", "intraday"]]
+    )
+    sessions = sessions.swaplevel().reindex(dates_and_sessions)
+    market_returns = sessions[market]
+    window = 2 * lookback
+    variance = market_returns.rolling(window).var()
+    beta = sessions[long_legs].rolling(window).cov(market_returns).div(
+        variance.where(variance > 0), axis=0
+    )
+    # At the first trading day's open only the prior month's closing estimate is usable.
+    previous_close = beta.xs("intraday", level=1).shift(1)
+    updates = previous_close.loc[month_starts(closes.index)]
+    return updates.reindex(closes.index, method="ffill").clip(lower=0)
+
+
+def simulate(opens, closes, targets, mode, fee_rate):
+    open_targets = targets.copy()
+    close_targets = targets.copy()
+    if mode == "overnight":
+        open_targets[:] = 0.0
+    elif mode == "intraday":
+        close_targets[:] = 0.0
+    else:
+        rebalance = (
+            month_starts(opens.index) if mode == "continuous" else np.arange(len(targets)) == 0
+        )
+        open_targets[~rebalance] = np.nan
+        close_targets[:] = np.nan
+    close_targets[-1] = 0.0
+
+    cash = equity = 1.0
+    shares = np.zeros(opens.shape[1])
+    daily = []
+    for morning, evening, at_open, at_close in zip(
+        opens.to_numpy(), closes.to_numpy(), open_targets, close_targets
+    ):
+        start_equity = equity
+        notional = 0.0
+        trades = 0
+        for price, target in ((morning, at_open), (evening, at_close)):
+            holdings = shares * price
+            equity = cash + holdings.sum()
+            if equity <= 0:
+                raise ValueError(f"Portfolio equity was exhausted in the {mode} backtest")
+            if np.isnan(target).all():
+                continue
+
+            if fee_rate:
+                # Size the target on post-cost equity so gross exposure respects the cap.
+                current_weights = holdings / equity
+
+                def balance(remaining):
+                    traded_fraction = np.abs(target * remaining - current_weights).sum()
+                    return remaining + fee_rate * traded_fraction - 1
+
+                if balance(0.0) >= 0:
+                    raise ValueError(f"Trading costs exhausted equity in the {mode} backtest")
+                equity *= brentq(balance, 0.0, 1.0)
+            new_holdings = target * equity
+            traded = np.abs(new_holdings - holdings)
+            notional += traded.sum()
+            trades += np.count_nonzero(traded)
+            shares = new_holdings / price
+            cash = equity - new_holdings.sum()
+        daily.append((equity / start_equity - 1, notional / start_equity, trades))
+    return pd.DataFrame(daily, index=opens.index, columns=["return", "turnover", "n_trades"])
+
+
+def metrics(frame, sessions_per_year):
+    returns = frame["return"]
+    wealth = (1 + returns).cumprod()
+    volatility = returns.std() * np.sqrt(sessions_per_year)
+    result = {
+        "cagr": wealth.iloc[-1] ** (sessions_per_year / len(frame)) - 1,
+        "ann_vol": volatility,
+        "sharpe": returns.mean() * sessions_per_year / volatility if volatility > 0 else np.nan,
+        "max_drawdown": (wealth / wealth.cummax().clip(lower=1.0) - 1).min(),
+        "total_return": wealth.iloc[-1] - 1,
+        "turnover": frame["turnover"].mean() * sessions_per_year,
+    }
+    return {
+        **{key: float(value) if np.isfinite(value) else None for key, value in result.items()},
+        "n_trades": int(frame["n_trades"].sum()),
+        "n_sessions": len(frame),
+    }
+
+
+def print_table(reports, periods):
+    columns = {
+        "cagr": ("CAGR", ".2%"),
+        "ann_vol": ("Ann. vol", ".2%"),
+        "sharpe": ("Sharpe", ".2f"),
+        "max_drawdown": ("Max DD", ".2%"),
+        "total_return": ("Total", ".2%"),
+        "turnover": ("Ann. TO", ".2f"),
+        "n_trades": ("Fills", ",d"),
+    }
+    for period, dates in periods.items():
+        print(f"{period.upper():<4} {dates[0].date()} to {dates[-1].date()} ({len(dates)} sessions)")
+    print(f"{'Portfolio':<23} {'Period':<6}" + "".join(f"{title:>10}" for title, _ in columns.values()))
+    for name, report in reports.items():
+        for period, values in report.items():
+            cells = [
+                format(values[key], spec) if values[key] is not None else "n/a"
+                for key, (_, spec) in columns.items()
+            ]
+            print(f"{name:<23} {period.upper():<6}" + "".join(f"{cell:>10}" for cell in cells))
+
+
+def main():
+    with (ROOT / "config.yaml").open(encoding="utf-8") as source:
+        config = yaml.safe_load(source)
+
+    quality, market, growth = (config["universe"][leg] for leg in ("quality", "market", "growth"))
+    symbols = [quality, market, growth]
+    if len(set(symbols)) != 3 or not all(re.fullmatch(r"[A-Z0-9.^=-]+", s) for s in symbols):
+        raise ValueError("Configure three distinct Yahoo ticker symbols")
+    data_start = pd.Timestamp(config["data_start"])
+    is_start, is_end = (pd.Timestamp(config["in_sample"][key]) for key in ("start", "end"))
+    oos_start, oos_end = (pd.Timestamp(config["out_of_sample"][key]) for key in ("start", "end"))
+    if not (data_start < is_start <= is_end < oos_start <= oos_end):
+        raise ValueError("Ensure that the data warmup, IS and OOS ranges are ordered and disjoint")
+    lookback = config["beta_lookback_sessions"]
+    gross = float(config["gross_exposure"])
+    fee_rate = float(config["transaction_cost_bps_per_fill"]) / 10_000
+    sessions_per_year = config["sessions_per_year"]
+    if not (
+        isinstance(lookback, int)
+        and lookback >= 2
+        and 0 < gross <= 1
+        and 0 <= fee_rate < 1
+        and sessions_per_year > 0
+    ):
+        raise ValueError("Check lookback, gross exposure, trading cost and annualization settings")
+
+    opens, closes = load_prices(symbols, data_start, oos_end)
+    betas = hedge_betas(opens, closes, market, [quality, growth], lookback).loc[is_start:oos_end]
+    if betas.empty or not np.isfinite(betas.to_numpy()).all():
+        raise ValueError("A valid hedge is needed for every evaluation date; check warmup and prices")
+    opens, closes = opens.loc[betas.index], closes.loc[betas.index]
+    periods = {
+        "is": betas.loc[is_start:is_end].index,
+        "oos": betas.loc[oos_start:oos_end].index,
+        "full": betas.index,
+    }
+    if not all(len(dates) for dates in periods.values()):
+        raise ValueError("Each sample range must contain trading sessions")
+
+    def spread_targets(asset):
+        beta = betas[asset].to_numpy()
+        return np.column_stack((np.ones(len(beta)), -beta)) * (gross / (1 + beta))[:, None]
+
+    quality_targets = spread_targets(quality)
+    benchmark_name = f"{market} buy-and-hold"
+    books = {
+        f"{quality} overnight": ([quality, market], quality_targets, "overnight"),
+        f"{quality} intraday": ([quality, market], quality_targets, "intraday"),
+        f"{quality} continuous": ([quality, market], quality_targets, "continuous"),
+        f"{growth} overnight": ([growth, market], spread_targets(growth), "overnight"),
+        benchmark_name: ([market], np.ones((len(betas), 1)), "buy_hold"),
+    }
+    reports = {}
+    for name, (legs, targets, mode) in books.items():
+        frame = simulate(opens[legs], closes[legs], targets, mode, fee_rate)
+        reports[name] = {
+            period: metrics(frame.loc[dates], sessions_per_year) for period, dates in periods.items()
+        }
+
+    strategy_name = f"{quality} overnight"
+    results = {
+        "strategy": config["strategy"],
+        "data_range": f"{betas.index[0].date()} to {betas.index[-1].date()}",
+        **reports[strategy_name],
+        "benchmark": {
+            "name": benchmark_name,
+            **reports[benchmark_name],
+            "comparisons": {
+                name: reports[name] for name in (f"{quality} intraday", f"{quality} continuous", f"{growth} overnight")
+            },
+        },
+    }
+    print_table(reports, periods)
+    print("RESULTS_JSON: " + json.dumps(results, allow_nan=False))
+
+
+if __name__ == "__main__":
+    main()

@@ -1,3 +1,23 @@
+"""192_downside_upside_rv_forecast
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; non-author review: PASS; publication gate: Codex.
+Run (one command): python strategies/192_downside_upside_rv_forecast.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 2b23c5bbf706aea933c0cba5f5805efb450ee206 on 2026-11-26 14:27 Europe/Oslo, exit 0, output sha256 6ca743c09fdafc3a77dd4c19b3c01f28409cdc8b3281e4e78d4c8afc47731179
+Data source: Yahoo Finance via yfinance, daily ETF opens and closes for DBC, GLD, and IEF (risk allocation) and BIL (reserve). The loader uses a local CSV cache when present.
+Data fetched: 2026-11-26 14:27 Europe/Oslo (run time)
+Sample period: Configured price request is 2008-01-01 through 2025-12-31 inclusive, with pre-backtest history used for model warm-up. The logged simulation spans the first rebalance open on 2014-01-06 through the final marking open on 2025-12-31.   data_range (from output): 2014-01-06 to 2025-12-31
+IS/OOS split: IS is 2014-01-01 through 2019-12-31 and OOS is 2020-01-01 through 2025-12-31, inclusive by each open-to-open return's ending date. The same holdings path carries across the boundary. OOS is historical walk-forward with annual refits using completed labels available at the refit cutoff.
+Costs and slippage: 5 bps on each dollar bought or sold at rebalance, including initial entry and any BIL trades. The simulator solves for the fee on absolute traded notional using post-fee target holdings and deducts it from equity at the rebalance open. Slippage is not modelled.
+Signal lag: A signal uses data through the last trading session's close of week t and sets weights for the first trading session's open of week t+1. Weights drift between rebalances.
+Price adjustment: The Yahoo download requests auto_adjust=True and uses adjusted Open and Close, including the cached versions of those fields. Signals use log differences of adjusted closes. Forward labels and simulated portfolio returns use adjusted opens.
+Survivorship bias: The run uses a fixed list of selected surviving ETFs. The README flags possible hindsight selection and survivorship screening.
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=-0.0008574358700332851, ann_vol=0.07028009810478972, sharpe=0.022894169335019515, max_drawdown=-0.25888512800571806, total_return=-0.005118517460241057, turnover=29.365110428261367
+    oos: cagr=0.0953477942020724, ann_vol=0.09415384505528886, sharpe=1.0173175907814016, max_drawdown=-0.14097362944683123, total_return=0.7273138129256294, turnover=20.64657364245208
+    full: cagr=0.04621676334252989, ann_vol=0.08312209157983133, sharpe=0.5860331533877041, max_drawdown=-0.25888512800571806, total_return=0.7184725270148533, turnover=50.01168407071345
+    benchmark: cagr=0.047454806108992775, ann_vol=0.08755261843947691, sharpe=0.5742471316928921, max_drawdown=-0.2620174356186631, total_return=0.7430013193798126, turnover=7.608708321186791
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

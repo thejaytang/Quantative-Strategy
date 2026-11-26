@@ -1,3 +1,23 @@
+"""185_gold_month_seasonality
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; non-author review: PASS; publication gate: Codex.
+Run (one command): python strategies/185_gold_month_seasonality.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 2b23c5bbf706aea933c0cba5f5805efb450ee206 on 2026-11-26 14:26 Europe/Oslo, exit 0, output sha256 50fe0385e88698be972fe9d43a916ca5b9d3bd100408530e83242420871789d4
+Data source: Yahoo Finance（通过 yfinance）的美元计价 ETF 日线开盘价和收盘价。GLD 代理现货黄金，BIL 代理美国短期国库券。脚本优先读取本地日线缓存，缓存缺失时下载。（config.yaml:2-4，strategy.py:15-33，strategy.py:55-60，README.md:9）
+Data fetched: 2026-11-26 14:26 Europe/Oslo (run time)
+Sample period: 预热数据从 2007-12-01 起请求。回测配置为 2016-01-01 至 2025-12-31。日志记录的实际开盘估值区间为 2016-01-04 至 2026-01-02，终点是样本结束后下一月的首个开盘。（config.yaml:5-11，strategy.py:55-72，strategy.py:153-177，strategy.py:215-226，logs/run_20261125_121726.log:1）   data_range (from output): 2016-01-04 to 2026-01-02
+IS/OOS split: 样本内为 2016-01-01 至 2020-12-31，样本外为 2021-01-01 至 2025-12-31。持仓与资金跨分界连续。样本外每年使用此前已结束的八个完整日历年更新排名。（config.yaml:6-13，strategy.py:75-92，strategy.py:153-171，strategy.py:206-226，README.md:17）
+Costs and slippage: 单边 5 bps，按买卖名义金额计费。每月首个开盘对应的收益因子乘以 1 − 0.0005 × 换手率。初次从现金建仓的换手率为 1，之后为黄金目标权重与交易前漂移权重之差的绝对值的两倍。全仓切换合计 10 bps，期末仅估值。未建模滑点或市场冲击。（config.yaml:14，strategy.py:95-124，strategy.py:165-171，strategy.py:216-226，README.md:12，README.md:24）
+Signal lag: 年度排名使用上一年最后一个交易日的收盘及此前完整年份的月末收盘。最早在下一年 1 月的首个共同交易日开盘执行。一年内各月目标权重沿用该排名，在该月首个共同交易日开盘执行。（strategy.py:62-72，strategy.py:75-92，strategy.py:95-107，strategy.py:153-158，README.md:10-11）
+Price adjustment: Yahoo Finance 下载设置 auto_adjust=True、actions=False，保存并使用复权开盘价和收盘价，已有缓存同样按复权价格读取。BIL 序列按 README 说明反映分红再投资。（strategy.py:15-33，strategy.py:44-51，README.md:9，README.md:24）
+Survivorship bias: 标的固定为 GLD 和 BIL。未进行成分股筛选，也未建立包含退市基金的历史标的池。README 指出，选择仍在交易的基金可能引入选择偏差。（config.yaml:2-4，strategy.py:55-60，README.md:25）
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.06901049409041038, ann_vol=0.0817877372001685, sharpe=0.8578154933938639, max_drawdown=-0.13478061740950642, total_return=0.3962794002485399, turnover=57.0
+    oos: cagr=0.05572248461748108, ann_vol=0.08210828220023099, sharpe=0.703405783596788, max_drawdown=-0.11352993659418609, total_return=0.3110105917762396, turnover=56.0
+    full: cagr=0.062351172766873075, ann_vol=0.08193253656070539, sharpe=0.7807274675730697, max_drawdown=-0.13478061740950642, total_return=0.8305370828048066, turnover=113.0
+    benchmark: cagr=0.14562992188017465, ann_vol=0.14552406463348558, sharpe=1.0091554985600792, max_drawdown=-0.22215343927220255, total_return=2.8923610570185097, turnover=1.0
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

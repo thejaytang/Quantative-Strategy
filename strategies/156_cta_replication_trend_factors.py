@@ -1,3 +1,23 @@
+"""156_cta_replication_trend_factors
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; non-author review: PASS; publication gate: Codex.
+Run (one command): python strategies/156_cta_replication_trend_factors.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 2b23c5bbf706aea933c0cba5f5805efb450ee206 on 2026-11-26 14:26 Europe/Oslo, exit 0, output sha256 609887e75daff4589e0e81225efeb7287fe1fcee8bf5c60a3c261cbc351397aa
+Data source: Yahoo Finance daily USD ETF closes via yfinance or its local adjusted-close CSV cache. Strategy universe: SPY, QQQ, EFA, EEM, SHY, IEF, FXE, FXY, GLD, DBC. CTA proxy: DBMF. Benchmark: SPY.
+Data fetched: 2026-11-26 14:26 Europe/Oslo (run time)
+Sample period: Configured warm-up data request starts 2016-01-01. The reported evaluation spans 2020-01-02 through 2026-10-30, inclusive. DBMF enters the filter when a finite proxy return and finite factor observations are available.   data_range (from output): 2020-01-02 to 2026-10-30
+IS/OOS split: IS 2020-01-02 through 2025-07-17 and OOS 2025-07-18 through 2026-10-30, both inclusive. The filter continues to update daily in OOS with the same settings. The strategy and benchmark are simulated across the boundary and sliced for reporting.
+Costs and slippage: 3 bp one way per dollar traded, deducted on the rebalance date on absolute trades against marked holdings, with targets sized on equity after fees. Short borrow costs 50 bp per year on beginning-of-session short notional, charged at 50/252 bp per session. The SPY benchmark uses the same transaction fee. Slippage is not modelled.
+Signal lag: A target computed after session t closes is filled in the simulation at session t+1's close. Existing holdings earn the return through that close before the rebalance. The new holdings first earn the close-to-close return ending at t+2.
+Price adjustment: Uses the Close field with yfinance auto_adjust=True, or the date-keyed adjusted-close CSV on a valid cache hit. Returns are percentage changes of this panel with no forward fill. The source is historical adjusted data and the README notes possible vendor revisions.
+Survivorship bias: The README states that the backtest uses retrospectively selected surviving ETFs and is subject to fund-selection and survivorship bias. The implementation uses the fixed ticker list from the configuration.
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.016197925624392484, ann_vol=0.0806104090969897, sharpe=0.23976053181092052, max_drawdown=-0.19070271423215057, total_return=0.09281543993047858, turnover=31.23952260026506
+    oos: cagr=0.1086954611899118, ann_vol=0.08103661699821485, sharpe=1.3140737573316088, max_drawdown=-0.060562990675488204, total_return=0.14233531123707155, turnover=28.2591428446359
+    full: cagr=0.033093560604958716, ann_vol=0.08069627260353678, sharpe=0.44395267327406285, max_drawdown=-0.19070271423215057, total_return=0.24836166569766194, turnover=30.675385488687034
+    benchmark: cagr=0.1477744942832735, ann_vol=0.1995553896479842, sharpe=0.790848899139462, max_drawdown=-0.3371726217076917, total_return=1.5575978749957597, turnover=0.14672360085800581
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

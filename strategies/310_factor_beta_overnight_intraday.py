@@ -1,3 +1,23 @@
+"""310_factor_beta_overnight_intraday
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; non-author review: PASS; publication gate: Codex.
+Run (one command): python strategies/310_factor_beta_overnight_intraday.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 2b23c5bbf706aea933c0cba5f5805efb450ee206 on 2026-11-26 14:27 Europe/Oslo, exit 0, output sha256 33a6179fd4fbb1da9c83469c9ab66fa4976954ed318e5be363c9bd06b3c13fda
+Data source: Yahoo Finance 公开日频 ETF 开盘价和收盘价，通过 yfinance 读取。标的为 QUAL（质量代理）、SPY（市场对冲和基准）、IWF（成长风格对照）。优先读取 data_cache/ 中的 CSV，缺失时请求 Yahoo Finance（config.yaml:2-5；strategy.py:17-39,196-199,218,235-246；README.md:7,20）。
+Data fetched: 2026-11-26 14:27 Europe/Oslo (run time)
+Sample period: 配置的数据请求区间为 2014-01-01 至 2025-12-31（含边界），2014 年仅用于初始化对冲。日志中的实际评估区间为 2015-01-02 至 2025-12-31，共 2,766 个交易日（config.yaml:7-14；strategy.py:32-44,218-226；README.md:18；logs/run_20261125_135059.log:3）。   data_range (from output): 2015-01-02 to 2025-12-31
+IS/OOS split: IS 配置区间为 2015-01-01 至 2023-05-31，日志首个交易日为 2015-01-02，共 2,117 个交易日。OOS 为 2023-06-01 至 2025-12-31，共 649 个交易日。每个组合先模拟一条连续路径，再按日期切片统计，切分日不额外平仓。OOS 继续使用截至上月最后一个交易日收盘的数据更新月度 beta（config.yaml:7-14；strategy.py:72-95,218-229,244-249；README.md:14,18；logs/run_20261125_135059.log:1-2）。
+Costs and slippage: 按每条腿每次成交的绝对名义金额收取单边 1.0 bp，适用于开仓、平仓和调仓。费用从净值扣除，目标头寸按扣费后净值确定。未建模滑点，模拟成交直接使用复权开盘价或收盘价，未单独模拟价差、冲击或借券费用（config.yaml:18；strategy.py:116-147,205-208,244-248；README.md:14,30）。
+Signal lag: 月末交易日 t 收盘后，用最近 126 个完整交易日估计 beta。新权重从下一交易日 t+1 起使用，并固定至该月结束。主隔夜组合最早在 t+1 收盘按新权重建仓，在下一交易日开盘平仓。日内对照从 t+1 开盘建仓、当日收盘平仓，持续持有对照在 t+1 开盘调仓（config.yaml:16；strategy.py:72-95,98-111,116-122,231-241；README.md:11-14）。
+Price adjustment: yfinance 请求 interval=1d、auto_adjust=True、actions=False，选取复权 Open 和 Close。缓存文件名以 _adjusted.csv 结尾，缓存命中时直接使用其中的 Open 和 Close。以复权价格近似股息对多空头寸的影响，未单独模拟股息现金流（strategy.py:15-17,26-44,58-69,119-147；README.md:20,30）。
+Survivorship bias: 使用固定的 QUAL、SPY、IWF 历史 ETF 行情，无成分股回建。选择仍存续的 ETF 可能引入标的选择偏差和存续偏差（config.yaml:2-5；strategy.py:26-44,192-199,218；README.md:32）。
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=-0.019001402782930277, ann_vol=0.019050522262511787, sharpe=-0.9975645691377443, max_drawdown=-0.16384139016309407, total_return=-0.148846610356149, turnover=503.9604052387037, n_trades=8466
+    oos: cagr=-0.05651798714439615, ann_vol=0.010493774815245405, sharpe=-5.538168988391903, max_drawdown=-0.14050112792227643, total_return=-0.13914688002883024, turnover=503.69170795113473, n_trades=2594
+    full: cagr=-0.027935906863817195, ann_vol=0.0174538031514519, sharpe=-1.614616855678312, max_drawdown=-0.27784281184084847, total_return=-0.26728194895105784, turnover=503.8973594904635, n_trades=11060
+    benchmark  full: cagr=0.13405871472984554, ann_vol=0.17790037879375842, sharpe=0.7964989491760844, max_drawdown=-0.3371727370591743, total_return=2.978231913649049, turnover=0.18152847462261917, n_trades=2
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

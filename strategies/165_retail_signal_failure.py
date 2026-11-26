@@ -1,3 +1,23 @@
+"""165_retail_signal_failure
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; non-author review: PASS; publication gate: Codex.
+Run (one command): python strategies/165_retail_signal_failure.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 2b23c5bbf706aea933c0cba5f5805efb450ee206 on 2026-11-26 14:26 Europe/Oslo, exit 0, output sha256 11005ab85b924cbf822a747afb576d0fb917399e2e3634f03aec8208531581ef
+Data source: Yahoo Finance via yfinance: daily adjusted SPY Open for both the strategy and benchmark, and daily unadjusted ^IRX Close (annualized 13-week Treasury bill bank-discount yield) for the cash proxy used in excess Sharpe. Reads series from data_cache/ on cache hits and downloads them on misses.
+Data fetched: 2026-11-26 14:26 Europe/Oslo (run time)
+Sample period: 2000-01-03 through 2025-12-31, inclusive, for the observed SPY sessions in the recorded run. The configured window starts on 2000-01-01.   data_range (from output): 2000-01-03 to 2025-12-31
+IS/OOS split: IS 2000-01-01 through 2018-12-31 and OOS 2019-01-01 through 2025-12-31, inclusive. Reports slice one continuous portfolio path with positions carried across the split. The headline Sell-in-May rule is fixed. After an eight-year warm-up, the gated diagnostic trains before each IS deployment year and freezes its OOS choice using data through IS end. The OOS window is a historical time holdout and predates the cited paper.
+Costs and slippage: 5 bps per side on traded notional, booked on the execution date at the open. After marking the prior holding to that open, the model divides equity by 1 + 0.0005 on entry to fund the fee and multiplies equity by 1 - 0.0005 on exit. The buy-and-hold benchmark pays the opening entry fee. The final open is marked to market. Slippage is not modelled.
+Signal lag: There is no close-t price signal. Calendar targets depend on the next scheduled session's month, weekday, or ordinal trading day within the month. Position changes are simulated at that session's open. The position established at an open earns the following open-to-open return, recorded at the ending open.
+Price adjustment: SPY uses the Yahoo Finance Open returned with auto_adjust=True, and open-to-open returns are computed from that series. ^IRX uses the Close returned with auto_adjust=False and is converted from a bank-discount quote into cash-proxy accrual. The README notes that the vendor may revise adjusted data.
+Survivorship bias: The strategy and benchmark use one fixed ETF, SPY, so they do not reconstruct returns from today's constituents. The README flags product-selection bias from using that ETF.
+Parameter combinations tried: 8
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.042232581273145886, ann_vol=0.1287723155968708, sharpe=0.3855839693870387, sharpe_excess=0.25909856892808225, max_drawdown=-0.3610089269254664, total_return=1.1912234690329955, turnover=2.055970131694981, n_trades=39
+    oos: cagr=0.0742503414104867, ann_vol=0.14908524079390076, sharpe=0.555465170659737, sharpe_excess=0.37471358185613596, max_drawdown=-0.32048956186554733, total_return=0.6490915431996691, turnover=2.0040445686247783, n_trades=14
+    full: cagr=0.05075523692537032, ann_vol=0.1345330227532017, sharpe=0.43541324492441674, sharpe_excess=0.29301364761558174, max_drawdown=-0.3610089269254664, total_return=2.6135280920429693, turnover=2.0419941428582233, n_trades=53
+    benchmark SPY full: cagr=0.07992718405998378, ann_vol=0.19060600016847706, sharpe=0.4990103209001279, sharpe_excess=0.3984843322659264, max_drawdown=-0.5542290108664004, total_return=6.354168533802761, turnover=0.03851874338102397, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

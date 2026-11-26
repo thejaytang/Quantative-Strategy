@@ -1,3 +1,23 @@
+"""183_safe_asset_dollar_cycle
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; non-author review: PASS; publication gate: Codex.
+Run (one command): python strategies/183_safe_asset_dollar_cycle.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 2b23c5bbf706aea933c0cba5f5805efb450ee206 on 2026-11-26 14:26 Europe/Oslo, exit 0, output sha256 1a21ba0292e55cf66d96fad7fb76cb2af2b6ff88e53416bc37734496446adaed
+Data source: Free Yahoo Finance daily adjusted Open and Close via yfinance. UUP and IEF supply the signal, and EEM, VWO and BIL are the allocation instruments.
+Data fetched: 2026-11-26 14:26 Europe/Oslo (run time)
+Sample period: The recorded backtest covers ETF sessions from 2008-01-02 through 2025-12-31. The configured price request starts on 2007-09-01 for signal warm-up.   data_range (from output): 2008-01-02 to 2025-12-31
+IS/OOS split: IS 2008-01-01 through 2016-12-31 and OOS 2017-01-01 through 2025-12-31, with inclusive calendar bounds. The main strategy and equal-weight benchmark carry holdings across the split. The OOS-only static comparison uses mean daily IS target weight and starts at the first OOS open. OOS is a historical holdout that includes dates before the paper’s publication.
+Costs and slippage: 5 bps per side on absolute buy and sell notional at each open rebalance, including initial purchases. The simulator solves for post-fee equity to fund the target holdings and fees. Slippage is not modelled separately. The fixed fee is the only execution-cost deduction and is described as an approximation of execution frictions.
+Signal lag: Compute trailing ETF returns at the last session close of each Friday-ending week. Execute at the next ETF session’s open and mark to market at that session’s close. At sample entry, use the latest target already available for that opening.
+Price adjustment: Yahoo Finance supplies adjusted Open and Close through yfinance with auto_adjust=True on download. Adjusted closes feed the signal and daily valuation, and adjusted opens feed simulated execution. The cache stores the adjusted bars. Historical values may change with distributions or data revisions.
+Survivorship bias: The backtest uses fixed ETFs and their historical fund prices, avoiding a backfill of current equity constituents. Ex post selection of surviving funds leaves fund-level selection bias, and ETF listing dates constrain the sample.
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=-0.04807430944494462, ann_vol=0.2837247119625683, sharpe=-0.031187285334044242, max_drawdown=-0.6749303331866706, total_return=-0.3580335410301625, turnover=121.6445113645475, n_trades=1054
+    oos: cagr=0.06034368999785067, ann_vol=0.1866004983089248, sharpe=0.4077822795109247, max_drawdown=-0.40664828459460156, total_return=0.6920532784875653, turnover=78.56216621602675, n_trades=1001
+    full: cagr=0.004613464128480738, ann_vol=0.24016530795362268, sharpe=0.1397995385765699, max_drawdown=-0.6749303331866706, total_return=0.08624145157897067, turnover=200.20667758057425, n_trades=2055
+    benchmark: cagr=0.02833252578351364, ann_vol=0.26879172597895107, sharpe=0.23786873488402185, max_drawdown=-0.6478506506736429, total_return=0.6522176721905795, turnover=2.4322077532565745, n_trades=1880
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

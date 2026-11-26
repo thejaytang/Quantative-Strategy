@@ -1,3 +1,24 @@
+"""341_monitoring_attention_inflation_news
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; non-author review: PASS; publication gate: Codex.
+Run (one command): python strategies/341_monitoring_attention_inflation_news.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 3140bbcffa77faae04956fc55adbc5be3b33f896 on 2026-11-26 16:06 Europe/Oslo, exit 0, output sha256 bc62c7298cbd8d58a7ee65b9d4c02d0b63ce6e107d9240209235a989ea49aae4
+Data source: Yahoo Finance via yfinance daily adjusted closes for the U.S. Treasury ETFs TIP and IEF. Federal Reserve Bank of St. Louis ALFRED historical vintages for monthly EMVMACROINFLATION (the U.S. inflation-news attention proxy) and daily T10YIE (10-year breakeven inflation). strategy.py:17-18,37-53,59-98,111-127,229-233; config.yaml:2-7; README.md:9-11.
+Data fetched: 2026-11-26 16:06 Europe/Oslo (run time)
+Sample period: 2019-11-01 to 2025-12-31, inclusive, for the evaluated ETF sessions. The ETF download begins earlier to provide the signal lookback. config.yaml:8-13; strategy.py:218-223,229-238,245-246; logs/run_20261125_151955.log:1.   data_range (from output): 2019-11-01 to 2025-12-31
+IS/OOS split: IS 2019-11-01 to 2022-12-31 and OOS 2023-01-01 to 2025-12-31, both inclusive calendar bounds. IS and OOS are chronological slices of the same continuous simulation, with holdings and NAV carried across the split. The README records that neither period was used for parameter fitting or selection and that some OOS dates predate the ECB article. config.yaml:8-13; strategy.py:197-199,218-223,237-243; README.md:7,23.
+Costs and slippage: 2 bps per traded side on the absolute dollar amount of each simulated buy or sell, including entry and rebalances. Fees are deducted from portfolio NAV at the execution close, with target weights funded from net NAV. Separate slippage is not modelled. The fixed fee is the approximation for spreads and trading friction. config.yaml:24; strategy.py:157-190,225,241-246; README.md:18,37; logs/run_20261125_151955.log:1.
+Signal lag: The signal is dated at the final ETF session close of each month. The simulator fills the target at the next ETF session’s close, after marking existing holdings to that close. The new holdings earn returns from that close onward. If evaluation starts mid-month, the first evaluation close uses the last available target. strategy.py:101-109,129-153,157-187,237-243; README.md:15-18.
+Price adjustment: Uses Yahoo Finance’s Adj Close field with yfinance auto_adjust=False. The README describes the adjusted series as accounting for fund distributions and splits. The simulator uses ratios of consecutive adjusted closes. strategy.py:37-53,157-166; README.md:11.
+Survivorship bias: The fixed universe contains the two existing Treasury ETFs TIP and IEF. The README identifies possible ex-post fund selection bias and states that stock-constituent survivorship bias does not apply to the fixed pair. config.yaml:2-4; strategy.py:229-233; README.md:11,37.
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=-0.00874021854347129, ann_vol=0.07100421952352663, sharpe=-0.08819512583702388, max_drawdown=-0.1601653105885643, total_return=-0.02738230274751663, turnover=6.659008885414778, n_trades=76
+    oos: cagr=0.03926316290962051, ann_vol=0.062024602947546165, sharpe=0.6519153063573007, max_drawdown=-0.08059866950032335, total_return=0.12178884422930825, turnover=3.1063027878982634, n_trades=72
+    full: cagr=0.014280753041128635, ann_vol=0.06679056638637257, sharpe=0.24566318826798883, max_drawdown=-0.16498553686288175, total_return=0.09107168247783326, turnover=9.76531167331304, n_trades=148
+    benchmark static_50_50 full: cagr=0.011755234970205919, ann_vol=0.06702154298174401, sharpe=0.20784782158784681, max_drawdown=-0.170615724046432, total_return=0.07447908804418346, turnover=1.378698858246723, n_trades=148
+    benchmark breakevens_only full: cagr=0.017767719059401, ann_vol=0.06589222709096611, sharpe=0.3001984664262651, max_drawdown=-0.16444499845633243, total_return=0.11433315330160299, turnover=17.56752696225911, n_trades=148
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

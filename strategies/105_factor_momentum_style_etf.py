@@ -1,3 +1,23 @@
+"""105_factor_momentum_style_etf
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; non-author review: PASS; publication gate: Codex.
+Run (one command): python strategies/105_factor_momentum_style_etf.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 584a8537efba9be61705bb4fe23e9804b99e7d54 on 2026-11-26 13:09 Europe/Oslo, exit 0, output sha256 d5bbf825dac09f238f676a5552009df7b2d44833ec21d59107416258d65238a4
+Data source: Yahoo Finance daily ETF opens and closes via yfinance. Style ETFs are VLUE, MTUM, QUAL, USMV and SIZE, with SPY as the market benchmark and BIL for unallocated slots. The loader reads its CSV cache when available and calls Yahoo Finance on a cache miss. The supplied run used the cached CSV.
+Data fetched: 2026-11-26 13:09 Europe/Oslo (run time)
+Sample period: Evaluated trading sessions were 2016-01-04 through 2025-12-31. The configured price request starts on 2014-10-01 to provide signal warm-up history.   data_range (from output): 2016-01-04 to 2025-12-31
+IS/OOS split: Configured IS is 2016-01-01 through 2022-12-31 and configured OOS is 2023-01-01 through 2025-12-31. Actual IS sessions ran 2016-01-04 through 2022-12-30 and OOS sessions ran 2023-01-03 through 2025-12-31. OOS is a historical time holdout. Each portfolio is simulated continuously, with holdings carried across the split and daily results sliced for reporting.
+Costs and slippage: The simulation charges 5 bps on each buy and each sell, including initial purchases and BIL trades, using gross traded notional. At each rebalance it solves for post-fee NAV before assigning the target holdings. The same fee rate applies to both benchmarks, and final holdings are marked to market. Slippage is not modelled. The simulation uses the adjusted opening price with no separate spread or market-impact adjustment.
+Signal lag: At the last trading session's close of each month, the strategy computes each style ETF's trailing 252-session return minus SPY's trailing return. The portfolio is rebalanced at the next trading session's open, which is the first session of the new month. An initial evaluation session that falls mid-month uses the latest available monthly signal.
+Price adjustment: The Yahoo Finance download sets auto_adjust=True and retains the adjusted Open and Close fields. The same adjusted close series is used for signals, and adjusted opens and closes are used for the simulated return legs.
+Survivorship bias: The fixed ETF pool uses currently available fund price histories and can have fund-level selection and survivorship bias. The signal uses the funds' own historical price series, with no reconstruction from current constituent stocks.
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.09175398788464784, ann_vol=0.16653148589295652, sharpe=0.6108937814091725, max_drawdown=-0.33554535978873945, total_return=0.847442503318327, turnover=35.656258992577186
+    oos: cagr=0.170149637236648, ann_vol=0.13524762999474724, sharpe=1.229679291389422, max_drawdown=-0.14827674207599195, total_return=0.5982363725876625, turnover=8.476996253898488
+    full: cagr=0.11463690071119692, ann_vol=0.15780944623978677, sharpe=0.7670642532160133, max_drawdown=-0.33554535978873945, total_return=1.9526498050677659, turnover=44.13325524647567
+    benchmark: 
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

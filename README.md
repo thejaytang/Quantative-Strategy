@@ -4,7 +4,9 @@
 
 每个策略一个文件：`strategies/<编号>_<名称>.py`，一条命令运行：`python strategies/<文件>.py`（依赖见 requirements.txt）。文件头写明数据源与抓取时间、样本期、IS/OOS 划分、成本与滑点、信号滞后、复权口径、幸存者偏差说明、尝试的参数组合数，以及在记录的 commit 上实际运行得到的关键数字（backtest reproduced）。收录条件：真实运行、确有交易、无同收盘成交前视、非作者审查 PASS、单文件复跑与审查时结果一致。
 
-本表由文件实际内容生成（2026-11-26 13:08 Europe/Oslo），共 0 个。
+本表由文件实际内容生成（2026-11-26 13:09 Europe/Oslo），共 2 个。
 
 | 文件 | 作者 | 代码 commit | 全样本 Sharpe | 全样本 CAGR |
 |---|---|---|---|---|
+| strategies/100_etf_asset_momentum_corr_hedge.py | Codex | 584a8537ef | 0.5880761098245768 | 0.07506861934526832 |
+| strategies/105_factor_momentum_style_etf.py | Codex | 584a8537ef | 0.7670642532160133 | 0.11463690071119692 |

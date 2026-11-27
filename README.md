@@ -4,7 +4,7 @@
 
 每个策略一个文件：`strategies/<编号>_<名称>.py`，一条命令运行：`python strategies/<文件>.py`（依赖见 requirements.txt）。文件头写明数据源与抓取时间、样本期、IS/OOS 划分、成本与滑点、信号滞后、复权口径、幸存者偏差说明、尝试的参数组合数，以及在记录的 commit 上实际运行得到的关键数字（backtest reproduced）。收录条件：真实运行、确有交易、无同收盘成交前视、Codex 自审 PASS（进入本仓库前的审查为作者自审，不是独立第三方审查）、单文件复跑与审查时结果一致。
 
-本表由文件实际内容生成（2026-11-27 12:28 Europe/Oslo），本表由文件实际内容生成（2026-11-27 12:28 Europe/Oslo），共 47 个。
+本表由文件实际内容生成（2026-11-27 12:28 Europe/Oslo），本表由文件实际内容生成（2026-11-27 12:28 Europe/Oslo），共 50 个。
 。
 
 | 文件 | 作者 | 代码 commit | 全样本 Sharpe | 全样本 CAGR |
@@ -20,6 +20,7 @@
 | strategies/125_liquidity_risk_indicator_timing.py | Codex | ad594150a0 | 0.9392801869667401 | 0.092108548038075 |
 | strategies/126_hmm_regime_allocation.py | Codex | ad594150a0 | 0.9421612030950982 | 0.10710208722331305 |
 | strategies/129_ml_etf_trend_vs_oscillation.py | Codex | ad594150a0 | -0.1633159490129353 | -0.00856614180659876 |
+| strategies/130_ml_risk_budget_allocation.py | Codex | ad594150a0 | 0.8004610178300348 | 0.05922868384241897 |
 | strategies/148_decomposing_momentum.py | Codex | 2b23c5bbf7 | 0.8720364930091413 | 0.20916162811949102 |
 | strategies/157_skew_path_dependent_vol.py | Codex | 498f8135d2 | 0.697460500588218 | 0.09150872373465474 |
 | strategies/165_retail_signal_failure.py | Codex | 2b23c5bbf7 | 0.43541324492441674 | 0.05075523692537032 |
@@ -49,11 +50,13 @@
 | strategies/382_statistical_arbitrage_in_polish_equities.py | Codex | ea97bbcbc9 | 0.500628613686733 | 0.023135888068235744 |
 | strategies/391_evolutionary_factor_searching_for_sparse.py | Codex | da9754ee51 | 0.9903968721257259 | 0.25587424645442103 |
 | strategies/438_the_mathematics_of_heuristic_portfolio_o.py | Codex | f9ce9ed5a4 | 0.573210240682426 | 0.0343462522184903 |
+| strategies/448_continuous_cash_overlay_filters_for_a_st.py | Codex | 6df04a4d89 | 1.1328022628669068 | 0.18558698378061722 |
 | strategies/463_simple_dynamic_stock_bond_gold_portfolio.py | Codex | f9ce9ed5a4 | 0.9859305218392249 | 0.0686041912862605 |
 | strategies/466_hierarchical_risk_parity_for_portfolio_a.py | Codex | da9754ee51 | 0.25202646099041437 | 0.03140765257653144 |
 | strategies/492_optimal_portfolio_construction_a_reinfor.py | Codex | da9754ee51 | 0.89927754240382 | 0.1296232752782156 |
 | strategies/504_exploratory_mean_variance_with_jumps_an.py | Codex | da9754ee51 | 0.7431772376620975 | 0.05658096575636318 |
 | strategies/511_dynamic_portfolio_optimization_under_cva.py | Codex | da9754ee51 | 0.6781159099371227 | 0.05417596659859414 |
+| strategies/512_nested_clustered_optimization_is_one_end.py | Codex | c0a8f76240 | 0.8091637086121385 | 0.10669591931434075 |
 | strategies/549_drawdown_risk_beyond_brownian_motion_a_m.py | Codex | f0c72714f0 | 0.6380887390535539 | 0.07247489420330977 |
 | strategies/560_drawdown_risk_beyond_brownian_motion_a_m.py | Codex | dabba95798 | 0.6719090607841077 | 0.08084054202667357 |
 

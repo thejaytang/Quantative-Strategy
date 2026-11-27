@@ -12,7 +12,6 @@ Generated 2026-11-27 12:28 Europe/Oslo.
 | strategies/109_factor_etf_vol_matched.py | FAIL | see review | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/113_kalman_garch_pairs.py | FAIL | see review | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/124_dollar_safe_haven_reversal.py | PASS | see review | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
-| strategies/130_ml_risk_budget_allocation.py | PASS | see review | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/156_cta_replication_trend_factors.py | PASS | 成交和融资成本为简化假设 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/159_deep_momentum_market_trend.py | PASS | look-ahead / same-close fill | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/179_crude_oil_news_sentiment.py | PASS | look-ahead / same-close fill | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
@@ -35,7 +34,6 @@ Generated 2026-11-27 12:28 Europe/Oslo.
 | strategies/442_mitigating_return_drag_and_regime_whipsa.py | FAIL | look-ahead / same-close fill | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/443_revisiting_equity_bond_diversification_u.py | FAIL | 最终买入量可由成交日收盘价决定; 动态配置缺少实际成交证据 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/445_dynamic_scenario_based_portfolio_optimiz.py | PASS | see review | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
-| strategies/448_continuous_cash_overlay_filters_for_a_st.py | PASS | look-ahead / same-close fill | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/449_the_mathematics_of_heuristic_portfolio_o.py | FAIL | see review | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/450_a_declining_cvar_glidepath_framework_for.py | FAIL | 成交日收盘价改变实际买入份额 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/451_a_declining_cvar_glidepath_framework_for.py | FAIL | 资金不足时，最终买入份额由成交日收盘价反算 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
@@ -74,7 +72,6 @@ Generated 2026-11-27 12:28 Europe/Oslo.
 | strategies/505_competitive_optimal_portfolio_selection.py | FAIL | 成交日收盘价决定部分实际买入份额 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/509_beyond_de_prado_and_cotton_hierarchical.py | FAIL | see review | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/510_some_general_results_on_risk_budgeting_p.py | FAIL | 实际买入数量由成交日收盘价决定 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
-| strategies/512_nested_clustered_optimization_is_one_end.py | PASS | see review | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/514_risk_limited_asset_allocation_with_a_bud.py | FAIL | see review | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/520_beyond_de_prado_and_cotton_hierarchical.py | FAIL | 实际买入份额依赖成交日收盘价 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/522_asset_allocation_using_a_markov_process.py | FAIL | 实际买入份额取决于成交日收盘价 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |

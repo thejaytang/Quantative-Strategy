@@ -1,23 +1,3 @@
-"""159_deep_momentum_market_trend
-研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
-Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/159_deep_momentum_market_trend.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit 498f8135d2067ed389c0a52a60055b65c4b14836 on 2026-11-27 06:36 Europe/Oslo, exit 0, output sha256 adc713e8dd0a12bba86b72e9f907fb95603cb07f3590581fdfda6c5a8d3287c8
-Data source: Yahoo Finance 免费公开 Chart 接口日线。ETF：SPY、EFA、EEM、IEF、TLT、GLD、DBC、VNQ、UUP，基准为 SPY。现金参考为 Yahoo Finance ^IRX 日收盘利率。优先读取本地 CSV 快照，缓存缺失时从 Yahoo 下载。（config.yaml:3-5，strategy.py:26-56、100-116、439-448，README.md:13-16）
-Data fetched: {"SPY": "2026-11-27T05:36:37+00:00", "EFA": "2026-11-27T05:36:37+00:00", "EEM": "2026-11-27T05:36:37+00:00", "IEF": "2026-11-27T05:36:37+00:00", "TLT": "2026-11-27T05:36:37+00:00", "GLD": "2026-11-27T05:36:37+00:00", "DBC": "2026-11-27T05:36:37+00:00", "VNQ": "2026-11-27T05:36:37+00:00", "UUP": "2026-11-27T05:36:37+00:00", "^IRX": "2026-11-27T05:36:37+00:00"}
-Sample period: ETF 配置起点为 2008-01-01，实际报价覆盖 2008-01-02 至 2025-12-31，2008 年用于指标预热。^IRX 请求区间为 2009-01-01 至 2025-12-31。实际回测为 2015-01-05 至 2025-12-31。（config.yaml:2、7-12，README.md:24-25，strategy.py:439-448，logs/codex_fix_d2_run_20261126_175108.log:13）   data_range (from output): 2015-01-05 to 2025-12-31
-IS/OOS split: 配置的 IS 训练区间为 2009-01-01 至 2021-12-31，实际 IS 回测为 2015-01-05 至 2021-12-31。配置的 OOS 从 2022-01-01 开始，实际 OOS 回测为 2022-01-03 至 2025-12-31。IS 逐年走步拟合，最后一次拟合在 2021-12-31。OOS 模型参数冻结，特征和仓位随行情更新，持仓和净值跨切分连续。README 记录该 OOS 区间此前已用于回测和评审。（config.yaml:7-12，strategy.py:330-370、455-483，README.md:24-25、38，logs/codex_fix_d2_run_20261126_175108.log:5-13）
-Costs and slippage: 每次开盘换仓按各标的绝对成交名义额之和从现金扣除单边交易成本 5 bps 和固定滑点 2 bps，合计 7 bps。滑点以现金费用建模，账本成交价为复权开盘价。SPY 基准首次开盘建仓采用同一费率。以前一收盘的空头名义额按 ACT/360 扣年化 50 bps 借券费，前一收盘的正负现金余额按滞后的 ^IRX 换算利率计息。组合与基准期末均按持仓市值计价。（config.yaml:15-17，strategy.py:119-129、373-407、458-467，README.md:26、30-32，logs/codex_fix_d2_run_20261126_175108.log:13）
-Signal lag: 交易日 t 收盘数据生成目标仓位，目标向后移一个交易日，在 t+1 复权开盘价成交，当日收盘计价。LSTM 训练目标为 t+1 开盘至 t+2 开盘的毛收益。（strategy.py:132-159、319-323、355-370、380-405，README.md:26）
-Price adjustment: Yahoo dividend- and split-adjusted ETF close; open multiplied by adjusted close / quoted close; raw ^IRX close in percent
-Survivorship bias: 固定使用九只现存且有足够长历史的 ETF，回溯选样存在存续和选择偏差。股指 ETF 历史报价反映各指数随时间变化的成分。（config.yaml:3-4，strategy.py:100-116，README.md:13、38）
-Parameter combinations tried: 1
-Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=0.008722701327142035, ann_vol=0.009904941842780898, sharpe=0.8817887932245972, sharpe_excess=0.05860412299869036, max_drawdown=-0.019509534549935093, total_return=0.06260689187639223, turnover=41.30196467351861, n_trades=15858
-    oos: cagr=0.03818959332401861, ann_vol=0.010501040660460436, sharpe=3.5745306639599006, sharpe_excess=-0.36084492552071395, max_drawdown=-0.0049850704288952885, total_return=0.16087039342566656, turnover=22.29348434188947, n_trades=9027
-    full: cagr=0.019313841737686577, ann_vol=0.01016087042870555, sharpe=1.8878338181989713, sharpe_excess=-0.09846194474697785, max_drawdown=-0.019509534549935093, total_return=0.23354888062937262, turnover=63.59544901540808, n_trades=24885
-    benchmark  full: cagr=0.1351720279033517, ann_vol=0.1778810794470133, sharpe=0.8020847359071032, sharpe_excess=0.6886626470100211, max_drawdown=-0.33717268745960094, total_return=3.019286829180989, turnover=0.99930048965724, n_trades=1
-"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

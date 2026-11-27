@@ -1,6 +1,7 @@
 """584_asymmetric_nonlinear_return_extrapolatio
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Status: PENDING — not reviewed by Gatekeeper, not accepted
 Run (one command): python strategies/584_asymmetric_nonlinear_return_extrapolatio.py   (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 25a9179813de3addbbaee65a8c08579eb6e27d08 on 2026-11-27 19:08 Europe/Oslo, exit 0, output sha256 a1798b2e943ddba9e302aa1c0faa9a5185ad5f5208c69a0a4b96eafe6deb081d
 Data source: Yahoo Finance daily ETF prices and corporate actions via yfinance. SPY and IEF are the portfolio assets. BIL is the excess-Sharpe reference. The logged data fetch timestamp is 2026-11-27T17:20:12+00:00.

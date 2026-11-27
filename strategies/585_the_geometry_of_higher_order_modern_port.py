@@ -1,6 +1,7 @@
 """585_the_geometry_of_higher_order_modern_port
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Status: PENDING — not reviewed by Gatekeeper, not accepted
 Run (one command): python strategies/585_the_geometry_of_higher_order_modern_port.py   (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 25a9179813de3addbbaee65a8c08579eb6e27d08 on 2026-11-27 19:09 Europe/Oslo, exit 0, output sha256 3135c1667990590d3a45d48134b08ef69b1c198b79ab402e9745b66cee6efd90
 Data source: yfinance 免费 ETF 日线的复权开盘价和收盘价。投资池为 SPY、QQQ、IWM、EFA、IEF、TLT、GLD。SPY 另作买入持有基准，BIL 的收盘到收盘收益仅用于计算超额 Sharpe。

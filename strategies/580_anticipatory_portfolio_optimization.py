@@ -1,11 +1,12 @@
 """580_anticipatory_portfolio_optimization
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Status: PENDING — not reviewed by Gatekeeper, not accepted
 Run (one command): python strategies/580_anticipatory_portfolio_optimization.py   (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 25a9179813de3addbbaee65a8c08579eb6e27d08 on 2026-11-27 19:08 Europe/Oslo, exit 0, output sha256 818e3e39dacc653909b6f0a71e07a42449b356656930a9bfffc100340461b9ec
 Data source: Yahoo Finance via yfinance, daily Open and Close plus dividends and capital-gain distributions when supplied. Sector ETFs: XLB, XLE, XLF, XLI, XLK, XLP, XLU, XLV, XLY. SPY is the benchmark and BIL supplies the reference returns for ex-post excess Sharpe..
 Data fetched: 2026-11-27T18:08:42+00:00
-Sample period: Data requested from 2004-01-01 through 2025-12-31 for warm-up and evaluation. BIL may start later and must cover the session preceding evaluation. The logged evaluation spans 2010-01-04 through 2025-12-31..   data_range (from output): {'start': '2010-01-04', 'end': '2025-12-31'}
+Sample period: Data requested from 2004-01-01 through 2025-12-31 for warm-up and evaluation. BIL may start later and must cover the session preceding evaluation. The logged evaluation spans 2010-01-04 through 2025-12-31.   data_range (from output): {'start': '2010-01-04', 'end': '2025-12-31'}
 IS/OOS split: IS consists of evaluation sessions before 2018-01-01 (2010–2017). OOS consists of sessions on or after 2018-01-01 (2018–2025). The default simulation carries its portfolio across the cutoff, and rolling estimation can use OOS observations through each signal close. The six robustness cases run on IS only..
 Costs and slippage: Each buy or sell incurs a 2 bp fee and 3 bp of modeled slippage on absolute traded notional at the open. The combined 5 bp is reserved when sizing and deducted from cash. Slippage is a fixed cash charge and the simulated fill price is the adjusted open. The IS higher-friction case charges 4 bp in fees and 6 bp in slippage using the same mechanism. The SPY benchmark entry uses the default rate..
 Signal lag: The strategy computes target weights after the last trading session close of a month using returns through that close and queues them for the open one trading session later under the default configuration. The first logged signal close was 2009-12-31 and the first fill open was 2010-01-04..

@@ -1,6 +1,7 @@
 """578_are_three_matrices_all_you_need_to_beat
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Status: PENDING — not reviewed by Gatekeeper, not accepted
 Run (one command): python strategies/578_are_three_matrices_all_you_need_to_beat.py   (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 25a9179813de3addbbaee65a8c08579eb6e27d08 on 2026-11-27 19:08 Europe/Oslo, exit 0, output sha256 6dc13c97b5ae2ada9f9f740eaa5e3b8f2b8415f243f200561bc3144d11d0aba9
 Data source: Public Yahoo Finance daily ETF quotes and corporate actions via yfinance. The fixed sector universe is XLB, XLE, XLF, XLI, XLK, XLP, XLU, XLV and XLY. SPY is the benchmark and market-regime input. BIL is the defensive allocation and excess-return reference.

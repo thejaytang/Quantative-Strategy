@@ -3,14 +3,14 @@
 Author: Codex; non-author review: PASS; publication gate: Codex.
 Run (one command): python strategies/312_cost_access_understanding_price.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 2b23c5bbf706aea933c0cba5f5805efb450ee206 on 2026-11-26 14:27 Europe/Oslo, exit 0, output sha256 0acac48e0af95b41090f40868f09d5abc4750b806286084b4fe865e5aff11f22
-Data source: Yahoo Finance（yfinance）日频数据：美国 ADR TM、SONY、HMC，东京对应普通股 7203.T、6758.T、7267.T，EWJ 对冲 ETF，JPY=X（日元/美元），以及 Sony 分拆估值用的 8729.T。东京节假日来自日本内阁府 CSV，代码另列 1 月 1–3 日和 12 月 31 日为休市日规则，并读取配置中列明公告日期的公司行动。MSCI 文章是研究思路的来源。见。
+Data source: Yahoo Finance（yfinance）日频数据：美国 ADR TM、SONY、HMC，东京对应普通股 7203.T、6758.T、7267.T，EWJ 对冲 ETF，JPY=X（日元/美元），以及 Sony 分拆估值用的 8729.T。东京节假日来自日本内阁府 CSV，代码另列 1 月 1–3 日和 12 月 31 日为休市日规则，并读取配置中列明公告日期的公司行动。MSCI 文章是研究思路的来源。
 Data fetched: 2026-11-26 14:27 Europe/Oslo (run time)
-Sample period: 日志报告的实际美股交易日样本为 2018-01-02 至 2026-10-30（含首尾），按 EWJ 日线日期索引。配置覆盖 2018-01-01 至 2026-10-31，取数起点提前 180 个日历日，取数结束参数在样本外结束日后延 15 个日历日。见。 data_range (from output): 2018-01-02 to 2026-10-30
-IS/OOS split: IS 配置为 2018-01-01 至 2023-12-31，OOS 配置为 2024-01-01 至 2026-10-31，均含端点并按 EWJ 实际交易日切片。OOS 为回顾性时间留出。README 记载参数未经样本优化。先模拟整段样本，再切片计算指标，跨界沿用持仓与净值。见。
-Costs and slippage: 交易费为每腿每次单边成交额的 10 bps，按开盘价计算各腿绝对成交额之和，于调仓时从现金扣除。EWJ 借券费为年化 50 bps，逐交易日按收盘空头市值乘以 50/10000 再除以 252，从现金扣除。空头承担 EWJ 分派，现金收益按零计。滑点未建模，成交直接采用各腿的美国开盘价。见。
-Signal lag: 在美国交易日 t 收盘用当日 ADR 与此前已收盘的东京普通股价格，以及 t 前一日或更早的 FX 日线计算平价偏离。入场信号、对冲 beta 和平价退出判断滞后一美股交易日，以 t+1 的美国开盘价模拟成交。持有期到期也在开盘退出。基准使用首个报告交易日前一交易日的 beta，在首个报告交易日开盘建仓。见。
-Price adjustment: yfinance 使用 auto_adjust=False、actions=True。策略用供应商 Open、Close，未作现金股息复权，历史价格仍可能含供应商的拆股等调整。ADR 和 EWJ 的股息按持股数直接计入现金，beta 收益率计入分派。Sony 分拆在 2025-09-29 按每 ADR 一股 8729.T 的当日东京收盘价和滞后汇率折算为美元，以现金等值入账，并重置 SONY 平价比值的滚动中位数基准。见。
-Survivorship bias: TM、SONY、HMC 为事后固定的三只存续 ADR。README 明示存在存续、选样和行业集中偏差，时间留出不能消除这些偏差。见。
+Sample period: 日志报告的实际美股交易日样本为 2018-01-02 至 2026-10-30（含首尾），按 EWJ 日线日期索引。配置覆盖 2018-01-01 至 2026-10-31，取数起点提前 180 个日历日，取数结束参数在样本外结束日后延 15 个日历日。 data_range (from output): 2018-01-02 to 2026-10-30
+IS/OOS split: IS 配置为 2018-01-01 至 2023-12-31，OOS 配置为 2024-01-01 至 2026-10-31，均含端点并按 EWJ 实际交易日切片。OOS 为回顾性时间留出。README 记载参数未经样本优化。先模拟整段样本，再切片计算指标，跨界沿用持仓与净值。
+Costs and slippage: 交易费为每腿每次单边成交额的 10 bps，按开盘价计算各腿绝对成交额之和，于调仓时从现金扣除。EWJ 借券费为年化 50 bps，逐交易日按收盘空头市值乘以 50/10000 再除以 252，从现金扣除。空头承担 EWJ 分派，现金收益按零计。滑点未建模，成交直接采用各腿的美国开盘价。
+Signal lag: 在美国交易日 t 收盘用当日 ADR 与此前已收盘的东京普通股价格，以及 t 前一日或更早的 FX 日线计算平价偏离。入场信号、对冲 beta 和平价退出判断滞后一美股交易日，以 t+1 的美国开盘价模拟成交。持有期到期也在开盘退出。基准使用首个报告交易日前一交易日的 beta，在首个报告交易日开盘建仓。
+Price adjustment: yfinance 使用 auto_adjust=False、actions=True。策略用供应商 Open、Close，未作现金股息复权，历史价格仍可能含供应商的拆股等调整。ADR 和 EWJ 的股息按持股数直接计入现金，beta 收益率计入分派。Sony 分拆在 2025-09-29 按每 ADR 一股 8729.T 的当日东京收盘价和滞后汇率折算为美元，以现金等值入账，并重置 SONY 平价比值的滚动中位数基准。
+Survivorship bias: TM、SONY、HMC 为事后固定的三只存续 ADR。README 明示存在存续、选样和行业集中偏差，时间留出不能消除这些偏差。
 Parameter combinations tried: 2
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=-0.041963212387363225, ann_vol=0.04071170611567664, sharpe=-1.0326345613402312, max_drawdown=-0.2506701230206071, total_return=-0.22640303762699654, turnover=250.16854748938079, n_trades=125

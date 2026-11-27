@@ -4,14 +4,14 @@ WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
 Run (one command): python strategies/467_an_entropic_factor_model_for_robust_port.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit e0683ac343a175cb2458afc860f8d1a1066c8e3a on 2026-11-27 08:55 Europe/Oslo, exit 0, output sha256 304732ff0d7ada520e65ce164cfd353a52a72ccc8586a915b3c8e29eed987db0
-Data source: yfinance 提供的免费 Yahoo Finance 日线。股票池为 XOM、CVX、MSFT、AAPL、IBM、INTC、CSCO、AMZN、JPM、BAC、GS、AXP、JNJ、PFE、MRK、PG、KO、WMT、MCD、BA。SPY 为市场因子和买入持有基准，BIL 仅作为超额夏普的现金代理。见。
+Data source: yfinance 提供的免费 Yahoo Finance 日线。股票池为 XOM、CVX、MSFT、AAPL、IBM、INTC、CSCO、AMZN、JPM、BAC、GS、AXP、JNJ、PFE、MRK、PG、KO、WMT、MCD、BA。SPY 为市场因子和买入持有基准，BIL 仅作为超额夏普的现金代理。
 Data fetched: 2026-11-27T07:55:50+00:00
-Sample period: 配置日期为 2018-01-01 至 2023-12-31。日志记录的实际价格样本为 2018-01-02 至 2023-12-29，首笔模拟成交和评估起点为 2019-01-04。见。 data_range (from output): {'start': '2018-01-02', 'end': '2023-12-29', 'evaluation_start': '2019-01-04', 'is_end': '2021-04-20'}
-IS/OOS split: 按日期切分同一次连续回测。样本内为 2019-01-04 至 2021-04-20（含），样本外为 2021-04-21 至 2023-12-29。持仓跨分界延续，样本外继续以每次信号当时的最近 252 个交易日收益滚动估计。见。
-Costs and slippage: 模拟计入 10 bps 交易成本与 5 bps 固定滑点，合计 15 bps，按建仓和再平衡时买入及卖出名义金额的绝对值之和扣除。成交金额依据扣除摩擦后的目标净值计算。SPY 买入持有基准按同期调整价收益计量，未扣此项摩擦。见。
-Signal lag: 使用截至 t 日收盘（含）的收益计算目标权重，默认在下一交易日 t+1 收盘模拟成交。t 至 t+1 的收盘到收盘收益归成交前持仓，新持仓从 t+1 收盘后开始承担收益。见。
+Sample period: 配置日期为 2018-01-01 至 2023-12-31。日志记录的实际价格样本为 2018-01-02 至 2023-12-29，首笔模拟成交和评估起点为 2019-01-04。 data_range (from output): {'start': '2018-01-02', 'end': '2023-12-29', 'evaluation_start': '2019-01-04', 'is_end': '2021-04-20'}
+IS/OOS split: 按日期切分同一次连续回测。样本内为 2019-01-04 至 2021-04-20（含），样本外为 2021-04-21 至 2023-12-29。持仓跨分界延续，样本外继续以每次信号当时的最近 252 个交易日收益滚动估计。
+Costs and slippage: 模拟计入 10 bps 交易成本与 5 bps 固定滑点，合计 15 bps，按建仓和再平衡时买入及卖出名义金额的绝对值之和扣除。成交金额依据扣除摩擦后的目标净值计算。SPY 买入持有基准按同期调整价收益计量，未扣此项摩擦。
+Signal lag: 使用截至 t 日收盘（含）的收益计算目标权重，默认在下一交易日 t+1 收盘模拟成交。t 至 t+1 的收盘到收盘收益归成交前持仓，新持仓从 t+1 收盘后开始承担收益。
 Price adjustment: yfinance auto_adjust total-return close
-Survivorship bias: 按配置使用论文实验的固定 20 只股票，未按历史时点重建股票池。README 披露幸存者偏差及事后筛选偏差，整个历史样本早于论文发布。见。
+Survivorship bias: 按配置使用论文实验的固定 20 只股票，未按历史时点重建股票池。README 披露幸存者偏差及事后筛选偏差，整个历史样本早于论文发布。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.18555862301711135, ann_vol=0.2534800291597501, sharpe=0.7989961982958048, sharpe_excess=0.7586283015220004, max_drawdown=-0.34796182412188925, total_return=0.4765912122814211, turnover=1.9517349421957848, n_trades=560

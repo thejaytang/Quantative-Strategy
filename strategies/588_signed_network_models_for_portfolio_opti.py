@@ -1,6 +1,7 @@
 """588_signed_network_models_for_portfolio_opti
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Status: PENDING — not reviewed by Gatekeeper, not accepted
 Run (one command): python strategies/588_signed_network_models_for_portfolio_opti.py   (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 25a9179813de3addbbaee65a8c08579eb6e27d08 on 2026-11-27 19:09 Europe/Oslo, exit 0, output sha256 0759f6c559a590db0b8a4edc1cc09394d2c5980e67306eeb3710deaddac4aca6
 Data source: Yahoo Finance 免费 ETF 日线及公司行动，由 yfinance 下载，或读取同一数据源的本地缓存。资产池为 XLB、XLE、XLF、XLI、XLK、XLP、XLU、XLV、XLY，SPY 为买入持有基准，BIL 总收益用于计算超额夏普比率。

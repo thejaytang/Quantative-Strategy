@@ -4,14 +4,14 @@ WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
 Run (one command): python strategies/537_hierarchical_minimum_variance_portfolios.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit c0a8f76240a0431b019ab49c34040a95a765860a on 2026-11-27 10:04 Europe/Oslo, exit 0, output sha256 79906d170fa3ca7aa3ad49d9d535eff8a93897d92f50957aa908c8e6b21dfdbf
-Data source: Yahoo Finance，经 yfinance 获取日频 ETF 复权收盘价。资产池为 SPY、XLB、XLE、XLF、XLI、XLK、XLP、XLU、XLV、XLY。BIL 的日总回报只用于计算超额夏普比率。。
+Data source: Yahoo Finance，经 yfinance 获取日频 ETF 复权收盘价。资产池为 SPY、XLB、XLE、XLF、XLI、XLK、XLP、XLU、XLV、XLY。BIL 的日总回报只用于计算超额夏普比率。
 Data fetched: 2026-11-27T09:04:26+00:00
-Sample period: 行情请求区间为 2008-01-01 至 2025-12-31（含），2008–2009 年用于预热。日志记录的实际回测区间为 2010-01-04 至 2025-12-31（含）。。 data_range (from output): {'start': '2010-01-04', 'end': '2025-12-31'}
-IS/OOS split: 样本内为 2010-01-04 至 2018-12-31（含），样本外为 2019 年首个交易日至 2025-12-31（含）。正式配置连续模拟一次，随后按 2018-12-31 切分统计，持仓跨切分日延续。样本外为历史留出。。
-Costs and slippage: 每笔买入和卖出按实际成交名义金额收取 5 bps 成本和 3 bps 固定滑点，合计 8 bps，含首次建仓。执行日先按收盘价更新旧持仓价值，再从组合扣除摩擦。成交金额按扣费后资本对应的目标持仓与交易前持仓的绝对差额计算。样本内 2 倍摩擦情形合计 16 bps。。
-Signal lag: 每月最后一个交易日收盘后，用截至该收盘的日收益计算目标权重，于下一交易日收盘执行。信号日收盘至执行日收盘的收益按原持仓计，新权重从执行日收盘后的下一个收盘到收盘区间生效。。
+Sample period: 行情请求区间为 2008-01-01 至 2025-12-31（含），2008–2009 年用于预热。日志记录的实际回测区间为 2010-01-04 至 2025-12-31（含）。 data_range (from output): {'start': '2010-01-04', 'end': '2025-12-31'}
+IS/OOS split: 样本内为 2010-01-04 至 2018-12-31（含），样本外为 2019 年首个交易日至 2025-12-31（含）。正式配置连续模拟一次，随后按 2018-12-31 切分统计，持仓跨切分日延续。样本外为历史留出。
+Costs and slippage: 每笔买入和卖出按实际成交名义金额收取 5 bps 成本和 3 bps 固定滑点，合计 8 bps，含首次建仓。执行日先按收盘价更新旧持仓价值，再从组合扣除摩擦。成交金额按扣费后资本对应的目标持仓与交易前持仓的绝对差额计算。样本内 2 倍摩擦情形合计 16 bps。
+Signal lag: 每月最后一个交易日收盘后，用截至该收盘的日收益计算目标权重，于下一交易日收盘执行。信号日收盘至执行日收盘的收益按原持仓计，新权重从执行日收盘后的下一个收盘到收盘区间生效。
 Price adjustment: yfinance auto_adjust=True daily total-return close (splits and distributions)
-Survivorship bias: 从当前仍存续的 ETF 中回溯选定固定资产池，存在幸存者偏差及事后选样风险。。
+Survivorship bias: 从当前仍存续的 ETF 中回溯选定固定资产池，存在幸存者偏差及事后选样风险。
 Parameter combinations tried: 4
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.1113720440024859, ann_vol=0.11283740515524897, sharpe=0.9925044802391011, sharpe_excess=0.9706624099394938, max_drawdown=-0.12062257845735058, total_return=1.5823035073279645, turnover=1.699560287908907, n_trades=466

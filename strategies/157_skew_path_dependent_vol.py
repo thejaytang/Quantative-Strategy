@@ -3,14 +3,14 @@
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
 Run (one command): python strategies/157_skew_path_dependent_vol.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 498f8135d2067ed389c0a52a60055b65c4b14836 on 2026-11-27 06:36 Europe/Oslo, exit 0, output sha256 f1e4e0eded62958a3277b0d8311e417d771d311b65c348eb7ff0b02331a83613
-Data source: Yahoo Finance 经 yfinance 提供的免费 SPY ETF 日频复权开盘价与收盘价，优先读取本地 CSV 缓存。来源见。
+Data source: Yahoo Finance 经 yfinance 提供的免费 SPY ETF 日频复权开盘价与收盘价，优先读取本地 CSV 缓存。
 Data fetched: 2026-11-27 06:36 Europe/Oslo (run time)
-Sample period: 日志记录的回测交易日为 2004-01-02 至 2025-12-31。请求自 1993-01-01 起的可用历史，用于初始化路径状态。来源见 、backtest_results.md:14、。 data_range (from output): 2004-01-02 to 2025-12-31
-IS/OOS split: 配置样本内为 2004-01-01 至 2015-12-31，样本外为 2016-01-01 至 2025-12-31。只用样本内扣费后 Sharpe 选择仓位下限，同分取较高下限，日志记录选中 25%。样本外沿用所选下限，仓位与路径状态跨分界连续。来源见。
-Costs and slippage: 策略与买入持有基准在开盘按实际成交名义金额扣除单边 5 bps，首次买入也扣费。成交名义金额以开盘交易前净值计量，费用进入当日净收益。未单独建模滑点，模拟使用当日复权开盘价。来源见。
-Signal lag: 交易日 t 的 SPY 复权收盘价更新路径状态，目标仓位移后一行，于下一交易日开盘模拟成交。隔夜价格变动按旧仓位计入，开盘后至收盘按新仓位计入。来源见。
-Price adjustment: 下载时设置 auto_adjust=True、actions=False，保留复权 Open 和 Close 两列。命中缓存时直接读取文件名以 _adjusted.csv 结尾的 CSV。README 说明供应商可能修订复权价格。来源见。
-Survivorship bias: 使用单一 SPY ETF 自身历史，避免用当前指数成分股回溯选股带来的成分股幸存者偏差。事后选取长期存续的美国 ETF 仍存在市场与产品选择偏差。来源见。
+Sample period: 日志记录的回测交易日为 2004-01-02 至 2025-12-31。请求自 1993-01-01 起的可用历史，用于初始化路径状态。 data_range (from output): 2004-01-02 to 2025-12-31
+IS/OOS split: 配置样本内为 2004-01-01 至 2015-12-31，样本外为 2016-01-01 至 2025-12-31。只用样本内扣费后 Sharpe 选择仓位下限，同分取较高下限，日志记录选中 25%。样本外沿用所选下限，仓位与路径状态跨分界连续。
+Costs and slippage: 策略与买入持有基准在开盘按实际成交名义金额扣除单边 5 bps，首次买入也扣费。成交名义金额以开盘交易前净值计量，费用进入当日净收益。未单独建模滑点，模拟使用当日复权开盘价。
+Signal lag: 交易日 t 的 SPY 复权收盘价更新路径状态，目标仓位移后一行，于下一交易日开盘模拟成交。隔夜价格变动按旧仓位计入，开盘后至收盘按新仓位计入。
+Price adjustment: 下载时设置 auto_adjust=True、actions=False，保留复权 Open 和 Close 两列。命中缓存时直接读取文件名以 _adjusted.csv 结尾的 CSV。README 说明供应商可能修订复权价格。
+Survivorship bias: 使用单一 SPY ETF 自身历史，避免用当前指数成分股回溯选股带来的成分股幸存者偏差。事后选取长期存续的美国 ETF 仍存在市场与产品选择偏差。
 Parameter combinations tried: 3
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.06882383508370718, ann_vol=0.13107841169395812, sharpe=0.5735059568085301, max_drawdown=-0.2954963523301738, total_return=1.2209022342272315, turnover=19.885597326794425, n_trades=1357

@@ -3,14 +3,14 @@
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
 Run (one command): python strategies/103_breaking_bad_trends.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit ed11995234d0b7af91b8ab7ab035ba02e738dbe6 on 2026-11-27 06:31 Europe/Oslo, exit 0, output sha256 03e0476c232c89366330e08964a2e217f2863a5524c785dac47a1cffdc2aa394
-Data source: 通过 yfinance 免费获取的 Yahoo Finance 日线开盘价与收盘价。风险 ETF 为 SPY、EFA、EEM、IEF、TLT、GLD、DBC、USO、UUP，储备 ETF 为 BIL。本次记录的运行使用缓存，2026-11-25 08:52:11 UTC 是 gzip 快照写入时间。。
+Data source: 通过 yfinance 免费获取的 Yahoo Finance 日线开盘价与收盘价。风险 ETF 为 SPY、EFA、EEM、IEF、TLT、GLD、DBC、USO、UUP，储备 ETF 为 BIL。本次记录的运行使用缓存，2026-11-25 08:52:11 UTC 是 gzip 快照写入时间。
 Data fetched: 2026-11-27T05:31:01+00:00
-Sample period: 预热行情请求从 2007-11-01 开始，至 2025-12-31。回测实际交易日为 2009-01-02 至 2025-12-31，含首尾。。 data_range (from output): 2009-01-02 to 2025-12-31
-IS/OOS split: 样本内为 2009-01-01 至 2023-12-31，样本外为 2024-01-01 至 2025-12-31，均为含首尾的日历区间。全期连续模拟后按日期切分，样本外承接既有持仓和信号。采用固定参数，无样本外调参。。
-Costs and slippage: 每笔买入或卖出按绝对成交金额扣 5 bps 交易成本和 5 bps 固定滑点，共 10 bps，含首次建仓及 BIL。模型在开盘调仓时从净值扣除两项费用，按扣费后净值确定目标仓位。滑点以固定费用建模，模拟开盘成交价不另作滑点调整。。
-Signal lag: 在每个周五结束的交易周最后一个交易日，用当日及历史复权收盘价计算 21 和 252 个交易日的动量。信号最早于下一交易日开盘执行。首次建仓使用当时已可执行的最新目标，之后仅在目标权重变化时调仓。。
+Sample period: 预热行情请求从 2007-11-01 开始，至 2025-12-31。回测实际交易日为 2009-01-02 至 2025-12-31，含首尾。 data_range (from output): 2009-01-02 to 2025-12-31
+IS/OOS split: 样本内为 2009-01-01 至 2023-12-31，样本外为 2024-01-01 至 2025-12-31，均为含首尾的日历区间。全期连续模拟后按日期切分，样本外承接既有持仓和信号。采用固定参数，无样本外调参。
+Costs and slippage: 每笔买入或卖出按绝对成交金额扣 5 bps 交易成本和 5 bps 固定滑点，共 10 bps，含首次建仓及 BIL。模型在开盘调仓时从净值扣除两项费用，按扣费后净值确定目标仓位。滑点以固定费用建模，模拟开盘成交价不另作滑点调整。
+Signal lag: 在每个周五结束的交易周最后一个交易日，用当日及历史复权收盘价计算 21 和 252 个交易日的动量。信号最早于下一交易日开盘执行。首次建仓使用当时已可执行的最新目标，之后仅在目标权重变化时调仓。
 Price adjustment: Yahoo Finance via yfinance auto_adjust=True (split- and distribution-adjusted Open and Close)
-Survivorship bias: 固定 ETF 池为事后选取的存续基金，存在产品筛选和存续偏差。代码直接使用配置的 ETF 名单，未调用指数成分股名单，也未纳入历史上已清盘的同类基金。。
+Survivorship bias: 固定 ETF 池为事后选取的存续基金，存在产品筛选和存续偏差。代码直接使用配置的 ETF 名单，未调用指数成分股名单，也未纳入历史上已清盘的同类基金。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.006337553075879576, ann_vol=0.051913119417244545, sharpe=0.14768547196487497, sharpe_excess=0.00893521938982484, max_drawdown=-0.12330516430142946, total_return=0.09923327112744662, turnover=16.066823240011754, n_trades=4739

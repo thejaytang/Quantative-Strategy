@@ -4,14 +4,14 @@ WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
 Run (one command): python strategies/476_conditional_value_at_risk_under_reward_p.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit e0683ac343a175cb2458afc860f8d1a1066c8e3a on 2026-11-27 08:56 Europe/Oslo, exit 0, output sha256 3608cb98cdc72b13deae2bf0fda80ee212e8b2353f229ebd14fbbfd70d8457eb
-Data source: Yahoo Finance 日频 ETF 收盘价，通过 yfinance 下载或读取对应的本地快照。组合资产为 SPY、IWM、EFA、EEM、IEF、GLD。BIL 的日总回报用于事后计算超额收益指标。见。
+Data source: Yahoo Finance 日频 ETF 收盘价，通过 yfinance 下载或读取对应的本地快照。组合资产为 SPY、IWM、EFA、EEM、IEF、GLD。BIL 的日总回报用于事后计算超额收益指标。
 Data fetched: 2026-11-27T07:56:27+00:00
-Sample period: 预热数据请求自 2014-01-01 开始，回测评估期为 2017-03-01 至 2025-02-28（含首尾），以数据中的交易日为准。见。 data_range (from output): {'start': '2017-03-01', 'end': '2025-02-28'}
-IS/OOS split: 按日期切分历史模拟。IS 为 2017-03-01 至 2020-02-29，OOS 为 2020-03-01 至 2025-02-28，均取区间内的数据交易日。先连续模拟全评估期再切分指标，OOS 延续既有持仓和滚动窗口。见。
-Costs and slippage: 每笔模拟买入和卖出均按成交金额计 2 bps 成本和 3 bps 滑点，合计 5 bps。用当日收益漂移后的持仓与扣费后资金按目标权重分配所得的持仓之差计算双边成交额，并求解扣费后资金。策略和每日再平衡等权基准使用同一费率。见。
-Signal lag: 用截至交易日 t 收盘的 756 个日收益观测计算目标权重，于下一数据交易日 t+1 收盘模拟成交。至 t+1 收盘的收益归旧权重，新权重从 t+1 收盘开始承担下一段收盘到收盘收益。见。
+Sample period: 预热数据请求自 2014-01-01 开始，回测评估期为 2017-03-01 至 2025-02-28（含首尾），以数据中的交易日为准。 data_range (from output): {'start': '2017-03-01', 'end': '2025-02-28'}
+IS/OOS split: 按日期切分历史模拟。IS 为 2017-03-01 至 2020-02-29，OOS 为 2020-03-01 至 2025-02-28，均取区间内的数据交易日。先连续模拟全评估期再切分指标，OOS 延续既有持仓和滚动窗口。
+Costs and slippage: 每笔模拟买入和卖出均按成交金额计 2 bps 成本和 3 bps 滑点，合计 5 bps。用当日收益漂移后的持仓与扣费后资金按目标权重分配所得的持仓之差计算双边成交额，并求解扣费后资金。策略和每日再平衡等权基准使用同一费率。
+Signal lag: 用截至交易日 t 收盘的 756 个日收益观测计算目标权重，于下一数据交易日 t+1 收盘模拟成交。至 t+1 收盘的收益归旧权重，新权重从 t+1 收盘开始承担下一段收盘到收盘收益。
 Price adjustment: yfinance auto_adjust=True total-return adjusted close
-Survivorship bias: 使用固定的六只仍存续且历史较长的 ETF，存在资产选择与幸存者偏差。代码直接采用配置中的固定名单，未按历史时点重建资产池。见。
+Survivorship bias: 使用固定的六只仍存续且历史较长的 ETF，存在资产选择与幸存者偏差。代码直接采用配置中的固定名单，未按历史时点重建资产池。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.06311070855038636, ann_vol=0.034605457271774005, sharpe=1.785979696167371, sharpe_excess=1.3451567112623295, max_drawdown=-0.03219749931936455, total_return=0.20124061610366217, turnover=1.3092415066104692, n_trades=2792

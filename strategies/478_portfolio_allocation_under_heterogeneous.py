@@ -4,14 +4,14 @@ WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
 Run (one command): python strategies/478_portfolio_allocation_under_heterogeneous.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit e0984d15ab251762c76186215f63849cd5effddf on 2026-11-27 11:35 Europe/Oslo, exit 0, output sha256 60382920015957ee65be014167d28543486443d10d9a9fd5f6bb7929ddc42e8c
-Data source: yfinance 免费美元计价 ETF 日线。组合标的为 SPY、EWJ、USO、GLD。BIL 的日总回报仅作为计算超额夏普比率的无风险收益代理。见。
+Data source: yfinance 免费美元计价 ETF 日线。组合标的为 SPY、EWJ、USO、GLD。BIL 的日总回报仅作为计算超额夏普比率的无风险收益代理。
 Data fetched: 2026-11-27T10:35:01.353103+00:00
-Sample period: 配置下载区间为 2011-01-01 至 2025-12-31，2014-01-01 之前的数据用于预热。运行日志记录的回测交易日范围为 2014-01-02 至 2025-12-31。见。 data_range (from output): {'start': '2014-01-02', 'end': '2025-12-31'}
-IS/OOS split: 样本内为 2014-01-02 至 2020-12-31（含）。样本外为 2021 年首个交易日至 2025-12-31。策略和基准均连续模拟后按日期分段报告，跨界延续持仓。两段均使用滚动历史数据，样本外是历史回测分段。见。
-Costs and slippage: 每笔买入或卖出按成交金额计 5 bp 成本和 5 bp 固定滑点，合计 10 bp。再平衡时从执行日收盘组合净值中扣除买卖金额绝对值之和的 10 bp，并用扣减后的净值计算目标仓位。首次建仓同样计费，策略与基准使用同一扣减规则。见。
-Signal lag: 以每月首个交易日前一交易日 t 收盘为信号时点，使用截至 t 的 520 个交易日的日对数收益。执行滞后配置为 1，于 t+1（该月首个交易日）收盘模拟成交。执行日的收盘到收盘收益使用旧持仓，新权重从下一段收盘到收盘收益起生效。见。
+Sample period: 配置下载区间为 2011-01-01 至 2025-12-31，2014-01-01 之前的数据用于预热。运行日志记录的回测交易日范围为 2014-01-02 至 2025-12-31。 data_range (from output): {'start': '2014-01-02', 'end': '2025-12-31'}
+IS/OOS split: 样本内为 2014-01-02 至 2020-12-31（含）。样本外为 2021 年首个交易日至 2025-12-31。策略和基准均连续模拟后按日期分段报告，跨界延续持仓。两段均使用滚动历史数据，样本外是历史回测分段。
+Costs and slippage: 每笔买入或卖出按成交金额计 5 bp 成本和 5 bp 固定滑点，合计 10 bp。再平衡时从执行日收盘组合净值中扣除买卖金额绝对值之和的 10 bp，并用扣减后的净值计算目标仓位。首次建仓同样计费，策略与基准使用同一扣减规则。
+Signal lag: 以每月首个交易日前一交易日 t 收盘为信号时点，使用截至 t 的 520 个交易日的日对数收益。执行滞后配置为 1，于 t+1（该月首个交易日）收盘模拟成交。执行日的收盘到收盘收益使用旧持仓，新权重从下一段收盘到收盘收益起生效。
 Price adjustment: yfinance auto_adjust total-return adjusted open and close
-Survivorship bias: 固定使用事后选定、仍存续且历史完整的 ETF 代理，存在幸存者偏差和代理品选择偏差。见。
+Survivorship bias: 固定使用事后选定、仍存续且历史完整的 ETF 代理，存在幸存者偏差和代理品选择偏差。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.0939521875396101, ann_vol=0.10420906310103667, sharpe=0.9140162672501774, sharpe_excess=0.8491845968516751, max_drawdown=-0.1484849856964503, total_return=0.8742763798713635, turnover=1.2946907209979965, n_trades=336

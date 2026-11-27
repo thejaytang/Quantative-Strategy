@@ -4,14 +4,14 @@ WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
 Run (one command): python strategies/197_tsmom_boundaries.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 92e75bea82090bd8b6723b610a02dabec59e659b on 2026-11-27 07:29 Europe/Oslo, exit 0, output sha256 2c1130e9eb27bbf20be002849f09205177f4b0192e68a2d61438f5f3ab26a259
-Data source: Yahoo Finance（yfinance）的 SPY、BIL 日频开盘价、收盘价、复权收盘价及除息日现金分红，另用免费 FRED CSV 的 DGS10（10 年期）和 DGS3MO（3 个月期）美国国债收益率。。
+Data source: Yahoo Finance（yfinance）的 SPY、BIL 日频开盘价、收盘价、复权收盘价及除息日现金分红，另用免费 FRED CSV 的 DGS10（10 年期）和 DGS3MO（3 个月期）美国国债收益率。
 Data fetched: 2026-11-27
-Sample period: 实际回测交易区间为 2009-01-02 至 2026-10-30。数据请求自 2002-01-01 起用于预热，截止 2026-10-30。。 data_range (from output): 2009-01-02 to 2026-10-30
-IS/OOS split: 样本内为 2009-01-01 至 2018-12-31，样本外为 2019-01-01 至 2026-10-30。先连续模拟，再按日期切分报告，样本边界延续持仓。README 记载两段均未用于参数搜索，并说明这属于历史时间切分，研究论文的美国样本与样本外区间部分重叠。。
-Costs and slippage: 每边 5 bps，由 1 bp 手续费与 4 bps 固定滑点组成，滑点已建模为固定费用并包含价差影响。费率 c = 0.0005。首次从现金建仓乘以 1/(1+c)，换仓日卖出和买入各计一边，乘以 (1−c)/(1+c)，其余日成本因子为 1。策略及两个基准使用同一费率。。
-Signal lag: 每月最后一个 SPY 交易日收盘 t 形成信号。月末目标前向填充到日频后再滞后一整个交易日，最早在下一 SPY 交易日 t+1 开盘按目标换仓。换仓日的隔夜收益计入原持仓，开盘至收盘收益计入新持仓。。
+Sample period: 实际回测交易区间为 2009-01-02 至 2026-10-30。数据请求自 2002-01-01 起用于预热，截止 2026-10-30。 data_range (from output): 2009-01-02 to 2026-10-30
+IS/OOS split: 样本内为 2009-01-01 至 2018-12-31，样本外为 2019-01-01 至 2026-10-30。先连续模拟，再按日期切分报告，样本边界延续持仓。README 记载两段均未用于参数搜索，并说明这属于历史时间切分，研究论文的美国样本与样本外区间部分重叠。
+Costs and slippage: 每边 5 bps，由 1 bp 手续费与 4 bps 固定滑点组成，滑点已建模为固定费用并包含价差影响。费率 c = 0.0005。首次从现金建仓乘以 1/(1+c)，换仓日卖出和买入各计一边，乘以 (1−c)/(1+c)，其余日成本因子为 1。策略及两个基准使用同一费率。
+Signal lag: 每月最后一个 SPY 交易日收盘 t 形成信号。月末目标前向填充到日频后再滞后一整个交易日，最早在下一 SPY 交易日 t+1 开盘按目标换仓。换仓日的隔夜收益计入原持仓，开盘至收盘收益计入新持仓。
 Price adjustment: Yahoo split-adjusted Open/Close for execution and valuation; dividend- and split-adjusted Adj Close for momentum and total returns; adjusted open = Open * Adj Close / Close
-Survivorship bias: 使用固定的 SPY 和 BIL 历史，不按当前标普 500 成分股回填。两只 ETF 由研究者事后选定，仍存在产品层面的选择和幸存者偏差。。
+Survivorship bias: 使用固定的 SPY 和 BIL 历史，不按当前标普 500 成分股回填。两只 ETF 由研究者事后选定，仍存在产品层面的选择和幸存者偏差。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.12509291389995858, ann_vol=0.15724278475689904, sharpe=0.8284103110805522, sharpe_excess=0.8128914217832021, max_drawdown=-0.27131726550904134, total_return=2.243929296638725, turnover=25.0, n_trades=25

@@ -1,6 +1,7 @@
 """609_regime_adaptive_continual_learning_for_p
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Status: PENDING — not reviewed by Gatekeeper, not accepted
 Run (one command): python strategies/609_regime_adaptive_continual_learning_for_p.py   (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 25a9179813de3addbbaee65a8c08579eb6e27d08 on 2026-11-27 19:09 Europe/Oslo, exit 0, output sha256 e06a6a8d551b81af4df8e30f473c99cc476550adb34e86b23d80f02d04e80cb6
 Data source: Yahoo Finance 免费 ETF 日线，由 yfinance 获取 SPY、TLT、GLD、BIL 的开盘和收盘价。宏观数据来自免费 FRED 和 ALFRED 历史版本 CSV，序列为 DGS10、DGS2、DGS5、DFII5，用于构造 10 年减 2 年期限利差和 5 年名义减实际收益率之差。

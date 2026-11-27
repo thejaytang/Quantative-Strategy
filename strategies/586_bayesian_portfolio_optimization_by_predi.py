@@ -1,6 +1,7 @@
 """586_bayesian_portfolio_optimization_by_predi
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Status: PENDING — not reviewed by Gatekeeper, not accepted
 Run (one command): python strategies/586_bayesian_portfolio_optimization_by_predi.py   (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 25a9179813de3addbbaee65a8c08579eb6e27d08 on 2026-11-27 19:09 Europe/Oslo, exit 0, output sha256 d75a868f83df2b08ccf9667e2748e37a931b10d59e9cc0381e448c95ae2b8d17
 Data source: 通过 yfinance 读取 Yahoo Finance 日频开盘价、收盘价和公司行动数据。组合 ETF 为 SPY、EFA、EEM、VNQ、TLT、IEF、GLD、DBC。BIL 的日总收益只用于超额 Sharpe 的计算。行情优先从 gzip 缓存读取，本次日志记录的数据抓取时间为 2026-11-27T17:20:28+00:00。

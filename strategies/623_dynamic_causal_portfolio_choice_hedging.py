@@ -1,6 +1,7 @@
 """623_dynamic_causal_portfolio_choice_hedging
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Status: PENDING — not reviewed by Gatekeeper, not accepted
 Run (one command): python strategies/623_dynamic_causal_portfolio_choice_hedging.py   (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 25a9179813de3addbbaee65a8c08579eb6e27d08 on 2026-11-27 19:10 Europe/Oslo, exit 0, output sha256 1624565b1ee6e1745599c71ee819dbf757356e5e58d20feca9cfae938f11ad03
 Data source: Yahoo Finance public daily ETF open and close prices and corporate actions via yfinance, using date-keyed CSV caches. Allocated ETFs: SPY, EFA, TLT, GLD, DBC, VNQ. Cash proxy: BIL. Driver return spreads: IEF–SHY, TIP–IEF, HYG–IEF, UUP–BIL. The FRED reference in the README explains data vintages; the configured inputs are entirely ETF data.

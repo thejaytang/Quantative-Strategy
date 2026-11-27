@@ -4,14 +4,14 @@ WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
 Run (one command): python strategies/432_revisiting_equity_bond_diversification_u.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 4d91396b470c7410b1364756fad54a1bec5cce1f on 2026-11-27 07:46 Europe/Oslo, exit 0, output sha256 547603f6ea5ecf667de3fed9326e27230773d53475f459507969dd937c0f0bd9
-Data source: Yahoo Finance，经 yfinance 获取美元计价的美国上市 ETF 日收盘行情。AOA、AOR、AOM、AOK、GAL、RLY 用于策略和同基金池等权基准。BIL 仅用于超额夏普的现金代理。见。
+Data source: Yahoo Finance，经 yfinance 获取美元计价的美国上市 ETF 日收盘行情。AOA、AOR、AOM、AOK、GAL、RLY 用于策略和同基金池等权基准。BIL 仅用于超额夏普的现金代理。
 Data fetched: 2026-11-27T06:46:49.789948+00:00
-Sample period: 行情请求区间为 2017-12-15 至 2024-12-31（含），2020-01-02 前的行情用于滚动窗口预热。运行日志所示评估区间为 2020-01-02 至 2024-12-31。见。 data_range (from output): 2020-01-02 to 2024-12-31
-IS/OOS split: IS 为 2020-01-02 至 2021-12-31。OOS 为 2022-01-03 至 2024-12-31。以 2021-12-31（含）为 IS 截止日，连续模拟后按日期切分统计，跨界延续仓位和滚动窗口。见。
-Costs and slippage: 每笔买卖按成交金额收取 1 bp 佣金和 2 bps 固定滑点，合计单边 3 bps，初始建仓同样计费。成交金额为各 ETF 收盘漂移后持仓与扣费后目标持仓之间的绝对差额之和。费用从调仓前净值扣除，滑点以固定费用形式建模。策略和等权基准应用相同费率。见。
-Signal lag: 每日调仓目标由截至 t 日收盘的最近 504 个交易日 ETF 简单收益确定，于下一交易日 t+1 收盘模拟成交。成交日的收盘到收盘收益先按旧权重计入，新权重从 t+1 收盘后的区间开始承担价格变化。见。
+Sample period: 行情请求区间为 2017-12-15 至 2024-12-31（含），2020-01-02 前的行情用于滚动窗口预热。运行日志所示评估区间为 2020-01-02 至 2024-12-31。 data_range (from output): 2020-01-02 to 2024-12-31
+IS/OOS split: IS 为 2020-01-02 至 2021-12-31。OOS 为 2022-01-03 至 2024-12-31。以 2021-12-31（含）为 IS 截止日，连续模拟后按日期切分统计，跨界延续仓位和滚动窗口。
+Costs and slippage: 每笔买卖按成交金额收取 1 bp 佣金和 2 bps 固定滑点，合计单边 3 bps，初始建仓同样计费。成交金额为各 ETF 收盘漂移后持仓与扣费后目标持仓之间的绝对差额之和。费用从调仓前净值扣除，滑点以固定费用形式建模。策略和等权基准应用相同费率。
+Signal lag: 每日调仓目标由截至 t 日收盘的最近 504 个交易日 ETF 简单收益确定，于下一交易日 t+1 收盘模拟成交。成交日的收盘到收盘收益先按旧权重计入，新权重从 t+1 收盘后的区间开始承担价格变化。
 Price adjustment: yfinance auto_adjust total-return close
-Survivorship bias: 六只美国上市 ETF 从论文表 1 事后选取，回测使用固定基金池，可能遗漏已清盘或退市的基金，存在存续偏差。见。
+Survivorship bias: 六只美国上市 ETF 从论文表 1 事后选取，回测使用固定基金池，可能遗漏已清盘或退市的基金，存在存续偏差。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.06800589882333763, ann_vol=0.08579811404089044, sharpe=0.8100554423215995, sharpe_excess=0.7920982130839342, max_drawdown=-0.14542600958111573, total_return=0.14093444120012721, turnover=0.9997000899730081, n_trades=1

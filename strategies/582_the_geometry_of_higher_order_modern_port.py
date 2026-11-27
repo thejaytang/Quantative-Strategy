@@ -1,6 +1,7 @@
 """582_the_geometry_of_higher_order_modern_port
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Status: PENDING — not reviewed by Gatekeeper, not accepted
 Run (one command): python strategies/582_the_geometry_of_higher_order_modern_port.py   (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 25a9179813de3addbbaee65a8c08579eb6e27d08 on 2026-11-27 19:08 Europe/Oslo, exit 0, output sha256 979dca4c41538dcc148be4c68a02e46a75cc19e351f0c171fc998f4ab0526889
 Data source: Free Yahoo Finance daily ETF opens, closes and corporate actions via yfinance for SPY, QQQ, IWM, EFA, IEF, TLT and GLD. BIL comes from the same feed and serves only as an ex-post cash benchmark.

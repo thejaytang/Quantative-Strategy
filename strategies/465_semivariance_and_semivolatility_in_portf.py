@@ -11,7 +11,7 @@ IS/OOS split: 样本内从首次成交日（README 记载为 2011-01-04）到 20
 Costs and slippage: 每笔模拟买卖按实际成交名义金额计 50 bps 交易成本和 2 bps 滑点，代码将滑点建模为与交易成本合计的 52 bps 比例扣费。费基为各标的买卖金额绝对值之和，按扣费后可用资本求解。首次建仓及后续再平衡均计费，等权基准同样处理。来源见 –11、–122、–167、–194、。
 Signal lag: 交易日 t 收盘后用截至 t 收盘的收益计算信号，配置为在下一交易日 t+1 收盘模拟成交。旧仓先获得 t 至 t+1 的收盘到收盘收益，随后扣费并切换至新权重，新仓从 t+1 至下一交易日的收益区间起计入。首次成交前持仓为零。来源见 –122、–187、。
 Price adjustment: yfinance auto_adjust total-return adjusted close
-Survivorship bias: 固定九只早期行业 ETF，按目前仍有公开历史的基金选择，存在产品存续与事后选择偏差，后成立的行业基金未纳入。来源见。
+Survivorship bias: 固定九只早期行业 ETF，按目前仍有公开历史的基金选择，存在产品存续与事后选择偏差，后成立的行业基金未纳入。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.1233249689608662, ann_vol=0.11042190975907934, sharpe=1.1086681500320783, sharpe_excess=1.102332214199897, max_drawdown=-0.1186547556340588, total_return=1.2528704229691647, turnover=1.175994584766098, n_trades=313

@@ -1,6 +1,7 @@
 """589_conformal_kelly_when_marginal_coverage_t
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Status: PENDING — not reviewed by Gatekeeper, not accepted
 Run (one command): python strategies/589_conformal_kelly_when_marginal_coverage_t.py   (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 25a9179813de3addbbaee65a8c08579eb6e27d08 on 2026-11-27 19:09 Europe/Oslo, exit 0, output sha256 634cbddf17b1dbd2579ba2c86799fbc5a227e1b26d6d8aeaa9ef1f69c9ce084a
 Data source: 通过 yfinance 获取 Yahoo Finance 免费公开日线开盘价、收盘价和公司行动数据。策略资产为 SPY、QQQ、DIA、MDY、GLD、SLV、USO、DBC。BIL 日总回报仅用于计算超额夏普。

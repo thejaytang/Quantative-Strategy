@@ -3,14 +3,14 @@
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
 Run (one command): python strategies/549_drawdown_risk_beyond_brownian_motion_a_m.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit f0c72714f025c64b653010840b4be414cbe39932 on 2026-11-27 12:28 Europe/Oslo, exit 0, output sha256 590cb1fc714e01bf0b8383a42e326481bd53a3fb3a763766bb424556ae599815
-Data source: Yahoo Finance（yfinance）的 SPY、BIL ETF 日收盘价，分别用于权益仓位和现金代理。优先读取 data_cache/yfinance_SPY_BIL_2008-01-01_2025-12-31.json，缓存缺失时下载。。
+Data source: Yahoo Finance（yfinance）的 SPY、BIL ETF 日收盘价，分别用于权益仓位和现金代理。优先读取 data_cache/yfinance_SPY_BIL_2008-01-01_2025-12-31.json，缓存缺失时下载。
 Data fetched: 2026-11-27T11:28:28+00:00
-Sample period: 实际回测评估期为 2010-01-04 至 2025-12-31。请求的数据起始日为 2008-01-01，评估前的数据用于信号预热。。 data_range (from output): {'start': '2010-01-04', 'is_end': '2017-12-29', 'oos_start': '2018-01-02', 'end': '2025-12-31'}
-IS/OOS split: 样本内 2010-01-04 至 2017-12-29，样本外 2018-01-02 至 2025-12-31，以 2017-12-31 为配置切分点。默认参数下先连续模拟，再分段统计，跨期保留仓位；六组稳健性对照仅使用样本内和预热数据。。
-Costs and slippage: 每条买卖腿计 1 bp 成本和 2 bp 固定滑点，合并为每腿 3 bp。首次买入仅计买入腿，ETF 切换先从卖出所得扣除卖出费用，再用剩余资金支付买入金额及买入费用，持仓不变时不收费。SPY 买入持有基准采用同一费用模型。。
-Signal lag: 每周首个有价格记录的交易日收盘 t 用截至该收盘的数据计算信号，在下一交易日收盘执行。执行当日截至收盘的收益归原仓位，新仓位自执行收盘后开始计收益。首个评估日收盘按当时已生效的滞后目标建仓。。
+Sample period: 实际回测评估期为 2010-01-04 至 2025-12-31。请求的数据起始日为 2008-01-01，评估前的数据用于信号预热。 data_range (from output): {'start': '2010-01-04', 'is_end': '2017-12-29', 'oos_start': '2018-01-02', 'end': '2025-12-31'}
+IS/OOS split: 样本内 2010-01-04 至 2017-12-29，样本外 2018-01-02 至 2025-12-31，以 2017-12-31 为配置切分点。默认参数下先连续模拟，再分段统计，跨期保留仓位；六组稳健性对照仅使用样本内和预热数据。
+Costs and slippage: 每条买卖腿计 1 bp 成本和 2 bp 固定滑点，合并为每腿 3 bp。首次买入仅计买入腿，ETF 切换先从卖出所得扣除卖出费用，再用剩余资金支付买入金额及买入费用，持仓不变时不收费。SPY 买入持有基准采用同一费用模型。
+Signal lag: 每周首个有价格记录的交易日收盘 t 用截至该收盘的数据计算信号，在下一交易日收盘执行。执行当日截至收盘的收益归原仓位，新仓位自执行收盘后开始计收益。首个评估日收盘按当时已生效的滞后目标建仓。
 Price adjustment: Yahoo Adj Close for signals and BIL excess returns, as-quoted Close for fills with separate splits and distributions
-Survivorship bias: SPY 和 BIL 是事后选定且持续存续的两只 ETF，存在资产选择与存续偏差。回测使用 ETF 历史价格，未用当前指数成分股名单重建历史。。
+Survivorship bias: SPY 和 BIL 是事后选定且持续存续的两只 ETF，存在资产选择与存续偏差。回测使用 ETF 历史价格，未用当前指数成分股名单重建历史。
 Parameter combinations tried: 8
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.07105854918671284, ann_vol=0.11920129563521199, sharpe=0.6357128580954825, sharpe_excess=0.630494167938349, max_drawdown=-0.2172737718295069, total_return=0.7304170180004383, turnover=6.659506019727342, n_trades=61

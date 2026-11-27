@@ -3,14 +3,14 @@
 Author: Codex; non-author review: PASS; publication gate: Codex.
 Run (one command): python strategies/191_shap_quantile_sector_allocation.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 2b23c5bbf706aea933c0cba5f5805efb450ee206 on 2026-11-26 14:26 Europe/Oslo, exit 0, output sha256 7ba22ee4a3c7dc849d699d0a092925ce39abad56e5224f3eab0e3e548773a3c3
-Data source: Yahoo Finance 日频 ETF 开盘价和收盘价，通过 yfinance 下载或读取已有价格 CSV 缓存。行业 ETF 为 XLB、XLE、XLF、XLI、XLK、XLP、XLU、XLV、XLY，SPY 用于市场相关性，BIL 用于现金配置及超额收益标签。见。
+Data source: Yahoo Finance 日频 ETF 开盘价和收盘价，通过 yfinance 下载或读取已有价格 CSV 缓存。行业 ETF 为 XLB、XLE、XLF、XLI、XLK、XLP、XLU、XLV、XLY，SPY 用于市场相关性，BIL 用于现金配置及超额收益标签。
 Data fetched: 2026-11-26 14:26 Europe/Oslo (run time)
-Sample period: 配置请求的数据区间为 2009-01-01 至 2025-06-30，2014-01-01 之前为预热期。日志记录的实际开盘估值区间为 2014-01-06 至 2025-06-30。见。 data_range (from output): 2014-01-06 to 2025-06-30
-IS/OOS split: 配置的样本内为 2014-01-01 至 2019-12-31，样本外为 2020-01-01 至 2025-06-30。代码连续模拟持仓，再按开盘估值日切分指标。每半年在首个可处理的周度信号日重训，使用最近最多 260 个已到期的周度训练截面，至少需要 104 个。样本外重训可使用此前已到期的样本外标签。见。
-Costs and slippage: 主情景每单位买入或卖出名义金额收取 5 bps，另测 0 和 15 bps。每次再平衡先按当天开盘价估值，再按所有 ETF 的绝对名义仓位变化之和扣费，目标权重以扣费后的净值计算。未建模滑点、开盘价差或市场冲击。见。
-Signal lag: 用每周最后一个交易日 t 的收盘价及此前价格计算特征和目标仓位。周五休市时使用该周内周五之前的最后一个交易日。模拟在 t 之后的首个交易日按该日开盘价再平衡。见。
-Price adjustment: 下载路径设置 yfinance auto_adjust=True，并保留 Open 和 Close。缓存命中时直接读取同名 adjusted CSV，代码检查价格有效性和覆盖情况，未独立核验缓存的复权来源或历史版本。特征使用复权收盘价，标签、成交与估值使用复权开盘价。见。
-Survivorship bias: 固定选择九只目前仍存在的行业 ETF，存在产品选择与存续偏差。实现省略房地产和通信服务，基金成分及行业分类可能随时间变化。见。
+Sample period: 配置请求的数据区间为 2009-01-01 至 2025-06-30，2014-01-01 之前为预热期。日志记录的实际开盘估值区间为 2014-01-06 至 2025-06-30。 data_range (from output): 2014-01-06 to 2025-06-30
+IS/OOS split: 配置的样本内为 2014-01-01 至 2019-12-31，样本外为 2020-01-01 至 2025-06-30。代码连续模拟持仓，再按开盘估值日切分指标。每半年在首个可处理的周度信号日重训，使用最近最多 260 个已到期的周度训练截面，至少需要 104 个。样本外重训可使用此前已到期的样本外标签。
+Costs and slippage: 主情景每单位买入或卖出名义金额收取 5 bps，另测 0 和 15 bps。每次再平衡先按当天开盘价估值，再按所有 ETF 的绝对名义仓位变化之和扣费，目标权重以扣费后的净值计算。未建模滑点、开盘价差或市场冲击。
+Signal lag: 用每周最后一个交易日 t 的收盘价及此前价格计算特征和目标仓位。周五休市时使用该周内周五之前的最后一个交易日。模拟在 t 之后的首个交易日按该日开盘价再平衡。
+Price adjustment: 下载路径设置 yfinance auto_adjust=True，并保留 Open 和 Close。缓存命中时直接读取同名 adjusted CSV，代码检查价格有效性和覆盖情况，未独立核验缓存的复权来源或历史版本。特征使用复权收盘价，标签、成交与估值使用复权开盘价。
+Survivorship bias: 固定选择九只目前仍存在的行业 ETF，存在产品选择与存续偏差。实现省略房地产和通信服务，基金成分及行业分类可能随时间变化。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.04423014655788293, ann_vol=0.1027113809489663, sharpe=0.47265155129226427, max_drawdown=-0.12726151636035687, total_return=0.29562407417485614, turnover=31.823863369747908

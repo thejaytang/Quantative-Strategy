@@ -1,16 +1,17 @@
 """617_path_portfolio_optimization_defect_lift
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Status: PENDING — not reviewed by Gatekeeper, not accepted
 Run (one command): python strategies/617_path_portfolio_optimization_defect_lift.py   (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 25a9179813de3addbbaee65a8c08579eb6e27d08 on 2026-11-27 19:10 Europe/Oslo, exit 0, output sha256 1bc8ad9b3534a9fff947dff8fb8ea852957278293b1958348f673f0db1a76e73
-Data source: Yahoo Finance 免费日线，经 yfinance 获取 Open、Close、Dividends、Capital Gains 和 Stock Splits。配置的 ETF 池为 SPY、QQQ、EFA、EEM、IEF、TLT、LQD、HYG、GLD、VNQ，BIL 的日总回报只用于计算超额 Sharpe。。
+Data source: Yahoo Finance 免费日线，经 yfinance 获取 Open、Close、Dividends、Capital Gains 和 Stock Splits。配置的 ETF 池为 SPY、QQQ、EFA、EEM、IEF、TLT、LQD、HYG、GLD、VNQ，BIL 的日总回报只用于计算超额 Sharpe。
 Data fetched: 2026-11-27T18:10:30+00:00
-Sample period: 行情请求区间为 2008-01-02 至 2026-10-30（含），2013 年之前的行情用于预热和历史训练。日志中回测区间为 2013-01-02 至 2026-10-30。。   data_range (from output): {'start': '2013-01-02', 'end': '2026-10-30'}
-IS/OOS split: 以 2022-01-01 为界。IS 为 2013-01-02 至 2021-12-31，OOS 为 2022-01-03 至 2026-10-30。正式策略全程连续模拟，持仓和现金跨界延续。稳健性变体仅用 IS 切片，正式全期结果的 IS 前缀与独立 IS 运行逐日精确比对。OOS 仍按时点滚动训练，可用届时已经完成的 OOS 历史标签。。
-Costs and slippage: 每笔买卖均建模 5 bps 滑点，买入价上调、卖出价下调，再按滑点后的成交额收取 5 bps 费用。以开盘名义金额为基准，买入现金支出乘 (1+0.0005)×(1+0.0005)，卖出现金收入乘 (1−0.0005)×(1−0.0005)。先卖后买，资金不足时同比缩减买入额。。
-Signal lag: 每月首个交易日 t 收盘计算目标权重，配置滞后一个交易日，于 t+1 开盘模拟成交。代码要求 lag_sessions 为正整数。。
+Sample period: 行情请求区间为 2008-01-02 至 2026-10-30（含），2013 年之前的行情用于预热和历史训练。日志中回测区间为 2013-01-02 至 2026-10-30。   data_range (from output): {'start': '2013-01-02', 'end': '2026-10-30'}
+IS/OOS split: 以 2022-01-01 为界。IS 为 2013-01-02 至 2021-12-31，OOS 为 2022-01-03 至 2026-10-30。正式策略全程连续模拟，持仓和现金跨界延续。稳健性变体仅用 IS 切片，正式全期结果的 IS 前缀与独立 IS 运行逐日精确比对。OOS 仍按时点滚动训练，可用届时已经完成的 OOS 历史标签。
+Costs and slippage: 每笔买卖均建模 5 bps 滑点，买入价上调、卖出价下调，再按滑点后的成交额收取 5 bps 费用。以开盘名义金额为基准，买入现金支出乘 (1+0.0005)×(1+0.0005)，卖出现金收入乘 (1−0.0005)×(1−0.0005)。先卖后买，资金不足时同比缩减买入额。
+Signal lag: 每月首个交易日 t 收盘计算目标权重，配置滞后一个交易日，于 t+1 开盘模拟成交。代码要求 lag_sessions 为正整数。
 Price adjustment: Yahoo split-adjusted Open/Close with forward total return from ex-date reinvestment at Open
-Survivorship bias: 固定 ETF 池由当前仍存续的基金回顾性构造，README 明确记录选样和基金幸存者偏差。。
+Survivorship bias: 固定 ETF 池由当前仍存续的基金回顾性构造，README 明确记录选样和基金幸存者偏差。
 Parameter combinations tried: 5
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.08926620580092148, ann_vol=0.10740265607560007, sharpe=0.8500562367147968, sharpe_excess=0.8029413365834326, max_drawdown=-0.18965406733869328, total_return=1.1580371290802614, turnover=11.16320797936066, n_trades=647

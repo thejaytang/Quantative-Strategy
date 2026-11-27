@@ -4,14 +4,14 @@ WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
 Run (one command): python strategies/452_simple_dynamic_stock_bond_gold_portfolio.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 9e9ff3660187503321abd71fccfdc940b2ed36ad on 2026-11-27 08:24 Europe/Oslo, exit 0, output sha256 7872580637ffff9810db3a72df90b3c17d79eeb2ed1adde2a5ef354e4ce3eb7a
-Data source: Yahoo Finance 经 yfinance 提供 SPY、AGG、GLD 的日收盘价及 ^IRX 的日收盘收益率报价。FRED 公共 CSV 提供 DFF（联邦基金有效利率），用于模拟现金计息。^IRX 是超额夏普比率所用的 13 周国库券贴现率报价。。
+Data source: Yahoo Finance 经 yfinance 提供 SPY、AGG、GLD 的日收盘价及 ^IRX 的日收盘收益率报价。FRED 公共 CSV 提供 DFF（联邦基金有效利率），用于模拟现金计息。^IRX 是超额夏普比率所用的 13 周国库券贴现率报价。
 Data fetched: 2026-11-27T07:24:44+00:00
-Sample period: 配置回测区间为 2006-01-01 至 2025-12-31，含首尾日期内的交易日。日志所报首末交易日为 2006-01-03 至 2025-12-31。预热数据的请求起点为 2005-11-01。。 data_range (from output): {'start': '2006-01-03', 'end': '2025-12-31'}
-IS/OOS split: 以 2016-01-01 为切分点。IS 为 2006-01-01 至 2015-12-31 区间内的交易日，OOS 为 2016-01-01 至 2025-12-31 区间内的交易日。策略和基准各模拟一次全区间，持仓与资金路径跨切分点延续，再分段计算指标。README 将 OOS 定义为本实现的时间切分，并披露论文参数来自既有历史样本研究。。
-Costs and slippage: 策略和基准每笔 ETF 买入或卖出按成交额计 1.0 bps 交易成本及 1.5 bps 固定滑点，合计 2.5 bps，从调仓净值扣减。费用以调仓前漂移持仓与扣费后目标持仓之差的绝对值计算，模拟现金不单独收费。滑点作为固定费率建模，未模拟随规模变化的市场冲击。。
-Signal lag: 策略使用月末最后一个交易日 t 收盘及此前的 ETF 收益计算目标权重，在下一交易日 t+1 收盘模拟成交。t 到 t+1 的收盘至收盘收益归调仓前持仓，新权重从成交后的下一个收益区间起生效。固定权重基准与策略同日建仓，之后按年末信号使用相同执行滞后。。
+Sample period: 配置回测区间为 2006-01-01 至 2025-12-31，含首尾日期内的交易日。日志所报首末交易日为 2006-01-03 至 2025-12-31。预热数据的请求起点为 2005-11-01。 data_range (from output): {'start': '2006-01-03', 'end': '2025-12-31'}
+IS/OOS split: 以 2016-01-01 为切分点。IS 为 2006-01-01 至 2015-12-31 区间内的交易日，OOS 为 2016-01-01 至 2025-12-31 区间内的交易日。策略和基准各模拟一次全区间，持仓与资金路径跨切分点延续，再分段计算指标。README 将 OOS 定义为本实现的时间切分，并披露论文参数来自既有历史样本研究。
+Costs and slippage: 策略和基准每笔 ETF 买入或卖出按成交额计 1.0 bps 交易成本及 1.5 bps 固定滑点，合计 2.5 bps，从调仓净值扣减。费用以调仓前漂移持仓与扣费后目标持仓之差的绝对值计算，模拟现金不单独收费。滑点作为固定费率建模，未模拟随规模变化的市场冲击。
+Signal lag: 策略使用月末最后一个交易日 t 收盘及此前的 ETF 收益计算目标权重，在下一交易日 t+1 收盘模拟成交。t 到 t+1 的收盘至收盘收益归调仓前持仓，新权重从成交后的下一个收益区间起生效。固定权重基准与策略同日建仓，之后按年末信号使用相同执行滞后。
 Price adjustment: yfinance auto_adjust total-return ETF closes; ^IRX yield quotes
-Survivorship bias: SPY、AGG、GLD 是事后发表的论文所选的固定 ETF 名单。README 记录三只基金在样本开始前已有历史记录，并披露选取仍存续基金可能带来幸存者偏差和事后选择偏差。。
+Survivorship bias: SPY、AGG、GLD 是事后发表的论文所选的固定 ETF 名单。README 记录三只基金在样本开始前已有历史记录，并披露选取仍存续基金可能带来幸存者偏差和事后选择偏差。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.05864280872500083, ann_vol=0.07284150211318174, sharpe=0.818885066542572, sharpe_excess=0.6658531590949813, max_drawdown=-0.1565099423741625, total_return=0.7668508143853647, turnover=0.9265544965341469, n_trades=360

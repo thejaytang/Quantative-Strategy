@@ -1,6 +1,7 @@
 """587_bayesian_portfolio_optimization_by_predi
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Status: PENDING — not reviewed by Gatekeeper, not accepted
 Run (one command): python strategies/587_bayesian_portfolio_optimization_by_predi.py   (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 25a9179813de3addbbaee65a8c08579eb6e27d08 on 2026-11-27 19:09 Europe/Oslo, exit 0, output sha256 963389b55076fa97adbacb3222efb9656a83be23913436dbe6d093fcbf227e25
 Data source: Free Yahoo Finance daily data via yfinance for SPY, TLT, GLD and VNQ, plus BIL as the risk-free proxy. Inputs are open, close, dividends, capital-gains distributions and stock splits. BIL total returns are used for ex-post excess-return reporting.

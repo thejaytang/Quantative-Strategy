@@ -1,6 +1,7 @@
 """581_asymmetric_nonlinear_return_extrapolatio
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Status: PENDING — not reviewed by Gatekeeper, not accepted
 Run (one command): python strategies/581_asymmetric_nonlinear_return_extrapolatio.py   (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 25a9179813de3addbbaee65a8c08579eb6e27d08 on 2026-11-27 19:08 Europe/Oslo, exit 0, output sha256 ce905692150b4aedcd2ee1d0f2b089c97b3079d547821bec5897283c1eeb2386
 Data source: 免费 Yahoo Finance 日线与 ETF 分配事件，经 yfinance 获取开盘价、收盘价、拆分、股息及资本利得分配。SPY 和 IEF 用于策略与基准，BIL 的日总收益仅作为超额夏普的现金代理。

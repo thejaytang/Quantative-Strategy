@@ -1,6 +1,7 @@
 """574_objective_and_subjective_entropy_measure
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Status: PENDING — not reviewed by Gatekeeper, not accepted
 Run (one command): python strategies/574_objective_and_subjective_entropy_measure.py   (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 25a9179813de3addbbaee65a8c08579eb6e27d08 on 2026-11-27 19:08 Europe/Oslo, exit 0, output sha256 dacde285b5c74e42f47ab23f1ea36cbdb3f45171f10ee8eb45dcab5cf2b20d14
 Data source: Yahoo Finance 免费日线，经 yfinance 读取开盘价、收盘价、股息及可用的资本利得分配。投资池为 SPY、EFA、IEF、TLT、GLD、VNQ，SPY 同时作买入持有基准，BIL 作短期国债收益代理。数据抓取时间记录为 2026-11-27T17:09:07+00:00。

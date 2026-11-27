@@ -3,14 +3,14 @@
 Author: Codex; non-author review: PASS; publication gate: Codex.
 Run (one command): python strategies/195_century_reversals_volatility.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 10f82382008748cd9ff2f56e2b8ef160caa66e38 on 2026-11-27 11:24 Europe/Oslo, exit 0, output sha256 530a6c44d469bc5fac7660ff093a608f5c5f3dd8209c521f6cf8702912508ddd
-Data source: 免费 Yahoo Finance 日频行情，经 yfinance 获取 SPY、BIL 的开盘价和收盘价，以及 ^VIX 的收盘值。优先读取本地行情缓存。见。
+Data source: 免费 Yahoo Finance 日频行情，经 yfinance 获取 SPY、BIL 的开盘价和收盘价，以及 ^VIX 的收盘值。优先读取本地行情缓存。
 Data fetched: 2026-11-27T10:24:17+00:00
-Sample period: 行情请求区间为 2006-10-01 至 2025-12-31（含截止日），回测开始前的数据用于预热。日志记录的实际执行区间为 2008-01-02 至 2025-12-31，共 4,529 个交易日。见。 data_range (from output): 2008-01-02 to 2025-12-31
-IS/OOS split: 按执行日期划分，样本内为 2008-01-02 至 2017-12-31（2,518 个交易日），样本外为 2018-01-01 至 2025-12-31（2,011 个交易日）。样本外为历史留出期，承接样本内期末仓位。README 记载信号采用冻结候选 C41，论文的历史研究窗口覆盖部分留出期。见。
-Costs and slippage: 默认每笔单边成交收取 5 bps，敏感性情景为 0 和 15 bps。设 r 为 bps/10000，买入资金乘以 1/(1+r)，卖出所得乘以 1−r。常规信号日两买两卖，全期首日从现金建仓时为信号日三笔、非信号日一笔，基准仅收首笔买入成本。固定成本合并近似点差、佣金与滑点，滑点未单独建模。见。
-Signal lag: 交易日 t 收盘后，以 SPY 复权收盘到收盘收益严格低于 −0.75% 且 t−1 的 VIX 严格高于截至 t−1 的 252 个 SPY 交易日滚动第 75 百分位为主策略信号。t+1 指下一交易日，在该日开盘切换至 SPY，当日收盘切回 BIL。隔夜与非信号时段持有 BIL，全期首日从现金建仓。见。
+Sample period: 行情请求区间为 2006-10-01 至 2025-12-31（含截止日），回测开始前的数据用于预热。日志记录的实际执行区间为 2008-01-02 至 2025-12-31，共 4,529 个交易日。 data_range (from output): 2008-01-02 to 2025-12-31
+IS/OOS split: 按执行日期划分，样本内为 2008-01-02 至 2017-12-31（2,518 个交易日），样本外为 2018-01-01 至 2025-12-31（2,011 个交易日）。样本外为历史留出期，承接样本内期末仓位。README 记载信号采用冻结候选 C41，论文的历史研究窗口覆盖部分留出期。
+Costs and slippage: 默认每笔单边成交收取 5 bps，敏感性情景为 0 和 15 bps。设 r 为 bps/10000，买入资金乘以 1/(1+r)，卖出所得乘以 1−r。常规信号日两买两卖，全期首日从现金建仓时为信号日三笔、非信号日一笔，基准仅收首笔买入成本。固定成本合并近似点差、佣金与滑点，滑点未单独建模。
+Signal lag: 交易日 t 收盘后，以 SPY 复权收盘到收盘收益严格低于 −0.75% 且 t−1 的 VIX 严格高于截至 t−1 的 252 个 SPY 交易日滚动第 75 百分位为主策略信号。t+1 指下一交易日，在该日开盘切换至 SPY，当日收盘切回 BIL。隔夜与非信号时段持有 BIL，全期首日从现金建仓。
 Price adjustment: Yahoo auto_adjust=True (ETF split- and distribution-adjusted open/close)
-Survivorship bias: 使用固定的 SPY、BIL 实际 ETF 历史，避免用当前成分股回建历史。事后选用存续 ETF 仍有产品选择偏差。见。
+Survivorship bias: 使用固定的 SPY、BIL 实际 ETF 历史，避免用当前成分股回建历史。事后选用存续 ETF 仍有产品选择偏差。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.009571186078770832, ann_vol=0.09041090148694818, sharpe=0.15072657998820965, sharpe_excess=0.12586433073569514, max_drawdown=-0.19422415265261483, total_return=0.09985804779958318, turnover=54.40022752999471, n_trades=549

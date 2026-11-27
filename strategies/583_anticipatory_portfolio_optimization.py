@@ -1,6 +1,7 @@
 """583_anticipatory_portfolio_optimization
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Status: PENDING — not reviewed by Gatekeeper, not accepted
 Run (one command): python strategies/583_anticipatory_portfolio_optimization.py   (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 25a9179813de3addbbaee65a8c08579eb6e27d08 on 2026-11-27 19:08 Europe/Oslo, exit 0, output sha256 3c2e8f5415bebde7dde34f78199282b2f8732a7719e29f8ae69fce53874f680b
 Data source: yfinance public daily Open and Close bars for nine U.S. sector ETFs (XLB, XLE, XLF, XLI, XLK, XLP, XLU, XLV, XLY) and the Treasury-bill ETF BIL. BIL close-to-close returns are used only for ex-post excess Sharpe.

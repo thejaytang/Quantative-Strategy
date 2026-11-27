@@ -5,7 +5,7 @@ Run (one command): python strategies/126_hmm_regime_allocation.py (free public d
 Backtest reproduced: run of this file's code at commit ad594150a0142009ae8f6ffab0995de08b2f8304 on 2026-11-26 13:49 Europe/Oslo, exit 0, output sha256 0a0e9fe28414b358d82f962c2469bb10cfa56cab2e38950616107e9cf162730c
 Data source: Yahoo Finance 日度 ETF 开盘价和收盘价，经 yfinance 下载或从本地 CSV 缓存读取。标的为 SPY、TLT、GLD，信号特征仅使用 SPY 收盘价。
 Data fetched: 2026-11-26 13:49 Europe/Oslo (run time)
-Sample period: 数据请求区间为 2005-01-03 至 2025-12-31，含首尾日期。样本内开始前的数据用于预热和早期训练。日志记录的回测区间为 2010-01-04 至 2025-12-31。；backtest_results.md:14； data_range (from output): 2010-01-04 to 2025-12-31
+Sample period: 数据请求区间为 2005-01-03 至 2025-12-31，含首尾日期。样本内开始前的数据用于预热和早期训练。日志记录的回测区间为 2010-01-04 至 2025-12-31。； data_range (from output): 2010-01-04 to 2025-12-31
 IS/OOS split: 配置的样本内区间为 2010-01-01 至 2019-12-31，样本外为 2020-01-01 至 2025-12-31，区间均含首尾日期，按实际交易日切片。样本内按半年重估。样本外周度决策使用截至样本内最后一个交易日的最终拟合，固定特征缩放、HMM 参数和状态配置，仅继续用新观测更新过滤概率。两段指标取自同一条连续模拟路径。
 Costs and slippage: 每买入或卖出一美元收取 5 bps。开盘再平衡按各 ETF 买卖金额的绝对值求和计费，费用从组合净值扣除，包括首次建仓，等权基准沿用相同费率和再平衡时点。未单独建模滑点、开盘冲击、流动性或税费，模拟以复权开盘价成交。
 Signal lag: 每周以周五为周界，在下一周首个实际交易日开盘调仓，信号使用该开盘前一交易日的收盘信息。初次建仓在回测首个交易日开盘，使用前一交易日的收盘信号。已有持仓先计入上一收盘至该开盘的变动，再执行调仓。

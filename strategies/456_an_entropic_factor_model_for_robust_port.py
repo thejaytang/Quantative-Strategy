@@ -4,14 +4,14 @@ WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
 Run (one command): python strategies/456_an_entropic_factor_model_for_robust_port.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 9e9ff3660187503321abd71fccfdc940b2ed36ad on 2026-11-27 08:24 Europe/Oslo, exit 0, output sha256 a4240a02a64ba82ef9e296735ad3a45235921263d884fb6d3a528ee702431525
-Data source: Yahoo Finance 公开日线 ETF 行情，经 yfinance 下载并缓存。组合标的是 XLB、XLE、XLF、XLI、XLK、XLP、XLU、XLV、XLY，SPY 用作单因子与买入持有基准，BIL 用于计算超额夏普。见。
+Data source: Yahoo Finance 公开日线 ETF 行情，经 yfinance 下载并缓存。组合标的是 XLB、XLE、XLF、XLI、XLK、XLP、XLU、XLV、XLY，SPY 用作单因子与买入持有基准，BIL 用于计算超额夏普。
 Data fetched: 2026-11-27T07:24:48.841963+00:00
-Sample period: 行情请求含预热，从 2017-12-01 至 2025-12-31。日志记录的全样本评估期为 2019-01-02 至 2025-12-31，含首尾。见。 data_range (from output): 2019-01-02 to 2025-12-31
-IS/OOS split: 样本内为 2019-01-02 至 2021-12-31，样本外为 2022-01-03 至 2025-12-31。以 2021-12-31 为样本内最后一天，对连续模拟的同一账本按日期切分。样本外沿用同一组参数，按各信号日的历史窗口滚动重估。见。
-Costs and slippage: 买卖均按各自实际模拟成交名义金额扣 10 bps 交易费和 2 bps 固定滑点。滑点以费率计入，总扣费率为 12 bps，目标持仓按扣费后的净值定规模。SPY 基准的首次买入按同一费率扣费。见。
-Signal lag: 以截至 t 日收盘的日收益计算目标权重，于下一交易日 t+1 收盘执行。t 至 t+1 的收盘到收盘收益由旧仓位承担，新仓位自 t+1 收盘后生效。见。
+Sample period: 行情请求含预热，从 2017-12-01 至 2025-12-31。日志记录的全样本评估期为 2019-01-02 至 2025-12-31，含首尾。 data_range (from output): 2019-01-02 to 2025-12-31
+IS/OOS split: 样本内为 2019-01-02 至 2021-12-31，样本外为 2022-01-03 至 2025-12-31。以 2021-12-31 为样本内最后一天，对连续模拟的同一账本按日期切分。样本外沿用同一组参数，按各信号日的历史窗口滚动重估。
+Costs and slippage: 买卖均按各自实际模拟成交名义金额扣 10 bps 交易费和 2 bps 固定滑点。滑点以费率计入，总扣费率为 12 bps，目标持仓按扣费后的净值定规模。SPY 基准的首次买入按同一费率扣费。
+Signal lag: 以截至 t 日收盘的日收益计算目标权重，于下一交易日 t+1 收盘执行。t 至 t+1 的收盘到收盘收益由旧仓位承担，新仓位自 t+1 收盘后生效。
 Price adjustment: yfinance auto_adjust total-return
-Survivorship bias: 全期使用固定的九只行业 ETF。README 说明篮子由当前仍有历史数据的 ETF 组成，未按历史行业结构重建，可能存在存续偏差及事后选样偏差。见。
+Survivorship bias: 全期使用固定的九只行业 ETF。README 说明篮子由当前仍有历史数据的 ETF 组成，未按历史行业结构重建，可能存在存续偏差及事后选样偏差。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.20781396063382496, ann_vol=0.2273526191507929, sharpe=0.9452814126498522, sharpe_excess=0.9115723371840122, max_drawdown=-0.3732878253069647, total_return=0.7632972589947074, turnover=5.962334531858593, n_trades=333

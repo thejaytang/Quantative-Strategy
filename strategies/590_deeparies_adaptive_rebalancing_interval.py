@@ -1,6 +1,7 @@
 """590_deeparies_adaptive_rebalancing_interval
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Status: PENDING — not reviewed by Gatekeeper, not accepted
 Run (one command): python strategies/590_deeparies_adaptive_rebalancing_interval.py   (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 25a9179813de3addbbaee65a8c08579eb6e27d08 on 2026-11-27 19:09 Europe/Oslo, exit 0, output sha256 2d08302e1d795e5d6b311e19b0f93a83fbba12d4f8e3bf86ff145f28f33075a8
 Data source: Free Yahoo Finance ETF daily open/close prices and corporate actions via yfinance. Strategy universe: SPY, QQQ, IWM, EFA, EEM, IEF, GLD. SPY is also the buy-and-hold benchmark. BIL daily total returns are used as the risk-free proxy for excess-return metrics only. The run log records the cache download timestamp as 2026-11-27T17:22:13+00:00.

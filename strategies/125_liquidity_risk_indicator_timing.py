@@ -3,14 +3,14 @@
 Author: Codex; non-author review: PASS; publication gate: Codex.
 Run (one command): python strategies/125_liquidity_risk_indicator_timing.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit ad594150a0142009ae8f6ffab0995de08b2f8304 on 2026-11-26 13:49 Europe/Oslo, exit 0, output sha256 6dfb2e03975613ed15eefc563c8576128a84f34f44e41a3190518739f8313164
-Data source: Yahoo Finance，经 yfinance 获取日频数据并使用本地 CSV 缓存。SPY、LQD、SHY 为组合 ETF，HYG、IEF 的收盘价参与信号，^VIX 仅使用收盘值。。
+Data source: Yahoo Finance，经 yfinance 获取日频数据并使用本地 CSV 缓存。SPY、LQD、SHY 为组合 ETF，HYG、IEF 的收盘价参与信号，^VIX 仅使用收盘值。
 Data fetched: 2026-11-26 13:49 Europe/Oslo (run time)
-Sample period: 配置回测区间为 2009-01-01 至 2025-12-31，实际日志报告的首末交易日为 2009-01-02 至 2025-12-31。数据请求从 2007-07-01 起，样本前数据用于信号预热。。 data_range (from output): 2009-01-02 to 2025-12-31
-IS/OOS split: IS 为 2009-01-01 至 2018-12-31，OOS 为 2019-01-01 至 2025-12-31，按交易日取数。每个组合在全样本连续模拟一次后切分，OOS 承接 IS 期末持仓。README 将 OOS 描述为回顾性时间留出，部分日期早于论文发表。。
-Costs and slippage: 每笔买入或卖出按成交金额扣 5 bps，包括首次建仓。开盘调仓时以调仓前持仓为基准，从可投资净值中扣除买卖金额之和对应的费用，同时满足目标权重。滑点未建模。。
-Signal lag: 每周五收盘后评分。周五休市时取截至周五最近交易日的收盘评分，在周五之后首个交易日开盘调仓。样本首日开盘使用当时已可执行的最近一次周度评分。隔夜收益归旧持仓，开盘至收盘收益归调仓后的持仓。。
-Price adjustment: yfinance 显式设置 auto_adjust=True，ETF 使用股息及拆分调整后的开盘价和收盘价。VIX 仅取收盘值。命中缓存时读取同口径的 CSV。。
-Survivorship bias: 固定 ETF 名单直接使用基金价格历史，无个股成分回填。仍有事后选择长期存续基金的风险。。
+Sample period: 配置回测区间为 2009-01-01 至 2025-12-31，实际日志报告的首末交易日为 2009-01-02 至 2025-12-31。数据请求从 2007-07-01 起，样本前数据用于信号预热。 data_range (from output): 2009-01-02 to 2025-12-31
+IS/OOS split: IS 为 2009-01-01 至 2018-12-31，OOS 为 2019-01-01 至 2025-12-31，按交易日取数。每个组合在全样本连续模拟一次后切分，OOS 承接 IS 期末持仓。README 将 OOS 描述为回顾性时间留出，部分日期早于论文发表。
+Costs and slippage: 每笔买入或卖出按成交金额扣 5 bps，包括首次建仓。开盘调仓时以调仓前持仓为基准，从可投资净值中扣除买卖金额之和对应的费用，同时满足目标权重。滑点未建模。
+Signal lag: 每周五收盘后评分。周五休市时取截至周五最近交易日的收盘评分，在周五之后首个交易日开盘调仓。样本首日开盘使用当时已可执行的最近一次周度评分。隔夜收益归旧持仓，开盘至收盘收益归调仓后的持仓。
+Price adjustment: yfinance 显式设置 auto_adjust=True，ETF 使用股息及拆分调整后的开盘价和收盘价。VIX 仅取收盘值。命中缓存时读取同口径的 CSV。
+Survivorship bias: 固定 ETF 名单直接使用基金价格历史，无个股成分回填。仍有事后选择长期存续基金的风险。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.07967187933351672, ann_vol=0.09056248761025201, sharpe=0.8919126026031946, max_drawdown=-0.20256863020038762, total_return=1.1497574349079165, turnover=51.17840975552063, n_trades=523

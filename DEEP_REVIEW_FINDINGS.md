@@ -2,7 +2,7 @@
 
 Already-published strategies are not removed from git history. If a later deep review finds a real problem (look-ahead, wrong data, or wrong numbers), the file is kept as last published on origin/main and listed here in a new commit. Fixes, if any, also land in a new commit.
 
-Generated 2026-11-27 21:29 Europe/Oslo.
+Generated 2026-11-27 21:55 Europe/Oslo.
 
 | File | Latest self-review | Category | Stage note |
 |---|---|---|---|
@@ -63,7 +63,7 @@ Generated 2026-11-27 21:29 Europe/Oslo.
 | strategies/469_two_sides_of_schur_damping_high_dimensio.py | INVALID | defect listed in self-review; not a published fix | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 | strategies/474_multiperiod_bond_portfolio_optimization.py | INVALID | 规划成本与实际成交近似不同 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 | strategies/512_nested_clustered_optimization_is_one_end.py | INVALID | defect listed in self-review; not a published fix | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
-| strategies/197_tsmom_boundaries.py | INVALID | 开盘成交和股息现金的近似 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
+| strategies/197_tsmom_boundaries.py | INVALID | 开盘成交和股息现金的近似 | kept_from_origin: latest-tree PASS but META is missing or older than the current code; broker_check True is a documented false positive (see note below; file sha256 6cfadb7fd9b55c2e1c6e0cf7973dbd743fff2e2ed799eb9cd9032493c5d2197a) |
 | strategies/553_large_scale_portfolio_optimization_probl.py | INVALID | 候选池有幸存者和事后选样偏差; 成交与资金模型简化 | kept_from_origin: 完整性不合格：lag_ok |
 | strategies/310_factor_beta_overnight_intraday.py | INVALID | OOS 的独立性不足; 费用与成交模型简化 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 | strategies/353_hold_the_dip.py | INVALID | look-ahead / same-close fill | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
@@ -95,3 +95,10 @@ The map is closure date to New York announcement date; the model treats a specia
 - Juneteenth: the first New York session observed was 2022-06-20, after the Juneteenth National Independence Day Act was signed on 2021-06-17. The dates used here are the first NYSE Group holiday-calendar releases that list each observed date: 2022-06-20, 2023-06-19 and 2024-06-19 from the 2022–2024 calendar announced 2021-12-27 ([ICE press release](https://ir.theice.com/press/news-details/2021/NYSE-Group-Announces-2022-2023-and-2024-Holiday-and-Early-Closings-Calendar/default.aspx)); 2025-06-19 from the 2023–2025 calendar announced 2022-12-21 ([ICE press release](https://ir.theice.com/press/news-details/2022/NYSE-Group-Announces-2023-2024-and-2025-Holiday-and-Early-Closings-Calendar/default.aspx)); 2026-06-19 from the 2024–2026 calendar announced 2023-11-10 ([ICE press release](https://ir.theice.com/press/news-details/2023/NYSE-Group-Announces-2024-2025-and-2026-Holiday-and-Early-Closings-Calendar/default.aspx)); 2027-06-18 from the 2025–2027 calendar announced 2024-11-08 ([ICE press release](https://ir.theice.com/press/news-details/2024/NYSE-Group-Announces-2025-2026-and-2027-Holiday-and-Early-Closings-Calendar/default.aspx)); 2028-06-19 from the 2026–2028 calendar announced 2025-12-23 ([ICE press release](https://ir.theice.com/press/news-details/2025/NYSE-Group-Announces-2026-2027-and-2028-Holiday-and-Early-Closings-Calendar/)).
 
 This is a known limitation: if a closure was public earlier or later than these notices, or if a later calendar revises a date, the known-from session used in the backtest could be too early or too late.
+
+## 197 broker_check false-positive reason
+
+This note cites the published file sha256 `6cfadb7fd9b55c2e1c6e0cf7973dbd743fff2e2ed799eb9cd9032493c5d2197a` (strategies/197_tsmom_boundaries.py). META was not hand-edited. The builtins/io alias rule was not relaxed. This commit does not change the strategy code.
+
+broker_check returns True because the file re-imports `io` after the pack shim at strategies/197_tsmom_boundaries.py:39, and then uses that name at strategies/197_tsmom_boundaries.py:123 in `pd.read_csv(io.StringIO(response.text), na_values=["."])`. That call parses only the response body from `requests.get` of `FRED_CSV` (`https://fred.stlouisfed.org/graph/fredgraph.csv`), an allowlisted host. A later look-ahead fix commit for this file may switch the import to `from io import StringIO`, after which broker_check should be False.
+

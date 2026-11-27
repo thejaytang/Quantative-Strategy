@@ -2,7 +2,7 @@
 
 Already-published strategies are not removed from git history. If a later deep review finds a real problem (look-ahead, wrong data, or wrong numbers), the file is kept as last published on origin/main and listed here in a new commit. Fixes, if any, also land in a new commit.
 
-Generated 2026-11-27 11:05 Europe/Oslo.
+Generated 2026-11-27 11:14 Europe/Oslo.
 
 | File | Latest self-review | Category | Stage note |
 |---|---|---|---|
@@ -11,13 +11,12 @@ Generated 2026-11-27 11:05 Europe/Oslo.
 | strategies/544_special_markowitz_thermodynamic_formalis.py | FAIL | 成交量依赖执行日收盘 | kept_from_origin: latest self-review is not PASS |
 | strategies/501_nested_clustered_optimization_is_one_end.py | FAIL | 成交数量使用成交日收盘价 | kept_from_origin: latest self-review is not PASS |
 | strategies/451_a_declining_cvar_glidepath_framework_for.py | FAIL | 成交量依赖成交日收盘价 | kept_from_origin: latest self-review is not PASS |
-| strategies/323_information_transmission_across_tail.py | FAIL | 成交金额间接依赖成交日收盘字段 | kept_from_origin: latest self-review is not PASS |
 | strategies/510_some_general_results_on_risk_budgeting_p.py | FAIL | 成交数量使用成交日收盘信息 | kept_from_origin: latest self-review is not PASS |
 | strategies/452_simple_dynamic_stock_bond_gold_portfolio.py | FAIL | 按成交日收盘反推成交规模; 成交日历依赖行情行 | kept_from_origin: latest self-review is not PASS |
-| strategies/494_wasserstein_penalisation_as_an_endogenou.py | FAIL | 成交数量使用成交日收盘信息，构成入库阻断 | kept_from_origin: latest self-review is not PASS |
-| strategies/533_special_markowitz_thermodynamic_formalis.py | FAIL | 成交数量依赖成交日收盘价 | kept_from_origin: latest self-review is not PASS |
+| strategies/494_wasserstein_penalisation_as_an_endogenou.py | FAIL | look-ahead / same-close fill | kept_from_origin: latest self-review is not PASS |
+| strategies/533_special_markowitz_thermodynamic_formalis.py | FAIL | see review | kept_from_origin: latest self-review is not PASS |
 | strategies/514_risk_limited_asset_allocation_with_a_bud.py | FAIL | 成交额和目标头寸依赖成交日收盘价 | kept_from_origin: latest self-review is not PASS |
-| strategies/484_nonlinear_shrinkage_for_higher_moments_e.py | FAIL | 成交数量前视; 固定股票池的幸存者与事后选样偏差 | kept_from_origin: latest self-review is not PASS |
+| strategies/484_nonlinear_shrinkage_for_higher_moments_e.py | FAIL | 实际买入份额可由成交日收盘价决定; 股票池是事后固定的幸存者样本 | kept_from_origin: latest self-review is not PASS |
 | strategies/476_conditional_value_at_risk_under_reward_p.py | FAIL | 成交量前视，触发 FAIL | kept_from_origin: latest self-review is not PASS |
 | strategies/432_revisiting_equity_bond_diversification_u.py | FAIL | 成交日收盘参与反推成交数量 | kept_from_origin: latest self-review is not PASS |
 | strategies/505_competitive_optimal_portfolio_selection.py | FAIL | 成交日收盘价参与反算同一收盘的成交量 | kept_from_origin: latest self-review is not PASS |

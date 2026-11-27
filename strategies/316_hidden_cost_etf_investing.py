@@ -2,26 +2,26 @@
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; non-author review: PASS; publication gate: Codex.
 Run (one command): python strategies/316_hidden_cost_etf_investing.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit c71364ad99535bbf59be998b004cff431ee83048 on 2026-11-27 11:54 Europe/Oslo, exit 0, output sha256 2611270ea2a9278944f788d640e0ad37ff88e5faeffaab8845625ccdae7c741e
+Backtest reproduced: run of this file's code at commit 14eecadd0b176b2fbb95eb0893f41d9c752319be on 2026-11-26 16:07 Europe/Oslo, exit 0, output sha256 fbe4ba8b869e76c8c85eee0995822044ec57a8ad6b9d230e715cd69f1c27156a
 Data source: Free Yahoo Finance daily ETF open and close prices via yfinance for SPY (hedge and benchmark), IVV, VOO, RSP, and VTI. The recorded run used the local Yahoo price cache.
-Data fetched: 2026-11-27T11:54:09+01:00
+Data fetched: 2026-11-26 16:07 Europe/Oslo (run time)
 Sample period: Requested price range 2011-01-01 through 2025-12-31 inclusive, with pre-reporting observations used for warmup. The run reports trading sessions from 2012-01-03 through 2025-12-31.   data_range (from output): 2012-01-03 to 2025-12-31
 IS/OOS split: Inclusive calendar bounds: IS 2012-01-01 through 2018-12-31; OOS 2019-01-01 through 2025-12-31. The code simulates a continuous daily_results and slices it for reporting. The rolling estimation and positions can carry across the boundary. OOS is a retrospective historical holdout.
 Costs and slippage: 2 bps per side on the sum of absolute dollar position changes across ETF legs at each simulated open or close fill, including entries, exits, and rebalances. The fee is deducted from equity and target positions are sized using after-fee equity. Slippage is not modeled separately. The simulation uses the daily open and close as execution price proxies and has no bid-ask spread or market-impact model.
 Signal lag: The new monthly signal uses 126 sessions through the previous month's final close. The overnight strategy first enters the new target at the next trading session's close and exits at the following session's open. The intraday comparison first uses its new target at the next trading session's open and exits at that session's close. The continuous comparison first uses the new day target at that open and the new night target at that close.
-Price adjustment: Yahoo split-adjusted fills, ex-date distributions in cash; dividend/split-adjusted signals and cash proxy
+Price adjustment: The download uses yfinance with auto_adjust=True and keeps adjusted Open and Close. Cache hits load those columns from the Yahoo adjusted price CSV. Overnight returns use adjusted current open divided by adjusted prior close minus one, and intraday returns use adjusted close divided by adjusted same-day open minus one.
 Survivorship bias: The ETF universe is a fixed, retrospectively selected set of surviving funds. The README identifies fund selection and survivorship bias and states that the strategy does not use current index constituents.
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=-0.10725410042805616, ann_vol=0.006149812943216145, sharpe=-18.44102289613919, sharpe_excess=-17.47591550418977, max_drawdown=-0.5475725048201944, total_return=-0.5472305181196232, turnover=3168.045992052345, n_trades=10557
-    oos: cagr=-0.1159692637938412, ann_vol=0.012793339403577452, sharpe=-9.626217034575431, sharpe_excess=-11.345491175951135, max_drawdown=-0.5774880102314444, total_return=-0.5772133369100084, turnover=3168.3856334355905, n_trades=10557
-    full: cagr=-0.11162236923501134, ann_vol=0.01004043970256418, sharpe=-11.780375660651119, sharpe_excess=-12.701897341679935, max_drawdown=-0.8085784476790292, total_return=-0.808575101606812, turnover=6336.431625487936, n_trades=21114
-    benchmark: cagr=0.12977059182619222, ann_vol=0.14563400295321255, sharpe=0.9109876156563029, sharpe_excess=0.8130611255953516, max_drawdown=-0.2964140982745055, total_return=4.497705729885105, turnover=1.7996157739379481, n_trades=2
+    is: cagr=-0.07284780751546638, ann_vol=0.006851987616185599, sharpe=-11.033693189136146, max_drawdown=-0.41141331267253234, total_return=-0.4103712928864762, turnover=3519.187268451583, n_trades=10557
+    oos: cagr=-0.08273864468630465, ann_vol=0.01422377323756139, sharpe=-6.063572829770127, max_drawdown=-0.4535831283006372, total_return=-0.4529248027769014, turnover=3519.210063946159, n_trades=10557
+    full: cagr=-0.07780648632706832, ann_vol=0.01116735167437549, sharpe=-7.246553110896458, max_drawdown=-0.6775810352188381, total_return=-0.6774287587674679, turnover=7038.3973323977425, n_trades=21114
+    benchmark: cagr=0.14747107455880726, ann_vol=0.16667140909442013, sharpe=0.9090917034243933, max_drawdown=-0.33717234140507113, total_return=5.831056694609669, turnover=1.9923911443031805, n_trades=2
 """
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os
-_CONFIG_YAML = 'strategy: 316_hidden_cost_etf_investing\nhedge_ticker: SPY\npair_tickers: [IVV, VOO, RSP, VTI]\ncash_ticker: BIL\n\n# Date bounds are inclusive. The download starts before the reporting window.\ndata_start: 2011-01-01\nin_sample:\n  start: 2012-01-01\n  end: 2018-12-31\nout_of_sample:\n  start: 2019-01-01\n  end: 2025-12-31\n\nlookback_sessions: 126\ngross_cap: 1.0  # Reference gross weight before the sizing buffer.\ncash_buffer: 0.10  # Reserved when converting target weights into shares.\ntransaction_cost_bps: 2.0  # Per side, on the dollar amount traded in each ETF.\nslippage_bps: 1.0  # Additional adverse fill cost per side.\nsessions_per_year: 252\n'
+_CONFIG_YAML = 'strategy: 316_hidden_cost_etf_investing\nhedge_ticker: SPY\npair_tickers: [IVV, VOO, RSP, VTI]\n\n# Date bounds are inclusive. The download starts before the reporting window.\ndata_start: 2011-01-01\nin_sample:\n  start: 2012-01-01\n  end: 2018-12-31\nout_of_sample:\n  start: 2019-01-01\n  end: 2025-12-31\n\nlookback_sessions: 126\ngross_cap: 1.0\ntransaction_cost_bps: 2.0  # Per side, on the dollar amount traded in each ETF.\nsessions_per_year: 252\n'
 _orig_open = _b.open
 def _open(f, *a, **k):
     try:
@@ -36,102 +36,61 @@ _io.open = _open
 """Backtest the C107 ETF relative-value spread by trading session."""
 
 import json
-from datetime import datetime
-from hashlib import sha256
 from pathlib import Path
-from tempfile import TemporaryDirectory
-from zoneinfo import ZoneInfo
+from tempfile import NamedTemporaryFile, TemporaryDirectory
 
 import numpy as np
 import pandas as pd
 import yaml
 import yfinance as yf
-from pandas.tseries.holiday import (
-    AbstractHolidayCalendar,
-    GoodFriday,
-    Holiday,
-    USLaborDay,
-    USMartinLutherKingJr,
-    USMemorialDay,
-    USPresidentsDay,
-    USThanksgivingDay,
-    nearest_workday,
-    sunday_to_monday,
-)
 
 
 ROOT = Path(__file__).resolve().parent
-
-
-class EquityHolidays(AbstractHolidayCalendar):
-    rules = [
-        Holiday("New Year's Day", month=1, day=1, observance=sunday_to_monday),
-        USMartinLutherKingJr,
-        USPresidentsDay,
-        GoodFriday,
-        USMemorialDay,
-        Holiday("Juneteenth", month=6, day=19, start_date="2022-01-01",
-                observance=nearest_workday),
-        Holiday("Independence Day", month=7, day=4, observance=nearest_workday),
-        USLaborDay,
-        USThanksgivingDay,
-        Holiday("Christmas", month=12, day=25, observance=nearest_workday),
-    ]
-
-
-def expected_sessions(start, end):
-    # Exceptional closures during the configured warmup and sample.
-    exceptional_closures = pd.to_datetime([
-        "2012-10-29", "2012-10-30",  # Hurricane Sandy
-        "2018-12-05", "2025-01-09",  # National days of mourning
-    ])
-    holidays = EquityHolidays().holidays(start, end).union(exceptional_closures)
-    return pd.bdate_range(start, end).difference(holidays)
-
-
-def validate_prices(prices, sessions):
-    index = prices.index
-    if (not isinstance(index, pd.DatetimeIndex) or index.hasnans
-            or not index.is_unique or not index.is_monotonic_increasing):
-        raise RuntimeError("Yahoo Finance returned invalid, duplicate or unordered dates")
-    if not prices.index.equals(sessions):
-        missing = sessions.difference(prices.index).strftime("%Y-%m-%d").tolist()
-        extra = prices.index.difference(sessions).strftime("%Y-%m-%d").tolist()
-        raise RuntimeError(f"Yahoo Finance dates do not match the exchange calendar "
-                           f"(missing {len(missing)} {missing[:5]}, extra {len(extra)} {extra[:5]})")
-    if not np.isfinite(prices.to_numpy()).all():
-        raise RuntimeError("Yahoo Finance returned missing or nonfinite values")
-    if (prices[["Open", "Close", "Adj Close"]] <= 0).any().any():
-        raise RuntimeError("Yahoo Finance returned a nonpositive price")
-    if (prices[["Dividends", "Capital Gains"]] < 0).any().any():
-        raise RuntimeError("Yahoo Finance returned a negative distribution")
+CACHE = ROOT / "data_cache"
 
 
 def load_prices(tickers, start, end):
-    sessions = expected_sessions(start, end)
-    columns = pd.MultiIndex.from_product(
-        [["Open", "Close", "Adj Close", "Dividends", "Capital Gains"], tickers]
-    )
-    with TemporaryDirectory(dir=ROOT, prefix=".yahoo_metadata_") as metadata:
-        yf.set_tz_cache_location(metadata)
-        for attempt in range(2):
-            data = yf.download(
-                tickers, start=start.date().isoformat(),
-                end=(end + pd.Timedelta(days=1)).date().isoformat(),
-                interval="1d", actions=True, auto_adjust=False, ignore_tz=True,
-                threads=False, progress=False,
-                timeout=15, multi_level_index=True,
-            )
-            fetched_at = datetime.now(ZoneInfo("Europe/Oslo")).isoformat(timespec="seconds")
-            prices = data.reindex(columns=columns)
-            try:
-                validate_prices(prices, sessions)
-            except RuntimeError as error:
-                if attempt == 1:
-                    raise
-                print(f"Retrying the Yahoo Finance download: {error}", flush=True)
-            else:
-                return prices, fetched_at
+    CACHE.mkdir(exist_ok=True)
+    cache_file = CACHE / f"yahoo_adjusted_{'-'.join(tickers)}_{start.date()}_{end.date()}.csv"
+    columns = pd.MultiIndex.from_product([["Open", "Close"], tickers])
+    if cache_file.exists():
+        prices = pd.read_csv(cache_file, header=[0, 1], index_col=0, parse_dates=True,
+                             float_precision="round_trip")
+    else:
+        with TemporaryDirectory(dir=CACHE, prefix="yahoo_metadata_") as metadata:
+            yf.set_tz_cache_location(metadata)
+            for attempt in range(2):
+                data = yf.download(
+                    tickers, start=start.date().isoformat(),
+                    end=(end + pd.Timedelta(days=1)).date().isoformat(),
+                    auto_adjust=True, threads=False, progress=False, timeout=15,
+                    multi_level_index=True,
+                )
+                prices = data.reindex(columns=columns)
+                if not prices.empty and prices.notna().all().all():
+                    break
+                if attempt == 0:
+                    print("Retrying the public Yahoo Finance download after incomplete data.", flush=True)
+
+    prices = prices.reindex(columns=columns).sort_index()
+    if prices.empty or not np.isfinite(prices).all().all() or (prices <= 0).any().any():
+        bad = prices.columns[(~np.isfinite(prices) | (prices <= 0)).any()]
+        missing = ", ".join(f"{ticker} {field}" for field, ticker in bad)
+        raise RuntimeError(f"Incomplete Yahoo Finance price panel: {missing or 'no prices'}")
+    if not prices.index.is_unique or prices.index.hasnans:
+        raise RuntimeError("Price panel has duplicate or invalid dates")
+    if not (start <= prices.index[0] <= start + pd.Timedelta(days=7)
+            and end - pd.Timedelta(days=7) <= prices.index[-1] <= end):
+        raise RuntimeError("Yahoo Finance prices do not cover the requested date range")
+    if not cache_file.exists():
+        with NamedTemporaryFile(mode="w", dir=CACHE, suffix=".tmp", delete=False) as file:
+            temporary = Path(file.name)
+        try:
+            prices.to_csv(temporary)
+            temporary.replace(cache_file)
+        finally:
+            temporary.unlink(missing_ok=True)
+    return prices
 
 
 def fit_session(returns):
@@ -170,107 +129,83 @@ def monthly_targets(overnight, intraday, dates, lookback, gross_cap):
     return night_targets, day_targets
 
 
-def size_positions(positions, target, equity, prices, cash_buffer):
-    if target is None:
-        return positions
-    return target * (equity * (1.0 - cash_buffer)) / prices
+def rebalance(positions, equity, target, cost_rate):
+    # The target uses after-fee equity. Iterate on the tiny fee adjustment so
+    # the gross exposure at the fill is sized off the resulting equity.
+    fee = 0.0
+    for _ in range(16):
+        new_positions = (equity - fee) * target
+        traded = np.abs(new_positions - positions)
+        notional = traded.sum()
+        new_fee = cost_rate * notional
+        if abs(new_fee - fee) <= 1e-13 * equity:
+            orders = np.count_nonzero(traded > 1e-12 * equity)
+            return new_positions, equity - new_fee, notional, orders
+        fee = new_fee
+    raise RuntimeError("Trade cost calculation did not converge")
 
 
-def fill(positions, next_positions, cash, prices, cost_rate, date, session):
-    changes = next_positions - positions
-    notional = np.abs(changes) @ prices
-    cost = cost_rate * notional
-    next_cash = cash - changes @ prices - cost
-    equity = next_cash + next_positions @ prices
-    gross = np.abs(next_positions) @ prices
-    if not np.isfinite(equity) or equity <= 0 or next_cash < 0 or gross > equity:
-        raise RuntimeError(f"Insufficient capital for fixed quantities on {date.date()} {session} "
-                           f"(cash={next_cash:.8g}, equity={equity:.8g}, gross={gross:.8g})")
-    return next_cash, equity, notional, cost, np.count_nonzero(changes)
-
-
-def simulate(dates, opens, closes, previous_closes, distributions,
-             open_targets, close_targets, cash_buffer, cost_rate):
-    cash = equity = 1.0
-    positions = np.zeros(opens.shape[1])
-    daily_results = []
-    for date, opening, closing, previous_close, distribution, open_target, close_target in zip(
-        dates, opens, closes, previous_closes, distributions, open_targets, close_targets,
-        strict=True,
+def simulate(dates, overnight, intraday, close_targets, open_targets, cost_rate):
+    equity = 1.0
+    positions = np.zeros(overnight.shape[1])
+    results = []
+    for date, night, day, close_target, open_target in zip(
+        dates, overnight, intraday, close_targets, open_targets, strict=True
     ):
         previous_equity = equity
-        open_positions = size_positions(positions, open_target, equity, previous_close, cash_buffer)
-        # Ex-date distributions belong to positions carried from the prior close.
-        cash += positions @ distribution
-        cash, open_equity, open_notional, open_cost, open_trades = fill(
-            positions, open_positions, cash, opening, cost_rate, date, "open"
+        equity += positions @ night
+        positions *= 1.0 + night
+        positions, equity, open_notional, open_trades = rebalance(
+            positions, equity, open_target, cost_rate
         )
-        close_positions = size_positions(
-            open_positions, close_target, open_equity, opening, cash_buffer
+        equity += positions @ day
+        positions *= 1.0 + day
+        positions, equity, close_notional, close_trades = rebalance(
+            positions, equity, close_target, cost_rate
         )
-        cash, equity, close_notional, close_cost, close_trades = fill(
-            open_positions, close_positions, cash, closing, cost_rate, date, "close"
-        )
-        positions = close_positions
-        net_return = equity / previous_equity - 1.0
-        cost_fraction = (open_cost + close_cost) / previous_equity
-        daily_results.append((net_return, net_return + cost_fraction, cost_fraction,
-                              (open_notional + close_notional) / previous_equity,
-                              open_trades + close_trades))
-    return pd.DataFrame(daily_results, index=dates,
-                        columns=["return", "gross_return", "cost_fraction", "turnover", "n_trades"])
+        if not np.isfinite(equity) or equity <= 0:
+            raise RuntimeError(f"Invalid portfolio equity on {date.date()}")
+        results.append((equity / previous_equity - 1.0,
+                        (open_notional + close_notional) / previous_equity,
+                        open_trades + close_trades))
+    return pd.DataFrame(results, index=dates, columns=["return", "turnover", "n_trades"])
 
 
 def finite_float(value):
     return float(value) if np.isfinite(value) else None
 
 
-def annualized_sharpe(returns, annualization):
-    if len(returns) < 2 or np.ptp(returns) == 0:
-        return None
-    return finite_float(returns.mean() / returns.std(ddof=1) * annualization)
-
-
-def metrics(daily_results, cash_returns, annual_sessions):
+def metrics(daily_results, annual_sessions):
     returns = daily_results["return"].to_numpy()
-    excess = returns - cash_returns
     equity = np.r_[1.0, np.cumprod(1.0 + returns)]
     std = returns.std(ddof=1) if len(returns) > 1 else np.nan
-    annualization = np.sqrt(annual_sessions)
-    cagr_exponent = annual_sessions / len(returns)
-    gross_growth = (1.0 + daily_results["gross_return"]).prod()
     return {
-        "cagr": finite_float(equity[-1] ** cagr_exponent - 1.0),
-        "ann_vol": finite_float(std * annualization),
-        "sharpe": annualized_sharpe(returns, annualization),
-        "sharpe_excess": annualized_sharpe(excess, annualization),
+        "cagr": finite_float(equity[-1] ** (annual_sessions / len(returns)) - 1.0),
+        "ann_vol": finite_float(std * np.sqrt(annual_sessions)),
+        "sharpe": finite_float(returns.mean() / std * np.sqrt(annual_sessions)) if std > 0 else None,
         "max_drawdown": finite_float((equity / np.maximum.accumulate(equity) - 1.0).min()),
         "total_return": finite_float(equity[-1] - 1.0),
         "n_trades": int(daily_results["n_trades"].sum()),
         "turnover": finite_float(daily_results["turnover"].sum()),
-        "gross_cagr": finite_float(gross_growth ** cagr_exponent - 1.0),
-        "cost_sum": finite_float(daily_results["cost_fraction"].sum()),
     }
 
 
-def summarize(daily_results, cash_returns, periods, annual_sessions):
+def summarize(daily_results, periods, annual_sessions):
     result = {}
     for name, (start, end) in periods.items():
         period = daily_results.loc[start:end]
         if period.empty:
             raise ValueError(f"No sessions in reporting period {name}")
-        result[name] = metrics(period, cash_returns.loc[period.index].to_numpy(), annual_sessions)
+        result[name] = metrics(period, annual_sessions)
     return result
 
 
 def print_table(reports):
     columns = (
         ("cagr", "CAGR", 9, ".2%"), ("ann_vol", "Ann vol", 9, ".2%"),
-        ("sharpe", "Sharpe", 8, ".2f"), ("sharpe_excess", "Excess SR", 9, ".2f"),
-        ("max_drawdown", "Max DD", 9, ".2%"),
+        ("sharpe", "Sharpe", 8, ".2f"), ("max_drawdown", "Max DD", 9, ".2%"),
         ("total_return", "Total", 9, ".2%"), ("n_trades", "Trades", 9, "d"),
-        ("turnover", "Turnover", 9, ".2f"),
-        ("gross_cagr", "Gross CAGR", 10, ".2%"), ("cost_sum", "Cost sum", 9, ".2%"),
+        ("turnover", "Turnover", 12, ".2f"),
     )
     headings = " ".join(label.rjust(width) for _, label, width, _ in columns)
     print(f"{'Portfolio':<26} {'Period':<6} {headings}")
@@ -285,14 +220,10 @@ def main():
     with (ROOT / "config.yaml").open(encoding="utf-8") as file:
         config = yaml.safe_load(file)
     hedge = config["hedge_ticker"]
-    cash_ticker = config["cash_ticker"]
     tickers = [hedge, *config["pair_tickers"]]
     lookback = config["lookback_sessions"]
     gross_cap = config["gross_cap"]
-    fee_bps = config["transaction_cost_bps"]
-    slippage_bps = config["slippage_bps"]
-    cost_rate = (fee_bps + slippage_bps) / 10_000
-    cash_buffer = config["cash_buffer"]
+    cost_rate = config["transaction_cost_bps"] / 10_000
     annual_sessions = config["sessions_per_year"]
     data_start = pd.Timestamp(config["data_start"])
     periods = {}
@@ -302,73 +233,53 @@ def main():
     oos_start, oos_end = periods["oos"]
     if not data_start < is_start <= is_end < oos_start <= oos_end:
         raise ValueError("Check the date ordering of the warmup, IS and OOS windows")
-    if len(tickers) < 3 or len(set(tickers)) != len(tickers) or cash_ticker in tickers:
-        raise ValueError("Configure distinct symbols for the hedge, cash proxy and at least two candidates")
-    if (lookback < 2 or not 0 < gross_cap <= 1 or not 0 < cash_buffer < 1
-            or not 0 <= fee_bps or not 0 <= slippage_bps or not 0 <= cost_rate <= 0.05
-            or annual_sessions <= 0):
-        raise ValueError("Invalid lookback, exposure, costs or annualization setting")
+    if len(tickers) < 3 or len(set(tickers)) != len(tickers):
+        raise ValueError("Configure a unique hedge ETF and at least two unique pair candidates")
+    if lookback < 2 or not 0 < gross_cap <= 1 or not 0 <= cost_rate <= 0.05 or annual_sessions <= 0:
+        raise ValueError("Invalid lookback, gross cap, transaction cost or annualization setting")
     periods["full"] = (is_start, oos_end)
 
-    prices, fetched_at = load_prices([*tickers, cash_ticker], data_start, oos_end)
-    opens = prices["Open"][tickers]
-    closes = prices["Close"][tickers]
-    adjusted_closes = prices["Adj Close"][tickers]
-    adjusted_opens = opens * (adjusted_closes / closes)
-    overnight = (adjusted_opens / adjusted_closes.shift(1) - 1.0).to_numpy()
-    intraday = (adjusted_closes / adjusted_opens - 1.0).to_numpy()
+    prices = load_prices(tickers, data_start, oos_end)
+    opens, closes = prices["Open"], prices["Close"]
+    overnight = (opens / closes.shift(1) - 1.0).to_numpy()
+    intraday = (closes / opens - 1.0).to_numpy()
     night, day = monthly_targets(overnight, intraday, prices.index, lookback, gross_cap)
-    cash_returns = prices["Adj Close"][cash_ticker].pct_change(fill_method=None)
-    distributions = (prices["Dividends"] + prices["Capital Gains"])[tickers]
     sample = (prices.index >= is_start) & (prices.index <= oos_end)
     dates = prices.index[sample]
     night, day = night[sample], day[sample]
     if not len(dates) or not night[0].any():
         raise ValueError("Download more warmup data to fit the first month's signal")
-    previous_closes = closes.shift(1).loc[dates].to_numpy()
-    sample_opens = opens.loc[dates].to_numpy()
-    sample_closes = closes.loc[dates].to_numpy()
-    sample_distributions = distributions.loc[dates].to_numpy()
+    overnight, intraday = overnight[sample], intraday[sample]
     flat = np.zeros_like(night)
+    hold = flat.copy()
+    hold[:, 0] = 1.0
+    hold_until_end = hold.copy()
+    hold_until_end[-1] = 0.0
     night[-1] = 0.0  # End at the last close, without starting another overnight trade.
 
-    buy = np.zeros(len(tickers))
-    buy[0] = 1.0
-    benchmark_opens = [None] * len(dates)
-    benchmark_closes = [None] * len(dates)
-    benchmark_opens[0] = buy
-    benchmark_closes[-1] = flat[-1]
     benchmark_name = f"{hedge} buy and hold"
     portfolios = {
-        "Overnight spread": (flat, night),
-        "Intraday spread": (day, flat),
-        "Continuous spread": (day, night),
-        benchmark_name: (benchmark_opens, benchmark_closes),
+        "Overnight spread": (night, flat),
+        "Intraday spread": (flat, day),
+        "Continuous spread": (night, day),
+        benchmark_name: (hold_until_end, hold),
     }
     reports = {}
-    for name, (open_targets, close_targets) in portfolios.items():
-        daily_results = simulate(
-            dates, sample_opens, sample_closes, previous_closes, sample_distributions,
-            open_targets, close_targets, cash_buffer, cost_rate,
-        )
-        reports[name] = summarize(daily_results, cash_returns, periods, annual_sessions)
+    for name, (close_targets, open_targets) in portfolios.items():
+        daily_results = simulate(dates, overnight, intraday, close_targets, open_targets, cost_rate)
+        reports[name] = summarize(daily_results, periods, annual_sessions)
 
     strategy_report = reports["Overnight spread"]
     benchmark = reports[benchmark_name]
-    print("PARAM_COMBOS_TRIED: 1")
-    print(f"DATA_FETCHED_AT: {fetched_at}")
-    print("PRICE_ADJUSTMENT: Yahoo split-adjusted fills, ex-date distributions in cash; "
-          "dividend/split-adjusted signals and cash proxy")
-    print(f"DATA_SHA256: {sha256(prices.to_csv().encode()).hexdigest()}")
     print(f"{config['strategy']} | {dates[0].date()} to {dates[-1].date()} | "
-          f"{fee_bps:g} bps fee + {slippage_bps:g} bps slippage per side | "
-          f"{cash_buffer:.0%} sizing buffer | excess Sharpe vs {cash_ticker}")
+          f"{config['transaction_cost_bps']:g} bps per side | turnover in NAV multiples")
     print_table(reports)
     result = {
         "strategy": config["strategy"],
         "data_range": f"{dates[0].date()} to {dates[-1].date()}",
         **strategy_report,
-        "benchmark": {"name": benchmark_name, **benchmark["full"], **benchmark},
+        "benchmark": {"name": benchmark_name, **benchmark["full"],
+                      "is": benchmark["is"], "oos": benchmark["oos"]},
         "comparisons": {
             "intraday": reports["Intraday spread"],
             "continuous": reports["Continuous spread"],

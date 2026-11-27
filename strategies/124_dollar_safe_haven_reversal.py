@@ -2,9 +2,9 @@
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; non-author review: PASS; publication gate: Codex.
 Run (one command): python strategies/124_dollar_safe_haven_reversal.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit c71364ad99535bbf59be998b004cff431ee83048 on 2026-11-27 11:53 Europe/Oslo, exit 0, output sha256 b9cd4754a6a27d72f49bbb807fa1ca78140e4acca27ea67dad54b85128d1fc32
+Backtest reproduced: run of this file's code at commit 7f58470906099142d2404cd2e681f0aaa17db946 on 2026-11-26 16:09 Europe/Oslo, exit 0, output sha256 075f64b600dbd6afaaa29404d5b07dc6f72f6ed0475b5cef29ab9c98a960220f
 Data source: Yahoo Finance 免费日线，经 yfinance 获取美国上市 ETF 的开盘价和收盘价。SPY 与 UUP 生成信号，UUP 也用于匹配窗口对照，FXE 与 FXY 构成反转组合，BIL 用作防御持仓和买入持有基准。本次日志记录的数据获取日期为 2026-11-26（Europe/Oslo）。[config.yaml:4-8, strategy.py:19-41, strategy.py:248-258, strategy.py:271-276, README.md:30, logs/codex_fix_d2_run_20261126_131116.log:1-2]
-Data fetched: 2026-11-27
+Data fetched: 2026-11-26
 Sample period: 实际回测交易日为 2010-06-07 至 2026-11-24，共 4,144 个交易日。代码请求从样本起点提前 14 个日历日的数据，计算信号所需的前收盘价。[config.yaml:18-24, strategy.py:240-253, strategy.py:256-266, logs/codex_fix_d2_run_20261126_131116.log:1, logs/codex_fix_d2_run_20261126_131116.log:39]   data_range (from output): 2010-06-07 to 2026-11-24
 IS/OOS split: 含边界的连续日历划分：IS 为 2010-06-07 至 2023-12-31（3,416 个交易日），OOS 为 2024-01-01 至 2026-11-24（728 个交易日），首个 OOS 交易日为 2024-01-02。组合在全样本连续模拟后按日期切分报告，持仓可跨边界。README 说明 OOS 与研究假设所依据的论文研究期部分重叠。[config.yaml:18-24, strategy.py:240-245, strategy.py:270-288, README.md:22-24, logs/codex_fix_d2_run_20261126_131116.log:39]
 Costs and slippage: 每笔买入和卖出均按各自成交名义金额计 2.5 bps 交易费用和 2.5 bps 固定滑点，每边合计 5 bps。令 c = 0.0005，首次买入 BIL 的因子为 1/(1+c)，进入外汇组合和切回 BIL 时各乘 (1-c)/(1+c)，先扣卖出成本再用净额买入。滑点已作为固定成本建模。[config.yaml:13-15, strategy.py:228-238, strategy.py:81-104, README.md:24, README.md:34, logs/codex_fix_d2_run_20261126_131116.log:5]
@@ -13,15 +13,15 @@ Price adjustment: Yahoo Finance split- and distribution-adjusted Open and Close 
 Survivorship bias: 固定使用事后可见的存续 ETF 作为代理，存在代理选择及存续偏差的可能。代码从固定标的列表取数。[config.yaml:4-8, strategy.py:220-226, strategy.py:248-254, README.md:34]
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=-0.01941810571486169, ann_vol=0.03735103913401967, sharpe=-0.5063033501951919, sharpe_excess=-0.7167334749122873, max_drawdown=-0.36378065621456435, total_return=-0.23341709970917324, turnover=636.449210721653, n_trades=491
-    oos: cagr=0.030561211712855085, ann_vol=0.03269132225851159, sharpe=0.9371403305709904, sharpe_excess=-0.3704919414515701, max_drawdown=-0.0291348922792789, total_return=0.09085928799849907, turnover=111.90260486089826, n_trades=85
-    full: cagr=-0.010816885544371324, ann_vol=0.03659102094891983, sharpe=-0.27893997841447876, sharpe_excess=-0.6616390757620033, max_drawdown=-0.36378065621456435, total_return=-0.1637659231969225, turnover=748.3518155825514, n_trades=576
-    benchmark BIL full: cagr=0.014049337946005602, ann_vol=0.0026412528437755782, sharpe=5.283641807008377, sharpe_excess=None, max_drawdown=-0.0045946267830062615, total_return=0.257877359999398, turnover=0.9990004997501251, n_trades=1
+    is: cagr=-0.020911261966735983, ann_vol=0.037598100655656344, sharpe=-0.5432533431445117, sharpe_excess=-0.7524738465926697, max_drawdown=-0.373857531426668, total_return=-0.2490900511562555, turnover=688.6556721639181, n_trades=345
+    oos: cagr=0.03196788075520307, ann_vol=0.0326260761001361, sharpe=0.9807657012344821, sharpe_excess=-0.3300132777494527, max_drawdown=-0.02896334407945189, total_return=0.09516631341243587, turnover=115.94202898550725, n_trades=58
+    full: cagr=-0.011821928575988072, ann_vol=0.036791124636116494, sharpe=-0.3048480355441712, sharpe_excess=-0.6857678045172146, max_drawdown=-0.373857531426668, total_return=-0.17762871962007643, turnover=804.5977011494253, n_trades=403
+    benchmark BIL full: cagr=0.014055655325276195, ann_vol=0.0026432041182881346, sharpe=5.282100306017677, sharpe_excess=None, max_drawdown=-0.004597658194419263, total_return=0.25800623131584244, turnover=0.9995002498750625, n_trades=1
 """
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os
-_CONFIG_YAML = 'strategy: 124_dollar_safe_haven_reversal\ncategory: macro\n\nuniverse:\n  equity_signal: SPY\n  dollar_signal_and_comparison: UUP\n  reversal_sleeve: [FXE, FXY]\n  defensive_benchmark: BIL\n\nparameters:\n  equity_stress_return: -0.01\n  dollar_confirmation_return: 0.0\n  holding_sessions: 5\n  transaction_fee_bps: 2.5  # Per side, on traded notional.\n  slippage_bps: 2.5  # Per side, on traded notional.\n  cash_buffer_bps: 5  # Leave 0.05% of available cash unspent when fixing shares at the open.\n  annualization_sessions: 252\n\n# Inclusive calendar dates. OOS overlaps the period motivating the research hypothesis.\nin_sample:\n  start: 2010-06-07\n  end: 2023-12-31\nout_of_sample:\n  start: 2024-01-01\n  end: 2026-11-24\n\nregimes:\n  pre_2024:\n    start: 2010-06-07\n    end: 2023-12-31\n  "2024_2025":\n    start: 2024-01-01\n    end: 2025-12-31\n  "2026":\n    start: 2026-01-01\n    end: 2026-11-24\n'
+_CONFIG_YAML = 'strategy: 124_dollar_safe_haven_reversal\ncategory: macro\n\nuniverse:\n  equity_signal: SPY\n  dollar_signal_and_comparison: UUP\n  reversal_sleeve: [FXE, FXY]\n  defensive_benchmark: BIL\n\nparameters:\n  equity_stress_return: -0.01\n  dollar_confirmation_return: 0.0\n  holding_sessions: 5\n  transaction_fee_bps: 2.5  # Per side, on traded notional.\n  slippage_bps: 2.5  # Per side, on traded notional.\n  annualization_sessions: 252\n\n# Inclusive calendar dates. The OOS label denotes a chronological holdout.\nin_sample:\n  start: 2010-06-07\n  end: 2023-12-31\nout_of_sample:\n  start: 2024-01-01\n  end: 2026-11-24\n\nregimes:\n  pre_2024:\n    start: 2010-06-07\n    end: 2023-12-31\n  "2024_2025":\n    start: 2024-01-01\n    end: 2025-12-31\n  "2026":\n    start: 2026-01-01\n    end: 2026-11-24\n'
 _orig_open = _b.open
 def _open(f, *a, **k):
     try:
@@ -37,26 +37,12 @@ _io.open = _open
 
 import json
 from datetime import datetime
-from hashlib import sha256
-from io import BytesIO
 from pathlib import Path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from zoneinfo import ZoneInfo
 
 import numpy as np
 import pandas as pd
-from pandas.tseries.holiday import (
-    AbstractHolidayCalendar,
-    GoodFriday,
-    Holiday,
-    USLaborDay,
-    USMartinLutherKingJr,
-    USMemorialDay,
-    USPresidentsDay,
-    USThanksgivingDay,
-    nearest_workday,
-    sunday_to_monday,
-)
 import yaml
 import yfinance as yf
 
@@ -65,33 +51,15 @@ ROOT = Path(__file__).resolve().parent
 CACHE = ROOT / "data_cache"
 
 
-class NYSEHolidays(AbstractHolidayCalendar):
-    rules = [
-        Holiday("New Year's Day", month=1, day=1, observance=sunday_to_monday),
-        USMartinLutherKingJr,
-        USPresidentsDay,
-        GoodFriday,
-        USMemorialDay,
-        Holiday("Juneteenth", month=6, day=19, start_date="2022-01-01", observance=nearest_workday),
-        Holiday("Independence Day", month=7, day=4, observance=nearest_workday),
-        USLaborDay,
-        USThanksgivingDay,
-        Holiday("Christmas Day", month=12, day=25, observance=nearest_workday),
-    ]
-
-
-def expected_sessions(start, end):
-    # Full-day closures in the configured sample: Sandy, Bush and Carter days of mourning.
-    closures = pd.to_datetime(["2012-10-29", "2012-10-30", "2018-12-05", "2025-01-09"])
-    sessions = pd.date_range(start, end, freq=pd.offsets.CustomBusinessDay(calendar=NYSEHolidays()))
-    return sessions.difference(closures)
-
-
-def load_prices(ticker, start, end, sessions):
+def load_prices(ticker, start, end):
     cache_file = CACHE / f"yahoo_adjusted_{ticker}_{start:%Y%m%d}_{end:%Y%m%d}.csv"
     cached = cache_file.exists()
     if cached:
-        snapshot = cache_file.read_bytes()
+        prices = pd.read_csv(cache_file, index_col="Date", parse_dates=["Date"])
+        dates = prices.pop("FetchedAt").unique()
+        if len(dates) != 1 or pd.isna(dates[0]):
+            raise ValueError(f"Missing or inconsistent fetch date for {ticker}.")
+        fetched_at = dates[0]
     else:
         # Yahoo uses an exclusive end date. Auto-adjust both sides of the bar.
         history = yf.Ticker(ticker).history(
@@ -106,33 +74,22 @@ def load_prices(ticker, start, end, sessions):
         prices = history[["Open", "Close"]].copy()
         prices.index = prices.index.tz_localize(None).normalize()
         fetched_at = datetime.now(ZoneInfo("Europe/Oslo")).date().isoformat()
-        snapshot = prices.sort_index().loc[start:end].assign(FetchedAt=fetched_at).to_csv(index_label="Date").encode()
-
-    prices = pd.read_csv(BytesIO(snapshot), index_col="Date", parse_dates=["Date"])
-    dates = prices.pop("FetchedAt").unique()
-    if len(dates) != 1 or pd.isna(dates[0]):
-        raise ValueError(f"Missing or inconsistent fetch date for {ticker}.")
-    fetched_at = dates[0]
-    prices = prices[["Open", "Close"]].sort_index()
-    if not prices.index.is_unique:
-        raise ValueError(f"Duplicate price dates for {ticker}.")
-    if not prices.index.equals(sessions):
-        missing = sessions.difference(prices.index).strftime("%Y-%m-%d").tolist()
-        unexpected = prices.index.difference(sessions).strftime("%Y-%m-%d").tolist()
-        raise ValueError(f"{ticker} session mismatch: missing {missing[:8]}, unexpected {unexpected[:8]}.")
+    prices = prices.sort_index().loc[start:end]
+    if prices.empty or not prices.index.is_unique:
+        raise ValueError(f"Missing or duplicate price dates for {ticker}.")
     values = prices.to_numpy()
     if not np.isfinite(values).all() or (values <= 0).any():
         raise ValueError(f"Invalid adjusted prices for {ticker}.")
     if not cached:
-        with NamedTemporaryFile(dir=CACHE, delete=False) as temp:
+        with NamedTemporaryFile(mode="w", dir=CACHE, delete=False) as temp:
             temp_path = Path(temp.name)
             try:
-                temp.write(snapshot)
+                prices.assign(FetchedAt=fetched_at).to_csv(temp, index_label="Date")
                 temp.close()
                 temp_path.replace(cache_file)
             finally:
                 temp_path.unlink(missing_ok=True)
-    return prices, fetched_at, sha256(snapshot).hexdigest()
+    return prices, fetched_at
 
 
 def event_windows(triggers, holding_sessions):
@@ -156,59 +113,30 @@ def sleeve_path(opens, closes, sleeve, entry, exit_session):
     ).mean(axis=1)
 
 
-def opening_shares(cash, open_prices, cost, cash_buffer):
-    target = cash * (1 - cash_buffer) / (1 + cost) / len(open_prices)
-    return target / open_prices
+def simulate(opens, closes, defensive, sleeve, windows, buy_factor, switch_factor):
+    defensive_close = closes[defensive]
+    defensive_open = opens[defensive]
+    previous_close = defensive_close.shift()
+    gross = defensive_close.div(previous_close)
+    gross.iloc[0] = defensive_close.iloc[0] / defensive_open.iloc[0] * buy_factor
+    turnover = pd.Series(0.0, index=closes.index)
+    turnover.iloc[0] = buy_factor
+    trades = pd.Series(0, index=closes.index, dtype=int)
+    trades.iloc[0] = 1
 
-
-def simulate(opens, closes, defensive, sleeve, windows, cost, cash_buffer):
-    tickers = [defensive, *sleeve]
-    entries = {entry for entry, _ in windows}
-    exits = {exit_session for _, exit_session in windows}
-    positions = np.zeros(len(tickers))
-    cash = previous_value = 1.0
-    rows = []
-
-    for session, (open_prices, close_prices) in enumerate(
-        zip(opens[tickers].to_numpy(), closes[tickers].to_numpy())
-    ):
-        open_value = cash + float(positions @ open_prices)
-        turnover = 0.0
-        trades = 0
-        # A fresh event takes precedence over buying BIL after the previous exit.
-        if session in entries or not positions.any():
-            target = slice(1, None) if session in entries else slice(0, 1)
-            sold = float(positions @ open_prices)
-            cash += sold * (1 - cost)
-            buy_prices = open_prices[target]
-            shares = opening_shares(cash, buy_prices, cost, cash_buffer)
-            bought = float(shares @ buy_prices)
-            payment = bought * (1 + cost)
-            if payment > cash:
-                raise ArithmeticError(f"Opening fill exceeds available cash on {opens.index[session].date()}.")
-            cash -= payment
-            positions.fill(0.0)
-            positions[target] = shares
-            turnover = (sold + bought) / open_value
-            trades = int(sold + bought > 0.0)
-
-        close_position_value = float(positions @ close_prices)
-        if session in exits:
-            # Sell the existing shares at the scheduled close. Cash waits for the next open.
-            turnover += close_position_value / (cash + close_position_value)
-            cash += close_position_value * (1 - cost)
-            trades += int(close_position_value > 0.0)
-            positions.fill(0.0)
-            close_position_value = 0.0
-        close_value = cash + close_position_value
-        if cash < 0 or not np.isfinite(close_value) or close_value <= 0:
-            raise ArithmeticError(f"Invalid simulated cash or portfolio value on {closes.index[session].date()}.")
-        rows.append((close_value / previous_value - 1, turnover, trades, open_value, close_value))
-        previous_value = close_value
-
-    return pd.DataFrame(
-        rows, index=closes.index, columns=["return", "turnover", "n_trades", "open_value", "close_value"]
-    )
+    for entry, exit_session in windows:
+        path = sleeve_path(opens, closes, sleeve, entry, exit_session)
+        daily = path.div(path.shift(fill_value=1.0))
+        gross.loc[path.index] = daily
+        gross.iloc[entry] *= defensive_open.iloc[entry] / previous_close.iloc[entry]
+        gross.iloc[entry] *= switch_factor
+        turnover.iloc[entry] += 1 + switch_factor
+        trades.iloc[entry] += 1
+        if exit_session < len(closes):
+            gross.iloc[exit_session] *= switch_factor
+            turnover.iloc[exit_session] += 1 + switch_factor
+            trades.iloc[exit_session] += 1
+    return pd.DataFrame({"return": gross - 1, "turnover": turnover, "n_trades": trades})
 
 
 def metrics(daily, cash_returns, annualization):
@@ -225,22 +153,22 @@ def metrics(daily, cash_returns, annualization):
             ("cagr", "ann_vol", "sharpe", "sharpe_excess", "max_drawdown", "total_return", "turnover")
         ) | {"n_trades": 0, "n_sessions": 0}
     returns = daily["return"]
-    cumulative_value = (1 + returns).cumprod()
+    equity = (1 + returns).cumprod()
     vol = returns.std(ddof=1) * np.sqrt(annualization)
     return {
-        "cagr": finite(cumulative_value.iloc[-1] ** (annualization / n) - 1),
+        "cagr": finite(equity.iloc[-1] ** (annualization / n) - 1),
         "ann_vol": finite(vol),
         "sharpe": sharpe(returns),
         "sharpe_excess": sharpe(returns - cash_returns),
-        "max_drawdown": finite((cumulative_value / cumulative_value.cummax().clip(lower=1) - 1).min()),
-        "total_return": finite(cumulative_value.iloc[-1] - 1),
+        "max_drawdown": finite((equity / equity.cummax().clip(lower=1) - 1).min()),
+        "total_return": finite(equity.iloc[-1] - 1),
         "turnover": finite(daily["turnover"].sum()),
         "n_trades": int(daily["n_trades"].sum()),
         "n_sessions": n,
     }
 
 
-def summarize_events(opens, closes, reversal, dollar, defensive, windows, periods, daily):
+def summarize_events(opens, closes, reversal, dollar, defensive, windows, periods, switch_factor):
     rows = []
     for entry, exit_session in windows:
         if exit_session >= len(closes):
@@ -248,12 +176,11 @@ def summarize_events(opens, closes, reversal, dollar, defensive, windows, period
         fx_return = sleeve_path(opens, closes, reversal, entry, exit_session).iloc[-1] - 1
         usd_return = closes[dollar].iloc[exit_session] / opens[dollar].iloc[entry] - 1
         cash_return = closes[defensive].iloc[exit_session] / opens[defensive].iloc[entry] - 1
-        net_return = daily["close_value"].iloc[exit_session] / daily["open_value"].iloc[entry] - 1
-        rows.append((closes.index[entry], closes.index[exit_session], fx_return, usd_return, cash_return, net_return))
-    events = pd.DataFrame(rows, columns=["entry", "exit", "reversal", "dollar", "cash", "reversal_net"])
+        rows.append((closes.index[entry], closes.index[exit_session], fx_return, usd_return, cash_return))
+    events = pd.DataFrame(rows, columns=["entry", "exit", "reversal", "dollar", "cash"])
     events["reversal_minus_dollar"] = events["reversal"] - events["dollar"]
     events["reversal_minus_cash"] = events["reversal"] - events["cash"]
-    events["net_reversal_minus_cash"] = events["reversal_net"] - events["cash"]
+    events["net_reversal_minus_cash"] = (1 + events["reversal"]) * switch_factor**2 - (1 + events["cash"])
     summaries = {}
     for name, (start, end) in periods.items():
         selected = events.loc[(events["entry"] >= start) & (events["exit"] <= end)]
@@ -336,14 +263,14 @@ def main():
     fee_bps = params["transaction_fee_bps"]
     slippage_bps = params["slippage_bps"]
     cost = (fee_bps + slippage_bps) / 10_000
-    cash_buffer = params["cash_buffer_bps"] / 10_000
     annualization = params["annualization_sessions"]
     if not isinstance(holding, int) or holding < 1 or not 0 <= cost < 1 or annualization <= 0:
         raise ValueError("Invalid holding period, transaction cost, or annualization factor.")
     if fee_bps < 0 or slippage_bps < 0:
         raise ValueError("Fees and slippage must be nonnegative.")
-    if not 0 < cash_buffer < 1:
-        raise ValueError("The cash buffer must be positive and smaller than the available cash.")
+    buy_factor = 1 / (1 + cost)
+    # Sell the old position and buy with the proceeds after sell and buy costs.
+    switch_factor = (1 - cost) * buy_factor
 
     in_sample = date_pair(config["in_sample"])
     out_of_sample = date_pair(config["out_of_sample"])
@@ -355,13 +282,18 @@ def main():
 
     CACHE.mkdir(exist_ok=True)
     warmup = start - pd.Timedelta(days=14)
-    sessions = expected_sessions(warmup, end)
     tickers = dict.fromkeys([equity, dollar, *reversal, defensive])
     with TemporaryDirectory(dir=CACHE, prefix=".yfinance-") as yahoo_cache:
         yf.set_tz_cache_location(yahoo_cache)
-        snapshots = {ticker: load_prices(ticker, warmup, end, sessions) for ticker in tickers}
-    opens = pd.DataFrame({ticker: frame["Open"] for ticker, (frame, _, _) in snapshots.items()})
-    closes = pd.DataFrame({ticker: frame["Close"] for ticker, (frame, _, _) in snapshots.items()})
+        snapshots = {ticker: load_prices(ticker, warmup, end) for ticker in tickers}
+    prices = {ticker: frame for ticker, (frame, _) in snapshots.items()}
+    fetched_at = {ticker: stamp for ticker, (_, stamp) in snapshots.items()}
+    calendar = prices[equity].index
+    opens = pd.DataFrame({ticker: frame["Open"].reindex(calendar) for ticker, frame in prices.items()})
+    closes = pd.DataFrame({ticker: frame["Close"].reindex(calendar) for ticker, frame in prices.items()})
+    missing = closes.loc[start:end].isna()
+    if missing.to_numpy().any():
+        raise ValueError(f"Missing ETF prices on {equity} sessions: {missing.sum().to_dict()}")
     signal_returns = closes[[equity, dollar]].pct_change(fill_method=None).loc[start:end]
     if signal_returns.empty or signal_returns.isna().to_numpy().any():
         raise ValueError("The signal needs a previous close for both ETFs on every reported session.")
@@ -373,9 +305,9 @@ def main():
     windows = event_windows(triggers, holding)
     benchmark_name = f"{defensive} buy and hold"
     portfolios = {
-        "Strategy": simulate(opens, closes, defensive, reversal, windows, cost, cash_buffer),
-        benchmark_name: simulate(opens, closes, defensive, [], [], cost, cash_buffer),
-        f"Matched {dollar}": simulate(opens, closes, defensive, [dollar], windows, cost, cash_buffer),
+        "Strategy": simulate(opens, closes, defensive, reversal, windows, buy_factor, switch_factor),
+        benchmark_name: simulate(opens, closes, defensive, [], [], buy_factor, switch_factor),
+        f"Matched {dollar}": simulate(opens, closes, defensive, [dollar], windows, buy_factor, switch_factor),
     }
     cash_returns = portfolios[benchmark_name]["return"]
 
@@ -393,20 +325,16 @@ def main():
     if not strategy["is"]["n_sessions"] or not strategy["oos"]["n_sessions"]:
         raise ValueError("Yahoo Finance data must cover both the IS and OOS periods.")
     regimes = report(regime_dates)
-    events = summarize_events(
-        opens, closes, reversal, dollar, defensive, windows, periods | regime_dates, portfolios["Strategy"]
-    )
+    events = summarize_events(opens, closes, reversal, dollar, defensive, windows, periods | regime_dates, switch_factor)
     actual_range = f"{closes.index[0]:%Y-%m-%d} to {closes.index[-1]:%Y-%m-%d}"
     print(f"{config['strategy']} | Yahoo Finance adjusted daily bars | {actual_range}")
-    print(f"WORKING_DIRECTORY: {Path.cwd()}")
-    fetched_at = {ticker: stamp for ticker, (_, stamp, _) in snapshots.items()}
+    if closes.index[0] > start or closes.index[-1] < end:
+        print(f"Configured inclusive bounds {start.date()} to {end.date()}; reporting observed sessions.")
     fetch_label = next(iter(fetched_at.values())) if len(set(fetched_at.values())) == 1 else json.dumps(fetched_at)
     print(f"DATA_FETCHED_AT: {fetch_label}")
-    print("DATA_SNAPSHOT_SHA256: " + json.dumps({ticker: digest for ticker, (_, _, digest) in snapshots.items()}))
     print("PRICE_ADJUSTMENT: Yahoo Finance split- and distribution-adjusted Open and Close (yfinance auto_adjust=True)")
     print("PARAM_COMBOS_TRIED: 1")
     print(f"Transaction cost: {fee_bps + slippage_bps:g} bps per side ({fee_bps:g} fees + {slippage_bps:g} slippage)")
-    print(f"Opening cash reserve: {params['cash_buffer_bps']:g} bps of cash available after any opening sale")
     display_reports(reports, regimes, events)
     result = {
         "strategy": config["strategy"],

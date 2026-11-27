@@ -1,23 +1,3 @@
-"""022_sector_residual_statarb
-研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
-Author: Gemini; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/022_sector_residual_statarb.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit ed11995234d0b7af91b8ab7ab035ba02e738dbe6 on 2026-11-27 06:30 Europe/Oslo, exit 0, output sha256 626480c9bb8bfff75595071ccd0828c8f3c11b6b9a46be50ed0238da86c54a36
-Data source: Yahoo Finance，经 yfinance 下载日频收盘价。行业 ETF 为 XLB、XLE、XLF、XLI、XLK、XLP、XLU、XLV、XLY、XLC、XLRE，另取 SPY 和 BIL 的行情及 ETF 现金分配。SPY 用作回归因子和买入持有基准，BIL 用作超额收益参照，Yahoo 的 ^IRX 日收盘报价用于现金计息和融资。（config.yaml:9-28，strategy.py:32-42、63-71、74-91、108-111、238-244、286-317，logs/codex_fix_d2_run_20261126_104407.log:1、4）
-Data fetched: 2026-11-27 06:30 Europe/Oslo (run time)
-Sample period: 请求区间为 2015-01-01 起至 2026-11-01（不含）。日志记录实际行情为 2015-01-02 至 2026-10-30，共 2975 个交易日。信号预热后的评估为 2015-10-05 至 2026-10-30，共 2785 个交易日。（config.yaml:2-3，strategy.py:78-89、275-286，logs/codex_fix_d2_run_20261126_104407.log:3-5）   data_range (from output): {'start': '2015-01-02', 'end': '2026-10-30', 'evaluation_start': '2015-10-05', 'oos_start': '2022-01-01'}
-IS/OOS split: 评估样本按 2022-01-01 切分，之前为 IS，当日及以后为 OOS。两个区间使用同一组参数和连续持仓。这是 2026-11-26 修复时在已有全样本结果后加上的回溯切分，并非事先固定的样本外划分。（config.yaml:4，strategy.py:260-265、286-287、316，README.md:19、43-45，backtest_results.md:18，logs/codex_fix_d2_run_20261126_104407.log:4）
-Costs and slippage: 单边成交费为每次实际绝对成交额的 5 bps，按成交收盘价计算并扣减现金。SPY 基准首次买入也支付同一费率。借券费为前一收盘空头市值的年化 50 bps，按实际日历天数除以 365 计提。按空头市值的 102% 预留不计息抵押品，剩余现金按滞后的 ^IRX 换算利率计息，负余额按同率计融资费。滑点未建模，买卖价差和市场冲击也未建模。（config.yaml:5-7，strategy.py:63-70、159-199、221-234、290-294，README.md:13、47-49）
-Signal lag: 交易日 t 收盘后，以当日收益生成信号，用 t 日收盘价及交易后净值确定目标股数。该股数在下一交易日 t+1 收盘模拟成交。t 至 t+1 的价变、现金分配及融资先计入原持仓。（strategy.py:115-128、154-156、173-194、196-216、275-280，README.md:11）
-Price adjustment: yfinance 设置 auto_adjust=False、actions=True，使用 Close。README 将该口径描述为 Yahoo 拆股调整后的等价股数。信号收益用（当日 Close 加当日股息及资本利得分配）除以前一日 Close 再减一。成交按 Close 记账，除息日的分配另按原持仓股数计入现金，空头承担对应分配。（strategy.py:40-42、63-71、87-91、175-193、275-278，README.md:11-13）
-Survivorship bias: 使用当前固定的 11 只行业 ETF 回看历史，存在事后选池偏差，退市或未入名单的产品不纳入。XLC 自 2018-06-19、XLRE 自 2015-10-08 纳入，各自积累信号窗口。未重建历史行业分类或替代标的，偏差未量化。（config.yaml:9-24，strategy.py:53-61、115-128，README.md:17、51-53）
-Parameter combinations tried: 未记录
-Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=-0.00021474464000736937, ann_vol=0.0730299711719651, sharpe=0.03357337037517022, sharpe_excess=-0.07140371805968677, max_drawdown=-0.14557761758118148, total_return=-0.0013396954310883613, turnover=219.6766880287238, n_trades=7106
-    oos: cagr=-0.01398185216580139, ann_vol=0.09249547555466735, sharpe=-0.10602302705132025, sharpe_excess=-0.5177004814056095, max_drawdown=-0.25455296077062617, total_return=-0.06547844969081662, turnover=164.8153447823205, n_trades=6166
-    full: cagr=-0.006229499073650224, ann_vol=0.0820557559953671, sharpe=-0.03513344696253851, sharpe_excess=-0.2898060401472896, max_drawdown=-0.2980056274224895, total_return=-0.06673042394201334, turnover=384.4920328110443, n_trades=13272
-    benchmark SPY full: cagr=0.13850423565782966, ann_vol=0.16308703252029264, sharpe=0.8773250771901916, sharpe_excess=0.7489055608373023, max_drawdown=-0.3162502476374127, total_return=3.193602960659941, turnover=0.9995002498750625, n_trades=1
-"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

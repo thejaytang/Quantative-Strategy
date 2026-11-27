@@ -1,27 +1,7 @@
-"""482_dynamic_inclusion_and_bounded_multi_fact
-研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
-Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/482_dynamic_inclusion_and_bounded_multi_fact.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit cc50485fb68601d5f9b01f48262e3a778be06982 on 2026-11-27 09:02 Europe/Oslo, exit 0, output sha256 94f6bd08a38be4bb48ca24711fa282e10aa0f0b97bb5d32aae3d1e29b172c072
-Data source: Yahoo Finance daily ETF prices and volume via yfinance, with a local gzip CSV cache. The universe is XLB, XLC, XLE, XLF, XLI, XLK, XLP, XLRE, XLU, XLV and XLY. SPY quotes validate the session calendar and BIL daily returns are the risk-free proxy for excess Sharpe.
-Data fetched: 2026-11-27T08:02:51+00:00
-Sample period: Warm-up history requested from 2008-01-01. The logged evaluation runs from 2010-01-04 through 2025-12-31 inclusive.   data_range (from output): {'start': '2010-01-04', 'end': '2025-12-31', 'is_end': '2019-12-31', 'oos_start': '2020-01-02'}
-IS/OOS split: IS is 2010-01-04 through 2019-12-31 inclusive. OOS is 2020-01-02 through 2025-12-31 inclusive. The grid is scored on IS net excess Sharpe versus BIL. The selected parameters stay fixed in OOS, which carries forward the portfolio state from IS.
-Costs and slippage: Models a 2 bp fee and 3 bp fixed slippage, for 5 bp on each dollar of absolute executed buy or sell notional at rebalance. The simulator solves for the post-cost capital used to size target positions and deducts the charge from portfolio value. The dynamic equal-weight benchmark uses the same friction.
-Signal lag: The signal uses daily bars through the prior session close. When the next session is the first session of the month, the simulator rebalances at that session's close after applying its close-to-close return to the old holdings. New weights take effect for the following close-to-close interval. The whole rebalance is skipped if any positive-weight target lacks an execution-day close.
-Price adjustment: yfinance Adj Close total-return (auto_adjust=False)
-Survivorship bias: The fixed sector ETF list is drawn from funds with data available at the time the strategy was written. The README identifies survivorship and hindsight selection bias because the list omits liquidated funds and gives incomplete coverage of the funds available at historical dates. Monthly eligibility requires 253 consecutive valid closes under the configured lookback.
-Parameter combinations tried: 8
-Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=0.12422071352674213, ann_vol=0.13813527472814777, sharpe=0.9170456025399797, sharpe_excess=0.8864605490623347, max_drawdown=-0.17548049249579634, total_return=2.218908710918463, turnover=0.5616147222262134, n_trades=1124
-    oos: cagr=0.07916254904985309, ann_vol=0.1802998713660085, sharpe=0.5133020869541116, sharpe_excess=0.3681176193661763, max_drawdown=-0.34971719565984616, total_return=0.5775967518570646, turnover=0.628678580062533, n_trades=769
-    full: cagr=0.10711880725022493, ann_vol=0.15526519073240516, sharpe=0.7334986649896756, sharpe_excess=0.6533481600327368, max_drawdown=-0.34971719565984627, total_return=4.078139926869385, turnover=0.5867470029461861, n_trades=1893
-    benchmark: cagr=0.10756036492039112, ann_vol=0.15935410804842093, sharpe=0.7212420784008168, sharpe_excess=0.6431484198882744, max_drawdown=-0.36175993505138093, total_return=4.110577780600812, turnover=0.2444178532406553, n_trades=1893
-"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os
-_CONFIG_YAML = 'strategy: 482_dynamic_inclusion_and_bounded_multi_fact\nuniverse: [XLB, XLC, XLE, XLF, XLI, XLK, XLP, XLRE, XLU, XLV, XLY]\ncalendar_ticker: SPY\nrisk_free: BIL\ndates:\n  history_start: 2008-01-01\n  start: 2010-01-01\n  is_end: 2019-12-31\n  end: 2025-12-31\nsignals:\n  liquidity_lookback_sessions: 60\n  volatility_lookback_sessions: 60\n  momentum_lookback_sessions: 252\n  momentum_skip_sessions: 21\n  min_eligible: 5\n  momentum_weight: 0.50\n  lower_weight_multiple: 0.70\n  upper_weight_multiple: 1.30\n  is_grid:\n    min_average_dollar_volume: [5000000, 10000000]\n    max_annualized_volatility: [0.40, 0.55]\n    tilt_strength: [0.35, 0.65]\nexecution:\n  signal_lag_sessions: 1\n  cost_bps: 2.0\n  slippage_bps: 3.0\n'
+_CONFIG_YAML = 'strategy: 482_dynamic_inclusion_and_bounded_multi_fact\nuniverse: [XLB, XLC, XLE, XLF, XLI, XLK, XLP, XLRE, XLU, XLV, XLY]\ncalendar_ticker: SPY\nrisk_free: BIL\ndates:\n  history_start: 2008-01-01\n  start: 2010-01-01\n  is_end: 2019-12-31\n  end: 2025-12-31\nsignals:\n  liquidity_lookback_sessions: 60\n  volatility_lookback_sessions: 60\n  momentum_lookback_sessions: 252\n  momentum_skip_sessions: 21\n  min_eligible: 5\n  momentum_weight: 0.50\n  lower_weight_multiple: 0.70\n  upper_weight_multiple: 1.30\n  is_grid:\n    min_average_dollar_volume: [5000000, 10000000]\n    max_annualized_volatility: [0.40, 0.55]\n    tilt_strength: [0.35, 0.65]\nexecution:\n  signal_lag_sessions: 1\n  cash_buffer_fraction: 0.03\n  cost_bps: 2.0\n  slippage_bps: 3.0\n'
 _orig_open = _b.open
 def _open(f, *a, **k):
     try:
@@ -45,6 +25,11 @@ import numpy as np
 import pandas as pd
 import yaml
 import yfinance as yf
+from pandas.tseries.holiday import (
+    AbstractHolidayCalendar, GoodFriday, Holiday, USLaborDay, USMartinLutherKingJr,
+    USMemorialDay, USPresidentsDay, USThanksgivingDay, nearest_workday, sunday_to_monday,
+)
+from pandas.tseries.offsets import CustomBusinessDay
 
 
 ROOT = Path(__file__).resolve().parent
@@ -53,7 +38,35 @@ PRICE_FIELDS = ["Adj Close", "Close", "Volume"]
 GRID_KEYS = ("min_average_dollar_volume", "max_annualized_volatility", "tilt_strength")
 
 
-def load_prices(symbols, start, end):
+class NyseHolidays(AbstractHolidayCalendar):
+    rules = [
+        Holiday("New Year's Day", month=1, day=1, observance=sunday_to_monday),
+        USMartinLutherKingJr, USPresidentsDay, GoodFriday, USMemorialDay,
+        Holiday("Juneteenth", month=6, day=19, start_date="2022-01-01",
+                observance=nearest_workday),
+        Holiday("Independence Day", month=7, day=4, observance=nearest_workday),
+        USLaborDay, USThanksgivingDay,
+        Holiday("Christmas Day", month=12, day=25, observance=nearest_workday),
+    ]
+
+
+def check_session_prices(prices, sessions, calendar_ticker):
+    if (not isinstance(prices.index, pd.DatetimeIndex) or not prices.index.is_unique
+            or not prices.index.is_monotonic_increasing):
+        raise RuntimeError("Yahoo Finance dates must be unique and increasing.")
+    if not prices.index.equals(sessions):
+        missing = sessions.difference(prices.index).strftime("%Y-%m-%d").tolist()
+        unexpected = prices.index.difference(sessions).strftime("%Y-%m-%d").tolist()
+        raise RuntimeError(f"NYSE session mismatch: missing {missing}, unexpected {unexpected}.")
+    calendar_close = prices["Adj Close", calendar_ticker]
+    if not (np.isfinite(calendar_close) & calendar_close.gt(0)).all():
+        raise RuntimeError(f"Missing or invalid {calendar_ticker} closes in the session calendar.")
+
+
+def load_prices(symbols, start, end, calendar_ticker):
+    extra_closures = pd.to_datetime(["2012-10-29", "2012-10-30", "2018-12-05", "2025-01-09"])
+    sessions = pd.date_range(start, end, freq=CustomBusinessDay(calendar=NyseHolidays()))
+    sessions = sessions.difference(extra_closures)
     cache_dir = ROOT / "data_cache"
     cache_dir.mkdir(exist_ok=True)
     key = hashlib.sha256(f"v1|{start}|{end}|{','.join(symbols)}".encode()).hexdigest()[:16]
@@ -62,6 +75,7 @@ def load_prices(symbols, start, end):
         with gzip.open(cache_file, "rt", encoding="utf-8") as source:
             fetched_at = source.readline().strip()
             prices = pd.read_csv(source, header=[0, 1], index_col=0, parse_dates=True)
+        check_session_prices(prices, sessions, calendar_ticker)
         return prices, fetched_at
 
     with TemporaryDirectory(dir=cache_dir) as scratch:
@@ -78,7 +92,7 @@ def load_prices(symbols, start, end):
     if missing:
         raise RuntimeError(f"Yahoo Finance returned empty fields for {missing}")
 
-    prices = prices.sort_index()
+    check_session_prices(prices, sessions, calendar_ticker)
     fetched_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
     with NamedTemporaryFile(dir=cache_dir, suffix=".csv.gz", delete=False) as temporary:
         temporary_path = Path(temporary.name)
@@ -132,11 +146,13 @@ def bounded_multiples(raw, lower, upper):
 def build_targets(signals, model, params):
     tilted_targets = {}
     equal_targets = {}
+    eligible_counts = []
     for date, features in signals.items():
         eligible = (features["momentum"].notna()
                     & features["liquidity"].ge(params["min_average_dollar_volume"])
                     & features["volatility"].le(params["max_annualized_volatility"]))
         count = int(eligible.sum())
+        eligible_counts.append(count)
         equal = np.zeros(len(features))
         tilted = equal.copy()
         if count >= model["min_eligible"]:
@@ -153,46 +169,43 @@ def build_targets(signals, model, params):
             tilted[eligible.to_numpy()] = multiples / count
         tilted_targets[date] = tilted
         equal_targets[date] = equal
-    return tilted_targets, equal_targets
+    return tilted_targets, equal_targets, eligible_counts
 
 
-def rebalance(positions, target, friction):
-    # Post-cost capital funds the target weights. Friction uses actual executed notional.
-    remaining = 1.0
-    for _ in range(20):
-        traded = np.abs(remaining * target - positions)
-        updated = 1 - friction * traded.sum()
-        if abs(updated - remaining) < 1e-14:
-            remaining = updated
-            break
-        remaining = updated
-    else:
-        raise RuntimeError("Rebalance cost calculation did not converge.")
-    return remaining, np.abs(remaining * target - positions)
-
-
-def simulate(returns, close, targets, friction):
-    positions = np.zeros(len(returns.columns))
+def simulate(close, dates, targets, friction, cash_buffer):
+    positions = np.zeros(len(close.columns))
+    cash = previous_value = 1.0
     daily_results = []
-    prices_present = close.notna().to_numpy()
-    for index, (date, daily_moves) in enumerate(zip(returns.index, returns.to_numpy())):
-        invested = positions > 0
-        observed = np.isfinite(daily_moves)
-        if np.any(invested & ~observed):
-            missing = list(returns.columns[invested & ~observed])
-            raise RuntimeError(f"Missing return for active positions on {date.date()}: {missing}")
-
-        moves = np.where(observed, daily_moves, 0.0)
-        gross = 1 + positions @ moves
-        positions = positions * (1 + moves) / gross
-        traded = np.zeros_like(positions)
+    previous_closes = close.shift(1).loc[dates].to_numpy()
+    closing_prices = close.loc[dates].to_numpy()
+    for date, previous_close, fill_close in zip(dates, previous_closes, closing_prices):
+        next_positions = positions
         target = targets.get(date)
-        if target is not None and prices_present[index, target > 0].all():
-            remaining, traded = rebalance(positions, target, friction)
-            gross *= remaining
-            positions = target
-        daily_results.append((gross - 1, traded.sum() / 2, np.count_nonzero(traded > 1e-10)))
-    return pd.DataFrame(daily_results, index=returns.index,
+        if target is not None:
+            selected = target > 0
+            if not np.isfinite(previous_close[selected]).all():
+                missing = list(close.columns[selected & ~np.isfinite(previous_close)])
+                raise RuntimeError(f"Missing sizing prices before {date.date()}: {missing}")
+            budget = previous_value * (1 - cash_buffer)
+            next_positions = np.zeros_like(positions)
+            next_positions[selected] = budget * target[selected] / previous_close[selected]
+
+        changes = next_positions - positions
+        required = (positions > 0) | (next_positions > 0)
+        if not np.isfinite(fill_close[required]).all():
+            missing = list(close.columns[required & ~np.isfinite(fill_close)])
+            raise RuntimeError(f"Missing closing prices on {date.date()}: {missing}")
+        traded = changes[required] * fill_close[required]
+        traded_value = np.abs(traded).sum()
+        value_before_trade = cash + positions[required] @ fill_close[required]
+        cash_after = cash - traded.sum() - friction * traded_value
+        if cash_after < 0:
+            raise RuntimeError(f"Insufficient cash for fixed quantities on {date.date()}: {cash_after:.8g}")
+        value = cash_after + next_positions[required] @ fill_close[required]
+        daily_results.append((value / previous_value - 1, traded_value / (2 * value_before_trade),
+                              np.count_nonzero(changes)))
+        previous_value, cash, positions = value, cash_after, next_positions
+    return pd.DataFrame(daily_results, index=dates,
                         columns=["return", "turnover", "n_trades"])
 
 
@@ -219,21 +232,23 @@ def metrics(daily_results, risk_free):
     }
 
 
-def select_params(signals, returns, close, risk_free, model, friction):
+def select_params(signals, close, dates, risk_free, model, friction, cash_buffer):
     candidates = product(*(model["is_grid"][key] for key in GRID_KEYS))
     best_params, best_score = None, -np.inf
-    tried = 0
+    scores = []
     for values in candidates:
         params = dict(zip(GRID_KEYS, values))
-        targets, _ = build_targets(signals, model, params)
-        daily_results = simulate(returns, close, targets, friction)
+        targets, _, eligible_counts = build_targets(signals, model, params)
+        daily_results = simulate(close, dates, targets, friction, cash_buffer)
         score = sharpe(daily_results["return"] - risk_free)
-        tried += 1
-        if score is not None and score > best_score:
-            best_params, best_score = params, score
+        scores.append({"parameters": params, "sharpe_excess": score,
+                       "monthly_eligible_counts": eligible_counts})
+        score_for_selection = score if score is not None else -np.inf
+        if best_params is None or score_for_selection > best_score:
+            best_params, best_score = params, score_for_selection
     if best_params is None:
-        raise RuntimeError("The in-sample grid did not produce a defined excess Sharpe ratio.")
-    return best_params, tried
+        raise ValueError("The in-sample grid has no candidates.")
+    return best_params, scores
 
 
 def main():
@@ -248,12 +263,15 @@ def main():
     lag = execution["signal_lag_sessions"]
     cost, slippage = execution["cost_bps"], execution["slippage_bps"]
     friction = (cost + slippage) / 10_000
+    cash_buffer = execution["cash_buffer_fraction"]
     if not history_start < start < split < end or len(set(symbols)) != len(symbols):
         raise ValueError("Use ascending dates and distinct tickers.")
     if risk_free_ticker != "BIL":
         raise ValueError("The excess return calculation expects BIL as the risk-free proxy.")
     if not isinstance(lag, int) or lag < 1 or min(cost, slippage) < 0 or friction >= 0.1:
         raise ValueError("Use a positive session lag and nonnegative costs below 1000 bps in total.")
+    if not 0 < cash_buffer < 1:
+        raise ValueError("The cash buffer must be a positive fraction below one.")
     if not 2 <= model["min_eligible"] <= len(assets):
         raise ValueError("The breadth floor must be between two and the size of the universe.")
     if not 0 <= model["momentum_skip_sessions"] < model["momentum_lookback_sessions"]:
@@ -265,12 +283,9 @@ def main():
     ):
         raise ValueError("Use a convex factor mix and tilt strengths between zero and one.")
 
-    prices, fetched_at = load_prices(symbols, history_start, end)
-    adjusted_close = prices["Adj Close"].where(prices["Adj Close"].gt(0))
-    if adjusted_close[calendar_ticker].isna().any():
-        raise RuntimeError(f"Missing {calendar_ticker} closes in the downloaded session calendar.")
-    if adjusted_close.index[-1] < end - pd.Timedelta(days=4):
-        raise RuntimeError("Yahoo Finance history stops before the requested evaluation end.")
+    prices, fetched_at = load_prices(symbols, history_start, end, calendar_ticker)
+    adjusted_close = prices["Adj Close"]
+    adjusted_close = adjusted_close.where(np.isfinite(adjusted_close) & adjusted_close.gt(0))
     close = adjusted_close[assets]
     returns = close.pct_change(fill_method=None)
     dollar_volume = prices["Close"][assets].where(prices["Close"][assets].gt(0)) * (
@@ -287,18 +302,24 @@ def main():
 
     signals = monthly_signals(close, returns, dollar_volume, evaluation_dates, model, lag)
     is_signals = {date: values for date, values in signals.items() if date <= split}
-    params, tried = select_params(is_signals, returns.loc[is_dates], close.loc[is_dates],
-                                  risk_free.loc[is_dates], model, friction)
-    strategy_targets, benchmark_targets = build_targets(signals, model, params)
-    returns = returns.loc[evaluation_dates]
-    close = close.loc[evaluation_dates]
-    strategy_results = simulate(returns, close, strategy_targets, friction)
-    benchmark_results = simulate(returns, close, benchmark_targets, friction)
+    params, scores = select_params(is_signals, close.loc[:is_dates[-1]], is_dates,
+                                   risk_free.loc[is_dates], model, friction, cash_buffer)
+    strategy_targets, benchmark_targets, _ = build_targets(signals, model, params)
+    strategy_results = {}
+    benchmark_results = {}
+    for period, dates in (("is", is_dates), ("oos", oos_dates)):
+        strategy_results[period] = simulate(close, dates, strategy_targets, friction, cash_buffer)
+        benchmark_results[period] = simulate(close, dates, benchmark_targets, friction, cash_buffer)
+    strategy_results["full"] = pd.concat([strategy_results["is"], strategy_results["oos"]])
+    benchmark_results["full"] = pd.concat([benchmark_results["is"], benchmark_results["oos"]])
 
     print(f"DATA_FETCHED_AT: {fetched_at}")
-    print("PRICE_ADJUSTMENT: yfinance Adj Close total-return (auto_adjust=False)")
-    print(f"PARAM_COMBOS_TRIED: {tried}")
+    print("PRICE_ADJUSTMENT: yfinance Adj Close total-return prices and units (auto_adjust=False), "
+          "liquidity uses Close x Volume")
+    print(f"PARAM_COMBOS_TRIED: {len(scores)}")
     print(f"IS_SELECTED_PARAMETERS: {json.dumps(params)}")
+    for score in scores:
+        print(f"IS_GRID: {json.dumps(score, allow_nan=False)}")
     result = {"strategy": config["strategy"], "data_range": {
         "start": evaluation_dates[0].date().isoformat(),
         "end": evaluation_dates[-1].date().isoformat(),
@@ -306,8 +327,8 @@ def main():
         "oos_start": oos_dates[0].date().isoformat(),
     }}
     for period, dates in (("is", is_dates), ("oos", oos_dates), ("full", evaluation_dates)):
-        result[period] = metrics(strategy_results.loc[dates], risk_free.loc[dates])
-        benchmark = metrics(benchmark_results.loc[dates], risk_free.loc[dates])
+        result[period] = metrics(strategy_results[period], risk_free.loc[dates])
+        benchmark = metrics(benchmark_results[period], risk_free.loc[dates])
         print(f"{period.upper()}: {json.dumps(result[period], allow_nan=False)}")
         print(f"BENCHMARK DYNAMIC_EQUAL_WEIGHT {period.upper()}: "
               f"{json.dumps(benchmark, allow_nan=False)}")

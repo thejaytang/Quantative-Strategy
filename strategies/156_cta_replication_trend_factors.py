@@ -1,27 +1,7 @@
-"""156_cta_replication_trend_factors
-研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
-Author: Codex; non-author review: PASS; publication gate: Codex.
-Run (one command): python strategies/156_cta_replication_trend_factors.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit 2b23c5bbf706aea933c0cba5f5805efb450ee206 on 2026-11-26 14:26 Europe/Oslo, exit 0, output sha256 609887e75daff4589e0e81225efeb7287fe1fcee8bf5c60a3c261cbc351397aa
-Data source: Yahoo Finance daily USD ETF closes via yfinance or its local adjusted-close CSV cache. Strategy universe: SPY, QQQ, EFA, EEM, SHY, IEF, FXE, FXY, GLD, DBC. CTA proxy: DBMF. Benchmark: SPY.
-Data fetched: 2026-11-26 14:26 Europe/Oslo (run time)
-Sample period: Configured warm-up data request starts 2016-01-01. The reported evaluation spans 2020-01-02 through 2026-10-30, inclusive. DBMF enters the filter when a finite proxy return and finite factor observations are available.   data_range (from output): 2020-01-02 to 2026-10-30
-IS/OOS split: IS 2020-01-02 through 2025-07-17 and OOS 2025-07-18 through 2026-10-30, both inclusive. The filter continues to update daily in OOS with the same settings. The strategy and benchmark are simulated across the boundary and sliced for reporting.
-Costs and slippage: 3 bp one way per dollar traded, deducted on the rebalance date on absolute trades against marked holdings, with targets sized on equity after fees. Short borrow costs 50 bp per year on beginning-of-session short notional, charged at 50/252 bp per session. The SPY benchmark uses the same transaction fee. Slippage is not modelled.
-Signal lag: A target computed after session t closes is filled in the simulation at session t+1's close. Existing holdings earn the return through that close before the rebalance. The new holdings first earn the close-to-close return ending at t+2.
-Price adjustment: Uses the Close field with yfinance auto_adjust=True, or the date-keyed adjusted-close CSV on a valid cache hit. Returns are percentage changes of this panel with no forward fill. The source is historical adjusted data and the README notes possible vendor revisions.
-Survivorship bias: The README states that the backtest uses retrospectively selected surviving ETFs and is subject to fund-selection and survivorship bias. The implementation uses the fixed ticker list from the configuration.
-Parameter combinations tried: 1
-Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=0.016197925624392484, ann_vol=0.0806104090969897, sharpe=0.23976053181092052, max_drawdown=-0.19070271423215057, total_return=0.09281543993047858, turnover=31.23952260026506
-    oos: cagr=0.1086954611899118, ann_vol=0.08103661699821485, sharpe=1.3140737573316088, max_drawdown=-0.060562990675488204, total_return=0.14233531123707155, turnover=28.2591428446359
-    full: cagr=0.033093560604958716, ann_vol=0.08069627260353678, sharpe=0.44395267327406285, max_drawdown=-0.19070271423215057, total_return=0.24836166569766194, turnover=30.675385488687034
-    benchmark: cagr=0.1477744942832735, ann_vol=0.1995553896479842, sharpe=0.790848899139462, max_drawdown=-0.3371726217076917, total_return=1.5575978749957597, turnover=0.14672360085800581
-"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os
-_CONFIG_YAML = 'strategy: 156_cta_replication_trend_factors\n\ndata_start: 2016-01-01\nin_sample:\n  start: 2020-01-02\n  end: 2025-07-17\nout_of_sample:\n  start: 2025-07-18\n  end: 2026-10-30\n\nuniverse:\n  equity: [SPY, QQQ, EFA, EEM]\n  treasury: [SHY, IEF]\n  currency: [FXE, FXY]\n  commodity: [GLD, DBC]\ncta_proxy: DBMF\nbenchmark: SPY\n\ntrend:\n  short_windows: [10, 20, 40, 60]\n  long_window: 500\n\nfilter:\n  initial_loading_sd: 0.25\n  daily_loading_step_sd: 0.004\n  observation_noise_bps: 60\n\nportfolio:\n  max_gross_exposure: 1.50\n  max_asset_exposure: 0.40\n  transaction_bps: 3.0  # One way, per dollar traded\n  annual_short_borrow_bps: 50.0\n  sessions_per_year: 252\n'
+_CONFIG_YAML = 'strategy: 156_cta_replication_trend_factors\n\ndata_start: 2016-01-01\nin_sample:\n  start: 2020-01-02\n  end: 2025-07-17\nout_of_sample:\n  start: 2025-07-18\n  end: 2026-10-30\n\nuniverse:\n  equity: [SPY, QQQ, EFA, EEM]\n  treasury: [SHY, IEF]\n  currency: [FXE, FXY]\n  commodity: [GLD, DBC]\ncta_proxy: DBMF\ncta_proxy_first_trade: 2019-05-08\nsecondary_benchmark: SPY\ncash_proxy: BIL\n\ntrend:\n  short_windows: [10, 20, 40, 60]\n  long_window: 500\n\nfilter:\n  initial_loading_sd: 0.25\n  daily_loading_step_sd: 0.004\n  observation_noise_bps: 60\n\nportfolio:\n  max_gross_exposure: 1.00\n  max_asset_exposure: 0.40\n  cash_buffer: 0.05\n  transaction_bps: 3.0  # One way, per dollar traded\n  slippage_bps: 2.0  # One way, per dollar traded\n  annual_short_borrow_bps: 50.0\n  sessions_per_year: 252\n'
 _orig_open = _b.open
 def _open(f, *a, **k):
     try:
@@ -36,11 +16,18 @@ _io.open = _open
 """Forward-only Bayesian replication of a managed-futures ETF."""
 
 import json
+from datetime import datetime, timezone
 from pathlib import Path
-from tempfile import NamedTemporaryFile, TemporaryDirectory
+from tempfile import TemporaryDirectory
 
 import numpy as np
 import pandas as pd
+from pandas.tseries.holiday import (
+    AbstractHolidayCalendar, GoodFriday, Holiday, USLaborDay,
+    USMartinLutherKingJr, USMemorialDay, USPresidentsDay, USThanksgivingDay,
+    nearest_workday, sunday_to_monday,
+)
+from pandas.tseries.offsets import CustomBusinessDay
 from scipy.special import ndtr
 import yaml
 import yfinance as yf
@@ -51,63 +38,71 @@ CACHE = ROOT / "data_cache"
 BPS = 10_000
 
 
-def validate_prices(prices, tickers, proxy, benchmark, start, end, is_start):
-    prices = prices.reindex(columns=tickers).sort_index().loc[start:end]
-    if prices.empty or prices.index.has_duplicates:
-        raise ValueError("Yahoo prices are empty or contain duplicate dates")
-    prices = prices.replace([np.inf, -np.inf], np.nan).where(lambda p: p > 0)
-    prices = prices.dropna(how="all")
-    market = prices.drop(columns=proxy)
-    missing = market.isna().any()
-    if missing.any():
-        raise ValueError(f"Missing Yahoo closes for {', '.join(missing[missing].index)}")
-    if prices.empty or (prices.index[0] - start).days > 4 or (end - prices.index[-1]).days > 4:
-        raise ValueError(f"Incomplete Yahoo date coverage for {benchmark}")
+class ExchangeHolidays(AbstractHolidayCalendar):
+    # US equity full-day holidays for the configured sample. Early closes trade.
+    rules = [
+        Holiday("New Year's Day", month=1, day=1, observance=sunday_to_monday),
+        USMartinLutherKingJr, USPresidentsDay, GoodFriday, USMemorialDay,
+        Holiday("Juneteenth", month=6, day=19, start_date="2022-01-01",
+                observance=nearest_workday),
+        Holiday("Independence Day", month=7, day=4, observance=nearest_workday),
+        USLaborDay, USThanksgivingDay,
+        Holiday("Christmas", month=12, day=25, observance=nearest_workday),
+        Holiday("George H. W. Bush national day of mourning", year=2018, month=12, day=5),
+        Holiday("Jimmy Carter national day of mourning", year=2025, month=1, day=9),
+    ]
 
-    proxy_start = prices[proxy].first_valid_index()
-    if proxy_start is None or proxy_start >= is_start or prices.loc[proxy_start:, proxy].isna().any():
-        raise ValueError(f"Missing {proxy} data before IS or after the first proxy observation")
+
+def validate_prices(prices, sessions, tickers, first_trade):
+    prices = prices.sort_index().loc[sessions[0]:sessions[-1]].reindex(columns=tickers)
+    if prices.index.has_duplicates:
+        raise ValueError("Yahoo prices contain duplicate dates")
+    missing = sessions.difference(prices.index)
+    unexpected = prices.index.difference(sessions)
+    if len(missing) or len(unexpected):
+        raise ValueError(f"Yahoo calendar mismatch (missing {missing[:5].date}, "
+                         f"unexpected {unexpected[:5].date})")
+    for ticker in tickers:
+        series = prices[ticker]
+        listed = sessions >= first_trade.get(ticker, sessions[0])
+        active = series.loc[listed]
+        if series.loc[~listed].notna().any():
+            raise ValueError(f"Unexpected {ticker} prices before its first trading session")
+        if active.empty or not (np.isfinite(active) & active.gt(0)).all():
+            raise ValueError(f"Missing or invalid Yahoo closes for {ticker}")
     return prices
 
 
-def load_prices(tickers, proxy, benchmark, start, end, is_start):
-    CACHE.mkdir(exist_ok=True)
+def download_prices(tickers, sessions, first_trade):
+    for attempt in range(2):
+        try:
+            download = yf.download(
+                tickers,
+                start=sessions[0].date().isoformat(),
+                end=(sessions[-1] + pd.Timedelta(days=1)).date().isoformat(),
+                auto_adjust=True,
+                progress=False,
+                timeout=12,
+            )
+            prices = validate_prices(download["Close"], sessions, tickers, first_trade)
+            return prices, datetime.now(timezone.utc).isoformat(timespec="seconds")
+        except (KeyError, ValueError) as exc:
+            if attempt == 1:
+                raise RuntimeError("Unable to load a complete public Yahoo Finance price panel") from exc
+            print(f"Retrying Yahoo Finance download ({exc})")
+
+
+def load_market_prices(tickers, sessions, first_trade, start, end):
     cache_file = CACHE / f"yahoo_adjusted_close_{start.date()}_{end.date()}.csv"
     if cache_file.exists():
         try:
             cached = pd.read_csv(cache_file, index_col="date", parse_dates=["date"])
-            return validate_prices(cached, tickers, proxy, benchmark, start, end, is_start)
+            prices = validate_prices(cached, sessions, tickers, first_trade)
+            saved_at = datetime.fromtimestamp(cache_file.stat().st_mtime, timezone.utc)
+            return prices, f"{saved_at.isoformat(timespec='seconds')} (cache mtime)"
         except ValueError as exc:
-            print(f"Refreshing price cache ({exc})")
-
-    with TemporaryDirectory(prefix="yfinance_", dir=CACHE) as yf_cache:
-        yf.set_tz_cache_location(yf_cache)
-        for attempt in range(2):
-            try:
-                download = yf.download(
-                    tickers,
-                    start=start.date().isoformat(),
-                    end=(end + pd.Timedelta(days=1)).date().isoformat(),
-                    auto_adjust=True,
-                    progress=False,
-                    timeout=12,
-                )
-                prices = validate_prices(download["Close"], tickers, proxy, benchmark, start, end, is_start)
-                break
-            except (KeyError, ValueError) as exc:
-                if attempt == 1:
-                    raise RuntimeError("Unable to load a complete public Yahoo Finance price panel") from exc
-                print(f"Retrying Yahoo Finance download ({exc})")
-
-    with NamedTemporaryFile(mode="w", encoding="utf-8", dir=CACHE, delete=False) as temporary:
-        temporary_path = Path(temporary.name)
-        try:
-            prices.to_csv(temporary, index_label="date")
-            temporary.close()
-            temporary_path.replace(cache_file)
-        finally:
-            temporary_path.unlink(missing_ok=True)
-    return prices
+            print(f"Downloading the Yahoo panel ({exc})")
+    return download_prices(tickers, sessions, first_trade)
 
 
 def trend_score(log_price, squared_log_returns, window):
@@ -162,64 +157,88 @@ def target_weights(close, proxy_returns, trend, model, portfolio):
     return pd.DataFrame(targets, index=close.index, columns=close.columns)
 
 
-def backtest(returns, close_targets, portfolio):
-    fee = portfolio["transaction_bps"] / BPS
+def backtest(close, close_targets, portfolio):
+    fee = (portfolio["transaction_bps"] + portfolio["slippage_bps"]) / BPS
     borrow = portfolio["annual_short_borrow_bps"] / BPS / portfolio["sessions_per_year"]
-    if not np.isfinite(returns.to_numpy()).all() or not np.isfinite(close_targets.to_numpy()).all():
-        raise ValueError("The evaluation range needs complete prices and warmed-up targets")
-    if fee < 0 or fee * close_targets.abs().sum(axis=1).max() >= 1:
-        raise ValueError("Transaction cost is outside the supported range")
+    reserve = portfolio["cash_buffer"]
+    if not 0 < reserve < 1 or not 0 <= fee < reserve or not 0 <= borrow < reserve:
+        raise ValueError("Invalid cash buffer, execution cost or daily borrowing cost")
+    sizing_dates, fill_dates = close.index[:-1], close.index[1:]
+    if (not close_targets.columns.equals(close.columns) or close_targets.index.has_duplicates
+            or not close_targets.index.isin(sizing_dates).all()
+            or not np.isfinite(close_targets.to_numpy()).all()
+            or (close_targets.abs().sum(axis=1) > 1 + 1e-12).any()):
+        raise ValueError("Targets must be finite, aligned to sizing dates, and at most 100% gross")
 
-    result = []
-    holdings = np.zeros(len(returns.columns))
-    for change, target in zip(returns.to_numpy(), close_targets.to_numpy()):
-        marked = holdings * (1 + change)
-        pretrade_equity = 1 + holdings @ change - borrow * np.maximum(-holdings, 0).sum()
-        # Set targets relative to equity after fees. Each iteration recomputes
-        # the trades against positions that have drifted with prices.
-        equity = pretrade_equity
-        for _ in range(20):
-            traded = np.abs(target * equity - marked).sum()
-            updated_equity = pretrade_equity - fee * traded
-            if abs(updated_equity - equity) < 1e-12:
-                break
-            equity = updated_equity
-        else:
-            raise ValueError("Portfolio rebalancing cost did not converge")
-        if updated_equity <= 0:
-            raise ValueError("Portfolio equity was exhausted during the backtest")
-        result.append((updated_equity - 1, traded))
-        holdings = target
+    daily_results = []
+    positions = np.zeros(len(close.columns))
+    previous_value = cash = 1.0
+    prices = close.to_numpy()
+    targets = close_targets.reindex(sizing_dates).to_numpy()
+    rebalance = sizing_dates.isin(close_targets.index)
+    for day, fill_date in enumerate(fill_dates):
+        sizing_close = prices[day]
+        next_positions = positions
+        if rebalance[day]:
+            # Adjusted-share units, fixed after the preceding close.
+            next_positions = previous_value * (1 - reserve) * targets[day] / sizing_close
+        order = next_positions - positions
 
-    return pd.DataFrame(result, index=returns.index, columns=["return", "turnover"])
+        fill_close = prices[day + 1]
+        traded = np.abs(order) @ fill_close
+        borrow_cost = borrow * (np.maximum(-positions, 0) @ sizing_close)
+        cash -= order @ fill_close + fee * traded + borrow_cost
+        value = cash + next_positions @ fill_close
+        # Keep all short proceeds and an equal amount of portfolio funds as collateral.
+        free_cash = value - np.abs(next_positions) @ fill_close
+        if value <= 0 or cash < 0 or free_cash < 0:
+            raise ValueError(f"Insufficient cash at the {fill_date.date()} close with fixed share quantities")
+
+        daily_results.append((value / previous_value - 1, traded / previous_value,
+                              np.count_nonzero(order), free_cash / value))
+        positions = next_positions
+        previous_value = value
+
+    return pd.DataFrame(daily_results, index=fill_dates,
+                        columns=["return", "turnover", "n_trades", "free_cash_fraction"])
 
 
-def metrics(performance, proxy_returns, annual_sessions):
+def metrics(performance, proxy_returns, cash_returns, annual_sessions):
     daily = performance["return"]
-    nav = (1 + daily).cumprod().to_numpy()
-    peaks = np.maximum.accumulate(np.r_[1.0, nav])[1:]
+    growth = (1 + daily).cumprod().to_numpy()
+    peaks = np.maximum.accumulate(np.r_[1.0, growth])[1:]
     vol = daily.std(ddof=1) * np.sqrt(annual_sessions)
+    excess = daily - cash_returns
+    excess_vol = excess.std(ddof=1) * np.sqrt(annual_sessions)
     values = {
-        "cagr": nav[-1] ** (annual_sessions / len(daily)) - 1,
+        "cagr": growth[-1] ** (annual_sessions / len(daily)) - 1,
         "ann_vol": vol,
         "sharpe": daily.mean() * annual_sessions / vol if vol > 0 else np.nan,
-        "max_drawdown": np.min(nav / peaks - 1),
-        "total_return": nav[-1] - 1,
+        "sharpe_excess": excess.mean() * annual_sessions / excess_vol if excess_vol > 0 else np.nan,
+        "max_drawdown": np.min(growth / peaks - 1),
+        "total_return": growth[-1] - 1,
         "turnover": performance["turnover"].mean() * annual_sessions,
         "cta_proxy_corr": daily.corr(proxy_returns) if vol > 0 and proxy_returns.std() > 0 else np.nan,
     }
-    return {key: float(value) if np.isfinite(value) else None for key, value in values.items()}
+    return {
+        **{key: float(value) if np.isfinite(value) else None for key, value in values.items()},
+        "n_trades": int(performance["n_trades"].sum()),
+    }
 
 
 def print_metrics(rows):
-    print(f"{'Portfolio / period':<25} {'CAGR':>10} {'Ann. vol':>10} {'Sharpe':>8} "
-          f"{'Max DD':>10} {'Total ret.':>11} {'Ann. turn.':>11} {'CTA corr.':>10}")
-    formats = (".2%", ".2%", ".2f", ".2%", ".2%", ".2%", ".2f")
-    widths = (10, 10, 8, 10, 11, 11, 10)
+    columns = (
+        ("cagr", "CAGR", ".2%", 10), ("ann_vol", "Ann. vol", ".2%", 10),
+        ("sharpe", "Sharpe", ".2f", 8), ("sharpe_excess", "Excess SR", ".2f", 10),
+        ("max_drawdown", "Max DD", ".2%", 10), ("total_return", "Total ret.", ".2%", 11),
+        ("turnover", "Ann. turn.", ".2%", 11), ("n_trades", "Trades", "d", 7),
+        ("cta_proxy_corr", "CTA corr.", ".2f", 10),
+    )
+    print(f"{'Portfolio / period':<18} " + " ".join(title.rjust(width) for _, title, _, width in columns))
     for label, row in rows.items():
-        values = [format(value, spec) if value is not None else "n/a"
-                  for value, spec in zip(row.values(), formats)]
-        print(f"{label:<25} " + " ".join(value.rjust(width) for value, width in zip(values, widths)))
+        values = [format(row[key], spec) if row[key] is not None else "n/a"
+                  for key, _, spec, _ in columns]
+        print(f"{label:<18} " + " ".join(value.rjust(column[3]) for value, column in zip(values, columns)))
 
 
 def main():
@@ -233,47 +252,62 @@ def main():
 
     assets = list(dict.fromkeys(ticker for group in config["universe"].values() for ticker in group))
     proxy = config["cta_proxy"]
-    benchmark = config["benchmark"]
-    if proxy in assets or proxy == benchmark:
-        raise ValueError("The CTA target must be separate from both the universe and the benchmark")
-    tickers = list(dict.fromkeys([*assets, benchmark, proxy]))
-    prices = load_prices(tickers, proxy, benchmark, start, oos_end, is_start)
-    if prices[is_start:is_end].empty or prices[oos_start:oos_end].empty:
-        raise ValueError("Both IS and OOS must contain trading sessions")
-    returns = prices.pct_change(fill_method=None)
-    proxy_returns = returns[proxy]
-    target = target_weights(prices[assets], proxy_returns, config["trend"], config["filter"], config["portfolio"])
-    dates = prices.loc[is_start:oos_end].index
+    secondary = config["secondary_benchmark"]
+    cash_proxy = config["cash_proxy"]
+    portfolio = config["portfolio"]
+    if proxy in assets or proxy == secondary or cash_proxy in {*assets, proxy, secondary}:
+        raise ValueError("Choose distinct ETF roles for the CTA target, comparison and cash proxy")
+    if not 0 < portfolio["max_asset_exposure"] <= portfolio["max_gross_exposure"] <= 1:
+        raise ValueError("Exposure limits must be positive and at most 100% gross")
+    tickers = list(dict.fromkeys([*assets, proxy, secondary]))
+    sessions = pd.date_range(start, oos_end, freq=CustomBusinessDay(calendar=ExchangeHolidays()))
+    first_fill = sessions.searchsorted(is_start)
+    if not 0 < first_fill < len(sessions) or sessions[first_fill] > is_end or sessions[-1] < oos_start:
+        raise ValueError("Both periods need trading sessions and an earlier sizing close")
+    evaluation_prices = sessions[first_fill - 1:]
+    first_trade = {proxy: pd.Timestamp(config["cta_proxy_first_trade"])}
+    with TemporaryDirectory(prefix="yfinance_", dir=ROOT) as yf_cache:
+        yf.set_tz_cache_location(yf_cache)
+        prices, market_fetched_at = load_market_prices(tickers, sessions, first_trade, start, oos_end)
+        cash_prices, cash_fetched_at = download_prices([cash_proxy], evaluation_prices, {})
+    cash_returns = cash_prices[cash_proxy].pct_change(fill_method=None)
+    proxy_returns = prices[proxy].pct_change(fill_method=None)
+    targets = target_weights(prices[assets], proxy_returns, config["trend"], config["filter"], portfolio)
 
-    # A target decided at close t trades at close t+1. The simulator marks
-    # the previous holdings before trading, so the first P&L is on t+2.
-    strategy = backtest(returns.loc[dates, assets], target.shift(1).loc[dates], config["portfolio"])
-    benchmark_targets = pd.DataFrame(1.0, index=dates, columns=[benchmark])
-    passive = backtest(returns.loc[dates, [benchmark]], benchmark_targets, config["portfolio"])
+    # Include the prior session for sizing the first fill. No target uses the last close.
+    strategy = backtest(prices.loc[evaluation_prices, assets], targets.loc[evaluation_prices[:-1]], portfolio)
+    comparisons = {}
+    for ticker in (proxy, secondary):
+        initial_target = pd.DataFrame(1.0, index=evaluation_prices[:1], columns=[ticker])
+        comparisons[ticker] = backtest(prices.loc[evaluation_prices, [ticker]], initial_target, portfolio)
+
     periods = {"is": (is_start, is_end), "oos": (oos_start, oos_end), "full": (is_start, oos_end)}
-    annual_sessions = config["portfolio"]["sessions_per_year"]
-    strategy_metrics = {period: metrics(strategy.loc[a:b], proxy_returns.loc[a:b], annual_sessions)
-                        for period, (a, b) in periods.items()}
-    benchmark_metrics = {period: metrics(passive.loc[a:b], proxy_returns.loc[a:b], annual_sessions)
-                         for period, (a, b) in periods.items()}
+    reports = {
+        label: {period: metrics(daily.loc[a:b], proxy_returns.loc[a:b], cash_returns.loc[a:b],
+                                portfolio["sessions_per_year"])
+                for period, (a, b) in periods.items()}
+        for label, daily in {"Strategy": strategy, **comparisons}.items()
+    }
 
-    data_range = f"{dates[0].date()} to {dates[-1].date()}"
-    print(f"{config['strategy']} | {data_range} | CTA proxy {proxy} | Benchmark {benchmark} buy and hold")
+    data_range = f"{strategy.index[0].date()} to {strategy.index[-1].date()}"
+    print(f"{config['strategy']} | {data_range} | Benchmark {proxy} buy and hold | Excess vs {cash_proxy}")
     for period, (a, b) in periods.items():
-        print(f"{period.upper():<4} {a.date()} to {b.date()}")
-    print_metrics({
-        **{f"Strategy {key.upper()}": value for key, value in strategy_metrics.items()},
-        **{f"{benchmark} {key.upper()}": value for key, value in benchmark_metrics.items()},
-    })
+        dates = strategy.loc[a:b].index
+        print(f"{period.upper():<4} {dates[0].date()} to {dates[-1].date()} ({len(dates)} sessions)")
+    print("PARAM_COMBOS_TRIED: 1")
+    print(f"DATA_FETCHED_AT: ETF_PANEL={market_fetched_at}; {cash_proxy}={cash_fetched_at}")
+    print("PRICE_ADJUSTMENT: Yahoo Finance auto_adjust=True, distributions and splits, USD adjusted closes")
+    print(f"MIN_STRATEGY_FREE_CASH: {strategy['free_cash_fraction'].min():.2%}")
+    print_metrics({f"{label} {period.upper()}": values
+                   for label, report in reports.items() for period, values in report.items()})
     results = {
         "strategy": config["strategy"],
         "data_range": data_range,
-        **strategy_metrics,
+        **reports["Strategy"],
         "benchmark": {
-            "name": f"{benchmark} buy and hold",
-            **benchmark_metrics["full"],
-            "is": benchmark_metrics["is"],
-            "oos": benchmark_metrics["oos"],
+            "name": f"{proxy} buy and hold",
+            **reports[proxy]["full"],
+            **reports[proxy],
         },
     }
     print("RESULTS_JSON: " + json.dumps(results, allow_nan=False))

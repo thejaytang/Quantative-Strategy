@@ -1,27 +1,7 @@
-"""511_dynamic_portfolio_optimization_under_cva
-研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
-Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/511_dynamic_portfolio_optimization_under_cva.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit c0a8f76240a0431b019ab49c34040a95a765860a on 2026-11-27 10:04 Europe/Oslo, exit 0, output sha256 80485668f0bb2a3c816df6b93fc34b873fa018bb96e996667ac7f94c03407bda
-Data source: Public yfinance daily adjusted closes for SPY and BIL, read from a local price snapshot when valid and downloaded from yfinance otherwise. BIL also supplies the cash-proxy return.
-Data fetched: 2026-11-27T09:04:12+00:00
-Sample period: Requested price warmup starts 2007-10-01. The recorded evaluation runs from 2009-01-02 through 2025-12-31 on common trading sessions.   data_range (from output): {'start': '2009-01-02', 'end': '2025-12-31'}
-IS/OOS split: IS includes sessions through 2017-12-31. OOS includes sessions after that date through 2025-12-31. The official simulation runs continuously across the split and carries forward portfolio state. The five alternative settings are evaluated on IS prices only.
-Costs and slippage: The default charges 2 bps in fees and models slippage as a fixed 3 bps charge per ETF buy or sell leg. The combined 5 bps is applied to each leg's absolute traded notional, with trade sizing solved net of the charge. This includes the initial BIL allocation and the benchmark's initial SPY purchase.
-Signal lag: A signal computed at the first common session's close each month fills at the next common session's close. The existing weights earn the fill day's close-to-close return, and the new weights earn returns starting with the following close-to-close interval. The inception-close BIL allocation is fixed in advance.
-Price adjustment: yfinance auto_adjust=True, adjusted Close with distributions and splits
-Survivorship bias: The fixed SPY/BIL universe avoids backfilling historical stock membership with today's constituent list. The two surviving ETFs were selected retrospectively, so ETF selection and survivorship bias remain.
-Parameter combinations tried: 6
-Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=0.05565306803976333, ann_vol=0.08121606191022353, sharpe=0.7076397706412602, sharpe_excess=0.6989994426926684, max_drawdown=-0.13889481209004317, total_return=0.6271274795421922, turnover=2.34785470623866, n_trades=161
-    oos: cagr=0.053049348687101316, ann_vol=0.08678435293894238, sharpe=0.641100242486871, sharpe_excess=0.3613992574433916, max_drawdown=-0.15543789767256655, total_return=0.5125732083219408, turnover=2.8558857873805756, n_trades=148
-    full: cagr=0.05442570415963144, ann_vol=0.08387101148415133, sharpe=0.6749539544689964, sharpe_excess=0.5344194284157883, max_drawdown=-0.15543789767256622, total_return=1.4611494320799219, turnover=2.587178515044679, n_trades=309
-    benchmark  full: cagr=0.1450916912079374, ann_vol=0.17887800435260817, sharpe=0.8483905539629366, sharpe_excess=0.7818750116957577, max_drawdown=-0.33717265401236207, total_return=8.998677147358219, turnover=0.05881423715401845, n_trades=1
-"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os
-_CONFIG_YAML = 'strategy: 511_dynamic_portfolio_optimization_under_cva\n\nuniverse:\n  risky: SPY\n  defensive: BIL\n\ndates:\n  price_start: 2007-10-01\n  start: 2009-01-02\n  is_end: 2017-12-31\n  end: 2025-12-31\n\nmodel:\n  lookback_sessions: 252\n  risk_horizon_sessions: 21\n  drawdown_lookback_sessions: 252\n  alpha: 0.95\n  risk_aversion: 5.0\n  cvar_limit: 0.05\n  cvar_floor: 0.01\n  drawdown_slope: 0.50\n\nexecution:\n  lag_sessions: 1\n  cost_bps: 2.0\n  slippage_bps: 3.0\n\nrobustness:\n  lookback_offsets: [-21, 21]\n  cvar_limit_offsets: [-0.01, 0.01]\n  friction_multiplier: 2.0\n'
+_CONFIG_YAML = "strategy: 511_dynamic_portfolio_optimization_under_cva\n\nuniverse:\n  risky: SPY\n  defensive: BIL\n\ndates:\n  price_start: 2007-10-01\n  start: 2009-01-02\n  is_end: 2017-12-31\n  end: 2025-12-31\n\nmodel:\n  lookback_sessions: 252\n  risk_horizon_sessions: 21\n  drawdown_lookback_sessions: 252\n  alpha: 0.95\n  risk_aversion: 5.0\n  cvar_limit: 0.05\n  cvar_floor: 0.01\n  drawdown_slope: 0.50\n\nexecution:\n  lag_sessions: 1\n  cost_bps: 2.0\n  slippage_bps: 3.0\n  cash_buffer: 0.05  # Adverse move on each leg's prior-close notional; fees are reserved separately\n\nrobustness:\n  lookback_offsets: [-21, 21]\n  cvar_limit_offsets: [-0.01, 0.01]\n  friction_multiplier: 2.0\n"
 _orig_open = _b.open
 def _open(f, *a, **k):
     try:
@@ -35,6 +15,7 @@ _io.open = _open
 # --- end shim ---
 """Monthly SPY/BIL allocation with a drawdown-sensitive empirical CVaR limit."""
 
+import argparse
 from collections import deque
 from dataclasses import dataclass, replace
 from datetime import datetime, timezone
@@ -46,6 +27,18 @@ from tempfile import NamedTemporaryFile, TemporaryDirectory
 
 import numpy as np
 import pandas as pd
+from pandas.tseries.holiday import (
+    AbstractHolidayCalendar,
+    GoodFriday,
+    Holiday,
+    USLaborDay,
+    USMartinLutherKingJr,
+    USMemorialDay,
+    USPresidentsDay,
+    USThanksgivingDay,
+    nearest_workday,
+    sunday_to_monday,
+)
 from scipy.optimize import brentq, minimize_scalar
 import yaml
 import yfinance as yf
@@ -55,7 +48,27 @@ ROOT = Path(__file__).resolve().parent
 CACHE = ROOT / "data_cache"
 PRICE_ADJUSTMENT = "yfinance auto_adjust=True, adjusted Close with distributions and splits"
 TRADE_TOLERANCE = 1e-12
+SIZING_ROUNDOFF = 1e-11
 SESSIONS_PER_YEAR = 252
+
+
+class NyseArcaHolidays(AbstractHolidayCalendar):
+    rules = [
+        Holiday("New Year's Day", month=1, day=1, observance=sunday_to_monday),
+        USMartinLutherKingJr, USPresidentsDay, GoodFriday, USMemorialDay,
+        Holiday("Juneteenth", month=6, day=19, start_date="2022-01-01", observance=nearest_workday),
+        Holiday("Independence Day", month=7, day=4, observance=nearest_workday),
+        USLaborDay, USThanksgivingDay,
+        Holiday("Christmas Day", month=12, day=25, observance=nearest_workday),
+    ]
+
+
+EXTRA_CLOSURES = pd.to_datetime([
+    "2007-01-02",  # Ford national day of mourning
+    "2012-10-29", "2012-10-30",  # Hurricane Sandy
+    "2018-12-05",  # Bush national day of mourning
+    "2025-01-09",  # Carter national day of mourning
+])
 
 
 @dataclass(frozen=True)
@@ -71,10 +84,16 @@ class Settings:
     lag_sessions: int
     cost_bps: float
     slippage_bps: float
+    cash_buffer: float
 
     @property
     def friction(self):
         return (self.cost_bps + self.slippage_bps) / 10_000
+
+    @property
+    def sizing_reserve_rate(self):
+        # Cover a move against each ETF leg and the change in its fee and slippage.
+        return self.friction + self.cash_buffer * (1 + self.friction)
 
     def validate(self):
         counts = (
@@ -93,6 +112,8 @@ class Settings:
             raise ValueError("Drawdown slope must be nonnegative and finite.")
         if not (self.cost_bps >= 0 and self.slippage_bps >= 0 and self.friction < 1):
             raise ValueError("Invalid costs or slippage in basis points.")
+        if not 0 < self.cash_buffer < 1 or self.sizing_reserve_rate + SIZING_ROUNDOFF >= 1:
+            raise ValueError("Cash buffer and friction must give a reserve rate below one.")
 
 
 def validate_prices(prices, symbols, start, end):
@@ -102,11 +123,12 @@ def validate_prices(prices, symbols, start, end):
     if (not isinstance(dates, pd.DatetimeIndex) or dates.tz is not None or dates.hasnans
             or not dates.is_monotonic_increasing or dates.has_duplicates):
         raise ValueError("Price dates must be unique and chronological.")
-    one_week = pd.Timedelta(days=7)
-    if not (start <= dates[0] <= start + one_week and end - one_week <= dates[-1] <= end):
-        raise ValueError("Price coverage does not reach the requested date boundaries.")
-    if (dates[1:] - dates[:-1]).max() > one_week:
-        raise ValueError("Price calendar contains a gap of more than a week.")
+    holidays = NyseArcaHolidays().holidays(start, end).union(EXTRA_CLOSURES)
+    expected = pd.bdate_range(start, end).difference(holidays)
+    if not dates.equals(expected):
+        missing = expected.difference(dates).strftime("%Y-%m-%d").tolist()
+        extra = dates.difference(expected).strftime("%Y-%m-%d").tolist()
+        raise ValueError(f"NYSE Arca session mismatch (missing: {missing[:5]}, extra: {extra[:5]}).")
     values = prices.to_numpy(dtype=float)
     if not np.isfinite(values).all() or (values <= 0).any():
         raise ValueError("A common session has a missing or invalid adjusted close.")
@@ -161,6 +183,15 @@ def load_prices(symbols, start, end):
     return prices, fetched_at
 
 
+def empirical_cvar(losses, alpha):
+    """Include the fraction of the boundary observation needed to fill the tail."""
+    tail_mass = (1 - alpha) * len(losses)
+    whole = int(tail_mass)
+    fraction = tail_mass - whole
+    losses = np.sort(losses)[::-1]
+    return float((losses[:whole].sum() + fraction * losses[whole:whole + 1].sum()) / tail_mass)
+
+
 def choose_weight(scenarios, drawdown, settings):
     """Maximize mean minus a variance penalty over the convex feasible interval."""
     defensive = scenarios[:, 1]
@@ -175,124 +206,193 @@ def choose_weight(scenarios, drawdown, settings):
         preferred = float(np.clip(slope / (settings.risk_aversion * variance), 0, 1))
 
     budget = max(settings.cvar_floor, settings.cvar_limit - settings.drawdown_slope * drawdown)
-    tail_mass = (1 - settings.alpha) * len(scenarios)
-    whole = int(tail_mass)
-    fraction = tail_mass - whole
 
     def residual(weight):
-        # Fractionally include the boundary scenario for an exact empirical tail mean.
-        losses = np.sort(-(defensive + weight * spread))[::-1]
-        tail_mean = (losses[:whole].sum() + fraction * losses[whole:whole + 1].sum()) / tail_mass
-        return tail_mean - budget
+        return empirical_cvar(-(defensive + weight * spread), settings.alpha) - budget
 
-    if residual(preferred) <= 0:
-        return preferred
+    preferred_residual = residual(preferred)
+    if preferred_residual <= 0:
+        return preferred, budget + preferred_residual, budget, False
 
     anchor = 0.0
     if residual(anchor) > 0:
         minimum = minimize_scalar(residual, bounds=(0.0, 1.0), method="bounded",
                                   options={"xatol": 1e-12})
         anchor = min((0.0, float(minimum.x), 1.0), key=residual)
-        if residual(anchor) >= 0:
-            return anchor
+        anchor_residual = residual(anchor)
+        if anchor_residual >= 0:
+            return anchor, budget + anchor_residual, budget, anchor_residual > 0
 
     lower, upper = sorted((anchor, preferred))
-    return float(brentq(residual, lower, upper, xtol=1e-12))
+    weight = float(brentq(residual, lower, upper, xtol=1e-12))
+    return weight, budget + residual(weight), budget, False
 
 
-def rebalance(weights, target, friction):
-    """Size both ETF legs after fees, with dollars scaled by pre-fill value."""
-    if np.max(np.abs(target - weights)) <= TRADE_TOLERANCE:
-        return 1.0, 0.0, 0
+def size_order(positions, cash, target, reference_prices, settings):
+    """Fix signed quantities at the reference close, allowing for adverse fills."""
+    marked = positions * reference_prices
+    value = cash + marked.sum()
+    weights = marked / value
 
-    def spent(multiplier):
-        return np.abs(multiplier * target - weights).sum()
+    def residual(scale):
+        turnover = np.abs(scale * target - weights).sum()
+        return scale + settings.sizing_reserve_rate * turnover - (1.0 - SIZING_ROUNDOFF)
 
-    multiplier = brentq(lambda scale: scale + friction * spent(scale) - 1.0, 0.0, 1.0)
-    traded = np.abs(multiplier * target - weights)
-    return multiplier, float(traded.sum()), int(np.count_nonzero(traded > TRADE_TOLERANCE))
+    scale = brentq(residual, 0.0, 1.0)
+    changes = scale * value * target / reference_prices - positions
+    changes[np.abs(changes) * reference_prices <= TRADE_TOLERANCE * value] = 0.0
+    return changes
 
 
-def simulate(prices, start, settings):
+def execute_order(positions, cash, changes, fill_prices, friction, fill_date):
+    """Settle the predetermined share changes at the close, including both costs."""
+    prefill_value = cash + positions @ fill_prices
+    notionals = changes * fill_prices
+    gross_traded = np.abs(notionals).sum()
+    remaining_cash = cash - notionals.sum() - friction * gross_traded
+    if remaining_cash < 0:
+        raise RuntimeError(f"{fill_date.date()}: fixed quantities would leave negative cash "
+                           f"({remaining_cash:.8g}).")
+    return positions + changes, remaining_cash, gross_traded / prefill_value
+
+
+def simulate(prices, start, settings, execution_details=None):
     settings.validate()
     dates = prices.index
     first = dates.searchsorted(start)
     if first < settings.lookback_sessions or first >= len(prices) - 1:
         raise ValueError("Prices must cover the lookback and at least two evaluation sessions.")
 
-    factors = (prices / prices.shift(1)).to_numpy()
+    closes = prices.to_numpy()
     scenarios = (prices / prices.shift(settings.risk_horizon_sessions) - 1).to_numpy()
-    weights = np.zeros(2)
-    growth = 1.0
-    recent_growth = deque([growth], maxlen=settings.drawdown_lookback_sessions + 1)
-    pending = {}
+    positions = np.zeros(2)
+    cash = previous_value = 1.0
+    recent_values = deque([previous_value], maxlen=settings.drawdown_lookback_sessions + 1)
+    targets_to_size = {}
+    initial_target = np.array([0.0, 1.0])
+    initial_changes = size_order(positions, cash, initial_target, closes[first - 1], settings)
+    order = (None, initial_target, initial_changes, (None, None, None, False))
     rows = []
 
     for i in range(first, len(prices)):
-        target = pending.pop(i, None)
-        if i == first:
-            # Start from cash with a fixed BIL allocation at the inception close.
-            gross_factor = 1.0
-            proxy_return = 0.0
-            target = np.array([0.0, 1.0])
-        else:
-            marked = weights * factors[i]
-            gross_factor = marked.sum()
-            weights = marked / gross_factor
-            proxy_return = factors[i, 1] - 1.0
+        close = closes[i]
+        turnover, trades, weight_error = 0.0, 0, None
+        if order is not None:
+            signal_date, target, changes, fill_signal = order
+            positions, cash, turnover = execute_order(
+                positions, cash, changes, close, settings.friction, dates[i]
+            )
+            trades = int(np.count_nonzero(changes))
+        marked = positions * close
+        value = cash + marked.sum()
+        if order is not None:
+            filled_weights = marked / value
+            weight_error = float(np.max(np.abs(filled_weights - target)))
+            if execution_details is not None:
+                _, estimated_cvar, risk_budget, infeasible = fill_signal
+                execution_details.append({
+                    "signal_date": str(signal_date.date()) if signal_date is not None else None,
+                    "sizing_date": str(dates[i - 1].date()),
+                    "fill_date": str(dates[i].date()),
+                    "reference_prices": closes[i - 1].tolist(),
+                    "fill_prices": close.tolist(),
+                    "share_changes": changes.tolist(),
+                    "target_weights": target.tolist(),
+                    "estimated_cvar": estimated_cvar,
+                    "cvar_budget": risk_budget,
+                    "cvar_infeasible": infeasible,
+                    "filled_weights": filled_weights.tolist(),
+                    "cash_after": float(cash),
+                })
+        recent_values.append(value)
+        proxy_return = 0.0 if i == first else close[1] / closes[i - 1, 1] - 1.0
 
-        multiplier, turnover, trades = 1.0, 0.0, 0
-        if target is not None:
-            multiplier, turnover, trades = rebalance(weights, target, settings.friction)
-            if turnover:
-                weights = target
-
-        daily_factor = gross_factor * multiplier
-        growth *= daily_factor
-        recent_growth.append(growth)
-        rows.append((daily_factor - 1.0, proxy_return, turnover, trades))
-
+        signal_diagnostics = (None, None, None, False)
         if dates[i].month != dates[i - 1].month:
-            drawdown = 1.0 - growth / max(recent_growth)
+            drawdown = 1.0 - value / max(recent_values)
             first_scenario = i - settings.lookback_sessions + settings.risk_horizon_sessions
-            risky_weight = choose_weight(scenarios[first_scenario:i + 1], drawdown, settings)
-            fill = i + settings.lag_sessions
-            pending[fill] = np.array([risky_weight, 1.0 - risky_weight])
+            signal_diagnostics = choose_weight(scenarios[first_scenario:i + 1], drawdown, settings)
+            sizing_day = i + settings.lag_sessions - 1
+            targets_to_size[sizing_day] = (dates[i], signal_diagnostics)
 
-    return pd.DataFrame(rows, index=dates[first:],
-                        columns=["return", "proxy_return", "turnover", "n_trades"])
+        # Today's closing state may size tomorrow's order, including with a longer signal lag.
+        signal_to_size = targets_to_size.pop(i, None)
+        order = None
+        if signal_to_size is not None and i + 1 < len(prices):
+            signal_date, fill_signal = signal_to_size
+            risky_weight = fill_signal[0]
+            target = np.array([risky_weight, 1.0 - risky_weight])
+            changes = size_order(positions, cash, target, close, settings)
+            order = (signal_date, target, changes, fill_signal)
+        rows.append((value / previous_value - 1.0, proxy_return, turnover, trades,
+                     cash, cash / value, weight_error, *signal_diagnostics))
+        previous_value = value
+
+    return pd.DataFrame(
+        rows, index=dates[first:],
+        columns=["return", "proxy_return", "turnover", "n_trades", "cash", "cash_weight",
+                 "weight_error", "signal_spy_weight", "signal_cvar", "signal_budget", "infeasible"],
+    )
 
 
-def buy_and_hold(prices, daily_results, friction):
-    baseline = daily_results.copy()
-    multiplier, turnover, trades = rebalance(np.zeros(2), np.array([1.0, 0.0]), friction)
-    baseline["return"] = prices.iloc[:, 0].pct_change().loc[baseline.index]
+def buy_and_hold(prices, daily_results, settings):
+    baseline = daily_results[["proxy_return"]].copy()
+    first = baseline.index[0]
+    closes = prices.to_numpy()
+    i = prices.index.get_loc(first)
+    positions = np.zeros(2)
+    changes = size_order(positions, 1.0, np.array([1.0, 0.0]), closes[i - 1], settings)
+    positions, cash, turnover = execute_order(positions, 1.0, changes, closes[i], settings.friction, first)
+    values = cash + closes[i:] @ positions
+    baseline["return"] = values / np.r_[1.0, values[:-1]] - 1.0
     baseline["turnover"] = 0.0
     baseline["n_trades"] = 0
-    first = baseline.index[0]
-    baseline.loc[first, ["return", "turnover", "n_trades"]] = multiplier - 1.0, turnover, trades
+    baseline.loc[first, "turnover"] = turnover
+    baseline.loc[first, "n_trades"] = int(np.count_nonzero(changes))
     return baseline
+
+
+def cvar_diagnostics(daily, settings):
+    signals = daily.loc[daily["signal_budget"].notna()]
+    fallbacks = signals.loc[signals["infeasible"]]
+    excess = fallbacks["signal_cvar"] - fallbacks["signal_budget"]
+    horizon = settings.risk_horizon_sessions
+    factors = 1 + daily["return"].to_numpy()
+    realized_cvar = None
+    windows = max(0, len(factors) - horizon + 1)
+    if windows:
+        horizon_returns = np.lib.stride_tricks.sliding_window_view(factors, horizon).prod(axis=1) - 1
+        realized_cvar = empirical_cvar(-horizon_returns, settings.alpha)
+    return {
+        "signals": len(signals),
+        "infeasible_signals": len(fallbacks),
+        "max_budget_excess": float(excess.max()) if len(excess) else 0.0,
+        "horizon_sessions": horizon,
+        "alpha": settings.alpha,
+        "realized_windows": windows,
+        "realized_loss_cvar": realized_cvar,
+    }
 
 
 def metrics(daily, starting_close):
     years = (daily.index[-1] - starting_close).days / 365.2425 if len(daily) else 0
-    if len(daily) < 2 or years <= 0:
-        raise ValueError("Each period needs at least two sessions and a positive duration.")
 
     def sharpe(returns):
         deviation = returns.std(ddof=1)
-        return float(np.sqrt(SESSIONS_PER_YEAR) * returns.mean() / deviation) if deviation else None
+        if np.isfinite(deviation) and deviation > 0:
+            return float(np.sqrt(SESSIONS_PER_YEAR) * returns.mean() / deviation)
+        return None
 
     returns = daily["return"]
     curve = np.r_[1.0, (1 + returns).cumprod().to_numpy()]
     return {
-        "cagr": float(curve[-1] ** (1 / years) - 1),
-        "ann_vol": float(returns.std(ddof=1) * np.sqrt(SESSIONS_PER_YEAR)),
+        "cagr": float(curve[-1] ** (1 / years) - 1) if years > 0 else None,
+        "ann_vol": float(returns.std(ddof=1) * np.sqrt(SESSIONS_PER_YEAR)) if len(daily) > 1 else None,
         "sharpe": sharpe(returns),
         "sharpe_excess": sharpe(returns - daily["proxy_return"]),
-        "max_drawdown": float(np.min(curve / np.maximum.accumulate(curve) - 1)),
-        "total_return": float(curve[-1] - 1),
-        "turnover": float(daily["turnover"].sum() / years),
+        "max_drawdown": float(np.min(curve / np.maximum.accumulate(curve) - 1)) if len(daily) else None,
+        "total_return": float(curve[-1] - 1) if len(daily) else None,
+        "turnover": float(daily["turnover"].sum() / years) if years > 0 else None,
         "n_trades": int(daily["n_trades"].sum()),
     }
 
@@ -301,9 +401,10 @@ def period_metrics(daily_results, split):
     insample = daily_results.loc[:split]
     outsample = daily_results.loc[daily_results.index > split]
     inception = daily_results.index[0]
+    oos_starting_close = insample.index[-1] if len(insample) else inception
     return {
         "is": metrics(insample, inception),
-        "oos": metrics(outsample, insample.index[-1]),
+        "oos": metrics(outsample, oos_starting_close),
         "full": metrics(daily_results, inception),
     }
 
@@ -319,6 +420,10 @@ def robustness_cases(official, options):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--execution-details", action="store_true",
+                        help="Print the strategy's fixed-quantity fill records in SPY, BIL order.")
+    args = parser.parse_args()
     with (ROOT / "config.yaml").open(encoding="utf-8") as source:
         config = yaml.safe_load(source)
     symbols = (config["universe"]["risky"], config["universe"]["defensive"])
@@ -349,14 +454,28 @@ def main():
         print(f"  {parameters} " + json.dumps(metrics(daily_results, daily_results.index[0]),
                                                allow_nan=False))
 
-    daily_results = simulate(prices, start, official)
+    execution_details = [] if args.execution_details else None
+    daily_results = simulate(prices, start, official, execution_details)
+    if execution_details is not None:
+        print("EXECUTION SYMBOLS: " + json.dumps(symbols))
+        for detail in execution_details:
+            print("EXECUTION DETAIL: " + json.dumps(detail, allow_nan=False))
     performance = period_metrics(daily_results, split)
-    benchmark = buy_and_hold(prices, daily_results, official.friction)
+    benchmark = buy_and_hold(prices, daily_results, official)
     benchmark_performance = period_metrics(benchmark, split)
     data_range = {"start": str(daily_results.index[0].date()),
                   "end": str(daily_results.index[-1].date())}
     print(f"DATE RANGE: {data_range['start']} to {data_range['end']}")
     print(f"IS through {split.date()} | OOS after {split.date()} | Excess Sharpe vs BIL")
+    for period, daily in (("IS", daily_results.loc[:split]),
+                          ("OOS", daily_results.loc[daily_results.index > split]),
+                          ("FULL", daily_results)):
+        print(f"CVAR DIAGNOSTICS {period}: " + json.dumps(cvar_diagnostics(daily, official), allow_nan=False))
+    print("EXECUTION FULL: " + json.dumps({
+        "cash_buffer": official.cash_buffer,
+        "min_cash_weight": float(daily_results["cash_weight"].min()),
+        "max_abs_etf_weight_error": float(daily_results["weight_error"].max()),
+    }, allow_nan=False))
     for period in ("is", "oos", "full"):
         print(f"{period.upper()}: " + json.dumps(performance[period], allow_nan=False))
         print(f"SPY BUY-AND-HOLD {period.upper()}: "
@@ -373,5 +492,5 @@ def main():
 
 
 if __name__ == "__main__":
-    signal.alarm(840)
+    signal.alarm(570)
     main()

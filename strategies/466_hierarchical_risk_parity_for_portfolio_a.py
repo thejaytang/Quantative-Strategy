@@ -1,27 +1,7 @@
-"""466_hierarchical_risk_parity_for_portfolio_a
-研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
-Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/466_hierarchical_risk_parity_for_portfolio_a.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit f8add1176d5b1caebb66b01079720314ca29fcc4 on 2026-11-27 08:40 Europe/Oslo, exit 0, output sha256 b3e7307cf3a93a9d495b83da9820b75bc2d0bd29d6e783749159dc8a8045e3df
-Data source: Yahoo Finance via yfinance, using daily USD ETF closes. ECH, COLO and EPU are the allocation universe. The README documents that Yahoo's COLO series carries the earlier GXG history. BIL is used only as the cash proxy for the excess Sharpe calculation.
-Data fetched: 2026-11-27T07:40:04+00:00
-Sample period: Evaluated from 2019-07-01 through 2025-06-30 on available sessions, as recorded in the run log. The download request starts on 2018-06-01 to provide warm-up observations.   data_range (from output): 2019-07-01 to 2025-06-30
-IS/OOS split: IS is 2019-07-01 through 2022-06-30. OOS is 2022-07-01 through 2025-06-30. The code simulates one continuous path and slices its daily results at the split, carrying positions across it. The same fixed parameters apply throughout.
-Costs and slippage: The simulator charges 5 bps in costs plus 2 bps in modeled slippage per buy or sell, a combined 7 bps on executed notional. It deducts this charge at each rebalance using the sum of absolute position changes from drifted holdings to funded target holdings. The charge applies to the initial allocation from cash and to the equal-weight benchmark.
-Signal lag: The rolling return window includes session t's close. Its target is executed at the next session's close, t+1. Existing holdings earn the move into that close, and new holdings first earn returns on the subsequent close-to-close interval.
-Price adjustment: yfinance auto_adjust total-return closes
-Survivorship bias: The fixed universe consists of three ETFs selected with full histories available retrospectively. The README identifies survivorship and selection bias and says these proxies omit the original study's individual securities and historical index constituent changes.
-Parameter combinations tried: 1
-Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=-0.09377471684092364, ann_vol=0.2679966866039492, sharpe=-0.23093051813551205, sharpe_excess=-0.24723875433900963, max_drawdown=-0.5022436035062043, total_return=-0.2562235012496161, turnover=4.166770497298774, n_trades=105
-    oos: cagr=0.1751330329048688, ann_vol=0.19880171983837897, sharpe=0.9169327754395165, sharpe_excess=0.6936858660292082, max_drawdown=-0.1843974706933894, total_return=0.6229808436176614, turnover=2.368894551125467, n_trades=102
-    full: cagr=0.03183479389926003, ann_vol=0.2361328416744233, sharpe=0.25288239015706293, sharpe_excess=0.1501509469457215, max_drawdown=-0.5022436035062043, total_return=0.20713500940488427, turnover=6.535665048424241, n_trades=207
-    benchmark: cagr=0.03960770973558647, ann_vol=0.23903729724910497, sharpe=0.28429312471087587, sharpe_excess=0.1828004122723826, max_drawdown=-0.5226835426748071, total_return=0.2627997742808954, turnover=2.9808942525743305, n_trades=207
-"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os
-_CONFIG_YAML = "strategy: '466_hierarchical_risk_parity_for_portfolio_a'\nuniverse: [ECH, COLO, EPU]\nrisk_free_ticker: BIL\ndates:\n  download_start: '2018-06-01'\n  start: '2019-07-01'\n  oos_start: '2022-07-01'\n  end: '2025-06-30'\nlookback_sessions: 260\nrebalance_every_sessions: 22\nlinkage: single\nsignal_lag_sessions: 1\ncost_bps: 5\nslippage_bps: 2\n"
+_CONFIG_YAML = "strategy: '466_hierarchical_risk_parity_for_portfolio_a'\nuniverse: [ECH, COLO, EPU]\nrisk_free_ticker: BIL\ndates:\n  download_start: '2018-06-01'\n  start: '2019-07-01'\n  oos_start: '2022-07-01'\n  end: '2025-06-30'\nlookback_sessions: 260\nrebalance_every_sessions: 22\nlinkage: single\nsignal_lag_sessions: 1\ncost_bps: 5\nslippage_bps: 2\n# Cash reserved at the preceding close for execution-price changes and fees.\ncash_buffer_fraction: 0.05\n"
 _orig_open = _b.open
 def _open(f, *a, **k):
     try:
@@ -45,20 +25,60 @@ import numpy as np
 import pandas as pd
 import yaml
 import yfinance as yf
+from pandas.tseries.holiday import (
+    AbstractHolidayCalendar,
+    GoodFriday,
+    Holiday,
+    USLaborDay,
+    USMartinLutherKingJr,
+    USMemorialDay,
+    USPresidentsDay,
+    USThanksgivingDay,
+    nearest_workday,
+    sunday_to_monday,
+)
 from scipy.cluster.hierarchy import leaves_list, linkage
-from scipy.optimize import brentq
 from scipy.spatial.distance import squareform
 
 
 ROOT = Path(__file__).resolve().parent
 CACHE_DIR = ROOT / "data_cache"
 SESSIONS_PER_YEAR = 252
+# NYSE Group days of mourning during the configured price history.
+EXCHANGE_CLOSURES = pd.DatetimeIndex(["2018-12-05", "2025-01-09"])
 
 
-def validate_prices(prices, symbols):
-    prices = prices.reindex(columns=symbols).sort_index()
-    if prices.empty or not prices.index.is_unique or prices.index.hasnans:
-        raise ValueError("Expected nonempty adjusted closes with unique session dates")
+class EquityMarketHolidays(AbstractHolidayCalendar):
+    rules = [
+        Holiday("New Year's Day", month=1, day=1, observance=sunday_to_monday),
+        USMartinLutherKingJr,
+        USPresidentsDay,
+        GoodFriday,
+        USMemorialDay,
+        Holiday("Juneteenth", month=6, day=19, start_date="2022-01-01", observance=nearest_workday),
+        Holiday("Independence Day", month=7, day=4, observance=nearest_workday),
+        USLaborDay,
+        USThanksgivingDay,
+        Holiday("Christmas", month=12, day=25, observance=nearest_workday),
+    ]
+
+
+def validate_prices(prices, symbols, start, end):
+    if not isinstance(prices.index, pd.DatetimeIndex) or not prices.index.is_unique or prices.index.hasnans:
+        raise ValueError("Adjusted closes must have unique, valid session dates")
+    holidays = EquityMarketHolidays().holidays(start=start, end=end)
+    expected = pd.bdate_range(start, end).difference(holidays.union(EXCHANGE_CLOSURES))
+    missing = expected.difference(prices.index)
+    unexpected = prices.index.difference(expected)
+    if len(missing) or len(unexpected):
+        raise ValueError(
+            "Adjusted closes do not match the expected trading sessions. "
+            f"Missing ({len(missing)}): {missing[:5].strftime('%Y-%m-%d').tolist()}. "
+            f"Unexpected ({len(unexpected)}): {unexpected[:5].strftime('%Y-%m-%d').tolist()}."
+        )
+    prices = prices.reindex(index=expected, columns=symbols).apply(pd.to_numeric, errors="coerce")
+    if prices.empty:
+        raise ValueError("No adjusted closes in the requested trading sessions")
     invalid = ~np.isfinite(prices) | (prices <= 0)
     if invalid.any().any():
         counts = invalid.sum()
@@ -74,8 +94,8 @@ def load_prices(symbols, start, end):
     if path.exists():
         with path.open(encoding="utf-8") as handle:
             fetched_at = datetime.fromisoformat(handle.readline().strip()).isoformat()
-            prices = pd.read_csv(handle, index_col="date", parse_dates=["date"], float_precision="round_trip")
-        return validate_prices(prices, symbols), fetched_at
+            prices = pd.read_csv(handle, index_col="date", parse_dates=["date"])
+        return validate_prices(prices, symbols, start, end), fetched_at
 
     end_exclusive = (pd.Timestamp(end) + pd.Timedelta(days=1)).date().isoformat()
     with TemporaryDirectory(prefix=".yfinance-", dir=CACHE_DIR) as session_cache:
@@ -87,7 +107,7 @@ def load_prices(symbols, start, end):
     if bars.empty or "Close" not in bars.columns.get_level_values(0):
         raise RuntimeError("Yahoo Finance returned no daily close data")
     fetched_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
-    prices = validate_prices(bars["Close"], symbols)
+    prices = validate_prices(bars["Close"], symbols, start, end)
     with NamedTemporaryFile(mode="w", encoding="utf-8", dir=CACHE_DIR, delete=False) as handle:
         temporary = Path(handle.name)
         try:
@@ -146,35 +166,39 @@ def close_targets(closes, first_session, config):
     for signal in range(first_signal, len(closes) - lag, config["rebalance_every_sessions"]):
         window = log_returns.iloc[signal - lookback + 1:signal + 1]
         targets[closes.index[signal + lag]] = hrp_weights(window, config["linkage"])
-    if not targets:
-        raise ValueError("No signal can execute within the evaluation dates")
     return targets
 
 
-def simulate(asset_returns, targets, fee_rate):
-    weights = np.zeros(asset_returns.shape[1])
+def simulate(closes, targets, fee_rate, cash_buffer_fraction):
+    positions = np.zeros(closes.shape[1])
+    cash = 1.0
+    previous_value = cash
+    prices = closes.to_numpy()
     records = []
-    for date, asset_move in zip(asset_returns.index, asset_returns.to_numpy()):
-        # The old positions earn the move into the execution close.
-        gross = 1.0 + weights @ asset_move
-        weights = weights * (1.0 + asset_move) / gross
+    for row, date in enumerate(closes.index[1:], start=1):
         turnover = 0.0
         trades = 0
-        net_fraction = 1.0
         if date in targets:
-            target = targets[date]
-            # The target weights are measured after paying costs on executed notional.
-            def funding_gap(fraction):
-                traded = np.abs(fraction * target - weights).sum()
-                return fraction + fee_rate * traded - 1.0
+            # Size fractional total-return units before reading the execution close.
+            sizing_close = prices[row - 1]
+            allocation_value = previous_value * (1.0 - cash_buffer_fraction)
+            next_positions = allocation_value * targets[date] / sizing_close
+            changes = next_positions - positions
 
-            net_fraction = brentq(funding_gap, 0.0, 1.0)
-            traded_amounts = np.abs(net_fraction * target - weights)
-            turnover = float(traded_amounts.sum())
-            trades = int(np.count_nonzero(traded_amounts > 1e-12))
-            weights = target
-        records.append((gross * net_fraction - 1.0, turnover, trades))
-    return pd.DataFrame(records, index=asset_returns.index, columns=["return", "turnover", "n_trades"])
+            fill_close = prices[row]
+            fill_amounts = changes * fill_close
+            traded = np.abs(fill_amounts).sum()
+            next_cash = cash - fill_amounts.sum() - fee_rate * traded
+            if next_cash < 0:
+                raise RuntimeError(f"{date.date()}: predetermined fills exceed cash by {-next_cash:.8g}")
+            turnover = traded / (cash + positions @ fill_close)
+            trades = int(np.count_nonzero(changes))
+            cash = next_cash
+            positions = next_positions
+        value = cash + positions @ prices[row]
+        records.append((value / previous_value - 1.0, turnover, trades))
+        previous_value = value
+    return pd.DataFrame(records, index=closes.index[1:], columns=["return", "turnover", "n_trades"])
 
 
 def annualized_sharpe(returns):
@@ -184,16 +208,16 @@ def annualized_sharpe(returns):
 
 def metrics(daily, cash_returns, closes_index):
     returns = daily["return"]
-    nav = np.r_[1.0, (1.0 + returns).cumprod().to_numpy()]
+    growth = np.r_[1.0, (1.0 + returns).cumprod().to_numpy()]
     prior_close = closes_index[closes_index.get_loc(daily.index[0]) - 1]
     elapsed_years = (daily.index[-1] - prior_close).days / 365.2425
     return {
-        "cagr": float(nav[-1] ** (1.0 / elapsed_years) - 1.0),
-        "ann_vol": float(returns.std(ddof=1) * np.sqrt(SESSIONS_PER_YEAR)),
+        "cagr": float(growth[-1] ** (1.0 / elapsed_years) - 1.0),
+        "ann_vol": float(returns.std(ddof=1) * np.sqrt(SESSIONS_PER_YEAR)) if len(returns) > 1 else None,
         "sharpe": annualized_sharpe(returns),
         "sharpe_excess": annualized_sharpe(returns - cash_returns.loc[daily.index]),
-        "max_drawdown": float((nav / np.maximum.accumulate(nav) - 1.0).min()),
-        "total_return": float(nav[-1] - 1.0),
+        "max_drawdown": float((growth / np.maximum.accumulate(growth) - 1.0).min()),
+        "total_return": float(growth[-1] - 1.0),
         "turnover": float(daily["turnover"].sum()),
         "n_trades": int(daily["n_trades"].sum()),
     }
@@ -202,8 +226,8 @@ def metrics(daily, cash_returns, closes_index):
 def period_reports(daily, cash_returns, closes_index, oos_start):
     before_split = daily.index < oos_start
     periods = {"is": daily[before_split], "oos": daily[~before_split], "full": daily}
-    if min(len(period) for period in periods.values()) < 2:
-        raise ValueError("Both IS and OOS need at least two daily observations")
+    if any(period.empty for period in periods.values()):
+        raise ValueError("Both IS and OOS need at least one market session")
     return {label: metrics(period, cash_returns, closes_index) for label, period in periods.items()}
 
 
@@ -220,6 +244,9 @@ def main():
     fee_rate = (cost_bps + slippage_bps) / 10_000
     if not (cost_bps >= 0 and slippage_bps >= 0 and fee_rate < 1):
         raise ValueError("Costs and slippage must be nonnegative and below 100% in total")
+    cash_buffer_fraction = config["cash_buffer_fraction"]
+    if not 0 < cash_buffer_fraction < 1:
+        raise ValueError("Cash buffer fraction must be between 0 and 1 (exclusive)")
     dates = config["dates"]
     start, oos_start, end = map(pd.Timestamp, (dates["start"], dates["oos_start"], dates["end"]))
     if not pd.Timestamp(dates["download_start"]) < start < oos_start <= end:
@@ -228,12 +255,12 @@ def main():
     closes, fetched_at = load_prices([*universe, cash_symbol], dates["download_start"], dates["end"])
     first_session = closes.index.searchsorted(start)
     targets = close_targets(closes[universe], first_session, config)
-    returns = closes.pct_change(fill_method=None).iloc[first_session:]
+    simulation_closes = closes.iloc[first_session - 1:]
     equal_weight = np.full(len(universe), 1.0 / len(universe))
     benchmark_targets = dict.fromkeys(targets, equal_weight)
-    strategy_daily = simulate(returns[universe], targets, fee_rate)
-    benchmark_daily = simulate(returns[universe], benchmark_targets, fee_rate)
-    cash_returns = returns[cash_symbol]
+    strategy_daily = simulate(simulation_closes[universe], targets, fee_rate, cash_buffer_fraction)
+    benchmark_daily = simulate(simulation_closes[universe], benchmark_targets, fee_rate, cash_buffer_fraction)
+    cash_returns = simulation_closes[cash_symbol].pct_change(fill_method=None).iloc[1:]
     strategy_reports = period_reports(strategy_daily, cash_returns, closes.index, oos_start)
     benchmark_reports = period_reports(benchmark_daily, cash_returns, closes.index, oos_start)
 
@@ -245,7 +272,7 @@ def main():
         print(f"BENCHMARK_EQUAL_WEIGHT_{label.upper()}: {json.dumps(benchmark_reports[label], allow_nan=False)}")
     result = {
         "strategy": config["strategy"],
-        "data_range": f"{returns.index[0].date()} to {returns.index[-1].date()}",
+        "data_range": f"{strategy_daily.index[0].date()} to {strategy_daily.index[-1].date()}",
         **strategy_reports,
         "benchmark": benchmark_reports["full"],
     }

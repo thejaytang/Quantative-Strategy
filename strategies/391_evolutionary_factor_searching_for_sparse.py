@@ -1,27 +1,7 @@
-"""391_evolutionary_factor_searching_for_sparse
-研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
-Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/391_evolutionary_factor_searching_for_sparse.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit 4d91396b470c7410b1364756fad54a1bec5cce1f on 2026-11-27 07:45 Europe/Oslo, exit 0, output sha256 382915ed17fe2e568ceb8cad424dbbce71dfafb48a7c7bd6000399a4947647be
-Data source: Yahoo Finance via yfinance daily closing prices for the 50 US50 stocks listed in config.yaml, SPY as the benchmark, and BIL as the risk-free proxy. Adjusted closes are read from the query cache or downloaded from Yahoo Finance.
-Data fetched: 2026-11-27T06:45:08+00:00
-Sample period: Requested price history starts 2016-01-01 for warm-up. The configured reporting window is 2019-01-01 through 2025-12-31, and the recorded reporting sessions span 2019-01-02 through 2025-12-31 inclusive.   data_range (from output): {'start': '2019-01-02', 'end': '2025-12-31'}
-IS/OOS split: IS runs from 2019-01-02 through 2022-12-30. OOS runs from 2023-01-03 through 2025-12-31. The configured calendar cutoff is 2022-12-31, with sessions on or before it assigned to IS. The strategy first fits before the first reporting session, refits at quarter ends during IS, and freezes the final IS factor formulas and weights while continuing to rank stocks and update holdings daily during OOS.
-Costs and slippage: 5 bps of transaction cost plus 5 bps of modeled slippage per side, combined as a 10 bps charge on simulated buy and sell notional. The simulator deducts the combined charge from pre-rebalance marked NAV and solves for trade sizes using post-cost target weights. Slippage is a flat charge with simulated fills at adjusted closes. The same rate applies to the initial SPY benchmark purchase.
-Signal lag: A signal computed using the adjusted close of session t is applied at the adjusted close of the next price session. Existing holdings accrue the return into the fill close before the rebalance, and the new holdings begin accruing price returns over the next close-to-close interval.
-Price adjustment: yfinance auto_adjust total-return close
-Survivorship bias: The fixed, retrospectively selected US50 list from the paper's v1 Appendix C, Table 6 introduces survivorship and historical constituent-selection bias, including in OOS. A stock requires 274 consecutive nonmissing closes under the configured maximum lookback of 273 sessions, which delays eligibility for later listings.
-Parameter combinations tried: 544
-Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=0.15295744616452, ann_vol=0.30050185522452344, sharpe=0.6248516168059758, sharpe_excess=0.594004076000668, max_drawdown=-0.4190255790180467, total_return=0.7670673961886068, turnover=47.7585465301169, n_trades=10979
-    oos: cagr=0.4830383715074038, ann_vol=0.28866839899023916, sharpe=1.5108547890949107, sharpe_excess=1.3485760628114016, max_drawdown=-0.2661602590222407, total_return=2.241458451121049, turnover=36.79869724823336, n_trades=8020
-    full: cagr=0.28389911046975636, ann_vol=0.2955221188293446, sharpe=0.9944754757893223, sharpe_excess=0.908905066446229, max_drawdown=-0.4190255790180467, total_return=4.727875545076022, turnover=43.07570183694849, n_trades=18999
-    benchmark: cagr=0.17189440286213653, ann_vol=0.1977586984638731, sharpe=0.9014684858445524, sharpe_excess=0.7734710623213426, max_drawdown=-0.3371727036119295, total_return=2.027790988898821, turnover=0.14303877940241577, n_trades=1
-"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os
-_CONFIG_YAML = 'strategy: 391_evolutionary_factor_searching_for_sparse\n\n# US50 from arXiv:2507.17211v1, Appendix C, Table 6.\nuniverse:\n  - AAPL\n  - ADI\n  - ADBE\n  - ADP\n  - ADSK\n  - AMD\n  - AMAT\n  - AMGN\n  - AMZN\n  - APP\n  - ASML\n  - AVGO\n  - BA\n  - BKNG\n  - CDNS\n  - CMCSA\n  - COST\n  - CSCO\n  - CSX\n  - CTAS\n  - FTNT\n  - GILD\n  - GOOG\n  - BRK-B\n  - HON\n  - INTC\n  - INTU\n  - ISRG\n  - KLAC\n  - LIN\n  - LRCX\n  - MELI\n  - META\n  - MRVL\n  - MSFT\n  - MU\n  - NFLX\n  - NVDA\n  - PANW\n  - PEP\n  - PLTR\n  - QCOM\n  - ROP\n  - SBUX\n  - SNPS\n  - TMUS\n  - TSLA\n  - TSM\n  - TXN\n  - VRTX\nbenchmark: SPY\nrisk_free: BIL\n\ndates:\n  history_start: 2016-01-01\n  start: 2019-01-01\n  is_end: 2022-12-31\n  end: 2025-12-31\n\nexecution:\n  signal_lag_sessions: 1\n  cost_bps: 5\n  slippage_bps: 5\n\nsearch:\n  training_sessions: 252\n  refit_every_months: 3\n  seed_windows: [63, 126, 189]\n  mutation_windows: [42, 63, 84, 105, 126, 147, 168, 189, 210, 231, 252, 273]\n  generations: 2\n  mutations_per_generation: 4\n  crossover_parent_pool: 8\n  crossovers_per_generation: 6\n  max_factors: 10\n  min_rank_ic: 0.005\n  redundancy_penalty: 0.05\n  portfolio_size: 10\n'
+_CONFIG_YAML = 'strategy: 391_evolutionary_factor_searching_for_sparse\n\n# US50 from arXiv:2507.17211v1, Appendix C, Table 6.\nuniverse:\n  - AAPL\n  - ADI\n  - ADBE\n  - ADP\n  - ADSK\n  - AMD\n  - AMAT\n  - AMGN\n  - AMZN\n  - APP\n  - ASML\n  - AVGO\n  - BA\n  - BKNG\n  - CDNS\n  - CMCSA\n  - COST\n  - CSCO\n  - CSX\n  - CTAS\n  - FTNT\n  - GILD\n  - GOOG\n  - BRK-B\n  - HON\n  - INTC\n  - INTU\n  - ISRG\n  - KLAC\n  - LIN\n  - LRCX\n  - MELI\n  - META\n  - MRVL\n  - MSFT\n  - MU\n  - NFLX\n  - NVDA\n  - PANW\n  - PEP\n  - PLTR\n  - QCOM\n  - ROP\n  - SBUX\n  - SNPS\n  - TMUS\n  - TSLA\n  - TSM\n  - TXN\n  - VRTX\nbenchmark: SPY\nrisk_free: BIL\n\ndates:\n  history_start: 2016-01-01\n  start: 2019-01-01\n  is_end: 2022-12-31\n  end: 2025-12-31\n\nexecution:\n  signal_lag_sessions: 1\n  cash_buffer: 0.10\n  cost_bps: 5\n  slippage_bps: 5\n\nsearch:\n  training_sessions: 252\n  refit_every_months: 3\n  seed_windows: [63, 126, 189]\n  mutation_windows: [42, 63, 84, 105, 126, 147, 168, 189, 210, 231, 252, 273]\n  generations: 2\n  mutations_per_generation: 4\n  crossover_parent_pool: 8\n  crossovers_per_generation: 6\n  max_factors: 10\n  min_rank_ic: 0.005\n  redundancy_penalty: 0.05\n  portfolio_size: 10\n'
 _orig_open = _b.open
 def _open(f, *a, **k):
     try:
@@ -46,7 +26,19 @@ from tempfile import NamedTemporaryFile, TemporaryDirectory
 
 import numpy as np
 import pandas as pd
-from scipy.optimize import brentq, minimize
+from pandas.tseries.holiday import (
+    AbstractHolidayCalendar,
+    GoodFriday,
+    Holiday,
+    USLaborDay,
+    USMartinLutherKingJr,
+    USMemorialDay,
+    USPresidentsDay,
+    USThanksgivingDay,
+    nearest_workday,
+    sunday_to_monday,
+)
+from scipy.optimize import minimize
 import yaml
 import yfinance as yf
 
@@ -55,6 +47,21 @@ ROOT = Path(__file__).resolve().parent
 CACHE = ROOT / "data_cache"
 ANNUAL_SESSIONS = 252
 INDICATORS = ("momentum", "sma_ratio", "sharpe", "positive_days")
+
+
+class USMarketHolidays(AbstractHolidayCalendar):
+    rules = [
+        Holiday("New Year's Day", month=1, day=1, observance=sunday_to_monday),
+        USMartinLutherKingJr,
+        USPresidentsDay,
+        GoodFriday,
+        USMemorialDay,
+        Holiday("Juneteenth", month=6, day=19, start_date="2022-01-01", observance=nearest_workday),
+        Holiday("Independence Day", month=7, day=4, observance=nearest_workday),
+        USLaborDay,
+        USThanksgivingDay,
+        Holiday("Christmas Day", month=12, day=25, observance=nearest_workday),
+    ]
 
 
 def load_config():
@@ -72,6 +79,8 @@ def load_config():
         raise ValueError("signal_lag_sessions must be a positive integer.")
     if any(not np.isfinite(fee) or fee < 0 for fee in fees) or sum(fees) >= 10_000:
         raise ValueError("Costs and slippage must be nonnegative and total under 10000 bps.")
+    if not 0 < execution["cash_buffer"] < 1:
+        raise ValueError("cash_buffer must be a fraction strictly between zero and one.")
 
     assets = config["universe"]
     tickers = [*assets, config["benchmark"], config["risk_free"]]
@@ -91,6 +100,23 @@ def load_config():
     return config
 
 
+def check_prices(prices, start, end):
+    holidays = USMarketHolidays().holidays(start, end)
+    mourning_closures = pd.to_datetime(["2018-12-05", "2025-01-09"])
+    sessions = pd.bdate_range(start, end).difference(holidays.union(mourning_closures))
+    missing = sessions.difference(prices.index)
+    if len(missing):
+        raise RuntimeError(f"Yahoo Finance is missing a market session: {missing[0].date()}")
+    if not prices.index.equals(sessions):
+        raise RuntimeError("Yahoo Finance dates include unexpected, duplicate or unordered sessions.")
+
+    prices = prices.where(np.isfinite(prices) & prices.gt(0))
+    missing_tickers = prices.columns[prices.isna().all(axis=0)]
+    if len(missing_tickers):
+        raise RuntimeError(f"Missing usable Yahoo Finance closes for {', '.join(missing_tickers)}")
+    return prices
+
+
 def adjusted_prices(tickers, start, end):
     CACHE.mkdir(exist_ok=True)
     query = ("adjusted_close", sorted(tickers), str(start.date()), str(end.date()))
@@ -100,11 +126,11 @@ def adjusted_prices(tickers, start, end):
         with gzip.open(path, "rt") as stream:
             fetched_at = stream.readline().strip()
             prices = pd.read_csv(stream, index_col="Date", parse_dates=["Date"])
-        return prices.reindex(columns=tickers), fetched_at
+        return check_prices(prices.reindex(columns=tickers), start, end), fetched_at
 
     with TemporaryDirectory(dir=CACHE, prefix=".yfinance-") as transport_cache:
         yf.set_tz_cache_location(transport_cache)
-        prices = download_closes(tickers, start, end)
+        prices = check_prices(download_closes(tickers, start, end), start, end)
     fetched_at = datetime.now(UTC).isoformat(timespec="seconds")
     with NamedTemporaryFile(dir=CACHE, suffix=".csv.gz", delete=False) as temporary:
         temp_path = Path(temporary.name)
@@ -164,9 +190,10 @@ class FactorSearch:
         fit_prices = prices.iloc[:is_end_position + 1]
         fit_eligible = self.eligible.iloc[:is_end_position + 1]
         holding_returns = fit_prices.shift(-lag - 1).div(fit_prices.shift(-lag)).sub(1.0)
-        complete = (~fit_eligible | holding_returns.notna()).all(axis=1)
-        self.usable = (complete & fit_eligible.sum(axis=1).ge(3)).to_numpy()
-        label_ranks = holding_returns.where(fit_eligible).rank(axis=1)
+        self.fit_pairs = fit_eligible & holding_returns.notna()
+        self.partial_rows = (fit_eligible & ~self.fit_pairs).any(axis=1).to_numpy()
+        self.usable = self.fit_pairs.sum(axis=1).ge(3).to_numpy()
+        label_ranks = holding_returns.where(self.fit_pairs).rank(axis=1)
         self.labels = centered_unit_rows(label_ranks)
         self.ranks = {}
         self.trials = 0
@@ -187,6 +214,7 @@ class FactorSearch:
             values = rolling.mean().div(rolling.std().replace(0, np.nan)).fillna(0.0)
         else:
             values = self.returns.gt(0).rolling(parameter).mean()
+        # Re-rank blended scores as well, so both RankIC and redundancy use ranks.
         ranks = values.where(self.eligible).rank(axis=1)
         counts = ranks.count(axis=1)
         denominator = counts.sub(1).clip(lower=1)
@@ -202,14 +230,20 @@ class FactorSearch:
             raise ValueError("Insufficient pre-sample price history for first search.")
         rows = np.flatnonzero(self.usable[start:end]) + start
         if len(rows) * 2 < settings["training_sessions"]:
-            raise ValueError("Too few complete cross sections in the training window.")
+            raise ValueError("Too few cross sections with at least three paired observations.")
         labels = self.labels[rows]
+        partial_pairs = self.fit_pairs.iloc[rows[self.partial_rows[rows]]]
         quality = {}
         standardized = {}
 
         def evaluate(factors):
             for factor in factors:
                 ranks = self.rank_scores(factor).iloc[rows]
+                if not partial_pairs.empty:
+                    # Spearman ranks use the same available symbols on both sides.
+                    ranks = ranks.copy()
+                    partial_index = partial_pairs.index
+                    ranks.loc[partial_index] = ranks.loc[partial_index].where(partial_pairs).rank(axis=1)
                 unit = centered_unit_rows(ranks)
                 standardized[factor] = unit
                 quality[factor] = float(np.einsum("ij,ij->i", unit, labels).mean())
@@ -317,36 +351,47 @@ def portfolio_signals(search, start_position, is_end_position, lag, dates):
     return targets.shift(lag)
 
 
-def simulate(prices, days, targets, cost_rate):
-    relatives = prices.div(prices.shift(1)).loc[days].to_numpy()
-    desired_weights = targets.loc[days].to_numpy()
-    weights = np.zeros(prices.shape[1])
-    returns, turnover, trades = [], [], []
-    for day, relatives_today, target in zip(days, relatives, desired_weights):
-        held = weights > 0
-        if not np.isfinite(relatives_today[held]).all():
-            raise RuntimeError(f"Missing close-to-close data for a held asset on {day.date()}")
-        asset_values = weights * np.where(held, relatives_today, 1.0)
-        marked_nav = (1 - weights.sum()) + asset_values.sum()
-        weights = asset_values / marked_nav
-        charge, traded, n_orders = 0.0, 0.0, 0
+def simulate(prices, days, targets, cost_rate, cash_buffer):
+    prior_closes = prices.shift(1).loc[days].to_numpy()
+    fill_closes = prices.loc[days].to_numpy()
+    desired_weights = targets.loc[days, prices.columns].to_numpy()
+    positions = np.zeros(prices.shape[1])
+    last_marks = np.zeros(prices.shape[1])
+    cash = previous_value = 1.0
+    daily_results = []
+    for day, prior_close, fill_close, target in zip(days, prior_closes, fill_closes, desired_weights):
+        # Lock adjusted share quantities before receiving any fill-day prices.
+        desired_positions = positions.copy()
         if np.isfinite(target).all():
-            if not prices.loc[day, target > 0].notna().all():
-                raise RuntimeError(f"Missing fill close for a selected asset on {day.date()}")
-            # Target allocations are fractions of post-cost NAV.
-            def trade_sizes(fee):
-                return np.abs((1 - fee) * target - weights)
+            sizable = np.isfinite(prior_close)
+            liquid_value = cash + positions[sizable] @ prior_close[sizable]
+            desired_positions[sizable] = (
+                (1 - cash_buffer) * liquid_value * target[sizable] / prior_close[sizable]
+            )
+        share_changes = desired_positions - positions
 
-            if cost_rate > 0 and trade_sizes(0).sum() > 0:
-                charge = brentq(lambda fee: fee - cost_rate * trade_sizes(fee).sum(), 0, 1)
-            fills = trade_sizes(charge)
-            traded = float(fills.sum())
-            n_orders = int((fills > 1e-10).sum())
-            weights = target
-        returns.append(marked_nav * (1 - charge) - 1)
-        turnover.append(traded)
-        trades.append(n_orders)
-    return pd.DataFrame({"return": returns, "turnover": turnover, "trades": trades}, index=days)
+        quoted = np.isfinite(fill_close)
+        last_marks[quoted] = fill_close[quoted]
+        marked_value = cash + positions @ last_marks
+        fills = quoted & (share_changes != 0)
+        fill_amounts = share_changes[fills] * fill_close[fills]
+        traded = np.abs(fill_amounts).sum()
+        cash -= fill_amounts.sum() + cost_rate * traded
+        if cash < 0:
+            raise RuntimeError(f"Predetermined fills exceed available cash on {day.date()}: {cash:.12g}")
+        positions[fills] = desired_positions[fills]
+        value = cash + positions @ last_marks
+        daily_results.append({
+            "return": value / previous_value - 1,
+            "turnover": traded / marked_value,
+            "trades": int(fills.sum()),
+            "unfilled": int(((share_changes != 0) & ~quoted).sum()),
+            "stale_marks": int(((positions > 0) & ~quoted).sum()),
+        })
+        previous_value = value
+    if daily_results[-1]["stale_marks"]:
+        raise RuntimeError("The final session has a held asset without a close or exit value.")
+    return pd.DataFrame(daily_results, index=days)
 
 
 def metrics(path, risk_free):
@@ -379,14 +424,9 @@ def main():
     prices, fetched_at = adjusted_prices(
         [*universe, benchmark, risk_free], dates["history_start"], dates["end"]
     )
-    prices = prices.where(np.isfinite(prices) & prices.gt(0))
     if prices[benchmark].isna().any():
-        raise RuntimeError(f"Missing {benchmark} close on a date with a Yahoo Finance quote.")
-    if prices.empty or prices.index[-1] < dates["end"] - pd.Timedelta(days=7):
-        raise RuntimeError("Yahoo prices do not reach the configured end of the sample.")
+        raise RuntimeError(f"Missing {benchmark} close on a market session.")
     days = prices.loc[dates["start"]:dates["end"]].index
-    if days.empty or days[0] > dates["start"] + pd.Timedelta(days=7):
-        raise RuntimeError("Yahoo prices do not cover the configured start of the sample.")
     split = days <= dates["is_end"]
     if not split.any() or split.all():
         raise ValueError("Both IS and OOS need at least one trading session.")
@@ -397,15 +437,16 @@ def main():
     execution = config["execution"]
     lag = execution["signal_lag_sessions"]
     rate = (execution["cost_bps"] + execution["slippage_bps"]) / 10_000
+    cash_buffer = execution["cash_buffer"]
     start_position = prices.index.get_loc(days[0])
     is_end_position = prices.index.get_loc(days[split][-1])
     search = FactorSearch(prices[universe], lag, config["search"], is_end_position)
     targets = portfolio_signals(search, start_position, is_end_position, lag, dates)
-    portfolio = simulate(prices[universe], days, targets, rate)
+    portfolio = simulate(prices[universe], days, targets, rate, cash_buffer)
 
     buy_and_hold = pd.DataFrame(np.nan, index=days, columns=[benchmark])
     buy_and_hold.iloc[0, 0] = 1.0
-    benchmark_path = simulate(prices[[benchmark]], days, buy_and_hold, rate)
+    benchmark_path = simulate(prices[[benchmark]], days, buy_and_hold, rate, cash_buffer)
     results = {
         "strategy": config["strategy"],
         "data_range": {"start": str(days[0].date()), "end": str(days[-1].date())},
@@ -416,10 +457,14 @@ def main():
     }
 
     print(f"DATA_FETCHED_AT: {fetched_at}")
-    print("PRICE_ADJUSTMENT: yfinance auto_adjust total-return close")
+    print("PRICE_ADJUSTMENT: yfinance auto_adjust total-return close, adjusted share units")
     print(f"PARAM_COMBOS_TRIED: {search.trials}")
+    print(f"UNFILLED_ORDERS: {portfolio['unfilled'].sum()}")
+    print(f"STALE_POSITION_MARKS: {portfolio['stale_marks'].sum()}")
     for key, label in (("is", "IS"), ("oos", "OOS"), ("full", "FULL"), ("benchmark", benchmark)):
         print(f"{label}: {json.dumps(results[key], allow_nan=False)}")
+    for label, mask in (("IS", split), ("OOS", ~split)):
+        print(f"{benchmark}_{label}: {json.dumps(metrics(benchmark_path.loc[mask], rf), allow_nan=False)}")
     print("RESULTS_JSON: " + json.dumps(results, allow_nan=False))
 
 

@@ -1,27 +1,7 @@
-"""504_exploratory_mean_variance_with_jumps_an
-研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
-Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/504_exploratory_mean_variance_with_jumps_an.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit c0a8f76240a0431b019ab49c34040a95a765860a on 2026-11-27 10:03 Europe/Oslo, exit 0, output sha256 53530f1b3871d8adfdc092858f6ead7f25cc295ff226a12d1c17f15ca7277940
-Data source: Yahoo Finance via yfinance for daily closes of SPY, IEF and SHY and the daily ^IRX 13-week Treasury-bill discount yield, used for the excess-return metric. FRED public CSV for daily DFF (effective federal funds rate), used for the cash return and the signal’s excess-return estimate.
-Data fetched: 2026-11-27T09:03:53.866636+00:00
-Sample period: Yahoo data requested from 2003-01-01 through 2025-12-31, including pre-backtest warm-up. The FRED request starts 14 calendar days earlier, on 2002-12-18. The evaluation start is configured as 2005-01-01 and the logged evaluation sessions run from 2005-01-03 through 2025-12-31, inclusive.   data_range (from output): {'start': '2005-01-03', 'end': '2025-12-31'}
-IS/OOS split: In sample 2005-01-03 through 2014-12-31. Out of sample 2015-01-02 through 2025-12-31. The report slices a continuous default simulation at 2014-12-31. The OOS segment carries forward existing holdings, uses the same rules and updates rolling inputs. The eight sensitivity variants run only in sample. The README states that the split was chosen retrospectively.
-Costs and slippage: Default commission of 1 bp and fixed slippage of 2 bps per dollar of ETF purchases and sales, for 3 bps total. At each simulated fill, the solver deducts charges from portfolio value and computes absolute ETF trade notionals using the resulting post-cost target values and drifted pre-trade holdings. The doubled-cost IS variant uses 2 bps commission and 4 bps slippage. The SPY benchmark pays the default rates on its initial purchase at the strategy’s first fill.
-Signal lag: At the last observed trading close of each month, the default rule computes target weights using 252 ETF returns through that close and the lagged DFF series as of the signal date. The fill occurs at the next trading session’s close. The old holdings earn the fill day’s close-to-close return before the target weights are applied.
-Price adjustment: yfinance auto_adjust=True total-return ETF closes; ^IRX raw yield closes
-Survivorship bias: The universe is the fixed SPY, IEF and SHY list. The README identifies fund survivorship and asset-class selection bias because the ETFs were chosen retrospectively for continued existence and long histories.
-Parameter combinations tried: 9
-Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=0.05903743682531304, ann_vol=0.08201446632907296, sharpe=0.7405481849991393, sharpe_excess=0.5665184140589448, max_drawdown=-0.13846596124309773, total_return=0.7734402583580544, turnover=2.494850887375417, n_trades=360
-    oos: cagr=0.05653586091426788, ann_vol=0.08060226286891034, sharpe=0.7227650562988537, sharpe_excess=0.47380639394506746, max_drawdown=-0.13879829211925154, total_return=0.828765392372862, turnover=2.1774049358845238, n_trades=396
-    full: cagr=0.0577269584969442, ann_vol=0.08127047534286942, sharpe=0.7313560918668917, sharpe_excess=0.518413223277751, max_drawdown=-0.13879829211925254, total_return=2.243206169925994, turnover=2.328646930944637, n_trades=756
-    benchmark: cagr=0.10656707969501111, ann_vol=0.19052958050860067, sharpe=0.626908397564943, sharpe_excess=0.5360429832622394, max_drawdown=-0.5518943181114984, total_return=7.355299629729425, turnover=0.04768586459837176, n_trades=1
-"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os
-_CONFIG_YAML = 'strategy: "504_ exploratory_mean_variance_with_jumps_an"\nuniverse: [SPY, IEF, SHY]\nbenchmark: SPY\nexcess_rate_ticker: "^IRX"\nfred_series: DFF\n\ndata_start: 2003-01-01\nbacktest_start: 2005-01-01\nis_end: 2014-12-31\nbacktest_end: 2025-12-31\nexecution_lag_sessions: 1\nfred_lag_calendar_days: 7\n\nmodel:\n  lookback_sessions: 252\n  jump_z: 3.0\n  downside_jump_weight: 1.0\n  risk_aversion: 5.0\n  entropy_temperature: 0.01\n  grid_divisions: 20\n  commission_bps: 1.0\n  slippage_bps: 2.0\n\nrobustness:\n  lookback_shorter: {lookback_sessions: 189}\n  lookback_longer: {lookback_sessions: 315}\n  jump_threshold_lower: {jump_z: 2.5}\n  jump_threshold_higher: {jump_z: 3.5}\n  temperature_lower: {entropy_temperature: 0.005}\n  temperature_higher: {entropy_temperature: 0.02}\n  no_extra_jump_penalty: {downside_jump_weight: 0.0}\n  double_costs: {commission_bps: 2.0, slippage_bps: 4.0}\n'
+_CONFIG_YAML = 'strategy: "504_exploratory_mean_variance_with_jumps_an"\nuniverse: [SPY, IEF, SHY]\nbenchmark: SPY\nexcess_rate_ticker: "^IRX"\nfred_series: DFF\n\ndata_start: 2003-01-01\nbacktest_start: 2005-01-01\nis_end: 2014-12-31\nbacktest_end: 2025-12-31\nexecution_lag_sessions: 1\n# Minimum cash fraction at sizing prices before execution costs.\ncash_buffer_fraction: 0.10\nfred_lag_calendar_days: 7\n\nmodel:\n  lookback_sessions: 252\n  jump_z: 3.0\n  downside_jump_weight: 1.0\n  risk_aversion: 5.0\n  entropy_temperature: 0.01\n  grid_divisions: 20\n  commission_bps: 1.0\n  slippage_bps: 2.0\n\nrobustness:\n  lookback_shorter: {lookback_sessions: 189}\n  lookback_longer: {lookback_sessions: 315}\n  jump_threshold_lower: {jump_z: 2.5}\n  jump_threshold_higher: {jump_z: 3.5}\n  temperature_lower: {entropy_temperature: 0.005}\n  temperature_higher: {entropy_temperature: 0.02}\n  no_extra_jump_penalty: {downside_jump_weight: 0.0}\n  double_costs: {commission_bps: 2.0, slippage_bps: 4.0}\n'
 _orig_open = _b.open
 def _open(f, *a, **k):
     try:
@@ -48,8 +28,19 @@ import pandas as pd
 import requests
 import yaml
 import yfinance as yf
-from pandas.tseries.holiday import USFederalHolidayCalendar
-from scipy.optimize import brentq
+from pandas.tseries.holiday import (
+    AbstractHolidayCalendar,
+    GoodFriday,
+    Holiday,
+    USFederalHolidayCalendar,
+    USLaborDay,
+    USMartinLutherKingJr,
+    USMemorialDay,
+    USPresidentsDay,
+    USThanksgivingDay,
+    nearest_workday,
+    sunday_to_monday,
+)
 from scipy.special import softmax
 
 
@@ -57,7 +48,32 @@ ROOT = Path(__file__).resolve().parent
 CACHE_DIR = ROOT / "data_cache"
 FRED_CSV = "https://fred.stlouisfed.org/graph/fredgraph.csv"
 SESSIONS_PER_YEAR = 252
-PRICE_ADJUSTMENT = "yfinance auto_adjust=True total-return ETF closes; ^IRX raw yield closes"
+PRICE_ADJUSTMENT = "yfinance auto_adjust=True total-return ETF closes and adjusted units; ^IRX raw yield closes"
+
+
+class NYSEHolidays(AbstractHolidayCalendar):
+    rules = [
+        Holiday("New Year's Day", month=1, day=1, observance=sunday_to_monday),
+        USMartinLutherKingJr,
+        USPresidentsDay,
+        GoodFriday,
+        USMemorialDay,
+        Holiday("Juneteenth", month=6, day=19, start_date="2022-01-01", observance=nearest_workday),
+        Holiday("Independence Day", month=7, day=4, observance=nearest_workday),
+        USLaborDay,
+        USThanksgivingDay,
+        Holiday("Christmas Day", month=12, day=25, observance=nearest_workday),
+    ]
+
+
+# Full-session closures in the supported calendar range beyond the recurring holidays.
+NYSE_SPECIAL_CLOSURES = pd.DatetimeIndex([
+    "2004-06-11",  # Reagan day of mourning
+    "2007-01-02",  # Ford day of mourning
+    "2012-10-29", "2012-10-30",  # Hurricane Sandy
+    "2018-12-05",  # Bush day of mourning
+    "2025-01-09",  # Carter day of mourning
+])
 
 
 @dataclass(frozen=True)
@@ -108,7 +124,7 @@ def cached_frame(key, fetch):
     return frame, fetched_at
 
 
-def validate_quotes(frame, symbols, start, end, *, adjusted):
+def validate_quotes(frame, symbols, start, end, *, adjusted, expected_sessions=None):
     if frame.empty or list(frame.columns) != list(symbols):
         raise RuntimeError(f"Missing requested data for {symbols}.")
     if frame.index.has_duplicates or not frame.index.is_monotonic_increasing:
@@ -118,9 +134,34 @@ def validate_quotes(frame, symbols, start, end, *, adjusted):
         raise RuntimeError(f"Incomplete requested range for {symbols}.")
     if not np.isfinite(frame.to_numpy()).all() or (adjusted and frame.le(0).any().any()):
         raise RuntimeError(f"Invalid close data for {symbols}.")
+    if expected_sessions is not None:
+        validate_etf_sessions(frame, expected_sessions)
 
 
-def yahoo_closes(symbols, start, end, *, adjusted):
+def exchange_schedule(start, end):
+    if start.year < 2003 or end.year > 2025:
+        raise ValueError("The NYSE closure calendar covers 2003 through 2025.")
+    calendar_end = end + pd.offsets.MonthEnd(0)
+    holidays = NYSEHolidays().holidays(start, calendar_end)
+    scheduled = pd.bdate_range(start, calendar_end).difference(holidays)
+    # A cancelled month-end session cannot cause a signal on an earlier close.
+    month_ends = scheduled[~scheduled.to_period("M").duplicated(keep="last")]
+    sessions = scheduled[scheduled <= end].difference(NYSE_SPECIAL_CLOSURES)
+    return sessions, month_ends.intersection(sessions)
+
+
+def validate_etf_sessions(closes, sessions):
+    missing = sessions.difference(closes.index)
+    unexpected = closes.index.difference(sessions)
+    if len(missing) or len(unexpected):
+        raise RuntimeError(
+            f"ETF dates differ from the NYSE calendar. Missing ({len(missing)}): "
+            f"{missing.strftime('%Y-%m-%d')[:5].tolist()}; unexpected ({len(unexpected)}): "
+            f"{unexpected.strftime('%Y-%m-%d')[:5].tolist()}."
+        )
+
+
+def yahoo_closes(symbols, start, end, *, adjusted, expected_sessions=None):
     def fetch():
         raw = yf.download(
             list(symbols), start=start.date().isoformat(),
@@ -131,14 +172,14 @@ def yahoo_closes(symbols, start, end, *, adjusted):
         if raw is None or raw.empty:
             raise RuntimeError(f"Yahoo Finance returned an empty download for {symbols}.")
         closes = raw["Close"].reindex(columns=symbols).dropna(how="all")
-        validate_quotes(closes, symbols, start, end, adjusted=adjusted)
+        validate_quotes(closes, symbols, start, end, adjusted=adjusted, expected_sessions=expected_sessions)
         return closes
 
     ticker_key = "_".join(symbol.replace("^", "index_") for symbol in symbols)
     basis = "adjusted" if adjusted else "raw"
     key = f"yahoo_{basis}_{ticker_key}_{start.date()}_{end.date()}"
     closes, fetched_at = cached_frame(key, fetch)
-    validate_quotes(closes, symbols, start, end, adjusted=adjusted)
+    validate_quotes(closes, symbols, start, end, adjusted=adjusted, expected_sessions=expected_sessions)
     return closes, fetched_at
 
 
@@ -183,8 +224,9 @@ def build_market(closes, rates, bill_yields, publication_lag):
         index=dates,
     )
     cash_return = annual_cash_rate.shift(1) * intervals / 365.25
-    bill_discount = pd.Series(last_available(bill_yields, dates) / 100, index=dates)
-    bill_price = 1 - bill_discount.shift(1) * 91 / 360
+    # Use a quote dated before the ETF close that starts each return interval.
+    bill_discount = pd.Series(last_available(bill_yields, dates[:-2]) / 100, index=dates[2:])
+    bill_price = 1 - bill_discount * 91 / 360
     bill_return = np.expm1(-np.log(bill_price) * intervals / 91)
     return closes.pct_change(fill_method=None), annual_cash_rate, cash_return, bill_return
 
@@ -213,12 +255,11 @@ def target_weights(window, cash_rate, grid, rules):
     return np.append(etf_weights, cash_weight)
 
 
-def closing_targets(etf_returns, annual_cash_rate, start, execution_lag, rules):
+def closing_targets(etf_returns, annual_cash_rate, month_ends, start, execution_lag, rules):
     grid = simplex_grid(etf_returns.shape[1], rules.grid_divisions)
     dates = etf_returns.index
-    months = dates.to_period("M")
     targets = {}
-    for row in np.flatnonzero(months[:-1] != months[1:]):
+    for row in np.flatnonzero(dates.isin(month_ends)):
         execution_row = row + execution_lag
         if execution_row >= len(dates) or dates[execution_row] < start:
             continue
@@ -230,40 +271,60 @@ def closing_targets(etf_returns, annual_cash_rate, start, execution_lag, rules):
     return targets
 
 
-def simulate(etf_returns, cash_return, bill_return, start, targets, friction):
-    returns = etf_returns.loc[start:].assign(cash=cash_return)
-    gross_factors = 1 + returns.to_numpy()
-    if not np.isfinite(gross_factors).all() or (gross_factors <= 0).any():
-        raise RuntimeError("Missing or invalid return in the evaluation period.")
-    positions = np.zeros(returns.shape[1])
-    positions[-1] = 1.0
-    net_returns = np.empty(len(returns))
-    turnover = np.zeros(len(returns))
-    n_trades = np.zeros(len(returns), dtype=int)
-    for row, (date, factors) in enumerate(zip(returns.index, gross_factors)):
-        grown = positions * factors
-        gross = grown.sum()
-        positions = grown / gross
+def size_trade(positions, previous_closes, previous_value, target, cash_buffer):
+    target_values = previous_value * target[:-1]
+    etf_value = target_values.sum()
+    etf_limit = previous_value * (1 - cash_buffer)
+    if etf_value > etf_limit:
+        target_values *= etf_limit / etf_value
+    return target_values / previous_closes - positions
+
+
+def simulate(closes, cash_return, bill_return, start, targets, friction, cash_buffer):
+    start_row = closes.index.searchsorted(start)
+    if not 0 < start_row < len(closes):
+        raise ValueError("The evaluation period requires a prior close and at least one session.")
+    dates = closes.index[start_row:]
+    prices = closes.to_numpy()
+    cash_factors = 1 + cash_return.reindex(dates).to_numpy()
+    bill_returns = bill_return.reindex(dates)
+    if (not np.isfinite(cash_factors).all() or (cash_factors <= 0).any()
+            or not np.isfinite(bill_returns).all()):
+        raise RuntimeError("Missing or invalid cash proxy return in the evaluation period.")
+
+    positions = np.zeros(closes.shape[1])
+    cash = previous_value = 1.0
+    net_returns = np.empty(len(dates))
+    turnover = np.zeros(len(dates))
+    n_trades = np.zeros(len(dates), dtype=int)
+    for row, date in enumerate(dates):
         target = targets.get(date)
+        trade_units = None
         if target is not None:
-            before = positions[:-1]
-            target_etfs = target[:-1]
-            # Solve for the value left after paying both charges on actual ETF fills.
-            remaining = 1.0
-            if friction > 0:
-                remaining = brentq(
-                    lambda value: value + friction * np.abs(value * target_etfs - before).sum() - 1,
-                    0, 1, xtol=1e-14,
-                )
-            traded = np.abs(remaining * target_etfs - before)
-            turnover[row] = traded.sum()
-            n_trades[row] = np.count_nonzero(traded > 1e-10)
-            gross *= remaining
-            positions = target
-        net_returns[row] = gross - 1
+            trade_units = size_trade(positions, prices[start_row + row - 1], previous_value,
+                                     target, cash_buffer)
+
+        cash *= cash_factors[row]
+        fill_prices = prices[start_row + row]
+        before_trade = cash + positions @ fill_prices
+        value = before_trade
+        if trade_units is not None:
+            trade_values = trade_units * fill_prices
+            traded = np.abs(trade_values).sum()
+            fees = friction * traded
+            cash_after_fill = cash - trade_values.sum() - fees
+            if cash_after_fill < 0:
+                raise RuntimeError(f"Fixed quantities exceed available cash on {date.date()} after costs.")
+            cash = cash_after_fill
+            positions += trade_units
+            value = before_trade - fees
+            turnover[row] = traded / before_trade
+            n_trades[row] = np.count_nonzero(trade_units)
+        net_returns[row] = value / previous_value - 1
+        previous_value = value
     return pd.DataFrame(
-        {"return": net_returns, "bill_return": bill_return.reindex(returns.index),
-         "turnover": turnover, "n_trades": n_trades}, index=returns.index,
+        {"return": net_returns, "bill_return": bill_returns,
+         "turnover": turnover, "n_trades": n_trades}, index=dates,
     )
 
 
@@ -309,8 +370,12 @@ def main():
         raise ValueError("The rate conversions use ^IRX and the DFF series.")
     lag = config["execution_lag_sessions"]
     publication_lag = config["fred_lag_calendar_days"]
+    cash_buffer = config["cash_buffer_fraction"]
     if type(lag) is not int or lag < 1 or type(publication_lag) is not int or publication_lag < 0:
         raise ValueError("Execution lag must be at least one session and FRED lag must be nonnegative.")
+    if not 0 < cash_buffer < 1:
+        raise ValueError("cash_buffer_fraction must be strictly between zero and one.")
+    sessions, month_ends = exchange_schedule(data_start, end)
     rules = Rules(**config["model"])
     seen = {rules}
     cases = {}
@@ -324,40 +389,41 @@ def main():
     bill_ticker = config["excess_rate_ticker"]
     with TemporaryDirectory(prefix="yfinance_", dir=CACHE_DIR) as source_cache:
         yf.set_tz_cache_location(source_cache)
-        closes, price_time = yahoo_closes(universe, data_start, end, adjusted=True)
+        closes, price_time = yahoo_closes(universe, data_start, end, adjusted=True, expected_sessions=sessions)
         bill_quotes, bill_time = yahoo_closes([bill_ticker], data_start, end, adjusted=False)
     fred_start = data_start - pd.Timedelta(days=publication_lag + 7)
     rates, rate_time = fred_rates(config["fred_series"], fred_start, end)
     print(f"DATA_FETCHED_AT: {max(price_time, bill_time, rate_time).isoformat()}")
     print(f"PRICE_ADJUSTMENT: {PRICE_ADJUSTMENT}")
 
-    market = build_market(closes.loc[:split], rates.loc[:split], bill_quotes.loc[:split, bill_ticker], publication_lag)
+    is_closes = closes.loc[:split]
+    market = build_market(is_closes, rates.loc[:split], bill_quotes.loc[:split, bill_ticker], publication_lag)
     etf_returns, annual_cash_rate, cash_return, bill_return = market
     print("ROBUSTNESS (IS only, fixed alternatives):", flush=True)
     for label, variant in cases.items():
-        targets = closing_targets(etf_returns, annual_cash_rate, start, lag, variant)
-        daily_results = simulate(etf_returns, cash_return, bill_return, start, targets, variant.friction)
+        targets = closing_targets(etf_returns, annual_cash_rate, month_ends, start, lag, variant)
+        daily_results = simulate(is_closes, cash_return, bill_return, start, targets, variant.friction, cash_buffer)
         print_json(f"ROBUSTNESS {label}", metrics(daily_results))
     print(f"PARAM_COMBOS_TRIED: {1 + len(cases)}", flush=True)
 
     market = build_market(closes, rates, bill_quotes[bill_ticker], publication_lag)
     etf_returns, annual_cash_rate, cash_return, bill_return = market
-    targets = closing_targets(etf_returns, annual_cash_rate, start, lag, rules)
-    if not targets:
-        raise ValueError("The backtest requires at least one scheduled rebalance.")
-    official = simulate(etf_returns, cash_return, bill_return, start, targets, rules.friction)
+    targets = closing_targets(etf_returns, annual_cash_rate, month_ends, start, lag, rules)
+    full_results = simulate(closes, cash_return, bill_return, start, targets, rules.friction, cash_buffer)
     benchmark_target = np.zeros(len(universe) + 1)
     benchmark_target[universe.index(config["benchmark"])] = 1.0
-    benchmark = simulate(etf_returns, cash_return, bill_return, start,
-                         {min(targets): benchmark_target}, rules.friction)
+    benchmark_entry = min(targets, default=full_results.index[0])
+    benchmark = simulate(closes, cash_return, bill_return, start,
+                         {benchmark_entry: benchmark_target}, rules.friction, cash_buffer)
 
     results = {
         "strategy": config["strategy"],
-        "data_range": {"start": official.index[0].date().isoformat(),
-                       "end": official.index[-1].date().isoformat()},
+        "data_range": {"start": full_results.index[0].date().isoformat(),
+                       "end": full_results.index[-1].date().isoformat()},
     }
-    for period, selected in (("is", official.index <= split), ("oos", official.index > split), ("full", slice(None))):
-        results[period] = metrics(official.loc[selected])
+    for period, selected in (("is", full_results.index <= split),
+                             ("oos", full_results.index > split), ("full", slice(None))):
+        results[period] = metrics(full_results.loc[selected])
         benchmark_metrics = metrics(benchmark.loc[selected])
         print_json(period.upper(), results[period])
         print_json(f"BENCHMARK_{period.upper()}", benchmark_metrics)
@@ -366,5 +432,5 @@ def main():
 
 
 if __name__ == "__main__":
-    signal.alarm(840)
+    signal.alarm(540)
     main()

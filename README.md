@@ -4,7 +4,7 @@
 
 每个策略一个文件：`strategies/<编号>_<名称>.py`，一条命令运行：`python strategies/<文件>.py`（依赖见 requirements.txt）。文件头写明数据源与抓取时间、样本期、IS/OOS 划分、成本与滑点、信号滞后、复权口径、幸存者偏差说明、尝试的参数组合数，以及在记录的 commit 上实际运行得到的关键数字（backtest reproduced）。收录条件：真实运行、确有交易、无同收盘成交前视、Codex 自审 PASS（进入本仓库前的审查为作者自审，不是独立第三方审查）、单文件复跑与审查时结果一致。
 
-本表由文件实际内容生成（2026-11-27 09:48 Europe/Oslo），共 113 个。
+本表由文件实际内容生成（2026-11-27 10:05 Europe/Oslo），共 131 个。
 
 | 文件 | 作者 | 代码 commit | 全样本 Sharpe | 全样本 CAGR |
 |---|---|---|---|---|
@@ -66,7 +66,6 @@
 | strategies/350_continuous_timing_growth_defensive.py | Codex | 9102661980 | 0.9164034821773692 | 0.1728115110163706 |
 | strategies/353_hold_the_dip.py | Codex | 92e75bea82 | 0.6959605518103854 | 0.09267657072001478 |
 | strategies/354_strategy.py | Codex | 92e75bea82 | 0.17788436987988948 | 0.011436229915955831 |
-| strategies/382_statistical_arbitrage_in_polish_equities.py | Codex | 4d91396b47 | 0.497781741038713 | 0.02277320791556292 |
 | strategies/391_evolutionary_factor_searching_for_sparse.py | Codex | 4d91396b47 | 0.9944754757893223 | 0.28389911046975636 |
 | strategies/395_signature_based_optimal_execution_for_st.py | Codex | 4d91396b47 | -0.9234169888488118 | -0.04284485041633779 |
 | strategies/400_noxtrader_lstm_based_stock_return_moment.py | Codex | 4d91396b47 | -0.4419440960750732 | -0.1977945613653347 |
@@ -112,15 +111,34 @@
 | strategies/494_wasserstein_penalisation_as_an_endogenou.py | Codex | d2f4ee0104 | 0.7830114386936448 | 0.11369232235830018 |
 | strategies/497_interpretable_allocation_and_model_predi.py | Codex | fb92b5054b | 0.7253889960565298 | 0.10901374322318902 |
 | strategies/500_dynamic_portfolio_optimization_under_cva.py | Codex | fb92b5054b | 0.6303740440989759 | 0.05259934464748861 |
+| strategies/501_nested_clustered_optimization_is_one_end.py | Codex | c0a8f76240 | 0.8077256474256108 | 0.10648470363991147 |
+| strategies/503_risk_limited_asset_allocation_with_a_bud.py | Codex | c0a8f76240 | 0.6782680478935853 | 0.04265460107331043 |
+| strategies/504_exploratory_mean_variance_with_jumps_an.py | Codex | c0a8f76240 | 0.7313560918668917 | 0.0577269584969442 |
+| strategies/505_competitive_optimal_portfolio_selection.py | Codex | c0a8f76240 | 0.614065024335774 | 0.11054555088167772 |
+| strategies/509_beyond_de_prado_and_cotton_hierarchical.py | Codex | c0a8f76240 | 0.6598951698440824 | 0.0768750113187544 |
+| strategies/510_some_general_results_on_risk_budgeting_p.py | Codex | c0a8f76240 | 0.8601594147187103 | 0.05734374554454669 |
+| strategies/511_dynamic_portfolio_optimization_under_cva.py | Codex | c0a8f76240 | 0.6749539544689964 | 0.05442570415963144 |
+| strategies/512_nested_clustered_optimization_is_one_end.py | Codex | c0a8f76240 | 0.8091637086121385 | 0.10669591931434075 |
+| strategies/514_risk_limited_asset_allocation_with_a_bud.py | Codex | c0a8f76240 | 0.6619958322659767 | 0.05526769010108934 |
+| strategies/520_beyond_de_prado_and_cotton_hierarchical.py | Codex | c0a8f76240 | 0.47347908035315567 | 0.06190884731718049 |
+| strategies/528_schur_complementary_allocation_a_unifica.py | Codex | c0a8f76240 | 0.6585321868790476 | 0.05682172657689066 |
 | strategies/532_robust_enhanced_index_tracking_portfolio.py | Codex | fb92b5054b | 1.2747285536143536 | 0.24265350953695464 |
 | strategies/533_special_markowitz_thermodynamic_formalis.py | Codex | 69a306c028 | 0.7957125987456758 | 0.13224764257513222 |
 | strategies/534_portfolio_diversification_and_concentrat.py | Codex | 69a306c028 | 0.9303126607942586 | 0.08857673016005974 |
 | strategies/535_shrinkage_estimators_for_mean_and_covari.py | Codex | 69a306c028 | 0.7527550631832428 | 0.09883262293956352 |
+| strategies/537_hierarchical_minimum_variance_portfolios.py | Codex | c0a8f76240 | 0.7736712410276406 | 0.10022054842146422 |
+| strategies/538_mirror_descent_algorithms_for_risk_budge.py | Codex | c0a8f76240 | 1.083508532021487 | 0.10174053575989217 |
+| strategies/539_schur_complementary_allocation_a_unifica.py | Codex | c0a8f76240 | 0.7901301040462668 | 0.06636748316598862 |
 | strategies/541_entropy_regularization_under_no_shorting.py | Codex | 69a306c028 | 0.8748093514371832 | 0.11185319061228483 |
 | strategies/543_robust_enhanced_index_tracking_portfolio.py | Codex | 69a306c028 | 1.2722546674515127 | 0.24111211900700025 |
 | strategies/544_special_markowitz_thermodynamic_formalis.py | Codex | 69a306c028 | 0.7655751549111515 | 0.12780438677057213 |
+| strategies/545_portfolio_diversification_and_concentrat.py | Codex | c0a8f76240 | 0.9363853492044876 | 0.08921037236855245 |
+| strategies/546_generalizing_markowitz_portfolio_optimiz.py | Codex | c0a8f76240 | 0.8173310175967543 | 0.1594582638016564 |
 | strategies/547_generalizing_markowitz_portfolio_optimiz.py | Codex | 69a306c028 | 0.8098453527505234 | 0.14855204484709716 |
+| strategies/548_entropic_value_at_risk_portfolio_optimiz.py | Codex | c0a8f76240 | 0.6063853148546147 | 0.08094266383947574 |
+| strategies/549_drawdown_risk_beyond_brownian_motion_a_m.py | Codex | c0a8f76240 | 0.6447550919964501 | 0.0824248306657227 |
 | strategies/552_a_novel_robust_mixed_integer_linear_prog.py | Codex | 69a306c028 | 0.8731421056414895 | 0.16873135286990282 |
+| strategies/553_large_scale_portfolio_optimization_probl.py | Codex | c0a8f76240 | 0.9850917986496949 | 0.28482755210992283 |
 
 ## 已收录后的深审发现
 
@@ -128,5 +146,6 @@
 
 | 文件 | 最新自审 | 问题类别 |
 |---|---|---|
+| strategies/382_statistical_arbitrage_in_polish_equities.py | 待修 | 成交日最终收盘价参与确定开仓股数; 股票池以事后可用数据构造，样本外仍继承筛选偏差 |
 | strategies/438_the_mathematics_of_heuristic_portfolio_o.py | 待修 | 成交规模依赖成交日最终收盘价 |
 | strategies/463_simple_dynamic_stock_bond_gold_portfolio.py | 待修 | 成交金额依赖成交当日最终收盘 |

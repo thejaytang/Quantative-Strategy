@@ -1,3 +1,23 @@
+"""505_competitive_optimal_portfolio_selection
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/505_competitive_optimal_portfolio_selection.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit c0a8f76240a0431b019ab49c34040a95a765860a on 2026-11-27 10:03 Europe/Oslo, exit 0, output sha256 796a432a68a7aaa47eb9ca36b8c4d6d56e51f9a0fc80fee39265cbdaefa375b2
+Data source: Yahoo Finance via yfinance, daily adjusted ETF closes for XLB, XLE, XLF, XLI, XLK, XLP, XLU, XLV and XLY, plus SPY as benchmark and peer proxy and BIL as the cash and risk-free proxy.
+Data fetched: 2026-11-27T09:03:59+00:00
+Sample period: Scored sessions from 2008-01-02 through 2025-12-31, inclusive. The price request starts on 2006-07-01 for warm-up.   data_range (from output): {'start': '2008-01-02', 'end': '2025-12-31'}
+IS/OOS split: IS covers 2008-01-02 through 2017-12-29. OOS covers 2018-01-02 through 2025-12-31. The cutoff is 2018-01-01. The official strategy is simulated continuously across the split with fixed parameters and rolling estimates. The six sensitivity variants use only IS data and are reported for IS only.
+Costs and slippage: The official backtest models 5 bp in transaction costs plus 3 bp in fixed slippage on each buy and sell, for a total of 8 bp of executed value. At the fill close, the simulator solves for the fee deduction and scales the target holdings by capital remaining after fees. Fees reduce that day's portfolio value. The SPY benchmark pays the same rate at its initial purchase. One IS sensitivity uses 10 bp in costs plus 6 bp in slippage.
+Signal lag: The monthly signal uses close-to-close returns through the final trading session of the prior month and fills at the next session's close under the configured one-session lag. Existing holdings or the BIL cash proxy earn the return into the fill close. The new weights first earn market returns over the following close-to-close interval.
+Price adjustment: yfinance auto_adjust total-return closes (dividends and splits)
+Survivorship bias: The portfolio universe is a fixed list of nine long-lived sector ETFs selected for complete historical coverage. The README identifies survivorship bias and notes that later-launched real estate and communication services sector ETFs are excluded.
+Parameter combinations tried: 7
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.0706042750232514, ann_vol=0.1968608675019537, sharpe=0.4453213722253977, sharpe_excess=0.4321246655551902, max_drawdown=-0.48207127695314445, total_return=0.9772181193717167, turnover=61.993901394323395, n_trades=507
+    oos: cagr=0.1626640632110552, ann_vol=0.2151358307037739, sharpe=0.8086612143909738, sharpe_excess=0.695652992726271, max_drawdown=-0.31793193132259945, total_return=2.3291648229401107, turnover=33.6657827217435, n_trades=382
+    full: cagr=0.11054555088167772, ann_vol=0.2051711438331366, sharpe=0.614065024335774, sharpe_excess=0.5542192702963923, max_drawdown=-0.48207127695314445, total_return=5.582485010292103, turnover=95.6596841160669, n_trades=889
+    benchmark SPY full: cagr=0.11044150416739562, ann_vol=0.19950130355872123, sharpe=0.6250091587557874, sharpe_excess=0.5629270878166472, max_drawdown=-0.5187376000277399, total_return=5.571410146429693, turnover=0.9992006394884093, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

@@ -1,3 +1,23 @@
+"""538_mirror_descent_algorithms_for_risk_budge
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/538_mirror_descent_algorithms_for_risk_budge.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit c0a8f76240a0431b019ab49c34040a95a765860a on 2026-11-27 10:04 Europe/Oslo, exit 0, output sha256 425598b99088a568c1a5c52467ee1e986128f907bf85369589e49882a4876fcd
+Data source: Yahoo Finance (yfinance) daily adjusted ETF closes for SPY, QQQ, TLT and GLD. BIL is also fetched, and its realized daily return is used for excess Sharpe reporting only. The loader uses a matching price cache if present and otherwise downloads the data. The run records the source as 'yfinance download' and the original fetch timestamp as 2026-11-27T08:18:30+00:00.
+Data fetched: 2026-11-27T09:04:29+00:00
+Sample period: Configured price window 2007-06-01 through 2025-12-31, with pre-backtest data used for rolling-window warm-up. Logged backtest sessions span 2009-01-02 through 2025-12-31.   data_range (from output): {'start': '2009-01-02', 'end': '2025-12-31'}
+IS/OOS split: IS 2009-01-02 through 2018-12-31 inclusive. OOS 2019-01-02 through 2025-12-31. The main specification is simulated continuously across the cutoff and the resulting daily series is split for reporting. The three robustness alternatives run only on IS data.
+Costs and slippage: Base friction is 2 bps transaction cost plus 3 bps modeled fixed slippage, totaling 5 bps on the absolute dollar amount of each buy and sell at each rebalance, including the initial purchase. The simulator marks the existing holdings to the execution close and solves for the post-cost portfolio value using the absolute differences between the resulting target dollar holdings and the marked holdings. It debits the friction on the execution date. The IS higher-friction case uses 6 bps cost plus 9 bps slippage.
+Signal lag: The target uses daily returns through the final trading session of the month, close t. The configured one-session lag fills at the next trading session's close. The old holdings receive the execution day's close-to-close return, friction is booked at execution, and the new weights receive returns starting with the following close-to-close interval.
+Price adjustment: yfinance auto_adjust=True, total-return daily closes
+Survivorship bias: The universe is a fixed, retrospectively selected list of SPY, QQQ, TLT and GLD. The README identifies selection and survivorship bias and states that funds that had exited and alternatives available at the time were excluded.
+Parameter combinations tried: 4
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.09001801391864306, ann_vol=0.07845001447984494, sharpe=1.138121201968981, sharpe_excess=1.1053160131472926, max_drawdown=-0.11006413957676786, total_return=1.3645176888616115, turnover=5.305555076437441, n_trades=480
+    oos: cagr=0.11871767823210821, ann_vol=0.11150219557860876, sharpe=1.062058193988751, sharpe_excess=0.835364842407527, max_drawdown=-0.24830268087345975, total_return=1.1891230075505805, turnover=2.9548176864135147, n_trades=336
+    full: cagr=0.10174053575989217, ann_vol=0.09347233457236347, sharpe=1.083508532021487, sharpe_excess=0.9563839976796435, max_drawdown=-0.24830268087346075, total_return=4.176220074447265, turnover=8.260372762850956, n_trades=816
+    benchmark  full: cagr=0.12040915777659045, ann_vol=0.10492450140736359, sharpe=1.1362798381054147, sharpe_excess=1.0226001170070418, max_drawdown=-0.25513828583784337, total_return=5.883915581486703, turnover=6.878530547059312, n_trades=816
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

@@ -1,3 +1,23 @@
+"""539_schur_complementary_allocation_a_unifica
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/539_schur_complementary_allocation_a_unifica.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit c0a8f76240a0431b019ab49c34040a95a765860a on 2026-11-27 10:04 Europe/Oslo, exit 0, output sha256 fad5bba1fe0650074f770ca83e091d3d9ac4982f8a9ef373e62b7cefe284851b
+Data source: Yahoo Finance daily USD adjusted closing prices via yfinance for SPY, TLT, GLD, VNQ and DBC. BIL is the risk-free proxy used for ex-post excess-return metrics. The CSV cache retains the original download timestamp, logged as 2026-11-27T08:17:33+00:00 for this run.
+Data fetched: 2026-11-27T09:04:37+00:00
+Sample period: The requested price history runs from 2009-01-01 through 2025-12-31, including warm-up. The backtest covers 2011-01-03 through 2025-12-31, inclusive, using the first and last evaluated trading sessions.   data_range (from output): {'start': '2011-01-03', 'end': '2025-12-31'}
+IS/OOS split: Chronological split. IS is 2011-01-03 through 2018-12-31 and OOS is 2019-01-02 through 2025-12-31, inclusive. The default strategy runs continuously across the split. The five sensitivity variants use only price rows through the IS cutoff and are evaluated only in IS.
+Costs and slippage: The default strategy and equal-weight benchmark charge 2 bps commission plus 3 bps modelled slippage, for 5 bps per dollar bought or sold, including initial entry. The simulator solves for the fee on each rebalance using the sum of absolute trades from drifted holdings to the after-fee target and deducts it from equity at that close. The ending portfolio is marked to market. The IS double-friction variant charges 4 bps commission plus 6 bps slippage.
+Signal lag: The signal uses daily returns through the last trading session's close in each month. The configured fill is at the next trading session's close. Existing weights receive the fill day's close-to-close return before the new weights are applied.
+Price adjustment: yfinance auto_adjust total-return close (splits and distributions)
+Survivorship bias: The fixed ETF universe was selected retrospectively from funds with long available histories. The README discloses survivorship and hindsight selection bias.
+Parameter combinations tried: 6
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.054328853646103736, ann_vol=0.06851935234651858, sharpe=0.8064698009569631, sharpe_excess=0.7670714047858982, max_drawdown=-0.11275027785745961, total_return=0.5256117879089592, turnover=1.0249390647074772, n_trades=453
+    oos: cagr=0.08029830943484217, ann_vol=0.10245097923998639, sharpe=0.8053075896210831, sharpe_excess=0.5583153322880957, max_drawdown=-0.20836135266000444, total_return=0.7150367698031854, turnover=1.0829350740837453, n_trades=407
+    full: cagr=0.06636748316598862, ann_vol=0.08602577117757094, sharpe=0.7901301040462668, sharpe_excess=0.636143471931454, max_drawdown=-0.2083613526600051, total_return=1.6164803127090392, turnover=1.0519997689763614, n_trades=860
+    benchmark  full: cagr=0.06899007941273982, ann_vol=0.09755671836785411, sharpe=0.7328217598069419, sharpe_excess=0.5967059974334596, max_drawdown=-0.20960059384440122, total_return=1.7144717312237256, turnover=0.4152100666008557, n_trades=900
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

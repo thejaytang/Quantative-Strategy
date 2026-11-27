@@ -1,3 +1,23 @@
+"""548_entropic_value_at_risk_portfolio_optimiz
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/548_entropic_value_at_risk_portfolio_optimiz.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit c0a8f76240a0431b019ab49c34040a95a765860a on 2026-11-27 10:04 Europe/Oslo, exit 0, output sha256 7a8a8cf1fff887763fa8edf88eb4577c63a7c56e5f6e5d3ad768708f9c6b2140
+Data source: Public Yahoo Finance daily data via yfinance. Select Sector SPDR ETF closes for XLB, XLC, XLE, XLF, XLI, XLK, XLP, XLRE, XLU, XLV and XLY, plus the ^IRX 91-day T-bill discount quote for excess-return evaluation.
+Data fetched: 2026-11-27T09:04:49+00:00
+Sample period: Price request starts 1998-12-22 for warm-up. The logged evaluation runs 2001-07-02 through 2026-03-31 inclusive.   data_range (from output): {'start': '2001-07-02', 'end': '2026-03-31'}
+IS/OOS split: IS is 2001-07-02 through 2014-12-31 inclusive. OOS starts on the first trading session of 2015 and ends 2026-03-31. The retrospective split slices one continuous default simulation, carrying IS closing weights into OOS. Alternative specifications are evaluated in IS only.
+Costs and slippage: Default costs are 5 bps plus 2 bps of modeled slippage per dollar bought or sold, including initial entry. The simulator deducts the combined rate at the execution close on actual ETF trade notional, solving for post-cost portfolio value so the target weights are fully funded. The monthly equal-weight benchmark uses the same default costs. The IS stress case uses 20 bps plus 5 bps of slippage per side.
+Signal lag: The signal uses the return window through the final trading session's close in each month. It fills at the next trading session's close under the configured one-session lag. Pre-rebalance holdings earn the fill day's close-to-close return. The target weights earn returns starting with the following close-to-close interval.
+Price adjustment: yfinance auto_adjust=True total-return close (sector ETFs)
+Survivorship bias: The fixed list uses currently surviving sector ETFs, so survivorship bias is possible. XLRE and XLC have later first-close dates and qualify only after a complete finite return window. Sector classifications, fund exposures and index rules can vary over time.
+Parameter combinations tried: 6
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.07872060721614993, ann_vol=0.1471814076304864, sharpe=0.58852061141004, sharpe_excess=0.4900005267040017, max_drawdown=-0.3675921076457643, total_return=1.776435697424448, turnover=0.8027505007565849, n_trades=530
+    oos: cagr=0.08361801410340688, ann_vol=0.14451492317013548, sharpe=0.6281899936190294, sharpe_excess=0.4872299248565395, max_drawdown=-0.2925093363128783, total_return=1.4617857315413356, turnover=0.9417729379877461, n_trades=430
+    full: cagr=0.08094266383947574, ann_vol=0.14596447453754782, sharpe=0.6063853148546147, sharpe_excess=0.4887732554485077, max_drawdown=-0.3675921076457643, total_return=5.834989784461553, turnover=0.8659059611539003, n_trades=960
+    benchmark  full: cagr=0.09065407478578284, ann_vol=0.1819581388634223, sharpe=0.5681821752030523, sharpe_excess=0.47384834939293247, max_drawdown=-0.5329383239019848, total_return=7.524328475874429, turnover=0.19509046115916592, n_trades=2843
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

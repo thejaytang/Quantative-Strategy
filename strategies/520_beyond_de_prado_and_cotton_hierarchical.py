@@ -1,3 +1,23 @@
+"""520_beyond_de_prado_and_cotton_hierarchical
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/520_beyond_de_prado_and_cotton_hierarchical.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit c0a8f76240a0431b019ab49c34040a95a765860a on 2026-11-27 10:04 Europe/Oslo, exit 0, output sha256 1453686dd9dd6cce71fb6fbf6f73b427a408e14cf15656b4cae2f3acb01f2a40
+Data source: Free Yahoo Finance daily ETF prices via yfinance. The portfolio universe is SPY, IWM, EFA, EEM, IEF, TLT, LQD, GLD and VNQ. BIL is used only to calculate excess Sharpe.
+Data fetched: 2026-11-27T09:04:21+00:00
+Sample period: Daily price history covers 2007-07-02 through 2025-12-31, inclusive. The reported backtest covers 2009-01-02 through 2025-12-31, inclusive, with earlier prices used for warm-up.   data_range (from output): {'start': '2009-01-02', 'end': '2025-12-31'}
+IS/OOS split: IS runs from 2009-01-02 through 2017-12-29 and OOS from 2018-01-02 through 2025-12-31, inclusive. The base portfolio carries across the split in a single simulation. The five robustness alternatives are evaluated only in IS.
+Costs and slippage: The base simulation models 2 bps of costs and 3 bps of slippage, charged together as 5 bps on the sum of absolute buy and sell notionals at each simulated rebalance. The target positions are sized from portfolio value after the charge. The IS double-friction case uses 4 bps of costs and 6 bps of slippage.
+Signal lag: The signal uses returns through the close of the first trading session of each month. The portfolio rebalances at the next trading session's close. The previous weights earn the execution session's price return and the new weights earn subsequent returns.
+Price adjustment: yfinance auto_adjust=True adjusted close, total-return basis
+Survivorship bias: The fixed ETF universe was selected retrospectively from funds with available history. The README identifies survivorship and universe-selection bias and limits the sample to the period when all selected funds were listed.
+Parameter combinations tried: 6
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.041991378791490064, ann_vol=0.13814432962537698, sharpe=0.36697130810512885, sharpe_excess=0.3614554862222984, max_drawdown=-0.2221218992026559, total_return=0.4473196661259078, turnover=7.4612041473300055, n_trades=365
+    oos: cagr=0.08479824910151224, ann_vol=0.1642834280787908, sharpe=0.5777416049005035, sharpe_excess=0.43003759547364145, max_drawdown=-0.29683164684474495, total_return=0.9146545842311999, turnover=6.514398049227425, n_trades=238
+    full: cagr=0.06190884731718049, ann_vol=0.15099056518713563, sharpe=0.47347908035315567, sharpe_excess=0.39523829803961935, max_drawdown=-0.2968316468447435, total_return=1.7711172335959486, turnover=7.015921859377645, n_trades=603
+    benchmark  full: cagr=0.08285475123531283, ann_vol=0.11246669074229798, sharpe=0.7641819614234835, sharpe_excess=0.6583869890245843, max_drawdown=-0.25060638958702186, total_return=2.8600776610409406, turnover=0.375965469158428, n_trades=1836
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

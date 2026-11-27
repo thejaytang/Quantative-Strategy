@@ -1,3 +1,23 @@
+"""511_dynamic_portfolio_optimization_under_cva
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/511_dynamic_portfolio_optimization_under_cva.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit c0a8f76240a0431b019ab49c34040a95a765860a on 2026-11-27 10:04 Europe/Oslo, exit 0, output sha256 80485668f0bb2a3c816df6b93fc34b873fa018bb96e996667ac7f94c03407bda
+Data source: Public yfinance daily adjusted closes for SPY and BIL, read from a local price snapshot when valid and downloaded from yfinance otherwise. BIL also supplies the cash-proxy return.
+Data fetched: 2026-11-27T09:04:12+00:00
+Sample period: Requested price warmup starts 2007-10-01. The recorded evaluation runs from 2009-01-02 through 2025-12-31 on common trading sessions.   data_range (from output): {'start': '2009-01-02', 'end': '2025-12-31'}
+IS/OOS split: IS includes sessions through 2017-12-31. OOS includes sessions after that date through 2025-12-31. The official simulation runs continuously across the split and carries forward portfolio state. The five alternative settings are evaluated on IS prices only.
+Costs and slippage: The default charges 2 bps in fees and models slippage as a fixed 3 bps charge per ETF buy or sell leg. The combined 5 bps is applied to each leg's absolute traded notional, with trade sizing solved net of the charge. This includes the initial BIL allocation and the benchmark's initial SPY purchase.
+Signal lag: A signal computed at the first common session's close each month fills at the next common session's close. The existing weights earn the fill day's close-to-close return, and the new weights earn returns starting with the following close-to-close interval. The inception-close BIL allocation is fixed in advance.
+Price adjustment: yfinance auto_adjust=True, adjusted Close with distributions and splits
+Survivorship bias: The fixed SPY/BIL universe avoids backfilling historical stock membership with today's constituent list. The two surviving ETFs were selected retrospectively, so ETF selection and survivorship bias remain.
+Parameter combinations tried: 6
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.05565306803976333, ann_vol=0.08121606191022353, sharpe=0.7076397706412602, sharpe_excess=0.6989994426926684, max_drawdown=-0.13889481209004317, total_return=0.6271274795421922, turnover=2.34785470623866, n_trades=161
+    oos: cagr=0.053049348687101316, ann_vol=0.08678435293894238, sharpe=0.641100242486871, sharpe_excess=0.3613992574433916, max_drawdown=-0.15543789767256655, total_return=0.5125732083219408, turnover=2.8558857873805756, n_trades=148
+    full: cagr=0.05442570415963144, ann_vol=0.08387101148415133, sharpe=0.6749539544689964, sharpe_excess=0.5344194284157883, max_drawdown=-0.15543789767256622, total_return=1.4611494320799219, turnover=2.587178515044679, n_trades=309
+    benchmark  full: cagr=0.1450916912079374, ann_vol=0.17887800435260817, sharpe=0.8483905539629366, sharpe_excess=0.7818750116957577, max_drawdown=-0.33717265401236207, total_return=8.998677147358219, turnover=0.05881423715401845, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

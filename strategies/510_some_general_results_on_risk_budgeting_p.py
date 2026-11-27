@@ -1,3 +1,23 @@
+"""510_some_general_results_on_risk_budgeting_p
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/510_some_general_results_on_risk_budgeting_p.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit c0a8f76240a0431b019ab49c34040a95a765860a on 2026-11-27 10:04 Europe/Oslo, exit 0, output sha256 7181fcb4b6a740c8195e347c77e7a7b4dbe21562a77c4f56ce32f51deab911ad
+Data source: Yahoo Finance 公开 ETF 日线，经 yfinance 下载。组合使用 SPY、IEF、TLT、GLD、DBC。BIL 的同日收益仅用于超额夏普指标。价格及 UTC 获取时间写入本地 CSV 缓存。（config.yaml:2-3；strategy.py:36-72, strategy.py:181-195, strategy.py:227-231；README.md:15-19）
+Data fetched: 2026-11-27T09:04:10+00:00
+Sample period: 请求价格的区间为 2008-06-01 至 2025-12-31，2008-06-01 是预热请求起点。回测的实际首末交易日为 2010-01-04 和 2025-12-31。（config.yaml:4-7；strategy.py:50-53, strategy.py:261；README.md:16；logs/run_20261127_090904.log:12）   data_range (from output): {'start': '2010-01-04', 'end': '2025-12-31'}
+IS/OOS split: 按日历切分。样本内为 2010-01-01 至 2017-12-31，样本外为 2018-01-01 至 2025-12-31，均仅统计实际交易日。主规格在全区间连续模拟后切分，样本外沿用样本内期末持仓并滚动更新目标权重。三组敏感性情景仅在样本内单独运行。README 记载研究设定形成于样本结束后。（config.yaml:5-7；strategy.py:237-265；README.md:16, README.md:23-25）
+Costs and slippage: 主规格按每笔买卖金额扣除成本 5 bps 和滑点 5 bps，共 10 bps，初次建仓也计入。滑点以固定比例扣减净值。调仓前先按旧权重计入截至调仓收盘的收益，随后求解扣费后净值比例 s，使 s = 1 - 0.001 × Σ|s × 目标权重 - 调仓前漂移权重|，买卖金额均取绝对值。等权基准使用相同费率。另有一个仅样本内的情景，将成本和滑点各提高至 10 bps。（config.yaml:11-12, config.yaml:17-20；strategy.py:154-178, strategy.py:211-213, strategy.py:244-258；README.md:18；logs/run_20261127_090904.log:6）
+Signal lag: 在月末最后一个交易日收盘 t，用截至该收盘的 252 个日收益观测值估计协方差并计算目标权重。模拟在下一交易日收盘 t+1 调仓，截至该收盘的收益归旧权重，新权重从 t+1 收盘至随后交易日收盘的区间开始计入收益。（config.yaml:8-10；strategy.py:127-148, strategy.py:154-176；README.md:17）
+Price adjustment: yfinance auto_adjust=True daily Close (total-return proxy)
+Survivorship bias: 组合采用研究时点可见的五只存续 ETF 作为固定资产池。README 明示事后选择与存续偏差。代码全期使用同一配置名单。（config.yaml:2-3；strategy.py:203-207, strategy.py:227-231；README.md:25）
+Parameter combinations tried: 4
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.05709725271906163, ann_vol=0.0564095223643844, sharpe=1.0126612953448149, sharpe_excess=1.002647560335287, max_drawdown=-0.09278747290923206, total_return=0.5582332617678099, turnover=0.5155110303989853, n_trades=480
+    oos: cagr=0.05759054107727701, ann_vol=0.07699782311121518, sharpe=0.7657895538273297, sharpe_excess=0.4502797110448933, max_drawdown=-0.17961906246727832, total_return=0.5633563138872271, turnover=0.4532203105075012, n_trades=480
+    full: cagr=0.05734374554454669, ann_vol=0.06747990657359881, sharpe=0.8601594147187103, sharpe_excess=0.6762576527939329, max_drawdown=-0.179619062467279, total_return=1.4360738082937918, turnover=0.4843811502544091, n_trades=960
+    benchmark: cagr=0.06270011643391538, ann_vol=0.07773252459580901, sharpe=0.8213153075955498, sharpe_excess=0.6615069599649853, max_drawdown=-0.1792651539078055, total_return=1.6407860355044286, turnover=0.38689811789572537, n_trades=960
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

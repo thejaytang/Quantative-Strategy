@@ -7,7 +7,6 @@ Generated 2026-11-27 11:54 Europe/Oslo.
 | File | Latest self-review | Category | Stage note |
 |---|---|---|---|
 | strategies/022_sector_residual_statarb.py | FAIL | 结算数量仍可由当日收盘价决定 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
-| strategies/100_etf_asset_momentum_corr_hedge.py | PASS | see review | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/107_illiquidity_premium_amihud.py | FAIL | 成交数量规则不通过; 股票池存在幸存者和事后选样偏差 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/109_factor_etf_vol_matched.py | FAIL | see review | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/113_kalman_garch_pairs.py | FAIL | see review | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |

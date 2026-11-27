@@ -2,26 +2,26 @@
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; non-author review: PASS; publication gate: Codex.
 Run (one command): python strategies/106_low_ivol_low_max.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit ad594150a0142009ae8f6ffab0995de08b2f8304 on 2026-11-26 13:49 Europe/Oslo, exit 0, output sha256 8c1bc39084f5c56eef55c0b0b3e847e8c042619b3f85450319eceae399b1bd6d
+Backtest reproduced: run of this file's code at commit 10f82382008748cd9ff2f56e2b8ef160caa66e38 on 2026-11-27 11:24 Europe/Oslo, exit 0, output sha256 205eb18d746d9a8f6178f7f020476df6f4d07b229ab512c98ea6255f0f494f39
 Data source: Yahoo Finance daily Open and Close via yfinance for the fixed US24 universe (AAPL, MSFT, AMZN, GOOGL, META, NVDA, JPM, BAC, GS, MS, XOM, CVX, COP, SLB, WMT, COST, PG, KO, PEP, JNJ, PFE, MRK, HD, LOW) and the SPY ETF market proxy. The signal uses SPY Close. The loader uses the local price cache if present.
-Data fetched: 2026-11-26 13:49 Europe/Oslo (run time)
+Data fetched: 2026-11-27T11:24:06+01:00
 Sample period: Price data requested from 2012-06-01 for warmup through 2025-12-31 inclusive. The recorded evaluation covers trading sessions from 2013-01-02 through 2025-12-31.   data_range (from output): 2013-01-02 to 2025-12-31
 IS/OOS split: Chronological inclusive date ranges: IS 2013-01-01 through 2019-12-31 and OOS 2020-01-01 through 2025-12-31. Each portfolio is simulated continuously and its daily results are sliced for reporting, so positions carry across the boundary. The README states that neither interval was used for parameter tuning.
 Costs and slippage: Baseline 5 bps per dollar traded, applied at each opening rebalance to the sum of absolute buy and sell notionals using opening prices. The simulator solves for post-fee NAV and sizes positions from that NAV. The same rule applies to the equal-weight benchmark. Sensitivity runs use 0 and 15 bps. Slippage is not modelled. Fills use the adjusted opening quote with no spread, price impact, or opening execution deviation model.
 Signal lag: The signal uses close-to-close returns through the last session of the month, t. Targets are dated to the next session in the price index, t+1, and filled at that session's adjusted open. The fill-day opening quote is also used to check fill availability.
-Price adjustment: The Yahoo Finance download explicitly sets yfinance auto_adjust=True and keeps adjusted Open and Close. The cache supplies those same fields when present. Simulated fills use adjusted Open, valuation uses adjusted Close, and stock and SPY signal returns use adjusted Close.
+Price adjustment: Yahoo split-adjusted, dividend-unadjusted Open/Close. Cash distributions credited to prior positions at ex-date close
 Survivorship bias: The fixed 24-name US large-cap basket was selected retrospectively from surviving names. The README identifies survivorship and selection bias in both IS and OOS. The same configured ticker list is used throughout, with monthly eligibility based on complete return history in the lookback window.
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=0.13354604267031078, ann_vol=0.11944797905739339, sharpe=1.1094783378903714, max_drawdown=-0.16092030437462734, total_return=1.4023821862265917, turnover=10.168120199465026, n_trades=710
-    oos: cagr=0.09576398227079963, ann_vol=0.17355173080188777, sharpe=0.6137576849836357, max_drawdown=-0.22875745948413362, total_return=0.7285092087351968, turnover=9.526209180808367, n_trades=599
-    full: cagr=0.11596319232313723, ann_vol=0.14687418905305982, sharpe=0.8206469484361287, max_drawdown=-0.22875745948413362, total_return=3.1525397317940254, turnover=9.872095179240485, n_trades=1309
-    benchmark  full: cagr=0.18997075411164976, ann_vol=0.16917210760235027, sharpe=1.1133397390273228, max_drawdown=-0.34266084292636223, total_return=8.553736509704272, turnover=0.6104076586634933, n_trades=3744
+    is: cagr=0.13268916707595801, ann_vol=0.1187007681114447, sharpe=1.109337200614088, sharpe_excess=1.0583368950136636, max_drawdown=-0.16002589861547234, total_return=1.3897131780956125, turnover=10.107507549662575, n_trades=710
+    oos: cagr=0.09514875430383984, ann_vol=0.17263401773403578, sharpe=0.612842702644804, sharpe_excess=0.4612444268679981, max_drawdown=-0.22679799433065173, total_return=0.7227097974127112, turnover=9.47899965216853, n_trades=599
+    full: cagr=0.1152196820035738, ann_vol=0.1460469202281811, sharpe=0.8198976625975141, sharpe_excess=0.7147983659723713, max_drawdown=-0.2267979943306515, total_return=3.1167823049115606, turnover=9.817663540665322, n_trades=1309
+    benchmark  full: cagr=0.1888085936596089, ann_vol=0.16812052117935497, sharpe=1.113428566947133, sharpe_excess=1.021998956334373, max_drawdown=-0.34039413813452335, total_return=8.433368215145839, turnover=0.6084314547210578, n_trades=3744
 """
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os
-_CONFIG_YAML = 'strategy: 106_low_ivol_low_max\nuniverse:\n  name: US24\n  tickers: [AAPL, MSFT, AMZN, GOOGL, META, NVDA, JPM, BAC, GS, MS, XOM, CVX,\n            COP, SLB, WMT, COST, PG, KO, PEP, JNJ, PFE, MRK, HD, LOW]\nmarket_proxy: SPY\ndata_start: 2012-06-01\nin_sample:\n  start: 2013-01-01\n  end: 2019-12-31\nout_of_sample:\n  start: 2020-01-01\n  end: 2025-12-31\nsignals:\n  ivol_lookback_sessions: 63\n  max_lookback_sessions: 21\n  portfolio_size: 6\ncosts:\n  bps_per_dollar_traded: 5\n  sensitivity_bps: [0, 15]\nannualization_sessions: 252\n'
+_CONFIG_YAML = 'strategy: 106_low_ivol_low_max\nuniverse:\n  name: US24\n  tickers: [AAPL, MSFT, AMZN, GOOGL, META, NVDA, JPM, BAC, GS, MS, XOM, CVX,\n            COP, SLB, WMT, COST, PG, KO, PEP, JNJ, PFE, MRK, HD, LOW]\nmarket_proxy: SPY\ncash_proxy: BIL\ndata_start: 2012-06-01\nin_sample:\n  start: 2013-01-01\n  end: 2019-12-31\nout_of_sample:\n  start: 2020-01-01\n  end: 2025-12-31\nsignals:\n  ivol_lookback_sessions: 63\n  max_lookback_sessions: 21\n  portfolio_size: 6\ncosts:\n  commission_bps: 3\n  slippage_bps: 2\n  sensitivity:\n    - {commission_bps: 0, slippage_bps: 0}\n    - {commission_bps: 3, slippage_bps: 12}\ncash_buffer_fraction: 0.005\nannualization_sessions: 252\n'
 _orig_open = _b.open
 def _open(f, *a, **k):
     try:
@@ -35,35 +35,81 @@ _io.open = _open
 # --- end shim ---
 """Monthly US24 low-IVOL, low-MAX and combined backtest."""
 
+from datetime import datetime
+import gzip
 import hashlib
 from itertools import combinations
 import json
 from pathlib import Path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
+from zoneinfo import ZoneInfo
 
 import numpy as np
 import pandas as pd
+from pandas.tseries.holiday import (
+    AbstractHolidayCalendar, GoodFriday, Holiday, USLaborDay, USMartinLutherKingJr,
+    USMemorialDay, USPresidentsDay, USThanksgivingDay, nearest_workday, sunday_to_monday,
+)
 import yaml
 import yfinance as yf
 
 
 ROOT = Path(__file__).resolve().parent
-BOOKS = ("low_ivol", "low_max", "combined")
+SIGNAL_PORTFOLIOS = ("low_ivol", "low_max", "combined")
 BENCHMARK = "equal_weight"
-FIELDS = ("Open", "Close")
+FIELDS = ("Open", "Close", "Dividends", "Capital Gains")
+PARAM_COMBOS_TRIED = 1
+PRICE_ADJUSTMENT = (
+    "Yahoo split-adjusted, dividend-unadjusted Open/Close. "
+    "Cash distributions credited to prior positions at ex-date close"
+)
 
 
-def download_prices(tickers, start, end):
+class USStockHolidays(AbstractHolidayCalendar):
+    rules = [
+        Holiday("New Year's Day", month=1, day=1, observance=sunday_to_monday),
+        USMartinLutherKingJr, USPresidentsDay, GoodFriday, USMemorialDay,
+        Holiday("Juneteenth", month=6, day=19, start_date="2022-06-19", observance=nearest_workday),
+        Holiday("Independence Day", month=7, day=4, observance=nearest_workday),
+        USLaborDay, USThanksgivingDay,
+        Holiday("Christmas", month=12, day=25, observance=nearest_workday),
+    ]
+
+
+def trading_sessions(start, end):
+    # Unscheduled full-market closures during the research window.
+    closures = pd.to_datetime(["2012-10-29", "2012-10-30", "2018-12-05", "2025-01-09"])
+    weekdays = pd.bdate_range(start, end)
+    return weekdays.difference(USStockHolidays().holidays(start, end).union(closures))
+
+
+def align_prices(prices, sessions, reference_tickers):
+    prices = prices.reindex(sessions)
+    missing = prices["Close"][reference_tickers].isna().any(axis=1)
+    if missing.any():
+        dates = ", ".join(prices.index[missing].strftime("%Y-%m-%d")[:8])
+        raise ValueError(f"Missing market or cash proxy close on {missing.sum()} exchange sessions: {dates}")
+    for field in ("Dividends", "Capital Gains"):
+        actions = prices[field]
+        invalid = ~np.isfinite(actions.fillna(0.0)) | actions.lt(0)
+        if (invalid | (actions.isna() & prices["Close"].notna())).any().any():
+            raise ValueError(f"Missing or invalid Yahoo cash distribution field: {field}")
+    return prices
+
+
+def download_prices(tickers, start, end, sessions, reference_tickers):
     cache_dir = ROOT / "data_cache"
     cache_dir.mkdir(exist_ok=True)
     cache_key = hashlib.sha256(
         f"{start.date()}:{end.date()}:{','.join(sorted(tickers))}".encode()
     ).hexdigest()[:16]
-    cache = cache_dir / f"yfinance_adjusted_{cache_key}.csv.gz"
+    cache = cache_dir / f"yfinance_split_only_v1_{cache_key}.csv.gz"
     columns = pd.MultiIndex.from_product([FIELDS, tickers])
     if cache.exists():
-        prices = pd.read_csv(cache, header=[0, 1], index_col=0, parse_dates=True)
-        return prices.reindex(columns=columns)
+        with gzip.open(cache, "rt") as handle:
+            fetched_at = datetime.fromisoformat(handle.readline().strip()).isoformat(timespec="seconds")
+            prices = pd.read_csv(handle, header=[0, 1], index_col=0, parse_dates=True)
+        return align_prices(prices.reindex(columns=columns), sessions, reference_tickers), fetched_at
 
     frames = []
     pending = list(tickers)
@@ -73,12 +119,17 @@ def download_prices(tickers, start, end):
             bars = yf.download(
                 pending, start=start.date().isoformat(),
                 end=(end + pd.Timedelta(days=1)).date().isoformat(),
-                auto_adjust=True, progress=False, threads=8, timeout=10,
-                multi_level_index=True,
+                auto_adjust=False, actions=True, keepna=True,
+                progress=False, threads=8, timeout=10, multi_level_index=True,
             )
+            for ticker in pending:
+                if ("Capital Gains", ticker) not in bars.columns:
+                    bars[("Capital Gains", ticker)] = 0.0
             bars = bars.reindex(columns=pd.MultiIndex.from_product([FIELDS, pending]))
-            bars = bars.where(np.isfinite(bars) & bars.gt(0))
-            usable = (bars["Open"].notna() & bars["Close"].notna()).any()
+            for field in ("Open", "Close"):
+                quotes = bars[field]
+                bars[field] = quotes.where(np.isfinite(quotes) & quotes.gt(0))
+            usable = (bars["Open"].notna() & bars["Close"].notna() & bars["Dividends"].notna()).any()
             received = usable.index[usable].tolist()
             if received:
                 frames.append(bars.loc[:, bars.columns.get_level_values(1).isin(received)])
@@ -91,26 +142,30 @@ def download_prices(tickers, start, end):
     prices = pd.concat(frames, axis=1).reindex(columns=columns).sort_index()
     if prices.index.tz is not None:
         prices.index = prices.index.tz_localize(None)
-    if prices.index[0] > start + pd.Timedelta(days=7) or prices.index[-1] < end - pd.Timedelta(days=7):
-        raise RuntimeError("Yahoo Finance data does not cover the requested range")
+    prices = align_prices(prices, sessions, reference_tickers)
+    fetched_at = datetime.now(ZoneInfo("Europe/Oslo")).isoformat(timespec="seconds")
     with NamedTemporaryFile(dir=cache_dir, suffix=".csv.gz", delete=False) as handle:
         temporary = Path(handle.name)
     try:
-        prices.to_csv(temporary)
+        with gzip.open(temporary, "wt") as handle:
+            handle.write(f"{fetched_at}\n")
+            prices.to_csv(handle)
         temporary.replace(cache)
     finally:
         temporary.unlink(missing_ok=True)
-    return prices
+    return prices, fetched_at
 
 
-def build_targets(opens, closes, market_close, first_day, last_day, signals):
+def total_returns(closes, distributions):
+    return (closes + distributions).div(closes.shift()).sub(1)
+
+
+def build_targets(stock_returns, market_returns, first_day, last_day, signals):
     ivol_window = signals["ivol_lookback_sessions"]
     max_window = signals["max_lookback_sessions"]
     size = signals["portfolio_size"]
     lookback = max(ivol_window, max_window)
-    stock_returns = closes.pct_change(fill_method=None)
-    market_returns = market_close.pct_change(fill_method=None)
-    days = closes.index
+    days = stock_returns.index
 
     # A month changes on the exchange calendar after the signal close.
     months = days.to_period("M")
@@ -121,8 +176,8 @@ def build_targets(opens, closes, market_close, first_day, last_day, signals):
     if not signal_indices:
         raise ValueError("No monthly rebalance has sufficient signal history in the requested dates")
     fill_days = days[np.asarray(signal_indices) + 1]
-    targets = {name: pd.DataFrame(0.0, index=fill_days, columns=closes.columns)
-               for name in (*BOOKS, BENCHMARK)}
+    targets = {name: pd.DataFrame(0.0, index=fill_days, columns=stock_returns.columns)
+               for name in (*SIGNAL_PORTFOLIOS, BENCHMARK)}
 
     for i, fill_day in zip(signal_indices, fill_days):
         stock_window = stock_returns.iloc[i - lookback + 1:i + 1].dropna(axis=1)
@@ -146,22 +201,58 @@ def build_targets(opens, closes, market_close, first_day, last_day, signals):
             selected = score.sort_index().nsmallest(size).index
             targets[name].loc[fill_day, selected] = 1 / size
 
-    # If a selected stock has no opening quote, leave its slot in cash.
-    available_at_fill = opens.loc[fill_days].notna()
-    return {name: weights.where(available_at_fill, 0.0) for name, weights in targets.items()}
+    return targets
 
 
-def simulate(opens, closes, targets, cost_bps):
-    """Keep shares between rebalances and mark the portfolio at each close."""
+def rebalance(shares, cash, target, previous_close, opening, previous_value,
+              commission_rate, slippage_rate, cash_buffer):
+    # The prior close fixes the share quantities before the opening price is used.
+    requested = np.zeros_like(shares)
+    selected = target > 0
+    budget = previous_value * (1 - cash_buffer)
+    requested[selected] = budget * target[selected] / previous_close[selected]
+
+    # An unquoted new stock leaves its planned allocation in cash.
+    requested[~np.isfinite(opening)] = 0
+    opening = np.nan_to_num(opening, nan=0.0)
+    opening_value = cash + shares @ opening
+    sales = np.maximum(shares - requested, 0)
+    buys = np.maximum(requested - shares, 0)
+    sell_prices = opening * (1 - slippage_rate)
+    buy_prices = opening * (1 + slippage_rate)
+    sell_value = sales @ sell_prices
+    cash_after_sales = cash + sell_value * (1 - commission_rate)
+    buy_cost = (buys @ buy_prices) * (1 + commission_rate)
+    # Leave headroom for floating-point rounding when purchases use all available cash.
+    cash_room = max(cash_after_sales - 8 * np.finfo(float).eps * opening_value, 0.0)
+    if buy_cost > cash_room:
+        buys *= cash_room / buy_cost
+    buy_value = buys @ buy_prices
+    remaining_cash = cash_after_sales - buy_value * (1 + commission_rate)
+    if remaining_cash < 0:
+        raise RuntimeError("A simulated rebalance exceeded available cash")
+
+    updated_shares = shares - sales + buys
+    turnover = (sell_value + buy_value) / opening_value
+    return updated_shares, remaining_cash, turnover, np.count_nonzero(updated_shares != shares)
+
+
+def simulate(opens, closes, previous_closes, distributions, targets, costs, cash_buffer):
+    """Retain split-adjusted share units between rebalances and value at each close."""
     opening_prices = opens.to_numpy()
     closing_prices = closes.to_numpy()
+    sizing_prices = previous_closes.to_numpy()
+    distributions = distributions.to_numpy()
     target_rows = targets.reindex(closes.index).to_numpy()
     shares = np.zeros(closes.shape[1])
-    cash = previous_nav = 1.0
-    cost_rate = cost_bps / 10_000
-    daily = np.zeros((len(closes), 3))
+    cash = previous_value = 1.0
+    commission_rate = costs["commission_bps"] / 10_000
+    slippage_rate = costs["slippage_bps"] / 10_000
+    daily = np.zeros((len(closes), 4))
+    fill_positions = {}
 
     for i, date in enumerate(closes.index):
+        prior_shares = shares
         target = target_rows[i]
         if np.isfinite(target[0]):
             opening = opening_prices[i]
@@ -169,75 +260,65 @@ def simulate(opens, closes, targets, cost_bps):
             if not np.isfinite(opening[held]).all():
                 missing = closes.columns[held & ~np.isfinite(opening)].tolist()
                 raise ValueError(f"Missing held-stock opening quote on {date.date()} for {missing}")
-            current = np.zeros_like(shares)
-            current[held] = shares[held] * opening[held]
-            open_nav = cash + current.sum()
+            shares, cash, turnover, trades = rebalance(
+                shares, cash, target, sizing_prices[i], opening, previous_value,
+                commission_rate, slippage_rate, cash_buffer,
+            )
+            daily[i, 1:3] = turnover, trades
+            fill_positions[date] = shares
 
-            # Solve net NAV = open NAV minus fees on the actual dollars exchanged.
-            net_nav = open_nav
-            for _ in range(20):
-                traded = np.abs(net_nav * target - current).sum()
-                updated_nav = open_nav - cost_rate * traded
-                if abs(updated_nav - net_nav) <= open_nav * 1e-13:
-                    net_nav = updated_nav
-                    break
-                net_nav = updated_nav
-            else:
-                raise RuntimeError("Rebalance cost calculation did not converge")
-
-            desired = net_nav * target
-            traded_by_stock = np.abs(desired - current)
-            daily[i, 1] = traded_by_stock.sum() / open_nav
-            daily[i, 2] = np.count_nonzero(traded_by_stock > open_nav * 1e-12)
-            selected = target > 0
-            shares = np.zeros_like(shares)
-            shares[selected] = desired[selected] / opening[selected]
-            cash = net_nav * (1 - target.sum())
-
+        # The prior close's shares earn the ex-date distribution. It cannot fund this open.
+        cash += prior_shares @ distributions[i]
         closing = closing_prices[i]
         held = shares > 0
         if not np.isfinite(closing[held]).all():
             missing = closes.columns[held & ~np.isfinite(closing)].tolist()
             raise ValueError(f"Missing held-stock closing quote on {date.date()} for {missing}")
-        nav = cash + shares[held] @ closing[held]
-        daily[i, 0] = nav / previous_nav - 1
-        previous_nav = nav
+        value = cash + shares[held] @ closing[held]
+        daily[i, 0] = value / previous_value - 1
+        daily[i, 3] = cash
+        previous_value = value
 
-    return pd.DataFrame(daily, index=closes.index, columns=["return", "turnover", "n_trades"])
+    daily_results = pd.DataFrame(daily, index=closes.index, columns=["return", "turnover", "n_trades", "cash"])
+    positions = pd.DataFrame.from_dict(fill_positions, orient="index", columns=closes.columns)
+    return daily_results, positions
 
 
 def finite_or_none(value):
     return float(value) if np.isfinite(value) else None
 
 
-def metrics(daily, market_returns, sessions):
+def metrics(daily, market_returns, cash_returns, sessions):
     returns = daily["return"]
     if returns.empty:
         raise ValueError("An evaluation period has no market sessions")
-    equity = np.r_[1.0, (1 + returns).cumprod().to_numpy()]
+    growth = np.r_[1.0, (1 + returns).cumprod().to_numpy()]
     std = returns.std()
+    excess = returns - cash_returns.reindex(returns.index)
+    excess_std = excess.std() if excess.notna().all() else np.nan
     paired = pd.concat([returns, market_returns.reindex(returns.index)], axis=1).dropna()
     market_var = paired.iloc[:, 1].var()
     beta = paired.iloc[:, 0].cov(paired.iloc[:, 1]) / market_var if market_var > 0 else np.nan
     return {
-        "cagr": finite_or_none(equity[-1] ** (sessions / len(returns)) - 1),
+        "cagr": finite_or_none(growth[-1] ** (sessions / len(returns)) - 1),
         "ann_vol": finite_or_none(std * np.sqrt(sessions)),
         "sharpe": finite_or_none(returns.mean() / std * np.sqrt(sessions) if std > 0 else np.nan),
-        "max_drawdown": finite_or_none(np.min(equity / np.maximum.accumulate(equity) - 1)),
-        "total_return": finite_or_none(equity[-1] - 1),
+        "sharpe_excess": finite_or_none(excess.mean() / excess_std * np.sqrt(sessions) if excess_std > 0 else np.nan),
+        "max_drawdown": finite_or_none(np.min(growth / np.maximum.accumulate(growth) - 1)),
+        "total_return": finite_or_none(growth[-1] - 1),
         "turnover": finite_or_none(daily["turnover"].mean() * sessions),
         "n_trades": int(daily["n_trades"].sum()),
         "spy_beta": finite_or_none(beta),
     }
 
 
-def portfolio_overlap(targets, periods):
+def portfolio_overlap(positions, periods):
     overlap = {}
     for name, (start, end) in periods.items():
         overlap[name] = {}
-        for left, right in combinations(BOOKS, 2):
-            a = targets[left].loc[start:end].gt(0)
-            b = targets[right].loc[start:end].gt(0)
+        for left, right in combinations(SIGNAL_PORTFOLIOS, 2):
+            a = positions[left].loc[start:end].gt(0)
+            b = positions[right].loc[start:end].gt(0)
             both_invested = a.any(axis=1) & b.any(axis=1)
             shared = (a & b).sum(axis=1)[both_invested]
             overlap[name][f"{left}_vs_{right}"] = {
@@ -247,28 +328,33 @@ def portfolio_overlap(targets, periods):
     return overlap
 
 
-def print_report(result, reports, baseline_bps):
+def print_report(result, reports, baseline_bps, costs, cash_proxy, fetched_at):
     def display(value, percent=False):
         if value is None:
             return "n/a"
         return f"{value:.2%}" if percent else f"{value:.2f}"
 
-    print(f"{result['strategy']} | {result['data_range']} | {baseline_bps:g} bps per dollar traded")
-    print("Portfolios and benchmark (net of costs)")
+    print(f"PARAM_COMBOS_TRIED: {PARAM_COMBOS_TRIED}")
+    print(f"DATA_FETCHED_AT: {fetched_at}")
+    print(f"PRICE_ADJUSTMENT: {PRICE_ADJUSTMENT}")
+    print(f"{result['strategy']} | {result['data_range']} | "
+          f"{costs['commission_bps']:g} bps commission + {costs['slippage_bps']:g} bps slippage per side")
+    print(f"Portfolios and benchmark (net of costs, excess Sharpe vs {cash_proxy} total returns)")
     rows = []
-    for book, periods in reports[baseline_bps].items():
+    for portfolio, periods in reports[baseline_bps].items():
         for period, values in periods.items():
             rows.append({
-                "Portfolio": book, "Period": period.upper(),
+                "Portfolio": portfolio, "Period": period.upper(),
                 "CAGR": display(values["cagr"], True), "Ann. vol": display(values["ann_vol"], True),
-                "Sharpe": display(values["sharpe"]), "Max DD": display(values["max_drawdown"], True),
+                "Sharpe": display(values["sharpe"]), "Excess Sharpe": display(values["sharpe_excess"]),
+                "Max DD": display(values["max_drawdown"], True),
                 "Total return": display(values["total_return"], True),
                 "Ann. turnover": display(values["turnover"], True),
                 "Trades": values["n_trades"], "SPY beta": display(values["spy_beta"]),
             })
     print(pd.DataFrame(rows).to_string(index=False))
 
-    print("\nMean shared holdings per rebalance")
+    print("\nMean shared positions per rebalance")
     overlap = {period.upper(): {pair: display(values["mean_shared_names"])
                                for pair, values in pairs.items()}
                for period, pairs in result["overlap"].items()}
@@ -276,9 +362,9 @@ def print_report(result, reports, baseline_bps):
 
     print("\nCost sensitivity (CAGR by period, 0 bps is gross)")
     cost_rows = []
-    for cost, books in reports.items():
-        for book, periods in books.items():
-            cost_rows.append({"Bps": cost, "Portfolio": book, **{
+    for cost, portfolios in reports.items():
+        for portfolio, periods in portfolios.items():
+            cost_rows.append({"Bps": cost, "Portfolio": portfolio, **{
                 period.upper(): display(values["cagr"], True) for period, values in periods.items()
             }})
     print(pd.DataFrame(cost_rows).to_string(index=False))
@@ -291,6 +377,7 @@ def main():
     universe = config["universe"]
     tickers = sorted(universe["tickers"])
     market = config["market_proxy"]
+    cash_proxy = config["cash_proxy"]
     start = pd.Timestamp(config["data_start"])
     in_sample, out_of_sample = (
         tuple(pd.Timestamp(config[period][bound]) for bound in ("start", "end"))
@@ -300,38 +387,54 @@ def main():
     if not start < first_day <= in_sample[1] < out_of_sample[0] <= last_day:
         raise ValueError("Expected a warmup followed by chronological, non-overlapping IS and OOS ranges")
     signals = config["signals"]
-    if (len(set(tickers)) != len(tickers) or market in tickers
+    if (len(set([*tickers, market, cash_proxy])) != len(tickers) + 2
             or not 1 <= signals["portfolio_size"] <= len(tickers)
             or signals["ivol_lookback_sessions"] < 3 or signals["max_lookback_sessions"] < 1):
         raise ValueError("Invalid universe, portfolio size or lookback")
     costs = config["costs"]
-    baseline_bps = costs["bps_per_dollar_traded"]
-    cost_levels = sorted({baseline_bps, *costs["sensitivity_bps"]})
-    if any(not 0 <= cost < 1000 for cost in cost_levels):
-        raise ValueError("Transaction costs must be nonnegative and below 1000 bps")
+    cash_buffer = config["cash_buffer_fraction"]
+    if not 0 < cash_buffer < 1:
+        raise ValueError("Cash buffer must be a positive fraction below one")
+    baseline_bps = costs["commission_bps"] + costs["slippage_bps"]
+    cost_levels = {}
+    for case in (costs, *costs["sensitivity"]):
+        commission, slippage = case["commission_bps"], case["slippage_bps"]
+        total = commission + slippage
+        if not (commission >= 0 and slippage >= 0 and total < 1000) or total in cost_levels:
+            raise ValueError("Cost scenarios must have distinct nonnegative totals below 1000 bps")
+        cost_levels[total] = case
 
-    prices = download_prices([*tickers, market], start, last_day)
-    market_close = prices[("Close", market)].dropna()
-    if (market_close.empty or market_close.index[0] > start + pd.Timedelta(days=7)
-            or market_close.index[-1] < last_day - pd.Timedelta(days=7)):
-        raise ValueError("Market proxy does not cover the requested price range")
-    if not prices.index.equals(market_close.index):
-        raise ValueError("The market proxy is missing closes on one or more universe sessions")
-    opens = prices["Open"][tickers]
-    closes = prices["Close"][tickers]
-    targets = build_targets(opens, closes, market_close, first_day, last_day, signals)
-    opens = opens.loc[first_day:last_day]
-    closes = closes.loc[first_day:last_day]
-    market_returns = market_close.pct_change(fill_method=None).rename("market")
+    sessions = trading_sessions(start, last_day)
+    references = [market, cash_proxy]
+    prices, fetched_at = download_prices([*tickers, *references], start, last_day, sessions, references)
+    close_prices = prices["Close"]
+    distributions = (prices["Dividends"] + prices["Capital Gains"]).fillna(0.0)
+    returns = total_returns(close_prices, distributions)
+    market_returns = returns[market]
+    cash_returns = returns[cash_proxy]
+    if not np.isfinite(cash_returns.loc[first_day:last_day]).all():
+        raise ValueError(f"Missing {cash_proxy} total returns during the evaluation period")
+    targets = build_targets(returns[tickers], market_returns, first_day, last_day, signals)
+    opens = prices["Open"][tickers].loc[first_day:last_day]
+    closes = close_prices[tickers].loc[first_day:last_day]
+    previous_closes = close_prices[tickers].shift().loc[first_day:last_day]
+    stock_distributions = distributions[tickers].loc[first_day:last_day]
     periods = {"is": in_sample, "oos": out_of_sample, "full": (first_day, last_day)}
 
     reports = {}
-    for cost in cost_levels:
+    baseline_positions = {}
+    for cost, case in sorted(cost_levels.items()):
         reports[cost] = {}
-        for book, weights in targets.items():
-            daily = simulate(opens, closes, weights, cost)
-            reports[cost][book] = {
-                period: metrics(daily.loc[left:right], market_returns, config["annualization_sessions"])
+        for portfolio, weights in targets.items():
+            daily_results, positions = simulate(
+                opens, closes, previous_closes, stock_distributions, weights, case, cash_buffer,
+            )
+            if cost == baseline_bps:
+                baseline_positions[portfolio] = positions
+            reports[cost][portfolio] = {
+                period: metrics(
+                    daily_results.loc[left:right], market_returns, cash_returns, config["annualization_sessions"],
+                )
                 for period, (left, right) in periods.items()
             }
 
@@ -341,12 +444,12 @@ def main():
         "data_range": f"{closes.index[0].date()} to {closes.index[-1].date()}",
         **net["combined"],
         "benchmark": {"name": f"{universe['name']}_equal_weight", **net[BENCHMARK]},
-        "books": {book: net[book] for book in BOOKS if book != "combined"},
-        "overlap": portfolio_overlap(targets, periods),
+        "books": {portfolio: net[portfolio] for portfolio in SIGNAL_PORTFOLIOS if portfolio != "combined"},
+        "overlap": portfolio_overlap(baseline_positions, periods),
         "cost_bps_per_dollar_traded": baseline_bps,
         "cost_sensitivity": {f"{cost:g}": report for cost, report in reports.items() if cost != baseline_bps},
     }
-    print_report(result, reports, baseline_bps)
+    print_report(result, reports, baseline_bps, costs, cash_proxy, fetched_at)
 
 
 if __name__ == "__main__":

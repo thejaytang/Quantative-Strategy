@@ -1,3 +1,23 @@
+"""551_squeezed_covariance_matrix_estimation_an
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/551_squeezed_covariance_matrix_estimation_an.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 8cbf3ed748f7cfff4bfd2cf26cd63111c21d942b on 2026-11-27 10:20 Europe/Oslo, exit 0, output sha256 446a36631917572b34bbbb11e53ac86a6b001e8b9d9afd44155e743c25f77577
+Data source: Yahoo Finance via yfinance daily adjusted closes for the 50 configured U.S. stocks, SPY as the benchmark, and BIL as the risk-free return proxy. The download path aligns the series to sessions with an SPY quote and rejects missing or invalid required prices.
+Data fetched: 2026-11-27T09:20:37+00:00
+Sample period: Requested price history runs from 2008-06-01 through 2024-12-31 inclusive, with pre-2010 history for warm-up. The configured evaluation starts on 2010-01-01, and the logged trading-session range is 2010-01-04 through 2024-12-31.   data_range (from output): {'start': '2010-01-04', 'end': '2024-12-31'}
+IS/OOS split: Calendar bounds are IS 2010-01-01 through 2016-12-31 and OOS 2017-01-01 through 2024-12-31. The default portfolio runs continuously across the split. The six alternative configurations use inputs through the IS cutoff only.
+Costs and slippage: The default deducts 10 bps transaction cost and 5 bps fixed slippage from every dollar of simulated buy or sell notional, including initial entry and the SPY benchmark purchase. At execution the simulator solves for post-cost portfolio value using drifted pre-trade weights and both sides of turnover, then deducts the cost from that day's return. The IS higher-cost case uses 20 bps cost plus 5 bps slippage.
+Signal lag: The signal uses the trailing 252 session returns through the last trading close of the month, t. With the configured one-session lag, it fills at the next trading session's close. The old weights earn returns through the fill close and the target weights first earn returns over the following close-to-close interval.
+Price adjustment: yfinance auto_adjust=True, split- and dividend-adjusted close
+Survivorship bias: A fixed basket of 50 U.S. large-cap stocks selected from companies visible at research time is used throughout history. The basket omits historical index membership, period-by-period market-cap rankings, and historical delistings. The README identifies survivorship bias and ex post universe selection bias.
+Parameter combinations tried: 7
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.15786904736118346, ann_vol=0.14962847120898984, sharpe=1.054835176618243, sharpe_excess=1.0566383645758008, max_drawdown=-0.163502750508409, total_return=1.7868325647983885, turnover=4.7973500842316925, n_trades=2784
+    oos: cagr=0.15117535685880146, ann_vol=0.18342799380846017, sharpe=0.8597642093051464, sharpe_excess=0.7503925241720133, max_drawdown=-0.2889101399466464, total_return=2.0772400290644364, turnover=4.926856325988172, n_trades=3007
+    full: cagr=0.15429566849952026, ann_vol=0.16847189478536082, sharpe=0.9364460575594445, sharpe_excess=0.8738077970322496, max_drawdown=-0.28891013994664627, total_return=7.5757527226979136, turnover=4.866392627531649, n_trades=5791
+    benchmark  full: cagr=0.13657955582943315, ann_vol=0.1704873398719819, sharpe=0.8366700316704108, sharpe_excess=0.7748512382991373, max_drawdown=-0.3371726874596013, total_return=5.802582119459568, turnover=0.06667264603889078, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

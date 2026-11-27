@@ -1,3 +1,23 @@
+"""450_a_declining_cvar_glidepath_framework_for
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/450_a_declining_cvar_glidepath_framework_for.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 6df04a4d89c55b7a1b162dbdcff0dafc1e2bd682 on 2026-11-27 08:11 Europe/Oslo, exit 0, output sha256 0604d77c4da2e197bae0a3f034f344c82c2c14a4f8de2f2e08099ea862d14377
+Data source: Yahoo Finance 免费 ETF 日线收盘价，经 yfinance 获取。标的为 SPY、AGG、BIL，BIL 日总回报用作无风险收益代理。程序优先读取 data_cache/ 中的价格 CSV，缺失时下载。（config.yaml:2-3；strategy.py:21-44；strategy.py:234-236；README.md:17）
+Data fetched: 2026-11-27T07:11:27+00:00
+Sample period: 行情请求区间为 2007-06-01 至 2025-12-31，早期行情用于初始滚动窗口。实际回测收益区间为 2013-01-02 至 2025-12-31。（config.yaml:8-11；strategy.py:37-40；strategy.py:234-235；README.md:18；logs/run_20261127_074903.log:13）   data_range (from output): {'start': '2013-01-02', 'end': '2025-12-31'}
+IS/OOS split: 样本内为 2013-01-02 至 2019-12-31，样本外为 2020-01-02 至 2025-12-31，均按实际交易日计。用样本内扣费后相对 BIL 的超额夏普选择滚动窗口，平手取较短窗口。该次运行选中 40 个月。样本外固定所选窗口，每月更新截至信号日的收益情景，并承接样本内期末持仓。README 将样本外区间描述为回溯式留出样本。（README.md:13；README.md:18-19；strategy.py:135-147；strategy.py:234-261；logs/run_20261127_074903.log:4）
+Costs and slippage: 按每笔买入或卖出的成交金额计 2 bps 佣金和 3 bps 固定滑点，合计 5 bps。成交时以调仓前净值为基准，对扣费后的目标头寸与漂移后原头寸之间的绝对差额求和，从组合净值扣费。建仓和后续调仓均计费，策略与基准采用同一费率。固定滑点已建模，README 说明未计入随成交规模变化的市场冲击。（config.yaml:13-14；strategy.py:151-175；strategy.py:218-223；strategy.py:256-260；README.md:21；README.md:25）
+Signal lag: 每月最后一个交易日收盘后生成信号，于下一交易日收盘模拟成交。成交日收盘前的收盘到收盘收益归原持仓，新持仓在成交后生效。（config.yaml:12；strategy.py:64-71；strategy.py:135-148；strategy.py:151-175；README.md:20）
+Price adjustment: yfinance auto_adjust total-return adjusted close (splits and distributions)
+Survivorship bias: 固定使用事后选定且存续至今的 SPY、AGG、BIL，README 明示存在存续偏差和资产选择偏差。（config.yaml:2；README.md:25）
+Parameter combinations tried: 2
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.054930731879154315, ann_vol=0.04451402330839231, sharpe=1.2237041520544454, sharpe_excess=1.0896049680858813, max_drawdown=-0.054054877275687585, total_return=0.4533937644677768, turnover=9.811002440415205, n_trades=252
+    oos: cagr=0.031104204313283423, ann_vol=0.07285853487071847, sharpe=0.45700911842597103, sharpe_excess=0.0980560849573388, max_drawdown=-0.1807288264948893, total_return=0.2011692188191052, turnover=7.588871321169314, n_trades=216
+    full: cagr=0.04387519298450271, ann_vol=0.05928753078861906, sharpe=0.7540691369308014, sharpe_excess=0.4956268725128241, max_drawdown=-0.18072882649488908, total_return=0.7457718527023236, turnover=8.786239832518323, n_trades=468
+    benchmark: cagr=0.09598659366551754, ann_vol=0.10384395290022047, sharpe=0.9348004938612747, sharpe_excess=0.7868358453702305, max_drawdown=-0.21456333570961805, total_return=2.2848867362003387, turnover=0.2671247740612504, n_trades=312
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

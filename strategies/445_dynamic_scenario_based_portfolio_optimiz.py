@@ -2,26 +2,26 @@
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
 Run (one command): python strategies/445_dynamic_scenario_based_portfolio_optimiz.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit da9754ee51e8d74f175ab50e14ef28c47c764ad1 on 2026-11-27 12:04 Europe/Oslo, exit 0, output sha256 fd3d5af30d6343ec64f9a60220ac5c4aad43de94d12247015f4a068a86db7369
+Backtest reproduced: run of this file's code at commit 6df04a4d89c55b7a1b162dbdcff0dafc1e2bd682 on 2026-11-27 08:09 Europe/Oslo, exit 0, output sha256 aa7716603db7d594e738c45a4c424555a7d70ef7752c4d8bc05c56ba14ebe2ee
 Data source: Yahoo Finance daily adjusted ETF closes via yfinance. Portfolio universe: VT, VTI, ACWI, ACWX, SUSA, ROUS, IYG, BND, FPE, BYLD, NTSX, GAL, MDIV, AOM, AOR, INKM, HNDL, ALTY, IYLD, CVY, PDBC, QAI, HDG, MNA, RAAX, RLY, SRET, YYY, GAA, GMOM. BIL is the risk-free return proxy.
-Data fetched: 2026-11-27T11:04:39.642705+00:00
+Data fetched: 2026-11-27T07:09:51.224179+00:00
 Sample period: Actual price sample 2018-12-19 through 2026-09-30. Backtest evaluation 2022-12-21 through 2026-09-30. Both ranges are inclusive. Prices before evaluation supply the rolling estimation history.   data_range (from output): {'start': '2022-12-21', 'end': '2026-09-30', 'price_start': '2018-12-19', 'price_end': '2026-09-30'}
 IS/OOS split: IS runs from 2022-12-21 through 2024-12-31 inclusive. OOS starts on the first session after 2024-12-31 and ends on 2026-09-30 inclusive. The script runs one continuous backtest and slices the resulting daily series, so OOS carries forward positions and continues updating the rolling estimation window.
 Costs and slippage: 10 bps commission plus 5 bps modeled slippage per dollar of ETF buys and sells, including initial entry. The 15 bps rate applies to the sum of absolute traded notionals from drifted holdings to targets sized on post-cost NAV. The cost reduces NAV at the simulated fill. The buy-and-hold benchmark incurs the same charges at entry only. Slippage is a flat cost, with no separate spread or market-impact model.
 Signal lag: The signal uses ETF returns through the close of session t. The target fills at the next trading session's close, t+1. Pre-fill holdings earn the return through the fill close, and the new holdings first earn the return from that close to the following close.
-Price adjustment: yfinance auto_adjust=True adjusted-close returns and simulated fills
+Price adjustment: yfinance auto_adjust=True adjusted-close total-return proxy
 Survivorship bias: The 30 ETFs are a fixed list from the paper's Appendix A, chosen with historical data available at publication. The README identifies survivorship and hindsight selection bias. The code uses the configured list throughout the historical sample.
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=0.09487934263690145, ann_vol=0.07462637032329562, sharpe=1.2521022641311332, sharpe_excess=0.5858927754582265, max_drawdown=-0.0692731249107188, total_return=0.20091868057446738, turnover=1.2601871474307538, n_trades=15013
-    oos: cagr=0.11487821556650957, ann_vol=0.07878069970827621, sharpe=1.4199167588853312, sharpe_excess=0.9277637576861222, max_drawdown=-0.08665827721654829, total_return=0.20753119765311578, turnover=0.7856483909566926, n_trades=12155
-    full: cagr=0.10407274541360567, ann_vol=0.07653478513731093, sharpe=1.3320725410706618, sharpe_excess=0.7486365813904898, max_drawdown=-0.08665827721654817, total_return=0.4501467726380841, turnover=1.0409763265225458, n_trades=27168
-    benchmark  full: cagr=0.1144051190077886, ann_vol=0.08677035922887896, sharpe=1.2919561294177955, sharpe_excess=0.7773305235285656, max_drawdown=-0.10365138744765057, total_return=0.5017522723491639, turnover=0.25474064863086265, n_trades=30
+    is: cagr=0.10064639730585045, ann_vol=0.07882018470953595, sharpe=1.2562323512320193, sharpe_excess=0.6254574465106717, max_drawdown=-0.07299917887633811, total_return=0.2137296973007583, turnover=1.3211323910257409, n_trades=15013
+    oos: cagr=0.12190152790534392, ann_vol=0.08329915112745613, sharpe=1.4226997563299582, sharpe_excess=0.9571760628779072, max_drawdown=-0.09156329310297306, total_return=0.22075317283329188, turnover=0.8311336322096201, n_trades=12155
+    full: cagr=0.11041458689309525, ann_vol=0.0808791682114951, sharpe=1.3355881700688872, sharpe_excess=0.7834479508139364, max_drawdown=-0.09156329310297351, total_return=0.4816643789418926, turnover=1.0947798988453552, n_trades=27168
+    benchmark  full: cagr=0.11860740822915061, ann_vol=0.089849350792221, sharpe=1.2926120658450513, sharpe_excess=0.7956049524112356, max_drawdown=-0.1070449201753676, total_return=0.5231213559873169, turnover=0.2659857993137144, n_trades=30
 """
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os
-_CONFIG_YAML = 'strategy: "445_dynamic_scenario_based_portfolio_optimiz"\nuniverse:\n  [VT, VTI, ACWI, ACWX, SUSA, ROUS, IYG, BND, FPE, BYLD, NTSX, GAL, MDIV,\n   AOM, AOR, INKM, HNDL, ALTY, IYLD, CVY, PDBC, QAI, HDG, MNA, RAAX, RLY,\n   SRET, YYY, GAA, GMOM]\nrisk_free_ticker: BIL\ndates:\n  price_start: 2018-12-19\n  evaluation_start: 2022-12-21\n  is_end: 2024-12-31\n  end: 2026-09-30\nmodel:\n  lookback_sessions: 1008\n  cvar_confidence: 0.95\n  target_turnover_cap: 0.00013227513227513228  # 1 / (30 * 252)\n  execution_lag_sessions: 1\n  cash_buffer: 0.05\ncosts:\n  commission_bps: 10.0\n  slippage_bps: 5.0\nannualization_sessions: 252\n'
+_CONFIG_YAML = 'strategy: "445_ dynamic_scenario_based_portfolio_optimiz"\nuniverse:\n  [VT, VTI, ACWI, ACWX, SUSA, ROUS, IYG, BND, FPE, BYLD, NTSX, GAL, MDIV,\n   AOM, AOR, INKM, HNDL, ALTY, IYLD, CVY, PDBC, QAI, HDG, MNA, RAAX, RLY,\n   SRET, YYY, GAA, GMOM]\nrisk_free_ticker: BIL\ndates:\n  price_start: 2018-12-19\n  evaluation_start: 2022-12-21\n  is_end: 2024-12-31\n  end: 2026-09-30\nmodel:\n  lookback_sessions: 1008\n  cvar_confidence: 0.95\n  target_turnover_cap: 0.00013227513227513228  # 1 / (30 * 252)\n  execution_lag_sessions: 1\ncosts:\n  commission_bps: 10.0\n  slippage_bps: 5.0\nannualization_sessions: 252\n'
 _orig_open = _b.open
 def _open(f, *a, **k):
     try:
@@ -33,12 +33,10 @@ def _open(f, *a, **k):
 _b.open = _open
 _io.open = _open
 # --- end shim ---
-import argparse
 import hashlib
 import json
 import math
 from datetime import datetime, timezone
-from io import BytesIO
 from pathlib import Path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 
@@ -46,11 +44,7 @@ import numpy as np
 import pandas as pd
 import yaml
 import yfinance as yf
-from pandas.tseries.holiday import (
-    AbstractHolidayCalendar, GoodFriday, Holiday, USLaborDay, USMartinLutherKingJr,
-    USMemorialDay, USPresidentsDay, USThanksgivingDay, nearest_workday, sunday_to_monday,
-)
-from scipy.optimize import linprog
+from scipy.optimize import brentq, linprog
 from scipy.sparse import csr_matrix, eye, hstack, vstack
 
 
@@ -59,66 +53,31 @@ CACHE = ROOT / "data_cache"
 TRADE_TOLERANCE = 1e-10
 
 
-class NYSECalendar(AbstractHolidayCalendar):
-    rules = [
-        Holiday("New Year's Day", month=1, day=1, observance=sunday_to_monday),
-        USMartinLutherKingJr, USPresidentsDay, GoodFriday, USMemorialDay,
-        Holiday("Juneteenth", month=6, day=19, start_date="2022-01-01", observance=nearest_workday),
-        Holiday("Independence Day", month=7, day=4, observance=nearest_workday),
-        USLaborDay, USThanksgivingDay,
-        Holiday("Christmas Day", month=12, day=25, observance=nearest_workday),
-        Holiday("George H. W. Bush day of mourning", year=2018, month=12, day=5),
-        Holiday("Jimmy Carter day of mourning", year=2025, month=1, day=9),
-    ]
-
-
-def nyse_sessions(start, end):
-    if start.year < 2018 or end.year > 2026:
-        raise ValueError("NYSE session validation covers 2018 through 2026")
-    return pd.bdate_range(start, end).difference(NYSECalendar().holidays(start, end))
-
-
-def extract_closes(frame, tickers):
-    if frame is None or frame.empty:
-        return pd.DataFrame(index=pd.DatetimeIndex([]), columns=tickers, dtype=float)
-    closes = frame["Close"]
-    if isinstance(closes, pd.Series) and len(tickers) == 1:
-        closes = closes.to_frame(tickers[0])
-    if not isinstance(closes, pd.DataFrame):
-        raise ValueError("Yahoo Finance close columns could not be matched to the requested symbols")
-    return closes.reindex(columns=tickers)
-
-
 def download_closes(tickers, start, end):
     settings = dict(start=start.date().isoformat(),
                     end=(end + pd.Timedelta(days=1)).date().isoformat(),
-                    auto_adjust=True, progress=False, timeout=12,
-                    ignore_tz=True, multi_level_index=True)
-    closes = extract_closes(yf.download(tickers, threads=8, **settings), tickers)
-    if closes.empty or not closes.notna().any().any():
-        raise RuntimeError("Yahoo Finance returned no adjusted close data")
+                    auto_adjust=True, progress=False, timeout=12)
+    frame = yf.download(tickers, threads=8, **settings)
+    closes = frame["Close"].reindex(columns=tickers)
     for ticker in tickers:
         if closes[ticker].notna().any():
             continue
-        retry = extract_closes(yf.download(ticker, threads=False, **settings), [ticker])
+        retry = yf.download(ticker, threads=False, **settings)["Close"]
         closes = closes.combine_first(retry)
     return closes
 
 
-def check_closes(closes, tickers, start, end):
+def check_closes(closes, tickers, start, end, calendar_ticker):
     closes = closes.reindex(columns=tickers).sort_index().rename_axis(index="Date", columns=None)
     closes.index = pd.DatetimeIndex(closes.index, dtype="datetime64[ns]")
     if closes.index.has_duplicates:
         raise ValueError("Yahoo Finance returned duplicate session dates")
-    closes = closes.loc[start:end]
-    sessions = nyse_sessions(start, end)
-    missing_sessions = sessions.difference(closes.index)
-    extra_dates = closes.index.difference(sessions)
-    if sessions.empty or len(missing_sessions) or len(extra_dates):
-        raise ValueError(f"Yahoo Finance dates do not match NYSE sessions "
-                         f"({len(sessions)} expected): {len(missing_sessions)} missing "
-                         f"{missing_sessions[:10].strftime('%Y-%m-%d').tolist()}, "
-                         f"{len(extra_dates)} unexpected {extra_dates[:10].strftime('%Y-%m-%d').tolist()}")
+    closes = closes.loc[start:end].dropna(how="all")
+    calendar = closes[calendar_ticker].dropna().index
+    if (calendar.empty or calendar[0] - start > pd.Timedelta(days=7)
+            or end - calendar[-1] > pd.Timedelta(days=7)):
+        available = "empty" if calendar.empty else f"{calendar[0].date()} to {calendar[-1].date()}"
+        raise ValueError(f"{calendar_ticker} price coverage is incomplete: {available}")
     invalid = ~np.isfinite(closes) | (closes <= 0)
     if invalid.any().any():
         missing = invalid.sum()
@@ -127,31 +86,31 @@ def check_closes(closes, tickers, start, end):
     return closes
 
 
-def load_closes(tickers, start, end):
+def load_closes(tickers, start, end, calendar_ticker):
     CACHE.mkdir(exist_ok=True)
     key = hashlib.sha256(f"auto_adjust_close|{tickers}|{start}|{end}".encode()).hexdigest()[:16]
     path = CACHE / f"yahoo_{key}.csv"
-    if not path.exists():
-        with TemporaryDirectory(dir=CACHE, prefix=".yfinance_") as transient_cache:
-            yf.set_tz_cache_location(transient_cache)
-            closes = download_closes(tickers, start, end)
-        closes = check_closes(closes, tickers, start, end)
-        fetched_at = datetime.now(timezone.utc).isoformat()
-        with NamedTemporaryFile(mode="w", dir=CACHE, encoding="utf-8", delete=False) as handle:
-            temporary = Path(handle.name)
-            try:
-                handle.write(fetched_at + "\n")
-                closes.to_csv(handle, index_label="Date")
-                handle.close()
-                temporary.replace(path)
-            finally:
-                temporary.unlink(missing_ok=True)
+    if path.exists():
+        with path.open(encoding="utf-8") as handle:
+            fetched_at = datetime.fromisoformat(handle.readline().strip()).isoformat()
+            closes = pd.read_csv(handle, index_col="Date", parse_dates=["Date"])
+        return check_closes(closes, tickers, start, end, calendar_ticker), fetched_at
 
-    snapshot = path.read_bytes()
-    with BytesIO(snapshot) as handle:
-        fetched_at = datetime.fromisoformat(handle.readline().decode().strip()).isoformat()
-        closes = pd.read_csv(handle, index_col="Date", parse_dates=["Date"])
-    return check_closes(closes, tickers, start, end), fetched_at, hashlib.sha256(snapshot).hexdigest()
+    with TemporaryDirectory(dir=CACHE, prefix=".yfinance_") as transient_cache:
+        yf.set_tz_cache_location(transient_cache)
+        closes = download_closes(tickers, start, end)
+    closes = check_closes(closes, tickers, start, end, calendar_ticker)
+    fetched_at = datetime.now(timezone.utc).isoformat()
+    with NamedTemporaryFile(mode="w", dir=CACHE, encoding="utf-8", delete=False) as handle:
+        temporary = Path(handle.name)
+        try:
+            handle.write(fetched_at + "\n")
+            closes.to_csv(handle, index_label="Date")
+            handle.close()
+            temporary.replace(path)
+        finally:
+            temporary.unlink(missing_ok=True)
+    return closes, fetched_at
 
 
 class HistoricalCVaR:
@@ -197,98 +156,59 @@ class HistoricalCVaR:
         return weights
 
 
-def size_rebalance(positions, cash, sizing_prices, target, cash_buffer, fee_rate):
-    value = cash + positions @ sizing_prices
-    # At sizing prices, total buys plus sells cannot exceed twice the portfolio value.
-    target_value = value * (1 - cash_buffer - 2 * fee_rate)
-    orders = target_value * target / sizing_prices - positions
-    return np.where(np.abs(orders) * sizing_prices > TRADE_TOLERANCE * value, orders, 0.0)
+def close_fill(drifted, target, fee_rate):
+    def order_sizes(fee):
+        return np.abs((1 - fee) * target - drifted)
+
+    # The target is applied to post-cost NAV, so fees and order notionals are self-consistent.
+    fee = brentq(lambda fee: fee - fee_rate * order_sizes(fee).sum(), 0, 2 * fee_rate)
+    orders = order_sizes(fee)
+    return fee, orders.sum(), np.count_nonzero(orders > TRADE_TOLERANCE)
 
 
-def fill_at_close(positions, cash, orders, fill_prices, commission_rate, slippage_rate, label):
-    fill_values = orders * fill_prices
-    buys = float(fill_values[fill_values > 0].sum())
-    sells = float(-fill_values[fill_values < 0].sum())
-    traded = buys + sells
-    commission = commission_rate * traded
-    slippage = slippage_rate * traded
-    remaining_cash = cash + sells - buys - commission - slippage
-    if remaining_cash < 0:
-        raise RuntimeError(f"{label}: fixed share quantities would leave negative cash ({remaining_cash:.8g})")
-
-    n_trades = int(np.count_nonzero(orders))
-    details = {
-        "turnover": traded / (cash + positions @ fill_prices),
-        "n_trades": n_trades,
-        "buy_notional": buys,
-        "sell_notional": sells,
-        "commission": commission,
-        "slippage": slippage,
-        "min_trade_notional": float(np.abs(fill_values[orders != 0]).min()) if n_trades else None,
-        "cash": remaining_cash,
-    }
-    return positions + orders, remaining_cash, details
-
-
-def backtest(asset_closes, evaluation_start, model, commission_rate, slippage_rate):
+def backtest(returns, universe, evaluation_start, model, fee_rate):
     lookback = model["lookback_sessions"]
     lag = model["execution_lag_sessions"]
-    cash_buffer = model["cash_buffer"]
-    fee_rate = commission_rate + slippage_rate
-    dates = asset_closes.index
-    first_fill = dates.searchsorted(evaluation_start)
-    if first_fill < lookback + lag or first_fill >= len(dates):
+    first_fill = returns.index.searchsorted(evaluation_start)
+    if first_fill < lookback - 1 + lag or first_fill >= len(returns):
         raise ValueError("The evaluation start needs a full estimation window before the first fill")
 
-    n_assets = asset_closes.shape[1]
+    n_assets = len(universe)
     optimizer = HistoricalCVaR(n_assets, lookback, model["cvar_confidence"],
                                model["target_turnover_cap"])
     equal = np.full(n_assets, 1 / n_assets)
     previous_target = equal.copy()
-    positions = {name: np.zeros(n_assets) for name in ("strategy", "benchmark")}
-    cash = dict.fromkeys(positions, 1.0)
-    last_values = cash.copy()
+    weights, benchmark_weights = np.zeros((2, n_assets))
     targets = {}
-    pending_orders = {}
-    no_orders = np.zeros(n_assets)
-    prices = asset_closes.to_numpy()
-    asset_returns = asset_closes.pct_change(fill_method=None).to_numpy()
-    daily_results = {name: [] for name in positions}
+    asset_returns = returns[universe].to_numpy()
+    rows = []
 
-    for i in range(first_fill - lag, len(dates)):
-        close = prices[i]
+    for i in range(first_fill - lag, len(returns)):
         if i >= first_fill:
-            for name in positions:
-                orders = pending_orders.pop(name, no_orders)
-                positions[name], cash[name], details = fill_at_close(
-                    positions[name], cash[name], orders, close, commission_rate, slippage_rate,
-                    f"{name} {dates[i].date()}")
-                value = cash[name] + positions[name] @ close
-                details["return"] = value / last_values[name] - 1
-                details["cash_weight"] = cash[name] / value
-                if name == "strategy" or i == first_fill:
-                    details["signal_date"] = dates[i - lag] if name == "strategy" else pd.NaT
-                    details["sizing_date"] = dates[i - 1]
-                daily_results[name].append(details)
-                last_values[name] = value
+            daily = asset_returns[i]
+            gross = 1 + weights @ daily
+            benchmark_gross = 1 + benchmark_weights @ daily
+            drifted = weights * (1 + daily) / gross
+            benchmark_weights = benchmark_weights * (1 + daily) / benchmark_gross
+            weights = targets.pop(i)
+            fee, turnover, trades = close_fill(drifted, weights, fee_rate)
+            benchmark_fee = benchmark_turnover = benchmark_trades = 0
+            if i == first_fill:
+                benchmark_fee, benchmark_turnover, benchmark_trades = close_fill(
+                    benchmark_weights, equal, fee_rate)
+                benchmark_weights = equal.copy()
+            rows.append((gross * (1 - fee) - 1, turnover, trades,
+                         benchmark_gross * (1 - benchmark_fee) - 1,
+                         benchmark_turnover, benchmark_trades))
 
-        if i + lag < len(dates):
+        if i + lag < len(returns):
             scenarios = asset_returns[i - lookback + 1:i + 1]
             previous_target = optimizer.target(scenarios, previous_target)
             targets[i + lag] = previous_target
 
-        next_session = i + 1
-        if first_fill <= next_session < len(dates):
-            # Share quantities are fixed at this close for the next session's close.
-            pending_orders["strategy"] = size_rebalance(
-                positions["strategy"], cash["strategy"], close, targets.pop(next_session), cash_buffer, fee_rate)
-            if next_session == first_fill:
-                pending_orders["benchmark"] = size_rebalance(
-                    positions["benchmark"], cash["benchmark"], close, equal, cash_buffer, fee_rate)
-
-    fill_dates = dates[first_fill:].rename("fill_date")
-    return pd.concat({name: pd.DataFrame(rows, index=fill_dates)
-                      for name, rows in daily_results.items()}, axis=1)
+    columns = pd.MultiIndex.from_product(
+        [["strategy", "benchmark"], ["return", "turnover", "n_trades"]])
+    return pd.DataFrame(rows, index=returns.index[first_fill:], columns=columns)
 
 
 def metrics(frame, risk_free, sessions_per_year):
@@ -312,9 +232,6 @@ def metrics(frame, risk_free, sessions_per_year):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Backtest the historical-scenario ETF portfolio")
-    parser.add_argument("--show-fills", action="store_true", help="Print daily execution totals as CSV")
-    args = parser.parse_args()
     with (ROOT / "config.yaml").open(encoding="utf-8") as handle:
         config = yaml.safe_load(handle)
     universe = config["universe"]
@@ -334,22 +251,19 @@ def main():
     if not (commission >= 0 and slippage >= 0 and commission + slippage < 5000
             and sessions_per_year > 0):
         raise ValueError("Invalid costs or annualization convention")
-    commission_rate, slippage_rate = commission / 10_000, slippage / 10_000
-    if not 0 < model["cash_buffer"] < 1 - 2 * (commission_rate + slippage_rate):
-        raise ValueError("Cash and fee reserves must leave positive capital for investment")
 
     tickers = list(dict.fromkeys([*universe, risk_free_ticker]))
-    closes, fetched_at, data_sha256 = load_closes(tickers, start, end)
+    closes, fetched_at = load_closes(tickers, start, end, risk_free_ticker)
     print(f"DATA_FETCHED_AT: {fetched_at}", flush=True)
-    print(f"DATA_SHA256: {data_sha256}", flush=True)
-    print("PRICE_ADJUSTMENT: yfinance auto_adjust=True adjusted-close returns and simulated fills", flush=True)
+    print("PRICE_ADJUSTMENT: yfinance auto_adjust=True adjusted-close total-return proxy", flush=True)
     print("PARAM_COMBOS_TRIED: 1", flush=True)
-    daily = backtest(closes[universe], evaluation_start, model, commission_rate, slippage_rate)
+    returns = closes.pct_change(fill_method=None).iloc[1:]
+    daily = backtest(returns, universe, evaluation_start, model, (commission + slippage) / 10_000)
     periods = {"is": daily.loc[daily.index <= is_end], "oos": daily.loc[daily.index > is_end], "full": daily}
     if min(len(period) for period in periods.values()) < 2:
         raise ValueError("IS and OOS each need at least two daily observations")
 
-    risk_free = closes[risk_free_ticker].pct_change(fill_method=None)
+    risk_free = returns[risk_free_ticker]
     strategy_stats = {name: metrics(period["strategy"], risk_free, sessions_per_year)
                       for name, period in periods.items()}
     benchmark_stats = {name: metrics(period["benchmark"], risk_free, sessions_per_year)
@@ -358,14 +272,6 @@ def main():
         print(f"{name.upper()}: {json.dumps(strategy_stats[name], allow_nan=False)}")
         print(f"BENCHMARK {name.upper()} (equal-weight buy and hold): "
               f"{json.dumps(benchmark_stats[name], allow_nan=False)}")
-
-    min_cash_weights = {name: float(daily[name]["cash_weight"].min())
-                        for name in ("strategy", "benchmark")}
-    print(f"MIN_POST_FILL_CASH_WEIGHT: {json.dumps(min_cash_weights, allow_nan=False)}")
-    if args.show_fills:
-        for name in ("strategy", "benchmark"):
-            print(f"{name.upper()}_DAILY_FILLS_CSV:")
-            print(daily[name].to_csv(), end="")
 
     results = {
         "strategy": config["strategy"],

@@ -1,27 +1,7 @@
-"""156_cta_replication_trend_factors
-研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
-Author: Codex; non-author review: PASS; publication gate: Codex.
-Run (one command): python strategies/156_cta_replication_trend_factors.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit da9754ee51e8d74f175ab50e14ef28c47c764ad1 on 2026-11-27 12:03 Europe/Oslo, exit 0, output sha256 b6a7eb04669e390ba5ffebfc2926ca842b5217d85244a8adeaf29c866826c0fd
-Data source: Yahoo Finance daily USD ETF closes via yfinance or its local adjusted-close CSV cache. Strategy universe: SPY, QQQ, EFA, EEM, SHY, IEF, FXE, FXY, GLD, DBC. CTA proxy: DBMF. Benchmark: SPY.
-Data fetched: ETF_PANEL=2026-11-27T11:03:43+00:00; BIL=2026-11-27T11:03:43+00:00
-Sample period: Configured warm-up data request starts 2016-01-01. The reported evaluation spans 2020-01-02 through 2026-10-30, inclusive. DBMF enters the filter when a finite proxy return and finite factor observations are available.   data_range (from output): 2020-01-02 to 2026-10-30
-IS/OOS split: IS 2020-01-02 through 2025-07-17 and OOS 2025-07-18 through 2026-10-30, both inclusive. The filter continues to update daily in OOS with the same settings. The strategy and benchmark are simulated across the boundary and sliced for reporting.
-Costs and slippage: 3 bp one way per dollar traded, deducted on the rebalance date on absolute trades against marked holdings, with targets sized on equity after fees. Short borrow costs 50 bp per year on beginning-of-session short notional, charged at 50/252 bp per session. The SPY benchmark uses the same transaction fee. Slippage is not modelled.
-Signal lag: A target computed after session t closes is filled in the simulation at session t+1's close. Existing holdings earn the return through that close before the rebalance. The new holdings first earn the close-to-close return ending at t+2.
-Price adjustment: Yahoo Finance auto_adjust=True, distributions and splits, USD adjusted closes
-Survivorship bias: The README states that the backtest uses retrospectively selected surviving ETFs and is subject to fund-selection and survivorship bias. The implementation uses the fixed ticker list from the configuration.
-Parameter combinations tried: 1
-Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=0.006743753491951665, ann_vol=0.05253237185473903, sharpe=0.15425031781680637, sharpe_excess=-0.3204381619355861, max_drawdown=-0.13677086998330523, total_return=0.037823949785030786, turnover=21.39409111499946, n_trades=13920
-    oos: cagr=0.06790213637441678, ann_vol=0.05253345844707779, sharpe=1.2769532588371535, sharpe_excess=0.5642744459566502, max_drawdown=-0.03881752605220368, total_return=0.08842001583873249, turnover=19.31567773580487, n_trades=3250
-    full: cagr=0.01804499452049435, ann_vol=0.05253744365592874, sharpe=0.36672920387125707, sharpe_excess=-0.15299490729995735, max_drawdown=-0.13677086998330523, total_return=0.12958835986284156, turnover=21.000681477120455, n_trades=17170
-    benchmark: cagr=0.08521333774232698, ann_vol=0.1210396841764258, sharpe=0.7363844730891789, sharpe_excess=0.5099716300556497, max_drawdown=-0.198872424938626, total_return=0.7457498253390369, turnover=0.14126801308117914, n_trades=1
-"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os
-_CONFIG_YAML = 'strategy: 156_cta_replication_trend_factors\n\ndata_start: 2016-01-01\nin_sample:\n  start: 2020-01-02\n  end: 2025-07-17\nout_of_sample:\n  start: 2025-07-18\n  end: 2026-10-30\n\nuniverse:\n  equity: [SPY, QQQ, EFA, EEM]\n  treasury: [SHY, IEF]\n  currency: [FXE, FXY]\n  commodity: [GLD, DBC]\ncta_proxy: DBMF\ncta_proxy_first_trade: 2019-05-08\nsecondary_benchmark: SPY\ncash_proxy: BIL\n\ntrend:\n  short_windows: [10, 20, 40, 60]\n  long_window: 500\n\nfilter:\n  initial_loading_sd: 0.25\n  daily_loading_step_sd: 0.004\n  observation_noise_bps: 60\n\nportfolio:\n  max_gross_exposure: 1.00\n  max_asset_exposure: 0.40\n  cash_buffer: 0.05\n  transaction_bps: 3.0  # One way, per dollar traded\n  slippage_bps: 2.0  # One way, per dollar traded\n  annual_short_borrow_bps: 50.0\n  sessions_per_year: 252\n'
+_CONFIG_YAML = 'strategy: 156_cta_replication_trend_factors\n\ndata_start: 2016-01-01\nin_sample:\n  start: 2020-01-02\n  end: 2025-07-25\nout_of_sample:\n  start: 2025-07-28\n  end: 2026-10-30\n\nuniverse:\n  equity: [SPY, QQQ, EFA, EEM]\n  treasury: [SHY, IEF]\n  currency: [FXE, FXY]\n  commodity: [GLD, DBC]\ncta_proxy: DBMF\ncta_proxy_first_trade: 2019-05-08\nsecondary_benchmark: SPY\ncash_proxy: BIL\n\ntrend:\n  short_windows: [10, 20, 40, 60]\n  long_window: 500\n\nfilter:\n  initial_loading_sd: 0.25\n  daily_loading_step_sd: 0.004\n  observation_noise_bps: 60\n\nportfolio:\n  max_gross_exposure: 1.00\n  max_asset_exposure: 0.40\n  cash_buffer: 0.10\n  transaction_bps: 3.0  # One way, per dollar traded\n  slippage_bps: 2.0  # One way, per dollar traded\n  is_stress_slippage_bps: 7.0\n  annual_short_borrow_bps: 50.0\n  sessions_per_year: 252\n'
 _orig_open = _b.open
 def _open(f, *a, **k):
     try:
@@ -54,7 +34,6 @@ import yfinance as yf
 
 
 ROOT = Path(__file__).resolve().parent
-CACHE = ROOT / "data_cache"
 BPS = 10_000
 
 
@@ -93,36 +72,38 @@ def validate_prices(prices, sessions, tickers, first_trade):
     return prices
 
 
-def download_prices(tickers, sessions, first_trade):
+def download_market(tickers, cash_proxy, sessions, first_trade):
     for attempt in range(2):
         try:
             download = yf.download(
-                tickers,
+                [*tickers, cash_proxy],
                 start=sessions[0].date().isoformat(),
                 end=(sessions[-1] + pd.Timedelta(days=1)).date().isoformat(),
-                auto_adjust=True,
+                auto_adjust=False,
+                actions=True,
                 progress=False,
                 timeout=12,
             )
             prices = validate_prices(download["Close"], sessions, tickers, first_trade)
-            return prices, datetime.now(timezone.utc).isoformat(timespec="seconds")
+            cash_prices = validate_prices(download["Adj Close"], sessions, [cash_proxy], {})
+            dividends = download["Dividends"].loc[sessions, tickers]
+            splits = download["Stock Splits"].loc[sessions, tickers]
+            for actions in (dividends, splits):
+                if not np.isfinite(actions.to_numpy()[prices.notna().to_numpy()]).all():
+                    raise ValueError("Missing Yahoo corporate action data")
+            gains = download.get("Capital Gains", pd.DataFrame()).reindex(
+                index=sessions, columns=tickers
+            ).fillna(0)
+            distributions = dividends.fillna(0) + gains
+            if not (np.isfinite(distributions) & distributions.ge(0)).all().all():
+                raise ValueError("Invalid Yahoo cash distributions")
+            if splits.fillna(0).ne(0).any().any():
+                raise ValueError("An execution ETF split in the sample and requires share conversion")
+            return prices, distributions, cash_prices[cash_proxy], datetime.now(timezone.utc)
         except (KeyError, ValueError) as exc:
             if attempt == 1:
-                raise RuntimeError("Unable to load a complete public Yahoo Finance price panel") from exc
+                raise RuntimeError(f"Unable to use the public Yahoo Finance panel: {exc}") from exc
             print(f"Retrying Yahoo Finance download ({exc})")
-
-
-def load_market_prices(tickers, sessions, first_trade, start, end):
-    cache_file = CACHE / f"yahoo_adjusted_close_{start.date()}_{end.date()}.csv"
-    if cache_file.exists():
-        try:
-            cached = pd.read_csv(cache_file, index_col="date", parse_dates=["date"])
-            prices = validate_prices(cached, sessions, tickers, first_trade)
-            saved_at = datetime.fromtimestamp(cache_file.stat().st_mtime, timezone.utc)
-            return prices, f"{saved_at.isoformat(timespec='seconds')} (cache mtime)"
-        except ValueError as exc:
-            print(f"Downloading the Yahoo panel ({exc})")
-    return download_prices(tickers, sessions, first_trade)
 
 
 def trend_score(log_price, squared_log_returns, window):
@@ -177,7 +158,7 @@ def target_weights(close, proxy_returns, trend, model, portfolio):
     return pd.DataFrame(targets, index=close.index, columns=close.columns)
 
 
-def backtest(close, close_targets, portfolio):
+def backtest(close, distributions, close_targets, portfolio):
     fee = (portfolio["transaction_bps"] + portfolio["slippage_bps"]) / BPS
     borrow = portfolio["annual_short_borrow_bps"] / BPS / portfolio["sessions_per_year"]
     reserve = portfolio["cash_buffer"]
@@ -194,6 +175,7 @@ def backtest(close, close_targets, portfolio):
     positions = np.zeros(len(close.columns))
     previous_value = cash = 1.0
     prices = close.to_numpy()
+    payouts = distributions.loc[close.index, close.columns].to_numpy()
     targets = close_targets.reindex(sizing_dates).to_numpy()
     rebalance = sizing_dates.isin(close_targets.index)
     for day, fill_date in enumerate(fill_dates):
@@ -205,17 +187,25 @@ def backtest(close, close_targets, portfolio):
         order = next_positions - positions
 
         fill_close = prices[day + 1]
-        traded = np.abs(order) @ fill_close
         borrow_cost = borrow * (np.maximum(-positions, 0) @ sizing_close)
-        cash -= order @ fill_close + fee * traded + borrow_cost
+        # The existing shares earn or owe the distribution on the ex-date.
+        cash += positions @ payouts[day + 1] - borrow_cost
+        value_before = cash + positions @ fill_close
+        free_cash_before = cash - 2 * (np.maximum(-positions, 0) @ fill_close)
+        if value_before <= 0 or free_cash_before < 0:
+            raise ValueError(f"Insufficient collateral before the {fill_date.date()} close fill")
+
+        traded = np.abs(order) @ fill_close
+        cash -= order @ fill_close + fee * traded
         value = cash + next_positions @ fill_close
         # Keep all short proceeds and an equal amount of portfolio funds as collateral.
-        free_cash = value - np.abs(next_positions) @ fill_close
-        if value <= 0 or cash < 0 or free_cash < 0:
+        free_cash = cash - 2 * (np.maximum(-next_positions, 0) @ fill_close)
+        if value <= 0 or free_cash < 0:
             raise ValueError(f"Insufficient cash at the {fill_date.date()} close with fixed share quantities")
 
+        minimum_free_fraction = min(free_cash_before / value_before, free_cash / value)
         daily_results.append((value / previous_value - 1, traded / previous_value,
-                              np.count_nonzero(order), free_cash / value))
+                              np.count_nonzero(order), minimum_free_fraction))
         positions = next_positions
         previous_value = value
 
@@ -288,18 +278,32 @@ def main():
     first_trade = {proxy: pd.Timestamp(config["cta_proxy_first_trade"])}
     with TemporaryDirectory(prefix="yfinance_", dir=ROOT) as yf_cache:
         yf.set_tz_cache_location(yf_cache)
-        prices, market_fetched_at = load_market_prices(tickers, sessions, first_trade, start, oos_end)
-        cash_prices, cash_fetched_at = download_prices([cash_proxy], evaluation_prices, {})
-    cash_returns = cash_prices[cash_proxy].pct_change(fill_method=None)
-    proxy_returns = prices[proxy].pct_change(fill_method=None)
-    targets = target_weights(prices[assets], proxy_returns, config["trend"], config["filter"], portfolio)
+        prices, distributions, cash_prices, fetched_at = download_market(
+            tickers, cash_proxy, sessions, first_trade
+        )
+    cash_returns = cash_prices.pct_change(fill_method=None)
+    total_returns = (prices + distributions) / prices.shift(1) - 1
+    proxy_returns = total_returns[proxy]
+    signal_prices = (1 + total_returns[assets].fillna(0)).cumprod()
+    targets = target_weights(signal_prices, proxy_returns, config["trend"], config["filter"], portfolio)
 
     # Include the prior session for sizing the first fill. No target uses the last close.
-    strategy = backtest(prices.loc[evaluation_prices, assets], targets.loc[evaluation_prices[:-1]], portfolio)
+    strategy_close = prices.loc[evaluation_prices, assets]
+    sizing_targets = targets.loc[evaluation_prices[:-1]].dropna(how="all")
+    strategy = backtest(strategy_close, distributions, sizing_targets, portfolio)
     comparisons = {}
     for ticker in (proxy, secondary):
         initial_target = pd.DataFrame(1.0, index=evaluation_prices[:1], columns=[ticker])
-        comparisons[ticker] = backtest(prices.loc[evaluation_prices, [ticker]], initial_target, portfolio)
+        comparisons[ticker] = backtest(prices.loc[evaluation_prices, [ticker]], distributions,
+                                       initial_target, portfolio)
+
+    stress_portfolio = {**portfolio, "slippage_bps": portfolio["is_stress_slippage_bps"]}
+    stress_close = strategy_close.loc[:is_end]
+    stress_targets = sizing_targets.loc[sizing_targets.index < stress_close.index[-1]]
+    stressed = backtest(stress_close, distributions, stress_targets, stress_portfolio)
+    stress_metrics = metrics(stressed, proxy_returns.loc[is_start:is_end],
+                             cash_returns.loc[is_start:is_end], portfolio["sessions_per_year"])
+    stress_total_bps = stress_portfolio["transaction_bps"] + stress_portfolio["slippage_bps"]
 
     periods = {"is": (is_start, is_end), "oos": (oos_start, oos_end), "full": (is_start, oos_end)}
     reports = {
@@ -314,12 +318,14 @@ def main():
     for period, (a, b) in periods.items():
         dates = strategy.loc[a:b].index
         print(f"{period.upper():<4} {dates[0].date()} to {dates[-1].date()} ({len(dates)} sessions)")
-    print("PARAM_COMBOS_TRIED: 1")
-    print(f"DATA_FETCHED_AT: ETF_PANEL={market_fetched_at}; {cash_proxy}={cash_fetched_at}")
-    print("PRICE_ADJUSTMENT: Yahoo Finance auto_adjust=True, distributions and splits, USD adjusted closes")
+    print("PARAM_COMBOS_TRIED: 2")
+    print(f"DATA_FETCHED_AT: {fetched_at.isoformat(timespec='seconds')} (Yahoo Finance)")
+    print("PRICE_ADJUSTMENT: Yahoo USD Close for fills, ex-date cash distributions; "
+          f"forward total returns for signals, Adj Close for {cash_proxy}")
     print(f"MIN_STRATEGY_FREE_CASH: {strategy['free_cash_fraction'].min():.2%}")
     print_metrics({f"{label} {period.upper()}": values
-                   for label, report in reports.items() for period, values in report.items()})
+                   for label, report in reports.items() for period, values in report.items()}
+                  | {f"Strategy IS {stress_total_bps:g} bp": stress_metrics})
     results = {
         "strategy": config["strategy"],
         "data_range": data_range,

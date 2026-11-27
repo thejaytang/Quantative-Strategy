@@ -2,26 +2,26 @@
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
 Run (one command): python strategies/197_tsmom_boundaries.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit da9754ee51e8d74f175ab50e14ef28c47c764ad1 on 2026-11-27 12:03 Europe/Oslo, exit 0, output sha256 61a52fec22095d3c064c2a5b1cf57be874a4cecc57e6e9b0b9afd37797f35d73
+Backtest reproduced: run of this file's code at commit 92e75bea82090bd8b6723b610a02dabec59e659b on 2026-11-27 07:29 Europe/Oslo, exit 0, output sha256 2c1130e9eb27bbf20be002849f09205177f4b0192e68a2d61438f5f3ab26a259
 Data source: Yahoo Finance（yfinance）的 SPY、BIL 日频开盘价、收盘价、复权收盘价及除息日现金分红，另用免费 FRED CSV 的 DGS10（10 年期）和 DGS3MO（3 个月期）美国国债收益率。config.yaml:3-7，strategy.py:18、56-70、79-95，README.md:22。
 Data fetched: 2026-11-27
 Sample period: 实际回测交易区间为 2009-01-02 至 2026-10-30。数据请求自 2002-01-01 起用于预热，截止 2026-10-30。config.yaml:9-15，strategy.py:214-217、255-256，README.md:20，logs/codex_fix_d2_run_20261126_181450.log:4。   data_range (from output): 2009-01-02 to 2026-10-30
 IS/OOS split: 样本内为 2009-01-01 至 2018-12-31，样本外为 2019-01-01 至 2026-10-30。先连续模拟，再按日期切分报告，样本边界延续持仓。README 记载两段均未用于参数搜索，并说明这属于历史时间切分，研究论文的美国样本与样本外区间部分重叠。config.yaml:10-15，strategy.py:221-227、236-253，README.md:20、34，logs/codex_fix_d2_run_20261126_181450.log:5-6。
 Costs and slippage: 每边 5 bps，由 1 bp 手续费与 4 bps 固定滑点组成，滑点已建模为固定费用并包含价差影响。费率 c = 0.0005。首次从现金建仓乘以 1/(1+c)，换仓日卖出和买入各计一边，乘以 (1−c)/(1+c)，其余日成本因子为 1。策略及两个基准使用同一费率。config.yaml:24-25，strategy.py:144-156、203-208、236-245，README.md:16，logs/codex_fix_d2_run_20261126_181450.log:4。
 Signal lag: 每月最后一个 SPY 交易日收盘 t 形成信号。月末目标前向填充到日频后再滞后一整个交易日，最早在下一 SPY 交易日 t+1 开盘按目标换仓。换仓日的隔夜收益计入原持仓，开盘至收盘收益计入新持仓。strategy.py:112-139、144-156、159-165、221-226，README.md:16。
-Price adjustment: Yahoo split-adjusted Open for sizing and fills, Close for marking and valuation; dividends tracked separately; dividend- and split-adjusted Adj Close for momentum and BIL cash reference
+Price adjustment: Yahoo split-adjusted Open/Close for execution and valuation; dividend- and split-adjusted Adj Close for momentum and total returns; adjusted open = Open * Adj Close / Close
 Survivorship bias: 使用固定的 SPY 和 BIL 历史，不按当前标普 500 成分股回填。两只 ETF 由研究者事后选定，仍存在产品层面的选择和幸存者偏差。config.yaml:3-5，strategy.py:211-215，README.md:36。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=0.11956947485326985, ann_vol=0.15101010346081545, sharpe=0.8236254808795336, sharpe_excess=0.8074576182506913, max_drawdown=-0.2686896337586938, total_return=2.08838831597446, turnover=24.593058794896642, n_trades=25
-    oos: cagr=0.14006656636278558, ann_vol=0.14937651167973853, sharpe=0.9526645288262168, sharpe_excess=0.775690910011263, max_drawdown=-0.2799076966262053, total_return=1.7849906524142432, turnover=35.44200508608044, n_trades=36
-    full: cagr=0.12852231171139783, ann_vol=0.15027944220383807, sharpe=0.8800095903435303, sharpe_excess=0.7936798817358752, max_drawdown=-0.2799076966262052, total_return=7.6011325910141885, turnover=60.03506388097708, n_trades=61
-    benchmark: cagr=0.1329219095231713, ann_vol=0.160834446321925, sharpe=0.8566970336283034, sharpe_excess=0.7760256372515544, max_drawdown=-0.29930415890686735, total_return=8.217868738172784, turnover=0.9895052473763118, n_trades=1
+    is: cagr=0.12509291389995858, ann_vol=0.15724278475689904, sharpe=0.8284103110805522, sharpe_excess=0.8128914217832021, max_drawdown=-0.27131726550904134, total_return=2.243929296638725, turnover=25.0, n_trades=25
+    oos: cagr=0.14353315960597768, ann_vol=0.15240184690906342, sharpe=0.9566676633387795, sharpe_excess=0.7832063379147959, max_drawdown=-0.2831903065172986, total_return=1.851847144368112, turnover=36.0, n_trades=36
+    full: cagr=0.1331516279106011, ann_vol=0.1551197160491184, sharpe=0.8837194303501501, sharpe_excess=0.8000799325345826, max_drawdown=-0.2831903065172987, total_return=8.251190501151186, turnover=61.0, n_trades=61
+    benchmark: cagr=0.1469699584168871, ann_vol=0.17699545754883583, sharpe=0.8636053662398785, sharpe_excess=0.7903282304303274, max_drawdown=-0.33717240715702157, total_return=10.478485078594558, turnover=1.0, n_trades=1
 """
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os
-_CONFIG_YAML = "strategy: 197_tsmom_boundaries\n\nuniverse:\n  equity: SPY\n  cash: BIL\n  treasury_long: DGS10\n  treasury_short: DGS3MO\n\ndata_start: '2002-01-01'\nin_sample:\n  start: '2009-01-01'\n  end: '2018-12-31'\nout_of_sample:\n  start: '2019-01-01'\n  end: '2026-10-30'\n\nsignal:\n  dividend_lookback_months: 12\n  treasury_lag_sessions: 2\n  valuation_lookback_months: 60\n  boundary_threshold: 4.0\n  trend_lookback_sessions: 252\n\ncommission_bps_per_side: 1.0\nslippage_bps_per_side: 4.0\ncash_buffer_fraction: 0.01\ndividend_cash_delay_days: 60\nparam_combos_tried: 1\n"
+_CONFIG_YAML = "strategy: 197_tsmom_boundaries\n\nuniverse:\n  equity: SPY\n  cash: BIL\n  treasury_long: DGS10\n  treasury_short: DGS3MO\n\ndata_start: '2002-01-01'\nin_sample:\n  start: '2009-01-01'\n  end: '2018-12-31'\nout_of_sample:\n  start: '2019-01-01'\n  end: '2026-10-30'\n\nsignal:\n  dividend_lookback_months: 12\n  treasury_lag_sessions: 2\n  valuation_lookback_months: 60\n  boundary_threshold: 4.0\n  trend_lookback_sessions: 252\n\ncommission_bps_per_side: 1.0\nslippage_bps_per_side: 4.0\nparam_combos_tried: 1\n"
 _orig_open = _b.open
 def _open(f, *a, **k):
     try:
@@ -37,7 +37,6 @@ _io.open = _open
 
 import io
 import json
-from collections import deque
 from datetime import datetime, timezone
 from pathlib import Path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
@@ -47,18 +46,6 @@ import pandas as pd
 import requests
 import yaml
 import yfinance as yf
-from pandas.tseries.holiday import (
-    AbstractHolidayCalendar,
-    GoodFriday,
-    Holiday,
-    USLaborDay,
-    USMartinLutherKingJr,
-    USMemorialDay,
-    USPresidentsDay,
-    USThanksgivingDay,
-    nearest_workday,
-    sunday_to_monday,
-)
 
 
 ROOT = Path(__file__).resolve().parent
@@ -66,8 +53,9 @@ CACHE = ROOT / "data_cache"
 FRED_CSV = "https://fred.stlouisfed.org/graph/fredgraph.csv"
 SESSIONS_PER_YEAR = 252
 PRICE_ADJUSTMENT = (
-    "Yahoo split-adjusted Open for sizing and fills, Close for marking and valuation; "
-    "dividends tracked separately; dividend- and split-adjusted Adj Close for momentum and BIL cash reference"
+    "Yahoo split-adjusted Open/Close for execution and valuation; "
+    "dividend- and split-adjusted Adj Close for momentum and total returns; "
+    "adjusted open = Open * Adj Close / Close"
 )
 
 
@@ -142,27 +130,6 @@ def fetch_treasury(symbol, start, end):
     return rates, data.attrs["fetched_on"]
 
 
-def market_sessions(start, end):
-    """U.S. equity sessions for the configured history, including full-day exceptional closures."""
-    calendar = AbstractHolidayCalendar(rules=[
-        Holiday("New Year's Day", month=1, day=1, observance=sunday_to_monday),
-        USMartinLutherKingJr,
-        USPresidentsDay,
-        GoodFriday,
-        USMemorialDay,
-        Holiday("Juneteenth", month=6, day=19, start_date="2022-01-01", observance=nearest_workday),
-        Holiday("Independence Day", month=7, day=4, observance=nearest_workday),
-        USLaborDay,
-        USThanksgivingDay,
-        Holiday("Christmas", month=12, day=25, observance=nearest_workday),
-    ])
-    exceptional_closures = pd.to_datetime([
-        "2004-06-11", "2007-01-02", "2012-10-29", "2012-10-30", "2018-12-05", "2025-01-09",
-    ])
-    closed = calendar.holidays(start, end).union(exceptional_closures)
-    return pd.bdate_range(start, end).difference(closed)
-
-
 def available_treasury_spread(sessions, long_rates, short_rates, lag_sessions):
     spread = long_rates.sub(short_rates).dropna().sort_index()
     observations = spread.index
@@ -209,64 +176,29 @@ def month_end_signals(equity, cash, long_rates, short_rates, settings):
     )
 
 
-def simulate(target, equity, cash, cost, cash_buffer, dividend_delay):
-    """Size on the open, fill fixed shares at the modeled open, and mark at the close."""
-    equity = equity.loc[target.index]
-    cash = cash.loc[target.index]
-    opens = np.column_stack((equity["Open"], cash["Open"]))
-    closes = np.column_stack((equity["Close"], cash["Close"]))
-    dividends = np.column_stack((equity["Dividends"], cash["Dividends"]))
-    positions = np.zeros(2)
-    free_cash = prior_value = 1.0
-    current_asset = None
-    pending_dividends = deque()
-    daily_results = []
+def simulate(target, equity, cash, cost):
+    """Mark at each close with the prior asset held overnight and the target held intraday."""
+    prior = target.shift(1, fill_value=False)
+    overnight = equity["overnight"].where(prior, cash["overnight"])
+    intraday = equity["intraday"].where(target, cash["intraday"])
+    switches = target.ne(prior)
+    fees_factor = pd.Series(1.0, index=target.index)
+    fees_factor.loc[switches] = (1 - cost) / (1 + cost)
+    fees_factor.iloc[0] = 1 / (1 + cost)
+    trade_legs = switches.astype(int) * 2
+    trade_legs.iloc[0] = 1
+    overnight.iloc[0] = 1.0
+    return pd.DataFrame({"return": overnight * intraday * fees_factor - 1, "trade_legs": trade_legs})
 
-    for i, (session, use_equity) in enumerate(target.items()):
-        asset = 0 if use_equity else 1
-        while pending_dividends and pending_dividends[0][0] <= session:
-            _, paid = pending_dividends.popleft()
-            free_cash += paid
-        # Entitlement belongs to the position carried into the ex-dividend day.
-        new_dividend = positions @ dividends[i]
-        if new_dividend > 0:
-            pending_dividends.append((session + dividend_delay, new_dividend))
-        unpaid_dividends = sum(amount for _, amount in pending_dividends)
 
-        opening_prices = opens[i]
-        opening_value = free_cash + positions @ opening_prices + unpaid_dividends
-        trade_legs = 0
-        traded_notional = 0.0
-        if asset != current_asset:
-            sale_notional = positions @ opening_prices
-            available_cash = free_cash + sale_notional * (1 - cost)
-            buy_shares = available_cash * (1 - cash_buffer) / (opening_prices[asset] * (1 + cost))
-
-            # Apply costs at the opening mark after sizing the trade.
-            buy_notional = buy_shares * opening_prices[asset]
-            free_cash = available_cash - buy_notional * (1 + cost)
-            if not np.isfinite(free_cash) or free_cash < 0:
-                raise ValueError(f"Opening fills would leave invalid cash on {session.date()}: {free_cash}")
-            positions.fill(0.0)
-            positions[asset] = buy_shares
-            trade_legs = int(sale_notional > 0) + int(buy_notional > 0)
-            traded_notional = sale_notional + buy_notional
-            current_asset = asset
-
-        closing_value = free_cash + positions @ closes[i] + unpaid_dividends
-        daily_results.append({
-            "return": closing_value / prior_value - 1,
-            "trade_legs": trade_legs,
-            "turnover": traded_notional / opening_value,
-            "traded_notional": traded_notional,
-            "equity_shares": positions[0],
-            "cash_etf_shares": positions[1],
-            "free_cash": free_cash,
-            "unpaid_dividends": unpaid_dividends,
-        })
-        prior_value = closing_value
-
-    return pd.DataFrame(daily_results, index=target.index)
+def return_factors(prices):
+    adjusted_open = prices["Open"] * (prices["Adj Close"] / prices["Close"])
+    return pd.DataFrame(
+        {
+            "overnight": adjusted_open / prices["Adj Close"].shift(1),
+            "intraday": prices["Adj Close"] / adjusted_open,
+        }
+    )
 
 
 def annualized_sharpe(daily):
@@ -278,19 +210,19 @@ def annualized_sharpe(daily):
 
 def metrics(simulation, risk_free):
     daily = simulation["return"]
-    value_path = np.r_[1.0, (1 + daily).cumprod().to_numpy()]
+    nav = np.r_[1.0, (1 + daily).cumprod().to_numpy()]
     excess = daily - risk_free.reindex(daily.index)
     values = {
-        "cagr": value_path[-1] ** (SESSIONS_PER_YEAR / len(daily)) - 1,
+        "cagr": nav[-1] ** (SESSIONS_PER_YEAR / len(daily)) - 1,
         "ann_vol": daily.std(ddof=1) * np.sqrt(SESSIONS_PER_YEAR),
         "sharpe": annualized_sharpe(daily),
         "sharpe_excess": annualized_sharpe(excess),
-        "max_drawdown": (value_path / np.maximum.accumulate(value_path) - 1).min(),
-        "total_return": value_path[-1] - 1,
+        "max_drawdown": (nav / np.maximum.accumulate(nav) - 1).min(),
+        "total_return": nav[-1] - 1,
     }
     result = {key: float(value) if np.isfinite(value) else None for key, value in values.items()}
     result["n_trades"] = int(simulation["trade_legs"].sum())
-    result["turnover"] = float(simulation["turnover"].sum())
+    result["turnover"] = float(result["n_trades"])
     return result
 
 
@@ -309,13 +241,6 @@ def main():
     cost = cost_bps / 10_000
     if not (commission_bps >= 0 and slippage_bps >= 0 and cost < 1):
         raise ValueError("Commission and slippage must be nonnegative and total less than 10000 bps")
-    cash_buffer = float(config["cash_buffer_fraction"])
-    if not 0 < cash_buffer < 1:
-        raise ValueError("The cash buffer must be a fraction strictly between zero and one")
-    dividend_delay_days = config["dividend_cash_delay_days"]
-    if type(dividend_delay_days) is not int or dividend_delay_days < 1:
-        raise ValueError("The dividend cash delay must be a positive integer number of calendar days")
-    dividend_delay = pd.Timedelta(days=dividend_delay_days)
 
     CACHE.mkdir(exist_ok=True)
     universe = config["universe"]
@@ -325,27 +250,23 @@ def main():
         cash = fetch_etf(universe["cash"], data_start, oos_end)
     long_rates, long_fetched = fetch_treasury(universe["treasury_long"], data_start, oos_end)
     short_rates, short_fetched = fetch_treasury(universe["treasury_short"], data_start, oos_end)
-    expected_sessions = market_sessions(data_start, oos_end)
-    for symbol, prices, first_required in (
-        (universe["equity"], equity, data_start),
-        (universe["cash"], cash, cash.index[0]),
-    ):
-        expected = expected_sessions[expected_sessions >= first_required]
-        missing = expected.difference(prices.index)
-        unexpected = prices.index.difference(expected)
-        if len(missing) or len(unexpected):
-            raise ValueError(f"{symbol} session mismatch: missing {list(missing.date)}, extra {list(unexpected.date)}")
+    if not equity.loc[cash.index[0]:].index.equals(cash.index):
+        raise ValueError("ETF sessions differ over their common history")
 
     monthly = month_end_signals(equity, cash, long_rates, short_rates, config["signal"])
     # Forward-fill only between monthly signals. Missing month-end inputs stay missing.
     targets = monthly.reindex(equity.index, method="ffill").shift(1).loc[is_start:oos_end]
-    if targets.empty or targets.isna().any().any() or not targets.index.isin(cash.index).all():
+    if targets.empty or targets.isna().any().any():
         raise ValueError("Evaluation requires a valid prior month-end signal on every session")
     targets = targets.astype(bool)
     targets["buy_hold"] = True
-    risk_free = cash["Adj Close"].pct_change(fill_method=None).loc[targets.index].copy()
-    first_cash = cash.loc[targets.index[0]]
-    risk_free.iloc[0] = first_cash["Close"] / first_cash["Open"] - 1
+    equity_factors = return_factors(equity).reindex(targets.index)
+    cash_factors = return_factors(cash).reindex(targets.index)
+    for factors in (equity_factors, cash_factors):
+        if not np.isfinite(factors).all().all():
+            raise ValueError("Missing ETF returns over the evaluation interval")
+    risk_free = cash_factors["overnight"] * cash_factors["intraday"] - 1
+    risk_free.iloc[0] = cash_factors["intraday"].iloc[0] - 1
 
     windows = {"is": (is_start, is_end), "oos": (oos_start, oos_end), "full": (is_start, oos_end)}
     labels = {
@@ -356,7 +277,7 @@ def main():
     reports = {}
     rows = []
     for method, label in labels.items():
-        simulation = simulate(targets[method], equity, cash, cost, cash_buffer, dividend_delay)
+        simulation = simulate(targets[method], equity_factors, cash_factors, cost)
         reports[method] = {}
         for window, (start, end) in windows.items():
             sample = simulation.loc[start:end]

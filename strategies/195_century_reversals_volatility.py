@@ -1,27 +1,7 @@
-"""195_century_reversals_volatility
-研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
-Author: Codex; non-author review: PASS; publication gate: Codex.
-Run (one command): python strategies/195_century_reversals_volatility.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit 10f82382008748cd9ff2f56e2b8ef160caa66e38 on 2026-11-27 11:24 Europe/Oslo, exit 0, output sha256 530a6c44d469bc5fac7660ff093a608f5c5f3dd8209c521f6cf8702912508ddd
-Data source: 免费 Yahoo Finance 日频行情，经 yfinance 获取 SPY、BIL 的开盘价和收盘价，以及 ^VIX 的收盘值。优先读取本地行情缓存。见 config.yaml:2-5、strategy.py:18-38、README.md:17。
-Data fetched: 2026-11-27T10:24:17+00:00
-Sample period: 行情请求区间为 2006-10-01 至 2025-12-31（含截止日），回测开始前的数据用于预热。日志记录的实际执行区间为 2008-01-02 至 2025-12-31，共 4,529 个交易日。见 config.yaml:6-12、strategy.py:33-36、strategy.py:230-232、logs/run_20261125_123225.log:1、logs/run_20261125_123225.log:87。   data_range (from output): 2008-01-02 to 2025-12-31
-IS/OOS split: 按执行日期划分，样本内为 2008-01-02 至 2017-12-31（2,518 个交易日），样本外为 2018-01-01 至 2025-12-31（2,011 个交易日）。样本外为历史留出期，承接样本内期末仓位。README 记载信号采用冻结候选 C41，论文的历史研究窗口覆盖部分留出期。见 config.yaml:7-12、strategy.py:230-248、README.md:18-19、logs/run_20261125_123225.log:87。
-Costs and slippage: 默认每笔单边成交收取 5 bps，敏感性情景为 0 和 15 bps。设 r 为 bps/10000，买入资金乘以 1/(1+r)，卖出所得乘以 1−r。常规信号日两买两卖，全期首日从现金建仓时为信号日三笔、非信号日一笔，基准仅收首笔买入成本。固定成本合并近似点差、佣金与滑点，滑点未单独建模。见 config.yaml:18-20、strategy.py:108-128、strategy.py:224-228、README.md:19、README.md:24。
-Signal lag: 交易日 t 收盘后，以 SPY 复权收盘到收盘收益严格低于 −0.75% 且 t−1 的 VIX 严格高于截至 t−1 的 252 个 SPY 交易日滚动第 75 百分位为主策略信号。t+1 指下一交易日，在该日开盘切换至 SPY，当日收盘切回 BIL。隔夜与非信号时段持有 BIL，全期首日从现金建仓。见 config.yaml:13-16、strategy.py:78-100、strategy.py:119-127、README.md:11-13、README.md:19。
-Price adjustment: Yahoo auto_adjust=True (ETF split- and distribution-adjusted open/close)
-Survivorship bias: 使用固定的 SPY、BIL 实际 ETF 历史，避免用当前成分股回建历史。事后选用存续 ETF 仍有产品选择偏差。见 config.yaml:2-5、strategy.py:18-20、strategy.py:33-38、README.md:24。
-Parameter combinations tried: 1
-Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=0.009571186078770832, ann_vol=0.09041090148694818, sharpe=0.15072657998820965, sharpe_excess=0.12586433073569514, max_drawdown=-0.19422415265261483, total_return=0.09985804779958318, turnover=54.40022752999471, n_trades=549
-    oos: cagr=0.030857041760043113, ann_vol=0.07357007911915298, sharpe=0.44917232391986606, sharpe_excess=0.11904313804199465, max_drawdown=-0.16058385450047907, total_return=0.2744583926136921, turnover=58.80969201483848, n_trades=474
-    full: cagr=0.018967890521761177, ann_vol=0.08334758366804589, sharpe=0.26694943743596733, sharpe_excess=0.12254206346809463, max_drawdown=-0.21557554098352194, total_return=0.40172331970187747, turnover=56.35815048848904, n_trades=1023
-    benchmark  full: cagr=0.10920347103687522, ann_vol=0.19775947243912897, sharpe=0.6231252953654971, sharpe_excess=0.5606937373469207, max_drawdown=-0.5189881093699988, total_return=5.440975502971304, turnover=0.055079499777997476, n_trades=1
-"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os
-_CONFIG_YAML = "strategy: 195_century_reversals_volatility\nuniverse:\n  market: SPY\n  reserve: BIL\n  volatility: '^VIX'\ndata_start: '2006-10-01'  # Includes the VIX warm-up before the first test session.\noriginal_snapshot:\n  sha256: 04c232667c448bccf8a2b48ebbdce7daca9d89d12b39f7bf0c4e60f886497669\n  fetched_at: '2026-11-25T12:31:39+01:00'  # Timestamp preserved on the original Yahoo CSV.\nin_sample:\n  start: '2008-01-02'\n  end: '2017-12-31'\nout_of_sample:\n  start: '2018-01-01'\n  end: '2025-12-31'\nsignal:\n  drop_threshold: -0.0075\n  vix_window_sessions: 252\n  vix_quantile: 0.75\nevent_drop_band_edges: [0.01, 0.02, 0.03]  # Absolute loss sizes, for diagnostics only.\ncosts:\n  commission_bps: 1\n  slippage_bps: 4\n  sensitivity_bps: [0, 15]\ncash_buffer: 0.01\nannualization_sessions: 252\n"
+_CONFIG_YAML = "strategy: 195_century_reversals_volatility\nuniverse:\n  market: SPY\n  reserve: BIL\n  volatility: '^VIX'\ndata_start: '2006-10-01'  # Includes the VIX warm-up before the first test session.\noriginal_snapshot:\n  sha256: 04c232667c448bccf8a2b48ebbdce7daca9d89d12b39f7bf0c4e60f886497669\n  fetched_at: '2026-11-25T12:31:39+01:00'  # Timestamp preserved on the original Yahoo CSV.\nin_sample:\n  start: '2008-01-02'\n  end: '2017-12-31'\nout_of_sample:\n  start: '2018-01-01'\n  end: '2025-12-31'\nsignal:\n  drop_threshold: -0.0075\n  vix_window_sessions: 252\n  vix_quantile: 0.75\nevent_drop_band_edges: [0.01, 0.02, 0.03]  # Absolute loss sizes, for diagnostics only.\ncosts:\n  commission_bps: 1\n  slippage_bps: 4\n  sensitivity_bps: [0, 15]\ncash_buffer: 0.01  # Leave 1% of available cash outside each fee-inclusive opening purchase.\nannualization_sessions: 252\n"
 _orig_open = _b.open
 def _open(f, *a, **k):
     try:
@@ -193,13 +173,15 @@ def make_sessions(prices, market, reserve, volatility, signal, start, end):
     return sessions
 
 
-def buy_at_open(cash, price, commission, slippage, cash_buffer):
-    spendable = cash * (1 - cash_buffer)
-    requested_units = spendable / price
-    fill_price = price * (1 + slippage)
-    per_unit_cost = fill_price * (1 + commission)
-    units = min(requested_units, spendable / per_unit_cost)
-    return units, units * fill_price, cash - units * per_unit_cost
+def buy_at_open(cash, open_price, commission, slippage, cash_buffer):
+    budget = cash * (1 - cash_buffer)
+    fill_price = open_price * (1 + slippage)
+    units = budget / (fill_price * (1 + commission))
+    traded = units * fill_price
+    cash_after = cash - traded * (1 + commission)
+    if not math.isfinite(cash_after) or cash_after < 0:
+        raise ValueError("Opening purchase produced invalid or negative cash.")
+    return units, traded, cash_after
 
 
 def sell_units(units, price, commission, slippage):
@@ -239,8 +221,8 @@ def simulate(sessions, model, commission, slippage, cash_buffer):
             positions["spy"] = 0.0
 
         value = cash + positions["spy"] * day.spy_close + positions["bil"] * day.bil_close
-        if cash < 0 or not math.isfinite(value) or value <= 0:
-            raise ValueError("Simulation produced negative cash or an invalid portfolio value.")
+        if not math.isfinite(value) or value <= 0:
+            raise ValueError("Simulation produced an invalid portfolio value.")
         daily_results.append((value / previous_value - 1, traded / previous_value, trades))
         previous_value = value
     return pd.DataFrame(daily_results, index=sessions.index, columns=["return", "turnover", "trades"])

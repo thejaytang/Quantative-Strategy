@@ -1,3 +1,23 @@
+"""310_factor_beta_overnight_intraday
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; non-author review: PASS; publication gate: Codex.
+Run (one command): python strategies/310_factor_beta_overnight_intraday.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit c71364ad99535bbf59be998b004cff431ee83048 on 2026-11-27 11:54 Europe/Oslo, exit 0, output sha256 5554d9315b377f7813686841564b6dc7110b73f1c832c5fd4f003c05a1a728b0
+Data source: Yahoo Finance 公开日频 ETF 开盘价和收盘价，通过 yfinance 读取。标的为 QUAL（质量代理）、SPY（市场对冲和基准）、IWF（成长风格对照）。优先读取 data_cache/ 中的 CSV，缺失时请求 Yahoo Finance（config.yaml:2-5；strategy.py:17-39,196-199,218,235-246；README.md:7,20）。
+Data fetched: QUAL=2026-11-27T10:54:03+00:00, SPY=2026-11-27T10:54:03+00:00, IWF=2026-11-27T10:54:03+00:00, BIL=2026-11-27T10:54:03+00:00
+Sample period: 配置的数据请求区间为 2014-01-01 至 2025-12-31（含边界），2014 年仅用于初始化对冲。日志中的实际评估区间为 2015-01-02 至 2025-12-31，共 2,766 个交易日（config.yaml:7-14；strategy.py:32-44,218-226；README.md:18；logs/run_20261125_135059.log:3）。   data_range (from output): 2015-01-02 to 2025-12-31
+IS/OOS split: IS 配置区间为 2015-01-01 至 2023-05-31，日志首个交易日为 2015-01-02，共 2,117 个交易日。OOS 为 2023-06-01 至 2025-12-31，共 649 个交易日。每个组合先模拟一条连续路径，再按日期切片统计，切分日不额外平仓。OOS 继续使用截至上月最后一个交易日收盘的数据更新月度 beta（config.yaml:7-14；strategy.py:72-95,218-229,244-249；README.md:14,18；logs/run_20261125_135059.log:1-2）。
+Costs and slippage: 按每条腿每次成交的绝对名义金额收取单边 1.0 bp，适用于开仓、平仓和调仓。费用从净值扣除，目标头寸按扣费后净值确定。未建模滑点，模拟成交直接使用复权开盘价或收盘价，未单独模拟价差、冲击或借券费用（config.yaml:18；strategy.py:116-147,205-208,244-248；README.md:14,30）。
+Signal lag: 月末交易日 t 收盘后，用最近 126 个完整交易日估计 beta。新权重从下一交易日 t+1 起使用，并固定至该月结束。主隔夜组合最早在 t+1 收盘按新权重建仓，在下一交易日开盘平仓。日内对照从 t+1 开盘建仓、当日收盘平仓，持续持有对照在 t+1 开盘调仓（config.yaml:16；strategy.py:72-95,98-111,116-122,231-241；README.md:11-14）。
+Price adjustment: Yahoo Finance yfinance auto_adjust=True (split/dividend-adjusted OHLC)
+Survivorship bias: 使用固定的 QUAL、SPY、IWF 历史 ETF 行情，无成分股回建。选择仍存续的 ETF 可能引入标的选择偏差和存续偏差（config.yaml:2-5；strategy.py:26-44,192-199,218；README.md:32）。
+Parameter combinations tried: 2
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=-0.05722784595279118, ann_vol=0.016332520089129325, sharpe=-3.5996724393929456, sharpe_excess=-4.136229717989697, max_drawdown=-0.3918087261515014, total_return=-0.39046821231113715, turnover=428.4374749606773, n_trades=8466
+    oos: cagr=-0.08796980308291413, ann_vol=0.009076381840579583, sharpe=-10.138867894911591, sharpe_excess=-14.891490001257427, max_drawdown=-0.21183797968667584, total_return=-0.21112559314118962, turnover=428.3027721177002, n_trades=2594
+    full: cagr=-0.06453275687716464, ann_vol=0.014974422649961317, sharpe=-4.446864496020203, sharpe_excess=-5.572561725558017, max_drawdown=-0.5191647041034225, total_return=-0.5191559725253567, turnover=428.40586897908224, n_trades=11060
+    benchmark  full: cagr=0.1218133588081105, ann_vol=0.16109554983624247, sharpe=0.7944044338064401, sharpe_excess=0.680863311890333, max_drawdown=-0.3072370422517515, total_return=2.5313283036005454, turnover=0.16406179141094573, n_trades=2
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

@@ -1,3 +1,23 @@
+"""100_etf_asset_momentum_corr_hedge
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; non-author review: PASS; publication gate: Codex.
+Run (one command): python strategies/100_etf_asset_momentum_corr_hedge.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit c71364ad99535bbf59be998b004cff431ee83048 on 2026-11-27 11:53 Europe/Oslo, exit 0, output sha256 145016efbd88b58308258dc8a0ee51b4c11e172c304a94191b62fda3b51ec945
+Data source: Yahoo Finance（yfinance）ETF 日线开盘价和收盘价，优先读取本地行情缓存。风险资产为 SPY、IWM、EFA、EEM、IYR、QQQ、LQD、IEF、TIP、GLD、USO、DBC、FXE，现金收益代理为 BIL。（config.yaml:4-5，strategy.py:21-26，strategy.py:46-55，strategy.py:205-206，README.md:11-12）
+Data fetched: 2026-11-27T10:53:51+00:00
+Sample period: 日志记录的实际回测区间为 2008-07-01 至 2026-11-24。行情请求起始日为 2007-06-01，用于信号预热。（logs/run_20261125_094846.log:1，config.yaml:6-12，strategy.py:213-218，README.md:16）   data_range (from output): 2008-07-01 to 2026-11-24
+IS/OOS split: 样本内为 2008-07-01 至 2023-02-28，样本外为 2023-03-01 至 2026-11-24。每个情景先连续模拟持仓，再按区间切分收益。README 说明分界取自原文资料区间终点，样本外起始日早于原文发表，仍属历史回测。（config.yaml:7-12，strategy.py:162-163，strategy.py:200-204，strategy.py:234-238，README.md:16-17，logs/run_20261125_094846.log:2）
+Costs and slippage: 基准交易费为每美元买入或卖出名义金额 5 bps，含空头回补，在调仓时从开盘净值扣减，目标权重按扣费后的净值确定。现金余额（含卖空所得）按 BIL 计息。上个收盘的空头名义金额按实际经过的日历天数和 365 天年基准计提年化 100 bps 借券费及 25 bps 空头所得利率折减。另运行零费用毛收益、交易费 0 和 15 bps、借券费年化 300 bps 情景。未建模滑点，成交采用复权开盘价，未单独模拟买卖价差或市场冲击。（config.yaml:22-27，strategy.py:113-153，strategy.py:219-232，README.md:12，README.md:24）
+Signal lag: 月末交易日 t 的复权收盘价用于计算动量与相关性。目标仓位在下一条交易日行情的开盘执行，且开盘执行日不早于回测首日。旧仓承担隔夜跳空，新仓自执行日开盘起承担价格变化。（strategy.py:76-106，strategy.py:121-154，README.md:11）
+Price adjustment: Yahoo Finance daily Open and Close, yfinance auto_adjust=True (splits and distributions)
+Survivorship bias: 全样本使用固定的 13 只风险 ETF，沿用原文事后选定的资产池。存在潜在存续和选样偏差。加载器从所有标的均有有效开盘和收盘价的第一个日期起使用共同历史，并拒绝其后的无效行情或缺失值。（config.yaml:4-5，strategy.py:28-44，strategy.py:205-218，README.md:22）
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.06893342019828297, ann_vol=0.13320343726206285, sharpe=0.5678703862325178, sharpe_excess=0.5303787573729772, max_drawdown=-0.28360487605707074, total_return=1.6578492912901237, turnover=108.09910277180086, n_trades=1377
+    oos: cagr=0.08502552088551396, ann_vol=0.13345794499526667, sharpe=0.6802088852500846, sharpe_excess=0.3473217504920131, max_drawdown=-0.158468951980672, total_return=0.35657871990147605, turnover=29.729318197296095, n_trades=347
+    full: cagr=0.07218221248997536, ann_vol=0.13324121747996093, sharpe=0.590749534227566, sharpe_excess=0.49324035944325473, max_drawdown=-0.28360487605707074, total_return=2.6055817892694306, turnover=137.82842096909695, n_trades=1724
+    benchmark  full: cagr=0.05136076044403892, ann_vol=0.12080377718398254, sharpe=0.47581775229538475, sharpe_excess=0.3669399347313378, max_drawdown=-0.3756131983894657, total_return=1.513369139490349, turnover=7.036229829430608, n_trades=2873
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

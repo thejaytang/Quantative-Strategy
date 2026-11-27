@@ -1,23 +1,3 @@
-"""199_pca_stat_arb
-研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
-Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/199_pca_stat_arb.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit 92e75bea82090bd8b6723b610a02dabec59e659b on 2026-11-27 07:29 Europe/Oslo, exit 0, output sha256 24080a4cea1bea183ef06fd6d81b3a9fedb1cf536d56e4ed42c526b63367b8bb
-Data source: Free Yahoo Finance daily open and close prices via yfinance for the fixed 24-stock US equity universe, SPY as the benchmark and single-factor comparison input, and BIL as the cash return proxy. The loader uses a local CSV cache when present.
-Data fetched: 2026-11-27T06:29:33+00:00
-Sample period: Logged price history covers 2013-01-02 through 2025-12-31, with 3,270 complete sessions. The requested data start is 2013-01-01. The evaluated period is 2015-01-02 through 2025-12-31, with earlier data used for formation and signal history.   data_range (from output): 2015-01-02 to 2025-12-31
-IS/OOS split: By trading session, inclusive: IS 2015-01-02 through 2019-12-31 and OOS 2020-01-02 through 2025-12-31. The configured calendar starts are 2015-01-01 and 2020-01-01. Each portfolio runs continuously and daily results are sliced for reporting, so positions carry across the boundary. Monthly fits use past returns. The OOS period had appeared in earlier backtests and lacks independent holdout status.
-Costs and slippage: The base simulation charges 1 bp commission and models 4 bp slippage as a flat cash cost, for 5 bp per dollar of absolute one-way executed notional on buys and sells at each opening rebalance. It applies the charge to drifted positions and solves for after-fee equity while retaining the bar open as the execution price. Short borrow is 100 bp annualized on the beginning short market value of each interval, prorated over 365 calendar days with 6.5 hours allocated to the regular session and the remaining calendar time to the overnight interval. Sensitivities use 0 or 15 bp total transaction cost at base borrow, or 5 bp total transaction cost at 0 bp borrow.
-Signal lag: On an eligible Friday, the signal uses closing prices through session t and is simulated at the next available session's open. The old portfolio carries the overnight return through that open and the new weights take effect before the open-to-close return. Fridays without bars and sessions with fewer than five residual observations in the current month yield no signal.
-Price adjustment: Yahoo Finance via yfinance (auto_adjust=True), split- and dividend-adjusted open and close
-Survivorship bias: Fixed 24-stock US large-cap basket. The README identifies survivorship and retrospective selection bias and says delisted names are excluded. The code reuses the configured tickers throughout and raises an error for any missing or invalid open or close on a panel date.
-Parameter combinations tried: 1
-Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=0.025845061529083502, ann_vol=0.05383262426839303, sharpe=0.5009662947172744, sharpe_excess=0.3375168069773928, max_drawdown=-0.08080266355269161, total_return=0.13584981025379594, turnover=64.24992674266458, n_trades=5112
-    oos: cagr=0.004885730704877078, ann_vol=0.07148766412996045, sharpe=0.1038251258756123, sharpe_excess=-0.26165618509268523, max_drawdown=-0.16726726825336247, total_return=0.029595125663159916, turnover=65.14926837308519, n_trades=6216
-    full: cagr=0.014364586479493235, ann_vol=0.06405599760418902, sharpe=0.2546514486659549, sharpe_excess=-0.03049914764219899, max_drawdown=-0.16726726825336335, total_return=0.16946542812273502, turnover=64.74024025628509, n_trades=11328
-    benchmark: cagr=0.13400518464240663, ann_vol=0.17790164185237436, sharpe=0.7962290798453442, sharpe_excess=0.6934118236102376, max_drawdown=-0.3371727036119293, total_return=2.976171274755677, turnover=0.09104086494610444, n_trades=1
-"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

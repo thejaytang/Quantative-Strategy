@@ -2,7 +2,7 @@
 
 Already-published strategies are not removed from git history. If a later deep review finds a real problem (look-ahead, wrong data, or wrong numbers), the file is kept as last published on origin/main and listed here in a new commit. Fixes, if any, also land in a new commit.
 
-Generated 2026-11-27 19:24 Europe/Oslo.
+Generated 2026-11-27 21:17 Europe/Oslo.
 
 | File | Latest self-review | Category | Stage note |
 |---|---|---|---|
@@ -71,8 +71,17 @@ Generated 2026-11-27 19:24 Europe/Oslo.
 | strategies/482_dynamic_inclusion_and_bounded_multi_fact.py | INVALID | 固定候选池有幸存者和事后选择偏差 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 | strategies/434_dynamic_scenario_based_portfolio_optimiz.py | INVALID | 事后资产池与回顾性样本切分 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 | strategies/528_schur_complementary_allocation_a_unifica.py | INVALID | defect listed in self-review; not a published fix | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
-| strategies/354_strategy.py | INVALID | 成交假设 | kept_from_origin: 完整性不合格：reads_local_files_other_than_config_and_cache |
+| strategies/354_strategy.py | INVALID | awaiting GK spot-check after published look-ahead fix | kept_from_origin: META flags left True; false-positive reasons cite official fix sha256 566c9d806e59a7f085e28541d72875418e3193facb5dcd6f5c57cd0d3f371a11 (see note below) |
 | strategies/470_entropic_value_at_risk_parity_for_temper.py | INVALID | defect listed in self-review; not a published fix | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 | strategies/522_asset_allocation_using_a_markov_process.py | INVALID | 收盘执行依赖固定滑点和现金缓冲 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 | strategies/479_noise_proofing_universal_portfolio_shrin.py | INVALID | 基金池存在事后选择和幸存者偏差; 模拟成交依赖复权日线和固定摩擦 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 | strategies/156_cta_replication_trend_factors.py | INVALID | defect listed in self-review; not a published fix | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
+
+## 354 META false-positive reasons
+
+These reasons cite the official fix file sha256 `566c9d806e59a7f085e28541d72875418e3193facb5dcd6f5c57cd0d3f371a11` (314 lines). They do not cite a packed publication file. META was not hand-edited. The file stays INVALID in this table and in the README defect table pending Gatekeeper spot-check of the look-ahead fix; it is not in the accepted table.
+
+- friday_orders (119–157) and simulate_closes (160–202) are in-memory backtest fills only, with no broker or network library;
+- the only local reads are CONFIG_PATH (241) and the Path(__file__) self-hash (240);
+- prices come from the gzip snapshot inside config, read via BytesIO and SHA-checked (89–116);
+- broker_check is False.

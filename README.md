@@ -79,6 +79,9 @@
 
 Note on 511: the self-defined backtest helper previously named `execute_order()` was renamed to `apply_fill` (official re-run + Codex self-review). `broker_check` is now False. It was never a live or broker API. The approximately 1e-7 change in reported full-sample Sharpe (0.6781159099371227 → 0.678115570051477) comes from a different Yahoo Finance data snapshot (fetched 2026-11-27T11:05:24+00:00 vs 2026-11-27T08:00:04+00:00), not from the rename.
 
+Note on 354: this file stays in the defect table and DEEP_REVIEW_FINDINGS.md as INVALID pending Gatekeeper spot-check of the look-ahead fix; it is not in the accepted table. META flags remain True and were not hand-edited. False-positive reasons cite the official fix file sha256 566c9d806e59a7f085e28541d72875418e3193facb5dcd6f5c57cd0d3f371a11 (314 lines): friday_orders (119–157) and simulate_closes (160–202) are in-memory backtest fills only, with no broker or network library; the only local reads are CONFIG_PATH (241) and the Path(__file__) self-hash (240); prices come from the gzip snapshot inside config, read via BytesIO and SHA-checked (89–116); broker_check is False.
+
+
 ## 已收录后的深审发现
 
 已推送到 origin/main 的策略不会改写历史提交。若之后的深审发现前视、数据或数字问题，文件保留为当时已发布的版本，并在新提交中列入 [DEEP_REVIEW_FINDINGS.md](DEEP_REVIEW_FINDINGS.md)。修复（如有）也只出现在新提交中。
@@ -150,7 +153,7 @@ Note on 511: the self-defined backtest helper previously named `execute_order()`
 | strategies/482_dynamic_inclusion_and_bounded_multi_fact.py | INVALID | 固定候选池有幸存者和事后选择偏差 |
 | strategies/434_dynamic_scenario_based_portfolio_optimiz.py | INVALID | 事后资产池与回顾性样本切分 |
 | strategies/528_schur_complementary_allocation_a_unifica.py | INVALID | defect listed in self-review; not a published fix |
-| strategies/354_strategy.py | INVALID | 成交假设 |
+| strategies/354_strategy.py | INVALID | awaiting GK spot-check after published look-ahead fix |
 | strategies/470_entropic_value_at_risk_parity_for_temper.py | INVALID | defect listed in self-review; not a published fix |
 | strategies/522_asset_allocation_using_a_markov_process.py | INVALID | 收盘执行依赖固定滑点和现金缓冲 |
 | strategies/479_noise_proofing_universal_portfolio_shrin.py | INVALID | 基金池存在事后选择和幸存者偏差; 模拟成交依赖复权日线和固定摩擦 |

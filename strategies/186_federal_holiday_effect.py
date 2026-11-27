@@ -1,27 +1,7 @@
-"""186_federal_holiday_effect
-研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
-Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/186_federal_holiday_effect.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit 92e75bea82090bd8b6723b610a02dabec59e659b on 2026-11-27 07:28 Europe/Oslo, exit 0, output sha256 bfc572d0f1fb0230a8c3544d5fb56b210b3c61277bffa7329ed8faf28eafdb81
-Data source: Public Yahoo Finance daily ETF Open and Close via yfinance for IWM (small cap), SPY (large cap), and BIL (cash proxy). The loader uses a valid CSV cache or downloads from Yahoo Finance on a cache miss or validation failure. The recorded run used the cache for all three ETFs. Its reported 2026-11-25T12:18:09+01:00 timestamp comes from the CSV modification times. config.yaml:2-5, strategy.py:98-129, strategy.py:256-260, strategy.py:300-303, logs/codex_fix_d2_run_20261126_180438.log:3-7.
-Data fetched: 2026-11-27T07:29:03+01:00
-Sample period: Observed trading sessions span 2008-01-02 through 2026-11-24, with 4,755 sessions in the full window. README.md:22, logs/codex_fix_d2_run_20261126_180438.log:1, logs/codex_fix_d2_run_20261126_180438.log:53.   data_range (from output): 2008-01-02 to 2026-11-24
-IS/OOS split: Fixed, nonoverlapping calendar-date windows with inclusive endpoints: IS 2008-01-01 through 2025-09-30; OOS 2025-10-01 through 2026-11-24. The README gives 2025-09-16 as the paper's online publication date. The same rules run in IS, OOS, and the full window, with no parameter fitting documented. config.yaml:7-13, README.md:7, README.md:22, strategy.py:236-244, strategy.py:262-281.
-Costs and slippage: 1 bp fee plus 1 bp fixed adverse slippage per ETF buy or sell (2 bp per side). With c = 0.0002, a buy multiplies portfolio growth by 1/(1+c) and a sell by 1-c. An interior event session has two ETF switches, each with one buy and one sell. Each evaluation starts and ends flat, so the first open and last close carry only the applicable entry or liquidation legs. The reported buy-and-hold portfolios pay entry and exit costs. Slippage is modeled as a flat allowance. config.yaml:24-26, strategy.py:142-164, strategy.py:245-247, strategy.py:269-290, README.md:16, README.md:26.
-Signal lag: At session t's close, the rule uses the published holiday schedule to identify the intended next session. It simulates a switch into IWM at that session's open if the session is eligible and the intended date still matches. The exit is predetermined at entry and simulated at that session's close, including scheduled early closes. An unscheduled closure that causes the intended open to be missed invalidates the signal. README.md:14-15, strategy.py:54-88, strategy.py:142-155, strategy.py:262-278.
-Price adjustment: Yahoo Finance dividend- and split-adjusted daily Open and Close (auto_adjust=True)
-Survivorship bias: Uses historical prices for the fixed IWM, SPY, and BIL ETF universe, with no reconstruction from current stock constituent lists. The ETFs themselves are surviving products selected retrospectively. config.yaml:2-5, strategy.py:256-260, README.md:26.
-Parameter combinations tried: 4
-Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=-0.002939357142245802, ann_vol=0.044837384904199785, sharpe=-0.30480936085584587, sharpe_excess=-0.30480936085584587, max_drawdown=-0.2067377094326266, total_return=-0.05082013565469523, turnover=25.171780515117582, n_trades=446
-    oos: cagr=0.06870788490417623, ann_vol=0.019165207545128803, sharpe=1.5970926804393235, sharpe_excess=1.5970926804393235, max_drawdown=-0.010316094494458028, total_return=0.07947047837373478, turnover=26.06896551724138, n_trades=30
-    full: cagr=0.0013228055598666355, ann_vol=0.04371671099890008, sharpe=-0.25031295695704375, sharpe_excess=-0.25031295695704375, max_drawdown=-0.2067377094326266, total_return=0.02525728103032865, turnover=25.1205047318612, n_trades=474
-    benchmark: cagr=0.10779770509821596, ann_vol=0.1976132385708575, sharpe=0.5488803818198398, sharpe_excess=0.5488803818198398, max_drawdown=-0.5240878006700243, total_return=5.901230901184021, turnover=0.10599369085173502, n_trades=2
-"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os
-_CONFIG_YAML = "strategy: 186_federal_holiday_effect\nuniverse:\n  small_cap: IWM\n  large_cap: SPY\n  cash_proxy: BIL\n\n# Inclusive calendar dates. The OOS start follows the paper's online publication.\nin_sample:\n  start: 2008-01-01\n  end: 2025-09-30\nout_of_sample:\n  start: 2025-10-01\n  end: 2026-11-24\n\nholidays:\n  - mlk_day\n  - presidents_day\n  - memorial_day\n  - juneteenth\n  - independence_day\n  - labor_day\n  - thanksgiving\n\n# Preserve the original 2 bp all-in assumption, with a separate slippage allowance.\ncost_bps_per_side: 1.0\nslippage_bps_per_side: 1.0\ncontrol_lookback_weeks: 4\nsessions_per_year: 252\n"
+_CONFIG_YAML = 'strategy: 186_federal_holiday_effect\nuniverse:\n  small_cap: IWM\n  large_cap: SPY\n  cash_proxy: BIL\n\n# Inclusive calendar dates. The OOS start follows the paper\'s online publication.\nin_sample:\n  start: 2008-01-01\n  end: 2025-09-30\nout_of_sample:\n  start: 2025-10-01\n  end: 2026-11-24\n\nholidays:\n  - mlk_day\n  - presidents_day\n  - memorial_day\n  - juneteenth\n  - independence_day\n  - labor_day\n  - thanksgiving\n\n# Preserve the original 2 bp all-in assumption, with a separate slippage allowance.\ncost_bps_per_side: 1.0\nslippage_bps_per_side: 1.0\n# Fixed reserve as a share of portfolio value at the open before trading.\ncash_buffer_bps: 1.0\ncontrol_lookback_weeks: 4\nsessions_per_year: 252\n\n# Original CSV write time recorded in the archived run, tied to the bundled bytes.\nbundled_snapshot:\n  fetched_at: "2026-11-25T12:18:09+01:00"\n  sha256:\n    IWM: a77dda543a5faaee891980fef372ce2c1f80998429e07682c1a553cd817ceee0\n    SPY: 0ba108006930c6d1347bc73fff4ed488037597ec6d6ffaaf597fe531a975224c\n    BIL: abf3978caea0949ac79478b2cddf9077cdfba051f70a32560df97fa77899e2fe\n'
 _orig_open = _b.open
 def _open(f, *a, **k):
     try:
@@ -36,7 +16,10 @@ _io.open = _open
 """Long-only, open-to-close US equity holiday backtest."""
 
 import json
+from dataclasses import dataclass
 from datetime import datetime
+from hashlib import sha256
+from io import BytesIO
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from zoneinfo import ZoneInfo
@@ -84,6 +67,14 @@ ONE_OFF_CLOSURES = pd.DatetimeIndex([
     "2012-10-29", "2012-10-30",  # Hurricane Sandy
     "2018-12-05", "2025-01-09",  # Bush and Carter national days of mourning
 ])
+
+
+@dataclass
+class PriceSnapshot:
+    prices: pd.DataFrame
+    fetched_at: datetime | None
+    source: str
+    digest: str
 
 
 def exchange_sessions(start, end, selected_holidays):
@@ -141,16 +132,27 @@ def check_prices(prices, ticker, expected):
     return prices
 
 
-def load_prices(ticker, start, end, expected):
+def load_prices(ticker, start, end, expected, bundled_snapshot):
     path = CACHE / f"{ticker}_{start.date()}_{end.date()}_adjusted.csv"
     columns = ["Open", "Close"]
     if path.is_file():
         try:
-            cached = pd.read_csv(path, index_col="Date", parse_dates=["Date"])
+            contents = path.read_bytes()
+            digest = sha256(contents).hexdigest()
+            cached = pd.read_csv(BytesIO(contents), index_col="Date", parse_dates=["Date"])
             prices = check_prices(cached[columns], ticker, expected)
-            fetched_at = datetime.fromtimestamp(path.stat().st_mtime, OSLO)
-            return prices, fetched_at, "cache"
-        except (KeyError, ValueError, OSError):
+            fetched_at = None
+            source = "cache"
+            if digest == bundled_snapshot.get("sha256", {}).get(ticker):
+                fetched_at = datetime.fromisoformat(bundled_snapshot["fetched_at"])
+                source = "bundled cache (archived timestamp)"
+            elif "FetchedAt" in cached:
+                timestamp, = cached["FetchedAt"].unique()
+                fetched_at = datetime.fromisoformat(timestamp)
+                if fetched_at.tzinfo is None:
+                    raise ValueError(f"{ticker} cache timestamp needs a timezone.")
+            return PriceSnapshot(prices, fetched_at, source, digest)
+        except (KeyError, TypeError, ValueError, OSError):
             pass  # Replace an invalid cache only after validating the fresh download.
 
     history = yf.Ticker(ticker).history(
@@ -162,67 +164,106 @@ def load_prices(ticker, start, end, expected):
     prices = history[columns].copy()
     prices.index = pd.DatetimeIndex(prices.index).tz_localize(None).normalize()
     prices = check_prices(prices.sort_index(), ticker, expected)
+    fetched_at = datetime.now(OSLO).replace(microsecond=0)
     with NamedTemporaryFile(mode="w", dir=CACHE, suffix=".tmp", delete=False) as tmp:
         temporary_path = Path(tmp.name)
         try:
-            prices.to_csv(tmp, index_label="Date")
+            prices.assign(FetchedAt=fetched_at.isoformat()).to_csv(tmp, index_label="Date")
             tmp.flush()
+            digest = sha256(temporary_path.read_bytes()).hexdigest()
             temporary_path.replace(path)
         finally:
             temporary_path.unlink(missing_ok=True)
-    fetched_at = datetime.fromtimestamp(path.stat().st_mtime, OSLO)
-    return prices, fetched_at, "download"
+    return PriceSnapshot(prices, fetched_at, "download", digest)
 
 
-def rotation_returns(equity, cash, active, cost):
-    """BIL overnight, with full switches at both ends of an active session."""
-    overnight = cash["Open"] / cash["Close"].shift()
-    overnight.iloc[0] = 1.0  # Each evaluation starts flat at its first open.
-    cash_intraday = cash["Close"] / cash["Open"]
-    equity_intraday = equity["Close"] / equity["Open"]
-    growth = overnight * cash_intraday.where(~active, equity_intraday)
+def simulate_positions(prices, open_targets, close_exits, cost, cash_buffer):
+    """Size purchases at the open and sell existing shares at designated closes."""
+    opens = np.column_stack([fund["Open"] for fund in prices])
+    closes = np.column_stack([fund["Close"] for fund in prices])
+    cash = previous_value = 1.0
+    position = None
+    shares = 0.0
+    rows = []
 
-    # Each switch sells one ETF and buys another. Start and end flat.
-    buy, sell = 1 / (1 + cost), 1 - cost
-    growth.loc[active] *= (buy * sell) ** 2
-    growth.iloc[0] *= 1 / sell if active.iloc[0] else buy
-    growth.iloc[-1] *= 1 / buy if active.iloc[-1] else sell
-    return growth - 1
+    for i, (target, exit_at_close) in enumerate(zip(open_targets, close_exits, strict=True)):
+        trades = 0
+        turnover = 0.0
+        if position != target:
+            sale = shares * opens[i, position] if position is not None else 0.0
+            opening_value = cash + sale
+            cash += sale * (1 - cost)
+
+            # A simultaneous opening swap can use its net sale proceeds. Leave a
+            # cash reserve and cap the purchase at the amount actually available.
+            reserve = opening_value * cash_buffer
+            unit_cost = opens[i, target] * (1 + cost)
+            requested = (opening_value - reserve) / unit_cost
+            affordable = max(cash - reserve, 0.0) / unit_cost
+            shares = np.nextafter(min(requested, affordable), 0.0)
+            cash -= shares * unit_cost
+            if cash < 0:
+                raise ArithmeticError("Opening purchase exceeded available cash.")
+            position = target if shares > 0 else None
+            traded = sale + shares * opens[i, target]
+            trades += int(traded > 0)
+            turnover += traded / (2 * opening_value)
+
+        invested_at_open = position is not None
+        close_value = cash
+        if invested_at_open:
+            sale = shares * closes[i, position]
+            close_value += sale
+            if exit_at_close or i == len(opens) - 1:
+                # The exit quantity is the position already established at the open.
+                # Proceeds stay in cash until at least the next session's open.
+                cash += sale * (1 - cost)
+                turnover += sale / (2 * close_value)
+                trades += 1
+                position, shares = None, 0.0
+                close_value = cash
+
+        rows.append((close_value / previous_value - 1, turnover, trades, invested_at_open))
+        previous_value = close_value
+
+    return pd.DataFrame(rows, index=prices[0].index,
+                        columns=["return", "turnover", "trades", "invested_at_open"])
 
 
-def hold_returns(prices, cost=0.0):
+def rotation_results(equity, treasury, active, cost, cash_buffer):
+    return simulate_positions([equity, treasury], np.where(active, 0, 1), active, cost, cash_buffer)
+
+
+def hold_results(prices, cost, cash_buffer):
+    return simulate_positions([prices], np.zeros(len(prices), dtype=int),
+                              np.zeros(len(prices), dtype=bool), cost, cash_buffer)
+
+
+def cash_reference_returns(prices):
     previous_mark = prices["Close"].shift()
     previous_mark.iloc[0] = prices["Open"].iloc[0]
-    growth = prices["Close"] / previous_mark
-    growth.iloc[0] /= 1 + cost
-    growth.iloc[-1] *= 1 - cost
-    return growth - 1
+    return prices["Close"] / previous_mark - 1
 
 
-def rotation_trades(active):
-    # Include opening and liquidating the portfolio. At an active boundary the
-    # portfolio switches directly between USD and equity, skipping the BIL leg.
-    return 2 + 2 * int(active.sum()) - int(active.iloc[0]) - int(active.iloc[-1])
-
-
-def metrics(returns, cash_returns, trades, sessions_per_year):
-    nav = np.r_[1.0, (1 + returns).cumprod().to_numpy()]
+def metrics(daily_results, cash_returns, sessions_per_year):
+    returns = daily_results["return"]
+    values = np.r_[1.0, (1 + returns).cumprod().to_numpy()]
     excess = returns - cash_returns
     scale = np.sqrt(sessions_per_year)
     volatility, excess_volatility = returns.std(ddof=1), excess.std(ddof=1)
     sharpe_excess = excess.mean() / excess_volatility * scale if excess_volatility > 0 else np.nan
     results = {
-        "cagr": nav[-1] ** (sessions_per_year / len(returns)) - 1,
+        "cagr": values[-1] ** (sessions_per_year / len(returns)) - 1,
         "ann_vol": volatility * scale,
         "sharpe": sharpe_excess,
         "sharpe_excess": sharpe_excess,
         "sharpe_zero": returns.mean() / volatility * scale if volatility > 0 else np.nan,
-        "max_drawdown": (nav / np.maximum.accumulate(nav) - 1).min(),
-        "total_return": nav[-1] - 1,
-        "turnover": trades * sessions_per_year / len(returns),
+        "max_drawdown": (values / np.maximum.accumulate(values) - 1).min(),
+        "total_return": values[-1] - 1,
+        "turnover": daily_results["turnover"].mean() * sessions_per_year,
     }
     return {key: float(value) if np.isfinite(value) else None for key, value in results.items()} | {
-        "n_trades": int(trades), "n_sessions": len(returns),
+        "n_trades": int(daily_results["trades"].sum()), "n_sessions": len(returns),
     }
 
 
@@ -280,10 +321,14 @@ def main():
     fee_bps = float(config["cost_bps_per_side"])
     slippage_bps = float(config["slippage_bps_per_side"])
     cost = (fee_bps + slippage_bps) / 10_000
+    buffer_bps = float(config["cash_buffer_bps"])
+    cash_buffer = buffer_bps / 10_000
     annual = int(config["sessions_per_year"])
     lookback = int(config["control_lookback_weeks"])
     if not (fee_bps >= 0 and slippage_bps >= 0 and cost < 1) or annual < 1 or lookback < 1:
         raise ValueError("Invalid trading cost, annualization, or control lookback.")
+    if not 0 < cash_buffer < 1:
+        raise ValueError("Cash buffer must be between 0 and 10,000 bps, exclusive.")
     sessions = exchange_sessions(start, end, config["holidays"])
     if any(sessions.loc[left:right].empty for left, right in (in_sample, out_of_sample)):
         raise ValueError("Both evaluation periods need at least one trading session.")
@@ -291,8 +336,9 @@ def main():
     CACHE.mkdir(exist_ok=True)
     yf.set_tz_cache_location(str(CACHE / "yfinance"))
     symbols = [config["universe"][key] for key in ("small_cap", "large_cap", "cash_proxy")]
-    inputs = [load_prices(ticker, start, end, sessions.index) for ticker in symbols]
-    small_prices, large_prices, cash_prices = (prices for prices, _, _ in inputs)
+    bundled_snapshot = config.get("bundled_snapshot", {})
+    inputs = [load_prices(ticker, start, end, sessions.index, bundled_snapshot) for ticker in symbols]
+    small_prices, large_prices, cash_prices = (item.prices for item in inputs)
 
     event_masks = {
         "holidays": sessions["pre"] | sessions["post"],
@@ -305,24 +351,24 @@ def main():
     for period, (left, right) in {"is": in_sample, "oos": out_of_sample, "full": (start, end)}.items():
         window = sessions.loc[left:right]
         small, large, cash = (prices.loc[window.index] for prices in (small_prices, large_prices, cash_prices))
-        cash_returns = hold_returns(cash)
-        rotations = {}
-        for label, mask in event_masks.items():
-            active = mask.loc[window.index]
-            rotations[label] = metrics(rotation_returns(small, cash, active, cost),
-                                       cash_returns, rotation_trades(active), annual)
-
+        cash_returns = cash_reference_returns(cash)
+        rotation_days = {
+            label: rotation_results(small, cash, mask.loc[window.index], cost, cash_buffer)
+            for label, mask in event_masks.items()
+        }
+        rotations = {label: metrics(days, cash_returns, annual) for label, days in rotation_days.items()}
         active = event_masks["holidays"].loc[window.index]
-        hold_metrics = metrics(hold_returns(large, cost), cash_returns, 2, annual)
-        period_metrics[period] = {**rotations["holidays"], "n_events": int(active.sum())}
+        events = int((active & rotation_days["holidays"]["invested_at_open"]).sum())
+        hold_metrics = metrics(hold_results(large, cost, cash_buffer), cash_returns, annual)
+        period_metrics[period] = {**rotations["holidays"], "n_events": events}
         benchmark[period] = hold_metrics
 
         portfolios = [(f"{symbols[0]} {label}", row) for label, row in rotations.items()]
         portfolios.extend([
             (f"{symbols[1]} buy & hold", hold_metrics),
-            (f"{symbols[1]} holidays", metrics(rotation_returns(large, cash, active, cost),
-                                              cash_returns, rotation_trades(active), annual)),
-            (f"{symbols[2]} buy & hold", metrics(hold_returns(cash, cost), cash_returns, 2, annual)),
+            (f"{symbols[1]} holidays", metrics(rotation_results(large, cash, active, cost, cash_buffer),
+                                              cash_returns, annual)),
+            (f"{symbols[2]} buy & hold", metrics(hold_results(cash, cost, cash_buffer), cash_returns, annual)),
         ])
         for label, row in portfolios:
             display_metrics = {key: value for key, value in row.items() if key != "sharpe"}
@@ -331,18 +377,22 @@ def main():
 
     data_range = f"{sessions.index[0].date()} to {sessions.index[-1].date()}"
     print(f"{config['strategy']} | {data_range} | {fee_bps:g} bp fee + {slippage_bps:g} bp slippage per ETF side")
+    print(f"Opening cash reserve | {buffer_bps:g} bp of pre-trade portfolio value")
     print(f"PARAM_COMBOS_TRIED: {len(event_masks)}")
-    print(f"DATA_FETCHED_AT: {max(fetched_at for _, fetched_at, _ in inputs).isoformat(timespec='seconds')}")
+    timestamps = [item.fetched_at.isoformat(timespec="seconds") if item.fetched_at else "unknown" for item in inputs]
+    latest = (max(item.fetched_at for item in inputs).isoformat(timespec="seconds")
+              if all(item.fetched_at for item in inputs) else "unknown")
+    print(f"DATA_FETCHED_AT: {latest}")
     print("PRICE_ADJUSTMENT: Yahoo Finance dividend- and split-adjusted daily Open and Close (auto_adjust=True)")
-    for symbol, (_, fetched_at, source) in zip(symbols, inputs, strict=True):
-        print(f"Yahoo Finance {symbol} | {source} | {fetched_at.isoformat(timespec='seconds')}")
+    for symbol, item, timestamp in zip(symbols, inputs, timestamps, strict=True):
+        print(f"Yahoo Finance {symbol} | {item.source} | {timestamp} | SHA-256 {item.digest}")
     print(f"\nNet portfolio performance | sharpe_excess uses gross {symbols[2]} daily returns | sharpe_zero uses zero")
     print_table(performance_rows, ["cagr", "ann_vol", "max_drawdown", "total_return", "turnover"])
     print(f"\nGross open-to-close event means | two-sided t-test on daily {symbols[0]} minus {symbols[2]}")
     print_table(event_rows, ["Small - cash", "Small cap", "Large cap", "Small - large", "Weekday control", "Small - control"])
     event_counts = " | ".join(f"{period.upper()} {row['n_events']}" for period, row in period_metrics.items())
     print(f"\nEvent counts | {event_counts}")
-    print("Event p-values are descriptive and unadjusted; nearby holiday sessions may be dependent.")
+    print("Event p-values are descriptive and unadjusted. Nearby holiday sessions may be dependent.")
     results = {
         "strategy": config["strategy"], "data_range": data_range, **period_metrics,
         "benchmark": {"ticker": symbols[1], **benchmark["full"], "is": benchmark["is"], "oos": benchmark["oos"]},

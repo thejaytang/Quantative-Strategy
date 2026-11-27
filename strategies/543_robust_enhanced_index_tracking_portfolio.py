@@ -1,3 +1,23 @@
+"""543_robust_enhanced_index_tracking_portfolio
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/543_robust_enhanced_index_tracking_portfolio.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 53c18ef949f91367c58358829370e449e492628c on 2026-11-27 18:41 Europe/Oslo, exit 0, output sha256 fa6d7d2f5d08f81b25af7033628917d81a6317fc8c2aa7def4ee4e723971591c
+Data source: Free Yahoo Finance daily adjusted closes via yfinance for 25 US stocks (AAPL, NVDA, MSFT, AVGO, ORCL, JNJ, ABBV, LLY, UNH, ABT, BRK-B, JPM, V, BAC, MA, AMZN, TSLA, HD, MCD, BKNG, WMT, COST, KO, PG, PM), SPY (tracking and buy-and-hold benchmark), and BIL (excess-Sharpe reference only). The run records a snapshot fetched at 2026-11-27 08:17:44 UTC.
+Data fetched: 2026-11-27T17:41:24+00:00
+Sample period: Daily price coverage is 2009-12-01 through 2024-12-31. The first 60-month return window uses month-end closes from December 2009 through December 2014. The configured evaluation starts 2015-01-01 and the reported trading-session range is 2015-01-02 through 2024-12-31.   data_range (from output): {'start': '2015-01-02', 'end': '2024-12-31'}
+IS/OOS split: IS is 2015-01-02 through 2019-12-31. OOS is 2020-01-02 through 2024-12-31. The default portfolio carries positions and cash across the boundary and re-estimates monthly using the trailing 60 months with fixed configured parameters. The seven robustness variants are run through the IS cutoff only. The paper calibrated some defaults on the same IS period and also studied the same OOS period, so the split is retrospective.
+Costs and slippage: Baseline cost is 5 bp and modeled slippage is a flat 5 bp per buy or sell, both deducted from cash on actual gross fill notional, including initial entry. The same rates apply to the SPY benchmark entry. The higher-friction IS case uses 15 bp cost plus 10 bp slippage. The 500 bp buy/sell price stress applies to the preceding-close cash budget for sizing.
+Signal lag: Target weights use monthly returns through the last trading session's close t. With the configured one-session lag, quantities are fixed after close t and filled at the next trading session's adjusted close. With a longer lag, sizing occurs at the close immediately before the fill.
+Price adjustment: yfinance auto_adjust=True, dividend- and split-adjusted daily Close
+Survivorship bias: The fixed 25-stock list comes from the 2026 paper's retrospective selection. Historical candidate, exit, and delisting settlement records are absent, leaving survivorship and retrospective selection bias. A stock enters the eligible set when the trailing 60 monthly returns are complete. Missing prices needed for a fill or valuation stop the simulation.
+Parameter combinations tried: 8
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.2090523607313035, ann_vol=0.14956865590635618, sharpe=1.3446017755451658, sharpe_excess=1.2850815610503838, max_drawdown=-0.19443582042558294, total_return=1.5797119803859276, turnover=1.149518116989615, n_trades=1372
+    oos: cagr=0.2701345679652447, ann_vol=0.21004374709708132, sharpe=1.2444378166275925, sharpe_excess=1.1339471139742674, max_drawdown=-0.30435122853669283, total_return=2.2993202717462693, turnover=1.0118172309891418, n_trades=1390
+    full: cagr=0.23921717138071275, ann_vol=0.1823045982638132, sharpe=1.2684722896075313, sharpe_excess=1.1804907804722273, max_drawdown=-0.3043512285366927, total_return=7.511296032154039, turnover=1.0806676739893784, n_trades=2762
+    benchmark: cagr=0.12624353561932167, ann_vol=0.1706991788504722, sharpe=0.7823301726692229, sharpe_excess=0.6884682403071888, max_drawdown=-0.32803751199397757, total_return=2.2772045709972755, turnover=0.09524322189909284, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

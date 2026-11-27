@@ -1,3 +1,23 @@
+"""457_cleaning_correlation_matrices_with_exter
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/457_cleaning_correlation_matrices_with_exter.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 53c18ef949f91367c58358829370e449e492628c on 2026-11-27 18:41 Europe/Oslo, exit 0, output sha256 9c60fd5a029c3673f53c9a9ee6c7d0f81c03912ea24afe0e685aac4257424185
+Data source: Free Yahoo Finance daily USD closes via yfinance cover equity funds SPY, IWM, EFA, EEM, EWJ and EWU, government bond funds IEF, TLT, IEI and TIP, and currency trusts FXE, FXY, FXB, FXA and FXC. BIL is used solely as the same-day total-return proxy for excess-return statistics. The run records a snapshot fetched at 2026-11-27T06:47:31+00:00.
+Data fetched: 2026-11-27T17:41:13+00:00
+Sample period: Requested data window is 2008-01-01 through 2025-12-31, inclusive. The estimator requires 150 valid weeks of warm-up. The first documented signal is 2012-01-03. Evaluation and simulated fills start on 2012-01-04, and evaluation ends on 2025-12-31.   data_range (from output): ['2012-01-04', '2025-12-31']
+IS/OOS split: IS runs from 2012-01-04 through 2018-12-31, inclusive. OOS includes sessions after 2018-12-31, from 2019-01-02 through 2025-12-31. Both are date slices of a continuous simulation and estimator state. The README describes the split as retrospective and dates the paper's first public release to 2026.
+Costs and slippage: One-way trading cost of 2 bps plus 3 bps of slippage, modeled as a combined 5 bps cash deduction at each fill, including initial entry, on the sum of absolute buy and sell notionals valued at the fill close. Slippage is modeled as a flat charge and the simulated execution price is the closing price.
+Signal lag: On the first session of each eligible trading week, the signal uses daily volatility through close t and the correlation estimate from completed weeks. The target is assigned to the next trading session and the fixed units fill at that session's close, t+1.
+Price adjustment: yfinance auto_adjust=True, split- and distribution-adjusted closes and fractional units
+Survivorship bias: The fixed asset universe was selected retrospectively from surviving products with complete histories. Products liquidated or renamed during the sample are excluded. The supplied data cannot reconstruct the eligible universe at each historical date or quantify the direction or size of the bias.
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.028295821372070762, ann_vol=0.026120176769254752, sharpe=1.0813661354487443, sharpe_excess=0.9557401861102237, max_drawdown=-0.03877140892667097, total_return=0.215027364255723, turnover=0.7508940243681373, n_trades=5475
+    oos: cagr=0.024241838136533023, ann_vol=0.0315404669555408, sharpe=0.7752369118492295, sharpe_excess=-0.026469862842898362, max_drawdown=-0.0709214213278685, total_return=0.18209522746445006, turnover=0.6984336467188649, n_trades=5490
+    full: cagr=0.02626625197582988, ann_vol=0.028954320840568103, sharpe=0.9099804294178019, sharpe_excess=0.41698664302641, max_drawdown=-0.07092142132786816, total_return=0.4362780485253963, turnover=0.7246563816677339, n_trades=10965
+    benchmark: cagr=0.010408080555085908, ann_vol=0.010913247737812357, sharpe=0.9542565752178261, sharpe_excess=-0.34122527347402565, max_drawdown=-0.031495577053122004, total_return=0.15556598657312692, turnover=1.24306029354967, n_trades=10965
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

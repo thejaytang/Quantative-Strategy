@@ -1,3 +1,23 @@
+"""548_entropic_value_at_risk_portfolio_optimiz
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/548_entropic_value_at_risk_portfolio_optimiz.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 53c18ef949f91367c58358829370e449e492628c on 2026-11-27 18:41 Europe/Oslo, exit 0, output sha256 148ab103bd32ec741c91d8173bd2e6cb97acb0217bce7242244b8bcec54ea3c0
+Data source: Yahoo Finance via yfinance daily bars for 11 Select Sector SPDR ETFs (XLB, XLC, XLE, XLF, XLI, XLK, XLP, XLRE, XLU, XLV, XLY) and ^IRX quotes used as 91-day Treasury-bill discount rates for excess Sharpe. The recorded snapshot was fetched at 2026-11-27T08:20:08+00:00.
+Data fetched: 2026-11-27T17:41:36+00:00
+Sample period: Scored sessions span 2001-07-02 through 2026-03-31 inclusive. The daily price history starts on 1998-12-22 for warm-up.   data_range (from output): {'start': '2001-07-02', 'end': '2026-03-31'}
+IS/OOS split: IS runs from 2001-07-02 through 2014-12-31. OOS runs from 2015-01-02 through 2026-03-31. The split partitions the returns of one continuous default simulation, so OOS inherits the IS closing holdings and cash. The five alternatives run only on IS. This is a historical holdout, with no documented evidence that the split or parameters were fixed before OOS began.
+Costs and slippage: The default models 5 bps of cost plus 2 bps of fixed slippage per buy or sell, including initial entry. Sizing estimates the deduction at the prior close. At execution, cash is debited by buy notional times 1.0007 and credited by sell notional times 0.9993, using absolute simulated fill notionals. The IS higher-cost variant uses 20 bps of cost plus 5 bps of slippage per side. The fixed-bps model omits variable spreads and market impact.
+Signal lag: After the last NYSE session closes each month, targets use ETF returns through that close t. Under the configured one-session lag, quantities are fixed using the close of t and filled at the next NYSE session's close.
+Price adjustment: yfinance auto_adjust=True total-return close (sector ETFs)
+Survivorship bias: Survivorship bias remains because the universe is a fixed list of existing sector ETFs. The code enforces each ETF's hard-coded first trading date and requires a complete finite return window for eligibility, including for later launches XLRE and XLC. The sources provide no historical point-in-time membership or data on exits, suspensions and liquidations.
+Parameter combinations tried: 6
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.07502622495672057, ann_vol=0.13960405859805924, sharpe=0.5880999188520267, sharpe_excess=0.48416133664635846, max_drawdown=-0.35252907337855566, total_return=1.6509969124335053, turnover=0.7739998833444394, n_trades=543
+    oos: cagr=0.07959994956623605, ann_vol=0.13726914636036353, sharpe=0.6268182989496728, sharpe_excess=0.47851242553438156, max_drawdown=-0.2798761644937254, total_return=1.361299971035992, turnover=0.9046422888476047, n_trades=430
+    full: cagr=0.07710158123968727, ann_vol=0.13853718176666552, sharpe=0.6055541875243194, sharpe_excess=0.4816402929955504, max_drawdown=-0.35252907337855566, total_return=5.259798932545732, turnover=0.8333484419749148, n_trades=973
+    benchmark  full: cagr=0.08650558617186906, ann_vol=0.17232186407027347, sharpe=0.5678990763306287, sharpe_excess=0.4682931137993772, max_drawdown=-0.5138241677272652, total_return=6.758706474917533, turnover=0.19220943733352355, n_trades=2843
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

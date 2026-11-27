@@ -1,3 +1,23 @@
+"""480_topological_risk_parity
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/480_topological_risk_parity.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 53c18ef949f91367c58358829370e449e492628c on 2026-11-27 18:41 Europe/Oslo, exit 0, output sha256 2a27dc9be092dd0b6f4810dd8dae31df036d4a36ac856b82be59ce39415a90d1
+Data source: 通过 yfinance 获取 Yahoo Finance 公开日线。策略标的为 11 只 Select Sector SPDR ETF（XLB、XLC、XLE、XLF、XLI、XLK、XLP、XLRE、XLU、XLV、XLY）。BIL 的同源日收益用于超额夏普及样本内择窗（config.yaml:2-3，strategy.py:80-90、216-218、268-282，README.md:13）。本次日志记录的行情快照获取于 2026-11-27 07:09:38 UTC（logs/codex_fix_d2_run_20261127_180425.log:1）。
+Data fetched: 2026-11-27T17:41:16+00:00
+Sample period: 回测为 2019-01-02 至 2025-12-31，含首尾交易日。行情自 2018-06-20 起用于预热（config.yaml:5-8，strategy.py:268-273，README.md:14，logs/codex_fix_d2_run_20261127_180425.log:12）。   data_range (from output): {'start': '2019-01-02', 'end': '2025-12-31'}
+IS/OOS split: IS 为 2019-01-02 至 2022-12-30（配置分界日为 2022-12-31，代码归入 IS 的是分界日及以前的交易日）。OOS 为 2023-01-03 至 2025-12-31，承接 IS 期末份额和现金。回看窗口按扣除成本和滑点后的 IS 相对 BIL 超额夏普选定，同分取短窗口。日志选中 63 个交易日，完整样本回放和 OOS 均使用该窗口。OOS 是回顾性留出（config.yaml:6-11，strategy.py:235-241、273-287，README.md:14-15、24，logs/codex_fix_d2_run_20261127_180425.log:5）。
+Costs and slippage: 每笔模拟买卖收取 5 bps 成本和 3 bps 固定滑点，合计 8 bps，含首次建仓。结算以各标的成交份额变动绝对值乘以成交日复权收盘价，再将合计成交额乘以费率从现金扣除（config.yaml:17-18，strategy.py:153-156、174-182、252-253，README.md:18）。
+Signal lag: 每月首个交易日 t 收盘，用截至该收盘的 ETF 日收益生成目标权重。配置延后一交易日，于 t+1 收盘按该日复权收盘价模拟成交。原仓承担截至 t+1 收盘的价格变动，新仓承担此后的收盘到收盘收益（config.yaml:12-13，strategy.py:134-150、190-203，README.md:16-17）。
+Price adjustment: yfinance auto_adjust total-return
+Survivorship bias: 事后固定 11 只现存 ETF，并要求整个数据区间报价完整有效。README 记载这 11 只基金已列于 2018 年信托报告，最晚上市的 XLC 于 2018-06-19 挂牌。结果以固定清单为条件，未建模挂牌、清盘、退出或替换，也未重建历史行业成分（config.yaml:2、5，strategy.py:44-63、263-268，README.md:20）。
+Parameter combinations tried: 2
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.1303907378171849, ann_vol=0.21870267343336497, sharpe=0.6705498567433508, sharpe_excess=0.6282122739019151, max_drawdown=-0.36066921085669357, total_return=0.6327299576787069, turnover=18.449485595263024, n_trades=528
+    oos: cagr=0.15828789415797395, ann_vol=0.12890686338461893, sharpe=1.2045368364370412, sharpe_excess=0.8408974080278008, max_drawdown=-0.15297773136259873, total_return=0.5503744099716374, turnover=17.355398384112203, n_trades=396
+    full: cagr=0.1422272655500738, ann_vol=0.1856800018730466, sharpe=0.8096456184236979, sharpe_excess=0.6733316224421364, max_drawdown=-0.36066921085669357, total_return=1.5313427447791579, turnover=35.80488397937522, n_trades=924
+    benchmark  full: cagr=0.13837069184457906, ann_vol=0.1772219663462671, sharpe=0.8204843991237137, sharpe_excess=0.6776830522506632, max_drawdown=-0.3448992832185954, total_return=1.4722509352724482, turnover=3.0747654227792762, n_trades=924
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

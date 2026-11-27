@@ -4,11 +4,20 @@
 
 每个策略一个文件：`strategies/<编号>_<名称>.py`，一条命令运行：`python strategies/<文件>.py`（依赖见 requirements.txt）。文件头写明数据源与抓取时间、样本期、IS/OOS 划分、成本与滑点、信号滞后、复权口径、幸存者偏差说明、尝试的参数组合数，以及在记录的 commit 上实际运行得到的关键数字（backtest reproduced）。收录条件：真实运行、确有交易、无同收盘成交前视、Codex 自审 PASS（进入本仓库前的审查为作者自审，不是独立第三方审查）、单文件复跑与审查时结果一致。
 
-本表由文件实际内容生成（2026-11-27 12:28 Europe/Oslo），本表由文件实际内容生成（2026-11-27 12:28 Europe/Oslo），共 54 个。
-。
+本表由文件实际内容生成（2026-11-27 18:43 Europe/Oslo），见下表（accepted + origin accepted kept）。
 
 | 文件 | 作者 | 代码 commit | 全样本 Sharpe | 全样本 CAGR |
 |---|---|---|---|---|
+| strategies/455_hierarchical_risk_parity_for_portfolio_a.py | Codex | 53c18ef949 | 0.2532758965967812 | 0.03190367937229377 |
+| strategies/457_cleaning_correlation_matrices_with_exter.py | Codex | 53c18ef949 | 0.9099804294178019 | 0.02626625197582988 |
+| strategies/472_breaking_the_trend_how_to_avoid_cherry_p.py | Codex | 53c18ef949 | 0.8201330820111685 | 0.041696972443205915 |
+| strategies/480_topological_risk_parity.py | Codex | 53c18ef949 | 0.8096456184236979 | 0.1422272655500738 |
+| strategies/535_shrinkage_estimators_for_mean_and_covari.py | Codex | 53c18ef949 | 0.7532235360314379 | 0.09410925172362994 |
+| strategies/543_robust_enhanced_index_tracking_portfolio.py | Codex | 53c18ef949 | 1.2684722896075313 | 0.23921717138071275 |
+| strategies/544_special_markowitz_thermodynamic_formalis.py | Codex | 53c18ef949 | 0.7640949549265407 | 0.12152355343581064 |
+| strategies/546_generalizing_markowitz_portfolio_optimiz.py | Codex | 53c18ef949 | 0.811312747963317 | 0.15251236082315556 |
+| strategies/547_generalizing_markowitz_portfolio_optimiz.py | Codex | 53c18ef949 | 0.8075845206820491 | 0.1406026002094094 |
+| strategies/548_entropic_value_at_risk_portfolio_optimiz.py | Codex | 53c18ef949 | 0.6055541875243194 | 0.07710158123968727 |
 | strategies/100_etf_asset_momentum_corr_hedge.py | Codex | c71364ad99 | 0.590749534227566 | 0.07218221248997536 |
 | strategies/101_correlated_stress_reversal.py | Codex | 10f8238200 | -0.4528647975895032 | -0.040200837249976584 |
 | strategies/102_alt_etf_short_term_reversal.py | Codex | 3140bbcffa | -4.850826308066646 | -0.1832096548612029 |
@@ -66,90 +75,80 @@
 
 ## 已收录后的深审发现
 
-下表所列策略的回测数字均为 INVALID，相关文件头均有警告。问题类别与阶段说明见 [DEEP_REVIEW_FINDINGS.md](DEEP_REVIEW_FINDINGS.md)。修复将通过新提交记录。
+已推送到 origin/main 的策略不会改写历史提交。若之后的深审发现前视、数据或数字问题，文件保留为当时已发布的版本，并在新提交中列入 [DEEP_REVIEW_FINDINGS.md](DEEP_REVIEW_FINDINGS.md)。修复（如有）也只出现在新提交中。
 
-| 文件 | 回测状态 | 问题类别 |
+| 文件 | 最新自审 | 问题类别 |
 |---|---|---|
-| strategies/022_sector_residual_statarb.py | INVALID | 结算数量仍可由当日收盘价决定 |
-| strategies/109_factor_etf_vol_matched.py | INVALID | see review |
-| strategies/113_kalman_garch_pairs.py | INVALID | see review |
-| strategies/156_cta_replication_trend_factors.py | INVALID | 成交和融资成本为简化假设 |
-| strategies/159_deep_momentum_market_trend.py | INVALID | look-ahead / same-close fill |
-| strategies/186_federal_holiday_effect.py | INVALID | 成交成本是简化假设 |
-| strategies/188_opex_week.py | INVALID | 周末收盘买入的实际份额由当日收盘价决定; 固定成本和日线成交假设限制执行结论 |
-| strategies/197_tsmom_boundaries.py | INVALID | see review |
-| strategies/310_factor_beta_overnight_intraday.py | INVALID | see review |
-| strategies/315_leveraged_funds_robust_replication.py | INVALID | 资金不足时用成交日收盘价改变实际成交份额 |
-| strategies/324_volatility_conditions_weekend_effect.py | INVALID | see review |
-| strategies/341_monitoring_attention_inflation_news.py | INVALID | 现金不足时，实际买入股数取决于成交日收盘价 |
-| strategies/353_hold_the_dip.py | INVALID | see review |
-| strategies/354_strategy.py | INVALID | 成交和资金假设限制结果的解释 |
-| strategies/395_signature_based_optimal_execution_for_st.py | INVALID | 资金约束在同一收盘价重定成交股数 |
-| strategies/400_noxtrader_lstm_based_stock_return_moment.py | INVALID | 幸存者与事后选样偏差 |
-| strategies/431_mitigating_return_drag_and_regime_whipsa.py | INVALID | 实际买入份额会按成交收盘价缩减 |
-| strategies/432_revisiting_equity_bond_diversification_u.py | INVALID | 共用模拟器在成交收盘重新确定买入份额; 收盘模型使用事后复权快照与简化费用 |
-| strategies/434_dynamic_scenario_based_portfolio_optimiz.py | INVALID | 事后资产池与回顾性样本外; 模拟成交和成本的适用范围 |
-| strategies/442_mitigating_return_drag_and_regime_whipsa.py | INVALID | look-ahead / same-close fill |
-| strategies/443_revisiting_equity_bond_diversification_u.py | INVALID | 最终买入量可由成交日收盘价决定; 动态配置缺少实际成交证据 |
-| strategies/445_dynamic_scenario_based_portfolio_optimiz.py | INVALID | see review |
-| strategies/448_continuous_cash_overlay_filters_for_a_st.py | INVALID | look-ahead / same-close fill |
+| strategies/501_nested_clustered_optimization_is_one_end.py | INVALID | see review |
+| strategies/451_a_declining_cvar_glidepath_framework_for.py | INVALID | see review |
+| strategies/510_some_general_results_on_risk_budgeting_p.py | INVALID | look-ahead / same-close fill |
+| strategies/452_simple_dynamic_stock_bond_gold_portfolio.py | INVALID | see review |
+| strategies/494_wasserstein_penalisation_as_an_endogenou.py | INVALID | 固定成交假设与现金约束 |
+| strategies/533_special_markowitz_thermodynamic_formalis.py | INVALID | 资金缓冲有失效边界，成交成本为固定假设 |
+| strategies/514_risk_limited_asset_allocation_with_a_bud.py | INVALID | 资金约束和成交假设限制结果解释 |
+| strategies/484_nonlinear_shrinkage_for_higher_moments_e.py | INVALID | see review |
+| strategies/476_conditional_value_at_risk_under_reward_p.py | INVALID | 收盘成交与现金可用性采用简化模型 |
+| strategies/432_revisiting_equity_bond_diversification_u.py | INVALID | 事后选池及存续偏差; 动态配置缺乏成交证据; 成交及资金约束是简化模型 |
+| strategies/505_competitive_optimal_portfolio_selection.py | INVALID | 成交与资金约束采用简化模型 |
+| strategies/539_schur_complementary_allocation_a_unifica.py | INVALID | 固定资产池存在幸存者与事后选池偏差; 样本外为事后留出段; 执行对成交价跳变和现金余量敏感 |
 | strategies/449_the_mathematics_of_heuristic_portfolio_o.py | INVALID | see review |
-| strategies/450_a_declining_cvar_glidepath_framework_for.py | INVALID | 成交日收盘价改变实际买入份额 |
-| strategies/451_a_declining_cvar_glidepath_framework_for.py | INVALID | 资金不足时，最终买入份额由成交日收盘价反算 |
-| strategies/452_simple_dynamic_stock_bond_gold_portfolio.py | INVALID | 现金不足时，成交日收盘价决定实际买入份额 |
-| strategies/454_semivariance_and_semivolatility_in_portf.py | INVALID | look-ahead / same-close fill |
-| strategies/455_hierarchical_risk_parity_for_portfolio_a.py | INVALID | 复权价格和现金处理简化了成交 |
-| strategies/456_an_entropic_factor_model_for_robust_port.py | INVALID | 成交模型对流动性和现金冲击简化 |
-| strategies/457_cleaning_correlation_matrices_with_exter.py | INVALID | see review |
+| strategies/483_wasserstein_penalisation_as_an_endogenou.py | INVALID | see review |
+| strategies/503_risk_limited_asset_allocation_with_a_bud.py | INVALID | 收盘结算的资金与流动性假设 |
+| strategies/431_mitigating_return_drag_and_regime_whipsa.py | INVALID | 模拟执行依赖收盘成交及资金假设 |
+| strategies/532_robust_enhanced_index_tracking_portfolio.py | INVALID | 事后固定股票池及幸存者偏差 |
+| strategies/534_portfolio_diversification_and_concentrat.py | INVALID | 固定份额的资金与成交假设 |
+| strategies/509_beyond_de_prado_and_cotton_hierarchical.py | INVALID | 成交和资金模型对价差与流动性变化覆盖有限 |
+| strategies/520_beyond_de_prado_and_cotton_hierarchical.py | INVALID | 成交模型依赖现金缓冲和固定摩擦 |
+| strategies/395_signature_based_optimal_execution_for_st.py | INVALID | 事后选对与幸存者偏差; 成交成本与资金约束有明确的模拟边界 |
+| strategies/450_a_declining_cvar_glidepath_framework_for.py | INVALID | 收盘成交与资金模型 |
+| strategies/551_squeezed_covariance_matrix_estimation_an.py | INVALID | see review |
+| strategies/481_optimal_portfolio_construction_a_reinfor.py | INVALID | 固定现金缓冲与全额收盘成交假设限制执行稳健性 |
+| strategies/500_dynamic_portfolio_optimization_under_cva.py | INVALID | see review |
+| strategies/541_entropy_regularization_under_no_shorting.py | INVALID | 历史行情与成交假设限制外推 |
+| strategies/459_entropic_value_at_risk_parity_for_temper.py | INVALID | 固定资产池存在幸存者偏差和事后选择偏差; 固定成本和收盘结算限制了结果的执行含义 |
+| strategies/497_interpretable_allocation_and_model_predi.py | INVALID | 固定研究池存在幸存者偏差 |
+| strategies/442_mitigating_return_drag_and_regime_whipsa.py | INVALID | see review |
+| strategies/022_sector_residual_statarb.py | INVALID | 成交和资金模型有简化 |
+| strategies/465_semivariance_and_semivolatility_in_portf.py | INVALID | 成交和现金取决于简化假设 |
+| strategies/113_kalman_garch_pairs.py | INVALID | 固定存续配对限制结果的外推; 成交与资金约束为简化模型 |
+| strategies/315_leveraged_funds_robust_replication.py | INVALID | 事后选池限制结论的适用范围 |
+| strategies/341_monitoring_attention_inflation_news.py | INVALID | 入库目录缺少必需行情快照 |
+| strategies/545_portfolio_diversification_and_concentrat.py | INVALID | see review |
+| strategies/552_a_novel_robust_mixed_integer_linear_prog.py | INVALID | 固定股票池存在幸存者偏差; 成交与异常行情采用简化规则 |
+| strategies/461_breaking_the_trend_how_to_avoid_cherry_p.py | INVALID | 固定基金名单带来幸存者偏差 |
+| strategies/487_conditional_value_at_risk_under_reward_p.py | INVALID | 股票池含事后信息; 执行结果依赖现金缓冲及简化成交假设 |
+| strategies/538_mirror_descent_algorithms_for_risk_budge.py | INVALID | 现金与收盘成交假设限制结果外推 |
+| strategies/467_an_entropic_factor_model_for_robust_port.py | INVALID | 股票池使用事后信息; 成交和资金处理有简化 |
+| strategies/478_portfolio_allocation_under_heterogeneous.py | INVALID | 缺少官方行情快照; 开盘成交假设及资金约束 |
+| strategies/491_topological_risk_parity.py | INVALID | 事后固定投资池; 成交与资金模型的适用范围 |
+| strategies/188_opex_week.py | INVALID | 开收盘成交及资金假设偏强 |
+| strategies/443_revisiting_equity_bond_diversification_u.py | INVALID | 动态配置缺少成交证据 |
+| strategies/159_deep_momentum_market_trend.py | INVALID | see review |
+| strategies/109_factor_etf_vol_matched.py | INVALID | see review |
+| strategies/186_federal_holiday_effect.py | INVALID | 开盘换仓依赖成交与资金假设 |
+| strategies/490_noise_proofing_universal_portfolio_shrin.py | INVALID | 固定存续 ETF 池产生幸存者与选择偏差 |
+| strategies/456_an_entropic_factor_model_for_robust_port.py | INVALID | 成交与成本模型简化 |
+| strategies/537_hierarchical_minimum_variance_portfolios.py | INVALID | 执行模型简化收盘流动性与现金约束 |
+| strategies/400_noxtrader_lstm_based_stock_return_moment.py | INVALID | 固定股票池引入幸存者和事后选样偏差 |
 | strategies/458_two_sides_of_schur_damping_high_dimensio.py | INVALID | see review |
-| strategies/459_entropic_value_at_risk_parity_for_temper.py | INVALID | 实际买入份额由成交日收盘价决定 |
-| strategies/460_understanding_the_long_only_minimum_vari.py | INVALID | 复权与成交模型的限制 |
-| strategies/461_breaking_the_trend_how_to_avoid_cherry_p.py | INVALID | 成交日收盘价决定了实际成交数量; 资金与成交模型只覆盖日频 |
-| strategies/465_semivariance_and_semivolatility_in_portf.py | INVALID | 复权快照限制成交与数据时点的可追溯性 |
-| strategies/467_an_entropic_factor_model_for_robust_port.py | INVALID | 实际买入量依赖成交收盘价; 固定股票池存在幸存者与事后筛选偏差; 复权成交与资金约束是简化模型 |
-| strategies/468_cleaning_correlation_matrices_with_exter.py | INVALID | look-ahead / same-close fill |
-| strategies/469_two_sides_of_schur_damping_high_dimensio.py | INVALID | 资产池存在事后存续筛选; 成交模型简化了现金与流动性 |
-| strategies/470_entropic_value_at_risk_parity_for_temper.py | INVALID | see review |
-| strategies/472_breaking_the_trend_how_to_avoid_cherry_p.py | INVALID | see review |
-| strategies/474_multiperiod_bond_portfolio_optimization.py | INVALID | see review |
-| strategies/476_conditional_value_at_risk_under_reward_p.py | INVALID | 成交日收盘价参与决定实际买入数量 |
-| strategies/478_portfolio_allocation_under_heterogeneous.py | INVALID | look-ahead / same-close fill |
-| strategies/479_noise_proofing_universal_portfolio_shrin.py | INVALID | 成交与资金可用性依赖模拟假设 |
-| strategies/480_topological_risk_parity.py | INVALID | 实际买入份额可由成交日收盘价决定 |
-| strategies/481_optimal_portfolio_construction_a_reinfor.py | INVALID | 现金不足时以成交日收盘价决定实际买量 |
-| strategies/482_dynamic_inclusion_and_bounded_multi_fact.py | INVALID | 固定候选池存在幸存者偏差及事后选择偏差; 成交及现金约束是简化模型 |
-| strategies/483_wasserstein_penalisation_as_an_endogenou.py | INVALID | 最终买入份额由成交日收盘价决定 |
-| strategies/484_nonlinear_shrinkage_for_higher_moments_e.py | INVALID | 实际买入份额可由成交日收盘价决定; 股票池是事后固定的幸存者样本 |
-| strategies/487_conditional_value_at_risk_under_reward_p.py | INVALID | see review |
-| strategies/490_noise_proofing_universal_portfolio_shrin.py | INVALID | 成交日收盘价决定实际买入量 |
-| strategies/491_topological_risk_parity.py | INVALID | 成交数量依赖成交日收盘价 |
-| strategies/494_wasserstein_penalisation_as_an_endogenou.py | INVALID | look-ahead / same-close fill |
-| strategies/497_interpretable_allocation_and_model_predi.py | INVALID | look-ahead / same-close fill |
-| strategies/500_dynamic_portfolio_optimization_under_cva.py | INVALID | 收盘价参与确定同一收盘的实际买量 |
-| strategies/501_nested_clustered_optimization_is_one_end.py | INVALID | 收盘价决定实际买入份额 |
-| strategies/503_risk_limited_asset_allocation_with_a_bud.py | INVALID | 收盘后重定买入份额 |
-| strategies/505_competitive_optimal_portfolio_selection.py | INVALID | 成交日收盘价决定部分实际买入份额 |
-| strategies/509_beyond_de_prado_and_cotton_hierarchical.py | INVALID | see review |
-| strategies/510_some_general_results_on_risk_budgeting_p.py | INVALID | 实际买入数量由成交日收盘价决定 |
+| strategies/454_semivariance_and_semivolatility_in_portf.py | INVALID | 资金与成交模型简化 |
+| strategies/448_continuous_cash_overlay_filters_for_a_st.py | INVALID | 名单和策略设计带有事后信息; 成交和分配简化 |
+| strategies/468_cleaning_correlation_matrices_with_exter.py | INVALID | 固定存续标的池存在幸存者偏差，须在入库前处理; 收盘批量成交和摩擦模型有限 |
+| strategies/324_volatility_conditions_weekend_effect.py | INVALID | see review |
+| strategies/460_understanding_the_long_only_minimum_vari.py | INVALID | 成交模型与资金缓冲有现实限制 |
+| strategies/469_two_sides_of_schur_damping_high_dimensio.py | INVALID | see review |
+| strategies/474_multiperiod_bond_portfolio_optimization.py | INVALID | 规划成本与实际成交近似不同 |
 | strategies/512_nested_clustered_optimization_is_one_end.py | INVALID | see review |
-| strategies/514_risk_limited_asset_allocation_with_a_bud.py | INVALID | see review |
-| strategies/520_beyond_de_prado_and_cotton_hierarchical.py | INVALID | 实际买入份额依赖成交日收盘价 |
-| strategies/522_asset_allocation_using_a_markov_process.py | INVALID | 实际买入份额取决于成交日收盘价 |
-| strategies/528_schur_complementary_allocation_a_unifica.py | INVALID | 复权收盘成交与线性成本是近似 |
-| strategies/532_robust_enhanced_index_tracking_portfolio.py | INVALID | 资金不足时用成交日收盘价改写买入股数; 事后固定选池造成幸存者偏差和成分选择偏差 |
-| strategies/533_special_markowitz_thermodynamic_formalis.py | INVALID | see review |
-| strategies/534_portfolio_diversification_and_concentrat.py | INVALID | 最终买入数量依赖成交日收盘价 |
-| strategies/535_shrinkage_estimators_for_mean_and_covari.py | INVALID | see review |
-| strategies/537_hierarchical_minimum_variance_portfolios.py | INVALID | see review |
-| strategies/538_mirror_descent_algorithms_for_risk_budge.py | INVALID | see review |
-| strategies/539_schur_complementary_allocation_a_unifica.py | INVALID | 现金不足时用成交日收盘价重算买入份额 |
-| strategies/541_entropy_regularization_under_no_shorting.py | INVALID | 最终买入份额使用成交日收盘价 |
-| strategies/543_robust_enhanced_index_tracking_portfolio.py | INVALID | 最终买入量依赖成交日收盘价; 固定股票池存在事后选股与幸存者偏差 |
-| strategies/544_special_markowitz_thermodynamic_formalis.py | INVALID | 成交日收盘价决定部分实际买入份额 |
-| strategies/545_portfolio_diversification_and_concentrat.py | INVALID | 实际买入份额依赖成交日收盘价 |
-| strategies/546_generalizing_markowitz_portfolio_optimiz.py | INVALID | see review |
-| strategies/547_generalizing_markowitz_portfolio_optimiz.py | INVALID | 最终买入数量可由成交日收盘价决定 |
-| strategies/548_entropic_value_at_risk_portfolio_optimiz.py | INVALID | see review |
-| strategies/551_squeezed_covariance_matrix_estimation_an.py | INVALID | 成交时用收盘价缩减买量; 事后固定股票池 |
-| strategies/552_a_novel_robust_mixed_integer_linear_prog.py | INVALID | 现金不足时按成交日收盘改写实际买入股数; 固定候选池存在幸存者偏差及事后选样; 模拟成交与实际市场价格、容量和公司行动有差距 |
-| strategies/553_large_scale_portfolio_optimization_probl.py | INVALID | see review |
+| strategies/197_tsmom_boundaries.py | INVALID | 开盘成交和股息现金的近似 |
+| strategies/553_large_scale_portfolio_optimization_probl.py | INVALID | 候选池有幸存者和事后选样偏差; 成交与资金模型简化 |
+| strategies/310_factor_beta_overnight_intraday.py | INVALID | OOS 的独立性不足; 费用与成交模型简化 |
+| strategies/353_hold_the_dip.py | INVALID | look-ahead / same-close fill |
+| strategies/445_dynamic_scenario_based_portfolio_optimiz.py | INVALID | ETF 池有幸存者和事后选择偏差; 复权成交与资金处理是模型假设 |
+| strategies/482_dynamic_inclusion_and_bounded_multi_fact.py | INVALID | 固定候选池有幸存者和事后选择偏差 |
+| strategies/434_dynamic_scenario_based_portfolio_optimiz.py | INVALID | 事后资产池与回顾性样本切分 |
+| strategies/528_schur_complementary_allocation_a_unifica.py | INVALID | see review |
+| strategies/354_strategy.py | INVALID | 成交假设 |
+| strategies/470_entropic_value_at_risk_parity_for_temper.py | INVALID | see review |
+| strategies/522_asset_allocation_using_a_markov_process.py | INVALID | 收盘执行依赖固定滑点和现金缓冲 |
+| strategies/479_noise_proofing_universal_portfolio_shrin.py | INVALID | 基金池存在事后选择和幸存者偏差; 模拟成交依赖复权日线和固定摩擦 |
+| strategies/156_cta_replication_trend_factors.py | INVALID | see review |

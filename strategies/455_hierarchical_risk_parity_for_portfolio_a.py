@@ -1,3 +1,23 @@
+"""455_hierarchical_risk_parity_for_portfolio_a
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/455_hierarchical_risk_parity_for_portfolio_a.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 53c18ef949f91367c58358829370e449e492628c on 2026-11-27 18:41 Europe/Oslo, exit 0, output sha256 d19e7cd52fde1c33931011f31b89616369ca4b8b0eb402e81773435049bf455e
+Data source: Free Yahoo Finance USD daily ETF closes via yfinance. ECH (Chile), COLO (Colombia, including the same fund's GXG history), and EPU (Peru exposure) are the portfolio inputs. BIL is used for the excess Sharpe calculation. The recorded run used the 2026-11-27 06:53:09 UTC snapshot. [config.yaml:2-4, strategy.py:67-96, strategy.py:180-184, strategy.py:243-263, README.md:13-14, logs/codex_fix_d2_run_20261127_180204.log:1-3]
+Data fetched: 2026-11-27T17:41:11+00:00
+Sample period: 2019-07-01 through 2025-06-30, inclusive. Warm-up data starts on 2018-06-01. [config.yaml:5-9, README.md:15, logs/codex_fix_d2_run_20261127_180204.log:15]   data_range (from output): {'start': '2019-07-01', 'end': '2025-06-30'}
+IS/OOS split: IS 2019-07-01 through 2022-06-30. OOS 2022-07-01 through 2025-06-30. The main IS path uses the predeclared 63-session window. The 63-, 126-, and 252-session candidates are evaluated on IS data with warm-up history. The lowest IS annualized volatility selects the OOS window, with ties going to the shorter window. The run selected 252 sessions, applied from the first OOS signal. Holdings and cash carry across the split. [config.yaml:5-13, strategy.py:143-167, strategy.py:212-219, strategy.py:300-323, README.md:17, logs/codex_fix_d2_run_20261127_180204.log:4-7]
+Costs and slippage: 5 bps cost and 5 bps fixed slippage are modeled as a combined 10 bps cash charge on gross absolute fill notional across all buys and sells, including initial entry. The simulated fill uses the adjusted close and slippage is charged in cash. HRP and the equal-weight benchmark use the same rules. [config.yaml:17-18, strategy.py:171-186, strategy.py:200-217, strategy.py:312-313, README.md:21-22]
+Signal lag: The HRP target uses returns through the close of the first trading session of each month (t). With the configured one-session lag, quantities are fixed at that close and filled at the next trading session's close (t+1). For longer supported lags, sizing takes place at the close immediately before the scheduled fill. [config.yaml:14-16, strategy.py:143-167, strategy.py:195-213, strategy.py:222-241, README.md:21]
+Price adjustment: yfinance auto_adjust total-return close in USD
+Survivorship bias: The universe is fixed to ECH, COLO, and EPU. The README states that the funds were selected from ETFs still active at writing with obtainable historical prices, so both IS and OOS are exposed to survivorship bias. It documents missing start-date inclusion records, point-in-time candidate and index membership histories, and supporting data for suspensions, delistings, and liquidations. [config.yaml:2-4, strategy.py:287-300, README.md:26]
+Parameter combinations tried: 3
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=-0.08707561344058734, ann_vol=0.2587248712598638, sharpe=-0.22006015310422747, sharpe_excess=-0.2369367324349117, max_drawdown=-0.5117659130127938, total_return=-0.23941558811182218, turnover=7.548916616730724, n_trades=108
+    oos: cagr=0.16753143282818628, ann_vol=0.19256958494482346, sharpe=0.9007729671863982, sharpe_excess=0.6703110858065982, max_drawdown=-0.1865679577560846, total_return=0.5866131554997263, turnover=2.3311806839898415, n_trades=108
+    full: cagr=0.03190367937229377, ann_vol=0.22822887254282404, sharpe=0.2532758965967812, sharpe_excess=0.1469785428052215, max_drawdown=-0.5117659130127938, total_return=0.2067532337698026, turnover=9.880097300720564, n_trades=216
+    benchmark: cagr=0.04052306456951982, ann_vol=0.2308560539803901, sharpe=0.28902040583189814, sharpe_excess=0.1839302964568208, max_drawdown=-0.5065525405698247, total_return=0.26834216805993805, turnover=3.0380371712789165, n_trades=216
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

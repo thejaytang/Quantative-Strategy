@@ -1,3 +1,23 @@
+"""535_shrinkage_estimators_for_mean_and_covari
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/535_shrinkage_estimators_for_mean_and_covari.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 53c18ef949f91367c58358829370e449e492628c on 2026-11-27 18:41 Europe/Oslo, exit 0, output sha256 286a974c4c69a4d4ee52dfbdabecefb1f3f6679f0e43a74a7218b974790fbdcb
+Data source: Yahoo Finance 公开美元日线，经 yfinance 下载日复权收盘价。行业 ETF 为 XLB、XLE、XLF、XLI、XLK、XLP、XLU、XLV、XLY，另取 BIL 日总回报用于事后计算超额收益。运行日志记录所用快照下载于 2026-11-27T08:14:08+00:00。（README.md:18，config.yaml:2，config.yaml:3，strategy.py:131，strategy.py:139，strategy.py:294，strategy.py:326，logs/codex_fix_d2_run_20261127_180243.log:1）
+Data fetched: 2026-11-27T17:41:17+00:00
+Sample period: 日线价格输入为 2012-09-20 至 2026-10-30，2012-09-20 起的数据用于预热。模拟区间为 2014-01-02 至 2026-10-30，首日为首次成交日。（config.yaml:6，config.yaml:7，config.yaml:9，README.md:20，logs/codex_fix_d2_run_20261127_180243.log:19）   data_range (from output): {'start': '2014-01-02', 'end': '2026-10-30'}
+IS/OOS split: 按 README 所述论文原始样本截止日划分。IS 为 2014-01-02 至 2024-06-06，OOS 为 2024-06-07 至 2026-10-30，份额与现金跨界延续。四组替代参数仅在 IS 运行，默认参数用于全期滚动估计。此 OOS 为回溯划分，起点早于 README 所载论文首次公开日期 2026-01-28。（README.md:20，README.md:39，config.yaml:8，strategy.py:312，strategy.py:331，strategy.py:341，strategy.py:350）
+Costs and slippage: 默认每边 2 bps 费用加 3 bps 固定滑点，合计 5 bps。以成交日复权收盘价乘锁定份额，按买卖绝对成交金额之和扣减现金，含首次建仓。IS 高摩擦情景为 4 bps 费用加 6 bps 滑点，合计 10 bps。滑点作为固定现金扣减建模，模拟成交价仍取收盘价。（config.yaml:19，config.yaml:20，config.yaml:24，config.yaml:25，strategy.py:247，strategy.py:255，strategy.py:260，strategy.py:346，strategy.py:352，README.md:27）
+Signal lag: 在月末最后一个 NYSE 交易日 t 收盘后，用截至 t 收盘的日收益率生成权重。默认按 t 收盘锁定买卖份额，在下一交易日 t+1 收盘模拟成交。配置更长滞后时，份额仍在成交前一交易日收盘后锁定。首笔信号和定量在 2013-12-31 收盘后，成交在 2014-01-02 收盘。（config.yaml:14，config.yaml:16，strategy.py:202，strategy.py:217，strategy.py:260，strategy.py:278，README.md:25）
+Price adjustment: yfinance auto_adjust=True, dividend- and split-adjusted closes, fractional total-return units for fills
+Survivorship bias: 全样本固定使用回顾时选定的九只存续行业 ETF，存在基金选择及幸存者偏差。资产池省略后设行业基金，未模拟基金退市或清算，也无逐期成分表。（config.yaml:2，strategy.py:104，strategy.py:324，README.md:17，README.md:39）
+Parameter combinations tried: 5
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.09415337146272384, ann_vol=0.13640175121872355, sharpe=0.7281976822203362, sharpe_excess=0.6358924815561849, max_drawdown=-0.3142065758440108, total_return=1.553081117382607, turnover=1.6170942345750405, n_trades=667
+    oos: cagr=0.0939168899312739, ann_vol=0.10311156972862574, sharpe=0.9222473614282941, sharpe_excess=0.521177370561751, max_drawdown=-0.10432840541125832, total_return=0.23916525465549188, turnover=1.196958473105207, n_trades=161
+    full: cagr=0.09410925172362994, ann_vol=0.1308213986754322, sharpe=0.7532235360314379, sharpe_excess=0.6159501756968869, max_drawdown=-0.3142065758440108, total_return=2.16368941297755, turnover=1.538717498162013, n_trades=828
+    benchmark  full: cagr=0.11667660875247132, ann_vol=0.15300455482756853, sharpe=0.7982019837953144, sharpe_excess=0.6808285781934936, max_drawdown=-0.35058669499239803, total_return=3.109010266724167, turnover=0.36031713666310883, n_trades=1386
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

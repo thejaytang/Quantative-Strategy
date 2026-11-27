@@ -1,3 +1,23 @@
+"""544_special_markowitz_thermodynamic_formalis
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/544_special_markowitz_thermodynamic_formalis.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 53c18ef949f91367c58358829370e449e492628c on 2026-11-27 18:41 Europe/Oslo, exit 0, output sha256 a16860458d348b05493a4b6c96ddb387ca3956e37fde87dff791be39c0ae337c
+Data source: Free Yahoo Finance USD daily ETF prices via yfinance: XLB, XLE, XLF, XLI, XLK, XLP, XLU, XLV and XLY for the portfolio, plus BIL daily returns for the excess-Sharpe calculation.
+Data fetched: 2026-11-27T17:41:28+00:00
+Sample period: Price panel from 2007-08-01 through 2025-12-31, with the initial history used for warm-up. Reported backtest sessions run from 2009-01-02 through 2025-12-31 inclusive.   data_range (from output): {'start': '2009-01-02', 'end': '2025-12-31'}
+IS/OOS split: Chronological split at 2017-12-31 inclusive for IS. Realized sessions are 2009-01-02 to 2017-12-29 for IS and 2018-01-02 to 2025-12-31 for OOS. The official simulation runs continuously across the boundary and carries shares and cash into OOS. Five robustness variants run only on IS and do not select the official model. This is a retrospective historical split. The date on which parameters were locked relative to first OOS inspection is undocumented.
+Costs and slippage: Cost of 2 bps plus modeled slippage of 3 bps. At each fill, 5 bps of the sum of absolute buy and sell notionals at that session's adjusted close is debited from cash. The same rates apply to the strategy and equal-weight benchmark.
+Signal lag: The default signal uses returns through the last trading close of the month, t. Share changes are fixed at t and filled at the next trading session's close, t+1. With a longer configured lag, the signal still uses the month-end close and share changes are fixed at the close immediately before the fill.
+Price adjustment: yfinance auto_adjust total-return closes
+Survivorship bias: Fixed basket of nine surviving Select Sector SPDR funds, attributed in the README to a January 2007 exchange filing. Later launches such as XLRE and XLC are outside the basket. Missing quotes stop the run. A point-in-time fund universe and delisting liquidation data are unavailable, so fund-level survivorship bias is unquantified.
+Parameter combinations tried: 6
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.11955319134492086, ann_vol=0.15800533803344022, sharpe=0.7940095189474193, sharpe_excess=0.7882452361711544, max_drawdown=-0.2505650897434151, total_return=1.759425825582777, turnover=3.8715055515157664, n_trades=712
+    oos: cagr=0.1237469354495251, ann_vol=0.1802933575273667, sharpe=0.7376936588205681, sharpe_excess=0.602845482638059, max_drawdown=-0.305214630194993, total_return=1.5371306700550362, turnover=3.81345316600525, n_trades=621
+    full: cagr=0.12152355343581064, ann_vol=0.16883432624584133, sharpe=0.7640949549265407, sharpe_excess=0.6935947612277085, max_drawdown=-0.305214630194993, total_return=6.001023893827993, turnover=3.8442035526238936, n_trades=1333
+    benchmark  full: cagr=0.12592472951470704, ann_vol=0.16473630530785172, sharpe=0.8027349610575597, sharpe_excess=0.7303943456146763, max_drawdown=-0.35058665391495447, total_return=6.482106191525161, turnover=0.3273999861054137, n_trades=1835
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

@@ -4,7 +4,7 @@
 
 每个策略一个文件：`strategies/<编号>_<名称>.py`，一条命令运行：`python strategies/<文件>.py`（依赖见 requirements.txt）。文件头写明数据源与抓取时间、样本期、IS/OOS 划分、成本与滑点、信号滞后、复权口径、幸存者偏差说明、尝试的参数组合数，以及在记录的 commit 上实际运行得到的关键数字（backtest reproduced）。收录条件：真实运行、确有交易、无同收盘成交前视、Codex 自审 PASS（进入本仓库前的审查为作者自审，不是独立第三方审查）、单文件复跑与审查时结果一致。
 
-本表由文件实际内容生成（2026-11-27 09:35 Europe/Oslo），共 102 个。
+本表由文件实际内容生成（2026-11-27 09:42 Europe/Oslo），共 106 个。
 
 | 文件 | 作者 | 代码 commit | 全样本 Sharpe | 全样本 CAGR |
 |---|---|---|---|---|
@@ -106,7 +106,19 @@
 | strategies/482_dynamic_inclusion_and_bounded_multi_fact.py | Codex | cc50485fb6 | 0.7334986649896756 | 0.10711880725022493 |
 | strategies/483_wasserstein_penalisation_as_an_endogenou.py | Codex | cc50485fb6 | 0.7980796208659574 | 0.11596139012990725 |
 | strategies/484_nonlinear_shrinkage_for_higher_moments_e.py | Codex | d2f4ee0104 | 0.8108790169499206 | 0.10250898401046205 |
+| strategies/487_conditional_value_at_risk_under_reward_p.py | Codex | fb92b5054b | 0.922077932161652 | 0.13693622988591797 |
 | strategies/490_noise_proofing_universal_portfolio_shrin.py | Codex | d2f4ee0104 | 0.8972520895312583 | 0.12944044360866402 |
 | strategies/491_topological_risk_parity.py | Codex | d2f4ee0104 | 0.6327633121732696 | 0.11803109480608964 |
 | strategies/492_optimal_portfolio_construction_a_reinfor.py | Codex | d2f4ee0104 | 0.8989622255131555 | 0.13221921836627493 |
 | strategies/494_wasserstein_penalisation_as_an_endogenou.py | Codex | d2f4ee0104 | 0.7830114386936448 | 0.11369232235830018 |
+| strategies/497_interpretable_allocation_and_model_predi.py | Codex | fb92b5054b | 0.7253889960565298 | 0.10901374322318902 |
+| strategies/500_dynamic_portfolio_optimization_under_cva.py | Codex | fb92b5054b | 0.6303740440989759 | 0.05259934464748861 |
+| strategies/532_robust_enhanced_index_tracking_portfolio.py | Codex | fb92b5054b | 1.2747285536143536 | 0.24265350953695464 |
+
+## 已收录后的深审发现
+
+已推送到 origin/main 的策略不会改写历史提交。若之后的深审发现前视、数据或数字问题，文件保留为当时已发布的版本，并在新提交中列入 [DEEP_REVIEW_FINDINGS.md](DEEP_REVIEW_FINDINGS.md)。修复（如有）也只出现在新提交中。
+
+| 文件 | 最新自审 | 问题类别 |
+|---|---|---|
+| strategies/463_simple_dynamic_stock_bond_gold_portfolio.py | 待修 | 成交金额依赖成交当日最终收盘 |

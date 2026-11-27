@@ -1,3 +1,23 @@
+"""500_dynamic_portfolio_optimization_under_cva
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/500_dynamic_portfolio_optimization_under_cva.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit fb92b5054b1596d6a39ea87072bbd5a288327fb7 on 2026-11-27 09:42 Europe/Oslo, exit 0, output sha256 63ca06b7497c3ef0a052663c001f15a6a699832051b3eebafad88f8d755178ae
+Data source: Yahoo Finance via yfinance, daily adjusted Close for SPY and BIL. The loader uses a date- and ticker-specific CSV cache with a fetch timestamp, or downloads the same series on a cache miss or invalid cache. The run reports a data fetch timestamp of 2026-11-27T07:56:44+00:00.
+Data fetched: 2026-11-27T08:42:05+00:00
+Sample period: Requested price history and warm-up begin 2007-06-01. The reported evaluation sessions run from 2008-07-01 through 2025-12-31, inclusive.   data_range (from output): {'start': '2008-07-01', 'end': '2025-12-31'}
+IS/OOS split: IS covers evaluation sessions from 2008-07-01 through the 2017-12-31 calendar cutoff. OOS is the historical holdout from the 2018-01-01 calendar boundary through 2025-12-31. Both segments come from one continuous default simulation, carrying weights and drawdown state across the boundary. Sensitivity variants run on IS prices only.
+Costs and slippage: Each ETF buy or sell is charged 1 bp commission plus 2 bps fixed slippage, 3 bps total on absolute executed notional. The simulation deducts these costs from equity at each fill, including the initial allocation, and solves for target holdings using the equity that remains after costs. One IS sensitivity case uses 5 bps commission plus 10 bps slippage.
+Signal lag: At the first evaluation session's close and the first recorded session close of each subsequent month, the strategy computes a target from prices through that close and current portfolio drawdown. It fills at the next recorded trading-session close. Existing weights receive the close-to-close return ending at the fill, and new weights receive returns after that close.
+Price adjustment: yfinance auto_adjust=True daily close, split and dividend adjusted
+Survivorship bias: The fixed universe consists of SPY and BIL, two surviving ETFs listed before the sample began. The README discloses survivorship bias and ex-post asset selection. The simulation uses each fund's own price history.
+Parameter combinations tried: 6
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.058636038295911685, ann_vol=0.07869393505518091, sharpe=0.7635967205583891, sharpe_excess=0.7488452028351319, max_drawdown=-0.1262344964130485, total_return=0.7178894170037413, turnover=1.4151327706495593, n_trades=163
+    oos: cagr=0.045460785742155174, ann_vol=0.09677892035783173, sharpe=0.507970708230997, sharpe_excess=0.25705215034754675, max_drawdown=-0.2085837297360985, total_return=0.42586657877374434, turnover=2.0673054679701592, n_trades=164
+    full: cagr=0.05259934464748861, ann_vol=0.08740787504507043, sharpe=0.6303740440989759, sharpe_excess=0.4960662827735472, max_drawdown=-0.2085837297360983, total_return=1.4494811057347499, turnover=1.7129346085950015, n_trades=327
+    benchmark: cagr=0.12195096721342402, ann_vol=0.19937586033964785, sharpe=0.6770255184413383, sharpe_excess=0.6160426952268917, max_drawdown=-0.47165218948775434, total_return=6.470557254272512, turnover=0.05720354738265169, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

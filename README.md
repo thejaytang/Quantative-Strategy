@@ -4,19 +4,22 @@
 
 每个策略一个文件：`strategies/<编号>_<名称>.py`，一条命令运行：`python strategies/<文件>.py`（依赖见 requirements.txt）。文件头写明数据源与抓取时间、样本期、IS/OOS 划分、成本与滑点、信号滞后、复权口径、幸存者偏差说明、尝试的参数组合数，以及在记录的 commit 上实际运行得到的关键数字（backtest reproduced）。收录条件：真实运行、确有交易、无同收盘成交前视、Codex 自审 PASS（进入本仓库前的审查为作者自审，不是独立第三方审查）、单文件复跑与审查时结果一致。
 
-本表由文件实际内容生成（2026-11-27 12:28 Europe/Oslo），本表由文件实际内容生成（2026-11-27 12:28 Europe/Oslo），共 50 个。
+本表由文件实际内容生成（2026-11-27 12:28 Europe/Oslo），本表由文件实际内容生成（2026-11-27 12:28 Europe/Oslo），共 62 个。
 。
 
 | 文件 | 作者 | 代码 commit | 全样本 Sharpe | 全样本 CAGR |
 |---|---|---|---|---|
 | strategies/100_etf_asset_momentum_corr_hedge.py | Codex | c71364ad99 | 0.590749534227566 | 0.07218221248997536 |
+| strategies/101_correlated_stress_reversal.py | Codex | 10f8238200 | -0.4528647975895032 | -0.040200837249976584 |
 | strategies/102_alt_etf_short_term_reversal.py | Codex | 3140bbcffa | -4.850826308066646 | -0.1832096548612029 |
 | strategies/103_breaking_bad_trends.py | Codex | ed11995234 | 0.24156559048879273 | 0.011219751158929592 |
 | strategies/105_factor_momentum_style_etf.py | Codex | e45e81ae3a | 0.7670643508346912 | 0.11463689309321756 |
+| strategies/106_low_ivol_low_max.py | Codex | 10f8238200 | 0.8198976625975141 | 0.1152196820035738 |
 | strategies/107_illiquidity_premium_amihud.py | Codex | da9754ee51 | 0.7839042842398569 | 0.15778681683311424 |
 | strategies/110_cointegration_etf_pairs.py | Codex | ad594150a0 | -1.9086957510381422 | -0.0066972690980858784 |
 | strategies/112_regime_switching_pairs.py | Codex | ad594150a0 | -0.2205187803621582 | -0.005553293487243871 |
 | strategies/122_stock_bond_correlation_regime.py | Codex | ad594150a0 | 1.0099163972519734 | 0.10282929099397098 |
+| strategies/124_dollar_safe_haven_reversal.py | Codex | 10f8238200 | -0.278935429402221 | -0.010816713521787924 |
 | strategies/125_liquidity_risk_indicator_timing.py | Codex | ad594150a0 | 0.9392801869667401 | 0.092108548038075 |
 | strategies/126_hmm_regime_allocation.py | Codex | ad594150a0 | 0.9421612030950982 | 0.10710208722331305 |
 | strategies/129_ml_etf_trend_vs_oscillation.py | Codex | ad594150a0 | -0.1633159490129353 | -0.00856614180659876 |
@@ -25,12 +28,15 @@
 | strategies/157_skew_path_dependent_vol.py | Codex | 498f8135d2 | 0.697460500588218 | 0.09150872373465474 |
 | strategies/165_retail_signal_failure.py | Codex | 2b23c5bbf7 | 0.43541324492441674 | 0.05075523692537032 |
 | strategies/167_bayesian_cointegration_lowvol.py | Codex | 2b23c5bbf7 | -0.19791642317160424 | -0.01419780064634768 |
+| strategies/179_crude_oil_news_sentiment.py | Codex | 10f8238200 | -0.2457468465858118 | -0.030724431650478 |
 | strategies/183_safe_asset_dollar_cycle.py | Codex | 2b23c5bbf7 | 0.1397995385765699 | 0.004613464128480738 |
 | strategies/185_gold_month_seasonality.py | Codex | 2b23c5bbf7 | 0.7807274675730697 | 0.062351172766873075 |
+| strategies/186_federal_holiday_effect.py | Codex | e0984d15ab | -0.2039764296266909 | 0.003356979677578531 |
 | strategies/187_midterm_cycle.py | Codex | 92e75bea82 | 0.5276164995401547 | 0.03806831979746761 |
 | strategies/191_shap_quantile_sector_allocation.py | Codex | 2b23c5bbf7 | 0.4696202287092069 | 0.05901278586658676 |
 | strategies/192_downside_upside_rv_forecast.py | Codex | 2b23c5bbf7 | 0.5860331533877041 | 0.04621676334252989 |
 | strategies/194_breaking_beta_defensive.py | Codex | 10f8238200 | 0.7668802709220355 | 0.10356713253459682 |
+| strategies/195_century_reversals_volatility.py | Codex | 10f8238200 | 0.26694943743596733 | 0.018967890521761177 |
 | strategies/199_pca_stat_arb.py | Codex | 92e75bea82 | 0.2546514486659549 | 0.014364586479493235 |
 | strategies/303_timing_moving_average_distance.py | Codex | 14eecadd0b | 0.4586740593305042 | 0.07523509455182698 |
 | strategies/304_unintended_consequences_rebalancing.py | Codex | 2b23c5bbf7 | 0.8171238877819083 | 0.09014626117652913 |
@@ -45,15 +51,21 @@
 | strategies/328_are_investors_really_moonstruck.py | Codex | b9dcd3d64e | 0.11378870437459518 | 0.006493183456579565 |
 | strategies/336_saoftrl_novel_adaptive_algorithmic.py | Codex | 3140bbcffa | 0.9829686247958807 | 0.11517988658790612 |
 | strategies/337_adaptive_eventdriven_labeling_multiscale.py | Codex | c5088ecf80 | 0.24586500117894552 | 0.022129935252036992 |
+| strategies/338_optimal_portfolio_using_factor.py | Codex | 10f8238200 | 0.6617808751579951 | 0.09403463821519598 |
 | strategies/339_dancing_dynamic_rebalancing_mechanism.py | Codex | 3140bbcffa | 0.8542589301354799 | 0.09623018976702165 |
 | strategies/350_continuous_timing_growth_defensive.py | Codex | 9102661980 | 0.9164034821773692 | 0.1728115110163706 |
 | strategies/382_statistical_arbitrage_in_polish_equities.py | Codex | ea97bbcbc9 | 0.500628613686733 | 0.023135888068235744 |
 | strategies/391_evolutionary_factor_searching_for_sparse.py | Codex | da9754ee51 | 0.9903968721257259 | 0.25587424645442103 |
 | strategies/438_the_mathematics_of_heuristic_portfolio_o.py | Codex | f9ce9ed5a4 | 0.573210240682426 | 0.0343462522184903 |
 | strategies/448_continuous_cash_overlay_filters_for_a_st.py | Codex | 6df04a4d89 | 1.1328022628669068 | 0.18558698378061722 |
+| strategies/460_understanding_the_long_only_minimum_vari.py | Codex | c71364ad99 | 0.8044119346668672 | 0.10067372562894272 |
 | strategies/463_simple_dynamic_stock_bond_gold_portfolio.py | Codex | f9ce9ed5a4 | 0.9859305218392249 | 0.0686041912862605 |
 | strategies/466_hierarchical_risk_parity_for_portfolio_a.py | Codex | da9754ee51 | 0.25202646099041437 | 0.03140765257653144 |
+| strategies/468_cleaning_correlation_matrices_with_exter.py | Codex | c71364ad99 | 0.9637880055335821 | 0.02066182974776254 |
+| strategies/469_two_sides_of_schur_damping_high_dimensio.py | Codex | c71364ad99 | 0.9585323162160332 | 0.03502457854325858 |
+| strategies/478_portfolio_allocation_under_heterogeneous.py | Codex | e0984d15ab | 0.9428916934150752 | 0.10526210296784755 |
 | strategies/492_optimal_portfolio_construction_a_reinfor.py | Codex | da9754ee51 | 0.89927754240382 | 0.1296232752782156 |
+| strategies/497_interpretable_allocation_and_model_predi.py | Codex | e0984d15ab | 0.7229355302682273 | 0.10847871566869949 |
 | strategies/504_exploratory_mean_variance_with_jumps_an.py | Codex | da9754ee51 | 0.7431772376620975 | 0.05658096575636318 |
 | strategies/511_dynamic_portfolio_optimization_under_cva.py | Codex | da9754ee51 | 0.6781159099371227 | 0.05417596659859414 |
 | strategies/512_nested_clustered_optimization_is_one_end.py | Codex | c0a8f76240 | 0.8091637086121385 | 0.10669591931434075 |

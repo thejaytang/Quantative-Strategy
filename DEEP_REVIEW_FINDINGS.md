@@ -7,22 +7,15 @@ Generated 2026-11-27 12:28 Europe/Oslo.
 | File | Latest self-review | Category | Stage note |
 |---|---|---|---|
 | strategies/022_sector_residual_statarb.py | FAIL | 结算数量仍可由当日收盘价决定 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
-| strategies/101_correlated_stress_reversal.py | PASS | 成交与资金可用性依赖日线假设 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
-| strategies/106_low_ivol_low_max.py | PASS | 固定存续股票池 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/109_factor_etf_vol_matched.py | FAIL | see review | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/113_kalman_garch_pairs.py | FAIL | see review | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
-| strategies/124_dollar_safe_haven_reversal.py | PASS | see review | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/156_cta_replication_trend_factors.py | PASS | 成交和融资成本为简化假设 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/159_deep_momentum_market_trend.py | PASS | look-ahead / same-close fill | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
-| strategies/179_crude_oil_news_sentiment.py | PASS | look-ahead / same-close fill | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
-| strategies/186_federal_holiday_effect.py | PASS | 成交成本是简化假设 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/188_opex_week.py | FAIL | 周末收盘买入的实际份额由当日收盘价决定; 固定成本和日线成交假设限制执行结论 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
-| strategies/195_century_reversals_volatility.py | PASS | look-ahead / same-close fill | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/197_tsmom_boundaries.py | PASS | see review | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/310_factor_beta_overnight_intraday.py | PASS | see review | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/315_leveraged_funds_robust_replication.py | FAIL | 资金不足时用成交日收盘价改变实际成交份额 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/324_volatility_conditions_weekend_effect.py | PASS | see review | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
-| strategies/338_optimal_portfolio_using_factor.py | PASS | look-ahead / same-close fill | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/341_monitoring_attention_inflation_news.py | FAIL | 现金不足时，实际买入股数取决于成交日收盘价 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/353_hold_the_dip.py | PASS | see review | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/354_strategy.py | PASS | 成交和资金假设限制结果的解释 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
@@ -44,17 +37,13 @@ Generated 2026-11-27 12:28 Europe/Oslo.
 | strategies/457_cleaning_correlation_matrices_with_exter.py | PASS | see review | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/458_two_sides_of_schur_damping_high_dimensio.py | FAIL | see review | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/459_entropic_value_at_risk_parity_for_temper.py | FAIL | 实际买入份额由成交日收盘价决定 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
-| strategies/460_understanding_the_long_only_minimum_vari.py | PASS | 复权与成交模型的限制 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/461_breaking_the_trend_how_to_avoid_cherry_p.py | FAIL | 成交日收盘价决定了实际成交数量; 资金与成交模型只覆盖日频 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/465_semivariance_and_semivolatility_in_portf.py | FAIL | 复权快照限制成交与数据时点的可追溯性 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/467_an_entropic_factor_model_for_robust_port.py | FAIL | 实际买入量依赖成交收盘价; 固定股票池存在幸存者与事后筛选偏差; 复权成交与资金约束是简化模型 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
-| strategies/468_cleaning_correlation_matrices_with_exter.py | PASS | look-ahead / same-close fill | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
-| strategies/469_two_sides_of_schur_damping_high_dimensio.py | PASS | 资产池存在事后存续筛选; 成交模型简化了现金与流动性 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/470_entropic_value_at_risk_parity_for_temper.py | PASS | see review | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/472_breaking_the_trend_how_to_avoid_cherry_p.py | FAIL | see review | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/474_multiperiod_bond_portfolio_optimization.py | PASS | see review | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/476_conditional_value_at_risk_under_reward_p.py | FAIL | 成交日收盘价参与决定实际买入数量 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
-| strategies/478_portfolio_allocation_under_heterogeneous.py | PASS | look-ahead / same-close fill | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/479_noise_proofing_universal_portfolio_shrin.py | PASS | 成交与资金可用性依赖模拟假设 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/480_topological_risk_parity.py | FAIL | 实际买入份额可由成交日收盘价决定 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/481_optimal_portfolio_construction_a_reinfor.py | FAIL | 现金不足时以成交日收盘价决定实际买量 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
@@ -65,7 +54,6 @@ Generated 2026-11-27 12:28 Europe/Oslo.
 | strategies/490_noise_proofing_universal_portfolio_shrin.py | FAIL | 成交日收盘价决定实际买入量 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/491_topological_risk_parity.py | FAIL | 成交数量依赖成交日收盘价 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/494_wasserstein_penalisation_as_an_endogenou.py | FAIL | look-ahead / same-close fill | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
-| strategies/497_interpretable_allocation_and_model_predi.py | PASS | look-ahead / same-close fill | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/500_dynamic_portfolio_optimization_under_cva.py | FAIL | 收盘价参与确定同一收盘的实际买量 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/501_nested_clustered_optimization_is_one_end.py | FAIL | 收盘价决定实际买入份额 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/503_risk_limited_asset_allocation_with_a_bud.py | FAIL | 收盘后重定买入份额 | restored_from_origin: kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |

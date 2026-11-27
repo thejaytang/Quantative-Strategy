@@ -3,7 +3,7 @@
 Author: Codex; non-author review: PASS; publication gate: Codex.
 Run (one command): python strategies/312_cost_access_understanding_price.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 2b23c5bbf706aea933c0cba5f5805efb450ee206 on 2026-11-26 14:27 Europe/Oslo, exit 0, output sha256 0acac48e0af95b41090f40868f09d5abc4750b806286084b4fe865e5aff11f22
-Data source: Yahoo Finance（yfinance）日频数据：美国 ADR TM、SONY、HMC，东京对应普通股 7203.T、6758.T、7267.T，EWJ 对冲 ETF，JPY=X（日元/美元），以及 Sony 分拆估值用的 8729.T。东京节假日来自日本内阁府 CSV，代码另列 1 月 1–3 日和 12 月 31 日为休市日规则，并读取配置中列明公告日期的公司行动。MSCI 文章是研究思路的来源。
+Data source: Yahoo Finance（yfinance）日频数据：美国 ADR TM、SONY、HMC，东京对应普通股 7203.T、6758.T、7267.T，EWJ 对冲 ETF，JPY=X（日元/美元），以及 Sony 分拆估值用的 8729.T。东京节假日来自日本内阁府 CSV（https://www8.cao.go.jp/chosei/shukujitsu/syukujitsu.csv；按日本政府关于公开信息利用的标准条款引用 / cited under the Japanese government standard terms for public information），代码另列 1 月 1–3 日和 12 月 31 日为休市日规则，并读取配置中列明公告日期的公司行动。MSCI 文章是研究思路的来源。
 Data fetched: 2026-11-26 14:27 Europe/Oslo (run time)
 Sample period: 日志报告的实际美股交易日样本为 2018-01-02 至 2026-10-30（含首尾），按 EWJ 日线日期索引。配置覆盖 2018-01-01 至 2026-10-31，取数起点提前 180 个日历日，取数结束参数在样本外结束日后延 15 个日历日。 data_range (from output): 2018-01-02 to 2026-10-30
 IS/OOS split: IS 配置为 2018-01-01 至 2023-12-31，OOS 配置为 2024-01-01 至 2026-10-31，均含端点并按 EWJ 实际交易日切片。OOS 为回顾性时间留出。README 记载参数未经样本优化。先模拟整段样本，再切片计算指标，跨界沿用持仓与净值。

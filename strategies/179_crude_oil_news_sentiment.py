@@ -3,12 +3,12 @@
 Author: Codex; non-author review: PASS; publication gate: Codex.
 Run (one command): python strategies/179_crude_oil_news_sentiment.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 10f82382008748cd9ff2f56e2b8ef160caa66e38 on 2026-11-27 11:24 Europe/Oslo, exit 0, output sha256 8998c356a317833c2b0c1473183f710ce0c666dc8d06b0cc63bf0983d4762418
-Data source: 美国能源信息署（EIA）公开的 Past Weeks in Petroleum 周度石油市场标题及例行数据公告，发布日期从归档版次链接提取。Yahoo Finance 经 yfinance 提供 USO 和 BIL 的日频开盘价与收盘价。
+Data source: 美国能源信息署（EIA）公开的 Past Weeks in Petroleum 周度石油市场标题及例行数据公告，发布日期从归档版次链接提取（https://www.eia.gov/petroleum/weekly/includes/archive.php）。Yahoo Finance 经 yfinance 提供 USO 和 BIL 的日频开盘价与收盘价。
 Data fetched: EIA=2026-11-27T11:24:13+01:00, USO=2026-11-27T11:24:14+01:00, BIL=2026-11-27T11:24:14+01:00
 Sample period: 配置日历区间为 2010-01-01 至 2025-10-31。日志记录的实际回测交易日区间为 2010-01-04 至 2025-10-31。 data_range (from output): 2010-01-04 to 2025-10-31
 IS/OOS split: 按日历日期切分，IS 为 2010-01-01 至 2017-12-31，OOS 为 2018-01-01 至 2025-10-31，端点均包含。先计算全样本的同一持仓路径，再分段汇报，OOS 承接原有持仓。README 将 OOS 描述为回顾性留出。
 Costs and slippage: 每笔买或卖按成交名义金额计 5 bps（f=0.0005）。首日开盘建仓乘以 1/(1+f)，后续开盘换仓乘以 (1−f)/(1+f)，沿用持仓无换仓费。隔夜收益归原持仓，日内收益归开盘后的持仓。未建模滑点。
-Signal lag: 主信号按 EIA 标题的发布日期汇总，最早在严格晚于发布日期的首个交易日开盘生效。趋势对照仅在同一组开盘时点评估，使用执行日前最近一次收盘及再往前五个交易日的收盘，因此使用 t 日收盘的信号最早在 t+1 交易日开盘执行。
+Signal lag: 主信号按 EIA 标题的发布日期汇总，最早在严格晚于发布日期的首个交易日开盘生效。The main signal is first used at the open of the first trading session strictly after the EIA publication date (not on the publication date). 趋势对照仅在同一组开盘时点评估，使用执行日前最近一次收盘及再往前五个交易日的收盘，因此使用 t 日收盘的信号最早在 t+1 交易日开盘执行。
 Price adjustment: Yahoo Finance auto_adjust=True, split- and distribution-adjusted Open and Close in units relative to the first warm-up close
 Survivorship bias: 固定使用 USO 与 BIL 两只贯穿样本的基金。基金选择仍可能受事后可得性影响。
 Parameter combinations tried: 1

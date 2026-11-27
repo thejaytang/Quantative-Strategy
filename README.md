@@ -4,7 +4,7 @@
 
 每个策略一个文件：`strategies/<编号>_<名称>.py`，一条命令运行：`python strategies/<文件>.py`（依赖见 requirements.txt）。文件头写明数据源与抓取时间、样本期、IS/OOS 划分、成本与滑点、信号滞后、复权口径、幸存者偏差说明、尝试的参数组合数，以及在记录的 commit 上实际运行得到的关键数字（backtest reproduced）。收录条件：真实运行、确有交易、无同收盘成交前视、Codex 自审 PASS（进入本仓库前的审查为作者自审，不是独立第三方审查）、单文件复跑与审查时结果一致。
 
-本表由文件实际内容生成（2026-11-27 12:05 Europe/Oslo），共 66 个。
+本表由文件实际内容生成（2026-11-27 12:28 Europe/Oslo），共 60 个。
 
 | 文件 | 作者 | 代码 commit | 全样本 Sharpe | 全样本 CAGR |
 |---|---|---|---|---|
@@ -26,7 +26,7 @@
 | strategies/129_ml_etf_trend_vs_oscillation.py | Codex | ad594150a0 | -0.1633159490129353 | -0.00856614180659876 |
 | strategies/130_ml_risk_budget_allocation.py | Codex | da9754ee51 | 0.7899327218404332 | 0.05550127833165952 |
 | strategies/148_decomposing_momentum.py | Codex | 2b23c5bbf7 | 0.8720364930091413 | 0.20916162811949102 |
-| strategies/156_cta_replication_trend_factors.py | Codex | da9754ee51 | 0.36672920387125707 | 0.01804499452049435 |
+| strategies/156_cta_replication_trend_factors.py | Codex | f0c72714f0 | 0.36696945004686893 | 0.017167834683037952 |
 | strategies/157_skew_path_dependent_vol.py | Codex | 498f8135d2 | 0.697460500588218 | 0.09150872373465474 |
 | strategies/165_retail_signal_failure.py | Codex | 2b23c5bbf7 | 0.43541324492441674 | 0.05075523692537032 |
 | strategies/167_bayesian_cointegration_lowvol.py | Codex | 2b23c5bbf7 | -0.19791642317160424 | -0.01419780064634768 |
@@ -38,14 +38,13 @@
 | strategies/192_downside_upside_rv_forecast.py | Codex | 2b23c5bbf7 | 0.5860331533877041 | 0.04621676334252989 |
 | strategies/194_breaking_beta_defensive.py | Codex | 10f8238200 | 0.7668802709220355 | 0.10356713253459682 |
 | strategies/195_century_reversals_volatility.py | Codex | a3beaa341e | 0.26694964225136564 | 0.018967908388844767 |
-| strategies/197_tsmom_boundaries.py | Codex | da9754ee51 | 0.8800095903435303 | 0.12852231171139783 |
 | strategies/199_pca_stat_arb.py | Codex | 92e75bea82 | 0.2546514486659549 | 0.014364586479493235 |
 | strategies/303_timing_moving_average_distance.py | Codex | 14eecadd0b | 0.4586740593305042 | 0.07523509455182698 |
 | strategies/304_unintended_consequences_rebalancing.py | Codex | 2b23c5bbf7 | 0.8171238877819083 | 0.09014626117652913 |
 | strategies/305_price_discovery_or_overreaction.py | Codex | 7f58470906 | -1.0653912895778344 | -0.027053797736966922 |
 | strategies/307_common_idiosyncratic_quantile_factors.py | Codex | dfc503a96c | 0.09606686676127542 | 0.004632679142801965 |
 | strategies/309_intangible_value_sixth_factor.py | Codex | da9754ee51 | 0.6804882022326363 | 0.10265342924479492 |
-| strategies/310_factor_beta_overnight_intraday.py | Codex | c71364ad99 | -4.446864496020203 | -0.06453275687716464 |
+| strategies/310_factor_beta_overnight_intraday.py | Codex | f0c72714f0 | -4.446885736489558 | -0.06453280873748246 |
 | strategies/312_cost_access_understanding_price.py | Codex | 2b23c5bbf7 | -0.9523822221196712 | -0.043607644709638405 |
 | strategies/314_statistical_proxy_based_meanreverting.py | Codex | 2b23c5bbf7 | -0.4590101262621272 | -0.023263609116357276 |
 | strategies/315_leveraged_funds_robust_replication.py | Codex | c71364ad99 | -3.6929938402531777 | -0.011158210966778381 |
@@ -59,20 +58,15 @@
 | strategies/338_optimal_portfolio_using_factor.py | Codex | c71364ad99 | 0.661785499255875 | 0.09224453246418474 |
 | strategies/339_dancing_dynamic_rebalancing_mechanism.py | Codex | 3140bbcffa | 0.8542589301354799 | 0.09623018976702165 |
 | strategies/350_continuous_timing_growth_defensive.py | Codex | 9102661980 | 0.9164034821773692 | 0.1728115110163706 |
-| strategies/354_strategy.py | Codex | da9754ee51 | 0.1758253313432972 | 0.010438970679190307 |
 | strategies/382_statistical_arbitrage_in_polish_equities.py | Codex | ea97bbcbc9 | 0.500628613686733 | 0.023135888068235744 |
 | strategies/391_evolutionary_factor_searching_for_sparse.py | Codex | da9754ee51 | 0.9903968721257259 | 0.25587424645442103 |
-| strategies/400_noxtrader_lstm_based_stock_return_moment.py | Codex | da9754ee51 | -0.495006798666675 | -0.1286061054021741 |
-| strategies/434_dynamic_scenario_based_portfolio_optimiz.py | Codex | da9754ee51 | 1.3270599913964574 | 0.10398918931818768 |
 | strategies/438_the_mathematics_of_heuristic_portfolio_o.py | Codex | f9ce9ed5a4 | 0.573210240682426 | 0.0343462522184903 |
-| strategies/445_dynamic_scenario_based_portfolio_optimiz.py | Codex | da9754ee51 | 1.3320725410706618 | 0.10407274541360567 |
-| strategies/457_cleaning_correlation_matrices_with_exter.py | Codex | da9754ee51 | 0.9099829659083963 | 0.02626630753540571 |
 | strategies/463_simple_dynamic_stock_bond_gold_portfolio.py | Codex | f9ce9ed5a4 | 0.9859305218392249 | 0.0686041912862605 |
 | strategies/466_hierarchical_risk_parity_for_portfolio_a.py | Codex | da9754ee51 | 0.25202646099041437 | 0.03140765257653144 |
-| strategies/482_dynamic_inclusion_and_bounded_multi_fact.py | Codex | da9754ee51 | 0.7323796108527726 | 0.10385551117339031 |
 | strategies/492_optimal_portfolio_construction_a_reinfor.py | Codex | da9754ee51 | 0.89927754240382 | 0.1296232752782156 |
 | strategies/504_exploratory_mean_variance_with_jumps_an.py | Codex | da9754ee51 | 0.7431772376620975 | 0.05658096575636318 |
 | strategies/511_dynamic_portfolio_optimization_under_cva.py | Codex | da9754ee51 | 0.6781159099371227 | 0.05417596659859414 |
+| strategies/549_drawdown_risk_beyond_brownian_motion_a_m.py | Codex | f0c72714f0 | 0.6380887390535539 | 0.07247489420330977 |
 | strategies/560_drawdown_risk_beyond_brownian_motion_a_m.py | Codex | dabba95798 | 0.6719090607841077 | 0.08084054202667357 |
 
 ## 已收录后的深审发现
@@ -134,9 +128,9 @@
 | strategies/490_noise_proofing_universal_portfolio_shrin.py | FAIL | 成交日收盘价决定实际买入量 |
 | strategies/456_an_entropic_factor_model_for_robust_port.py | PASS | 成交模型对流动性和现金冲击简化 |
 | strategies/537_hierarchical_minimum_variance_portfolios.py | FAIL | see review |
+| strategies/400_noxtrader_lstm_based_stock_return_moment.py | PASS | 幸存者与事后选样偏差 |
 | strategies/458_two_sides_of_schur_damping_high_dimensio.py | FAIL | see review |
 | strategies/454_semivariance_and_semivolatility_in_portf.py | FAIL | look-ahead / same-close fill |
-| strategies/549_drawdown_risk_beyond_brownian_motion_a_m.py | FAIL | 换仓买入金额由成交日收盘值决定 |
 | strategies/448_continuous_cash_overlay_filters_for_a_st.py | PASS | look-ahead / same-close fill |
 | strategies/468_cleaning_correlation_matrices_with_exter.py | PASS | look-ahead / same-close fill |
 | strategies/455_hierarchical_risk_parity_for_portfolio_a.py | PASS | 复权价格和现金处理简化了成交 |
@@ -144,11 +138,17 @@
 | strategies/469_two_sides_of_schur_damping_high_dimensio.py | PASS | 资产池存在事后存续筛选; 成交模型简化了现金与流动性 |
 | strategies/474_multiperiod_bond_portfolio_optimization.py | PASS | see review |
 | strategies/512_nested_clustered_optimization_is_one_end.py | PASS | see review |
+| strategies/197_tsmom_boundaries.py | PASS | see review |
 | strategies/535_shrinkage_estimators_for_mean_and_covari.py | PASS | see review |
 | strategies/553_large_scale_portfolio_optimization_probl.py | FAIL | see review |
 | strategies/353_hold_the_dip.py | PASS | see review |
-| strategies/528_schur_complementary_allocation_a_unifica.py | FAIL | look-ahead / same-close fill |
-| strategies/470_entropic_value_at_risk_parity_for_temper.py | FAIL | look-ahead / same-close fill |
+| strategies/445_dynamic_scenario_based_portfolio_optimiz.py | PASS | see review |
+| strategies/457_cleaning_correlation_matrices_with_exter.py | PASS | see review |
+| strategies/482_dynamic_inclusion_and_bounded_multi_fact.py | PASS | 固定候选池存在幸存者偏差及事后选择偏差; 成交及现金约束是简化模型 |
+| strategies/434_dynamic_scenario_based_portfolio_optimiz.py | PASS | 事后资产池与回顾性样本外; 模拟成交和成本的适用范围 |
+| strategies/528_schur_complementary_allocation_a_unifica.py | PASS | 复权收盘成交与线性成本是近似 |
+| strategies/354_strategy.py | PASS | 成交和资金假设限制结果的解释 |
+| strategies/470_entropic_value_at_risk_parity_for_temper.py | PASS | see review |
 | strategies/522_asset_allocation_using_a_markov_process.py | FAIL | 实际买入份额取决于成交日收盘价 |
-| strategies/479_noise_proofing_universal_portfolio_shrin.py | FAIL | 成交日收盘价反推成交数量和名义金额 |
+| strategies/479_noise_proofing_universal_portfolio_shrin.py | PASS | 成交与资金可用性依赖模拟假设 |
 | strategies/341_monitoring_attention_inflation_news.py | FAIL | 现金不足时，实际买入股数取决于成交日收盘价 |

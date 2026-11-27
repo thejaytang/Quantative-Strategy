@@ -2,7 +2,7 @@
 
 Already-published strategies are not removed from git history. If a later deep review finds a real problem (look-ahead, wrong data, or wrong numbers), the file is kept as last published on origin/main and listed here in a new commit. Fixes, if any, also land in a new commit.
 
-Generated 2026-11-27 12:05 Europe/Oslo.
+Generated 2026-11-27 12:28 Europe/Oslo.
 
 | File | Latest self-review | Category | Stage note |
 |---|---|---|---|
@@ -59,9 +59,9 @@ Generated 2026-11-27 12:05 Europe/Oslo.
 | strategies/490_noise_proofing_universal_portfolio_shrin.py | FAIL | 成交日收盘价决定实际买入量 | kept_from_origin: latest self-review is not PASS |
 | strategies/456_an_entropic_factor_model_for_robust_port.py | PASS | 成交模型对流动性和现金冲击简化 | kept_from_origin: latest self-review is not PASS |
 | strategies/537_hierarchical_minimum_variance_portfolios.py | FAIL | see review | kept_from_origin: latest self-review is not PASS |
+| strategies/400_noxtrader_lstm_based_stock_return_moment.py | PASS | 幸存者与事后选样偏差 | kept_from_origin: latest self-review is not PASS |
 | strategies/458_two_sides_of_schur_damping_high_dimensio.py | FAIL | see review | kept_from_origin: latest self-review is not PASS |
 | strategies/454_semivariance_and_semivolatility_in_portf.py | FAIL | look-ahead / same-close fill | kept_from_origin: latest self-review is not PASS |
-| strategies/549_drawdown_risk_beyond_brownian_motion_a_m.py | FAIL | 换仓买入金额由成交日收盘值决定 | kept_from_origin: latest self-review is not PASS |
 | strategies/448_continuous_cash_overlay_filters_for_a_st.py | PASS | look-ahead / same-close fill | kept_from_origin: latest self-review is not PASS |
 | strategies/468_cleaning_correlation_matrices_with_exter.py | PASS | look-ahead / same-close fill | kept_from_origin: latest self-review is not PASS |
 | strategies/455_hierarchical_risk_parity_for_portfolio_a.py | PASS | 复权价格和现金处理简化了成交 | kept_from_origin: latest self-review is not PASS |
@@ -69,11 +69,17 @@ Generated 2026-11-27 12:05 Europe/Oslo.
 | strategies/469_two_sides_of_schur_damping_high_dimensio.py | PASS | 资产池存在事后存续筛选; 成交模型简化了现金与流动性 | kept_from_origin: latest self-review is not PASS |
 | strategies/474_multiperiod_bond_portfolio_optimization.py | PASS | see review | kept_from_origin: latest self-review is not PASS |
 | strategies/512_nested_clustered_optimization_is_one_end.py | PASS | see review | kept_from_origin: latest self-review is not PASS |
+| strategies/197_tsmom_boundaries.py | PASS | see review | kept_from_origin: latest self-review is not PASS |
 | strategies/535_shrinkage_estimators_for_mean_and_covari.py | PASS | see review | kept_from_origin: latest self-review is not PASS |
 | strategies/553_large_scale_portfolio_optimization_probl.py | FAIL | see review | kept_from_origin: latest self-review is not PASS |
 | strategies/353_hold_the_dip.py | PASS | see review | kept_from_origin: latest self-review is not PASS |
-| strategies/528_schur_complementary_allocation_a_unifica.py | FAIL | look-ahead / same-close fill | kept_from_origin: latest self-review is not PASS |
-| strategies/470_entropic_value_at_risk_parity_for_temper.py | FAIL | look-ahead / same-close fill | kept_from_origin: latest self-review is not PASS |
+| strategies/445_dynamic_scenario_based_portfolio_optimiz.py | PASS | see review | kept_from_origin: latest self-review is not PASS |
+| strategies/457_cleaning_correlation_matrices_with_exter.py | PASS | see review | kept_from_origin: latest self-review is not PASS |
+| strategies/482_dynamic_inclusion_and_bounded_multi_fact.py | PASS | 固定候选池存在幸存者偏差及事后选择偏差; 成交及现金约束是简化模型 | kept_from_origin: latest self-review is not PASS |
+| strategies/434_dynamic_scenario_based_portfolio_optimiz.py | PASS | 事后资产池与回顾性样本外; 模拟成交和成本的适用范围 | kept_from_origin: latest self-review is not PASS |
+| strategies/528_schur_complementary_allocation_a_unifica.py | PASS | 复权收盘成交与线性成本是近似 | kept_from_origin: latest self-review is not PASS |
+| strategies/354_strategy.py | PASS | 成交和资金假设限制结果的解释 | kept_from_origin: latest self-review is not PASS |
+| strategies/470_entropic_value_at_risk_parity_for_temper.py | PASS | see review | kept_from_origin: latest self-review is not PASS |
 | strategies/522_asset_allocation_using_a_markov_process.py | FAIL | 实际买入份额取决于成交日收盘价 | kept_from_origin: latest self-review is not PASS |
-| strategies/479_noise_proofing_universal_portfolio_shrin.py | FAIL | 成交日收盘价反推成交数量和名义金额 | kept_from_origin: latest self-review is not PASS |
+| strategies/479_noise_proofing_universal_portfolio_shrin.py | PASS | 成交与资金可用性依赖模拟假设 | kept_from_origin: latest self-review is not PASS |
 | strategies/341_monitoring_attention_inflation_news.py | FAIL | 现金不足时，实际买入股数取决于成交日收盘价 | kept_from_origin_verify_fail: 单文件复跑失败 rc=1 |

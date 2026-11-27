@@ -1,3 +1,23 @@
+"""538_mirror_descent_algorithms_for_risk_budge
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/538_mirror_descent_algorithms_for_risk_budge.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 5df80ea472f17ed604c7c4cdce92d6afd1dc3e36 on 2026-11-27 19:24 Europe/Oslo, exit 0, output sha256 23369a6bcce6354145d4d3d4a264ea327b1164a9e153d8c6cb94e7cd7e43ccf3
+Data source: Free Yahoo Finance daily ETF closes via yfinance for SPY, QQQ, TLT and GLD. BIL daily returns are used as the risk-free proxy in excess Sharpe reporting. The recorded run used the cached snapshot fetched at 2026-11-27 08:18:30 UTC.
+Data fetched: 2026-11-27T18:24:21+00:00
+Sample period: Price history spans 2007-06-01 through 2025-12-31, with pre-backtest history used for warm-up. The reported backtest runs from 2009-01-02 through 2025-12-31.   data_range (from output): {'start': '2009-01-02', 'end': '2025-12-31'}
+IS/OOS split: IS covers 2009-01-02 through 2018-12-31 inclusive. OOS covers 2019-01-02 through 2025-12-31. Both are slices of one continuous baseline simulation. The three robustness variants run only in IS. The README records OOS as a historical holdout and says the available materials lack a record of freezing the specification before viewing that history.
+Costs and slippage: The baseline models 2 bps of cost and 3 bps of slippage per buy or sell leg, including initial entry. Both are deducted from cash as a combined 5 bps of absolute executed notional at the fill-day close. The high-friction IS variant uses 6 bps of cost and 9 bps of slippage.
+Signal lag: The target uses daily returns through the month's last trading session t. With the configured one-session lag, the simulator fills at the close of the next trading session t+1.
+Price adjustment: yfinance auto_adjust=True, total-return daily closes and adjusted units
+Survivorship bias: The strategy and benchmark use the same retrospectively selected fixed ETF universe. The README identifies selection and survivorship bias from excluding funds that exited and alternatives available at the time.
+Parameter combinations tried: 4
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.08793856751144813, ann_vol=0.07671544984201177, sharpe=1.137201316073598, sharpe_excess=1.1036933958482567, max_drawdown=-0.1073641810745618, total_return=1.3198649654556451, turnover=5.035032813944349, n_trades=480
+    oos: cagr=0.11567623522938852, ann_vol=0.10944967205110498, sharpe=1.0550245812786274, sharpe_excess=0.8240730111557704, max_drawdown=-0.24493121946162355, total_return=1.1478932948080227, turnover=2.8708008144439603, n_trades=336
+    full: cagr=0.09927088301658604, ann_vol=0.09160833433100529, sharpe=1.0791687893517397, sharpe_excess=0.949472427337308, max_drawdown=-0.24493121946162344, total_return=3.9828224041622473, turnover=7.905833628388309, n_trades=816
+    benchmark  full: cagr=0.11737800627843198, ann_vol=0.1029048895183486, sharpe=1.1302083158676377, sharpe_excess=1.0143139978049927, max_drawdown=-0.25181778888293693, total_return=5.574638161165986, turnover=6.339655609105234, n_trades=816
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

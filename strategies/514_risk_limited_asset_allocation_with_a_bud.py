@@ -1,3 +1,23 @@
+"""514_risk_limited_asset_allocation_with_a_bud
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/514_risk_limited_asset_allocation_with_a_bud.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 5df80ea472f17ed604c7c4cdce92d6afd1dc3e36 on 2026-11-27 19:24 Europe/Oslo, exit 0, output sha256 2a4ff9e91dd41b3c7d1570cda9a3949af25d484bb6f8984dad3c94d84d46d45b
+Data source: Free Yahoo Finance daily USD adjusted closing prices via yfinance for SPY, QQQ, EFA, TLT, GLD and VNQ, with BIL as the cash proxy and SPY as the benchmark. The recorded run used the cached snapshot fetched at 2026-11-27T08:00:19+00:00.
+Data fetched: 2026-11-27T18:24:19+00:00
+Sample period: Price history runs from 2007-10-01 through 2025-12-31, with data before 2009-01-02 used for warm-up. The backtest runs from 2009-01-02 through 2025-12-31, inclusive.   data_range (from output): {'start': '2009-01-02', 'end': '2025-12-31'}
+IS/OOS split: IS is 2009-01-02 through 2017-12-29. OOS is 2018-01-02 through 2025-12-31. The default strategy runs continuously across the split and slices daily returns for reporting. The five sensitivity cases run only on IS. OOS is a historical holdout, and the README says the record cannot establish whether the specification was frozen before the first inspection of OOS results.
+Costs and slippage: Each simulated buy or sell, including BIL, incurs 5 bps of transaction cost plus 5 bps of modeled slippage on its fill-close notional. The combined 10 bps reduces sell proceeds and increases buy outlay. The doubled-cost IS case charges 10 bps of each, or 20 bps per side. The 500 bps cash buffer is a sizing reserve and the sizing step budgets estimated fees separately.
+Signal lag: The last trading session of each month generates a signal using a rolling price window through that session's close. The default lag is one trading session, so the target fills at the next session's close. Shares are fixed using the session immediately before the fill.
+Price adjustment: yfinance auto_adjust=True adjusted close, fractional total-return units
+Survivorship bias: The fixed universe consists of currently surviving ETFs with long histories, which creates retrospective selection and survivorship bias in both IS and OOS. The README states that point-in-time membership, ticker mappings, delistings and liquidation returns were not reconstructed. Yahoo Finance supplies the stitched history under the current QQQ ticker. The adjusted data are a retrospective snapshot and the impact of historical revisions is unknown.
+Parameter combinations tried: 6
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.05517078973182454, ann_vol=0.07333356298854941, sharpe=0.7690568616377207, sharpe_excess=0.7592349363330637, max_drawdown=-0.11781278117149607, total_return=0.6204184871866858, turnover=3.1773092749252654, n_trades=316
+    oos: cagr=0.04965508487667236, ann_vol=0.09222743359373665, sharpe=0.5720005047981821, sharpe_excess=0.3086632915564615, max_drawdown=-0.2263885181520372, total_return=0.4721610404699208, turnover=2.8316784737050584, n_trades=258
+    full: cagr=0.052573156425622214, ann_vol=0.08274851532780331, sharpe=0.6608472010901224, sharpe_excess=0.518153640180404, max_drawdown=-0.22638851815203664, total_return=1.3855169660934443, turnover=3.014759335436529, n_trades=574
+    benchmark SPY full: cagr=0.14391632108682018, ann_vol=0.1771159173513372, sharpe=0.8480856955353564, sharpe_excess=0.7808392890505457, max_drawdown=-0.335539996630962, total_return=8.791485236875316, turnover=0.11647722335832132, n_trades=2
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

@@ -4,7 +4,7 @@
 
 每个策略一个文件：`strategies/<编号>_<名称>.py`，一条命令运行：`python strategies/<文件>.py`（依赖见 requirements.txt）。文件头写明数据源与抓取时间、样本期、IS/OOS 划分、成本与滑点、信号滞后、复权口径、幸存者偏差说明、尝试的参数组合数，以及在记录的 commit 上实际运行得到的关键数字（backtest reproduced）。收录条件：真实运行、确有交易、无同收盘成交前视、Codex 自审 PASS（进入本仓库前的审查为作者自审，不是独立第三方审查）、单文件复跑与审查时结果一致。
 
-本表由文件实际内容生成（2026-11-27 11:02 Europe/Oslo），共 34 个。
+本表由文件实际内容生成（2026-11-27 11:05 Europe/Oslo），共 36 个。
 
 | 文件 | 作者 | 代码 commit | 全样本 Sharpe | 全样本 CAGR |
 |---|---|---|---|---|
@@ -41,6 +41,8 @@
 | strategies/339_dancing_dynamic_rebalancing_mechanism.py | Codex | 3140bbcffa | 0.8542589301354799 | 0.09623018976702165 |
 | strategies/350_continuous_timing_growth_defensive.py | Codex | 9102661980 | 0.9164034821773692 | 0.1728115110163706 |
 | strategies/382_statistical_arbitrage_in_polish_equities.py | Codex | ea97bbcbc9 | 0.500628613686733 | 0.023135888068235744 |
+| strategies/438_the_mathematics_of_heuristic_portfolio_o.py | Codex | f9ce9ed5a4 | 0.573210240682426 | 0.0343462522184903 |
+| strategies/463_simple_dynamic_stock_bond_gold_portfolio.py | Codex | f9ce9ed5a4 | 0.9859305218392249 | 0.0686041912862605 |
 | strategies/560_drawdown_risk_beyond_brownian_motion_a_m.py | Codex | dabba95798 | 0.6719090607841077 | 0.08084054202667357 |
 
 ## 已收录后的深审发现
@@ -125,7 +127,6 @@
 | strategies/107_illiquidity_premium_amihud.py | FAIL | 成交数量规则不通过; 股票池存在幸存者和事后选样偏差 |
 | strategies/309_intangible_value_sixth_factor.py | FAIL | 以成交日收盘价倒算成交量; 成本有披露，成交摩擦仅由固定费率近似 |
 | strategies/130_ml_risk_budget_allocation.py | PASS | see review |
-| strategies/438_the_mathematics_of_heuristic_portfolio_o.py | FAIL | see review |
 | strategies/448_continuous_cash_overlay_filters_for_a_st.py | FAIL | see review |
 | strategies/468_cleaning_correlation_matrices_with_exter.py | FAIL | 成交数量依赖成交日收盘 |
 | strategies/324_volatility_conditions_weekend_effect.py | FAIL | 开仓数量隐含使用成交日收盘价 |
@@ -148,7 +149,6 @@
 | strategies/528_schur_complementary_allocation_a_unifica.py | FAIL | look-ahead / same-close fill |
 | strategies/354_strategy.py | FAIL | 买入规模依赖成交收盘价 |
 | strategies/470_entropic_value_at_risk_parity_for_temper.py | FAIL | look-ahead / same-close fill |
-| strategies/463_simple_dynamic_stock_bond_gold_portfolio.py | FAIL | see review |
 | strategies/522_asset_allocation_using_a_markov_process.py | FAIL | 成交数量依赖成交日收盘价，触发否决条件 |
 | strategies/479_noise_proofing_universal_portfolio_shrin.py | FAIL | 成交日收盘价反推成交数量和名义金额 |
 | strategies/156_cta_replication_trend_factors.py | FAIL | see review |

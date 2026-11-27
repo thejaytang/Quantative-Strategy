@@ -2,7 +2,7 @@
 
 Already-published strategies are not removed from git history. If a later deep review finds a real problem (look-ahead, wrong data, or wrong numbers), the file is kept as last published on origin/main and listed here in a new commit. Fixes, if any, also land in a new commit.
 
-Generated 2026-11-27 11:02 Europe/Oslo.
+Generated 2026-11-27 11:05 Europe/Oslo.
 
 | File | Latest self-review | Category | Stage note |
 |---|---|---|---|
@@ -82,7 +82,6 @@ Generated 2026-11-27 11:02 Europe/Oslo.
 | strategies/107_illiquidity_premium_amihud.py | FAIL | 成交数量规则不通过; 股票池存在幸存者和事后选样偏差 | kept_from_origin: latest self-review is not PASS |
 | strategies/309_intangible_value_sixth_factor.py | FAIL | 以成交日收盘价倒算成交量; 成本有披露，成交摩擦仅由固定费率近似 | kept_from_origin: latest self-review is not PASS |
 | strategies/130_ml_risk_budget_allocation.py | PASS | see review | kept_from_origin: latest self-review is not PASS |
-| strategies/438_the_mathematics_of_heuristic_portfolio_o.py | FAIL | see review | kept_from_origin: latest self-review is not PASS |
 | strategies/448_continuous_cash_overlay_filters_for_a_st.py | FAIL | see review | kept_from_origin: latest self-review is not PASS |
 | strategies/468_cleaning_correlation_matrices_with_exter.py | FAIL | 成交数量依赖成交日收盘 | kept_from_origin: latest self-review is not PASS |
 | strategies/324_volatility_conditions_weekend_effect.py | FAIL | 开仓数量隐含使用成交日收盘价 | kept_from_origin: latest self-review is not PASS |
@@ -105,7 +104,6 @@ Generated 2026-11-27 11:02 Europe/Oslo.
 | strategies/528_schur_complementary_allocation_a_unifica.py | FAIL | look-ahead / same-close fill | kept_from_origin: latest self-review is not PASS |
 | strategies/354_strategy.py | FAIL | 买入规模依赖成交收盘价 | kept_from_origin: latest self-review is not PASS |
 | strategies/470_entropic_value_at_risk_parity_for_temper.py | FAIL | look-ahead / same-close fill | kept_from_origin: latest self-review is not PASS |
-| strategies/463_simple_dynamic_stock_bond_gold_portfolio.py | FAIL | see review | kept_from_origin: latest self-review is not PASS |
 | strategies/522_asset_allocation_using_a_markov_process.py | FAIL | 成交数量依赖成交日收盘价，触发否决条件 | kept_from_origin: latest self-review is not PASS |
 | strategies/479_noise_proofing_universal_portfolio_shrin.py | FAIL | 成交日收盘价反推成交数量和名义金额 | kept_from_origin: latest self-review is not PASS |
 | strategies/156_cta_replication_trend_factors.py | FAIL | see review | kept_from_origin: latest self-review is not PASS |

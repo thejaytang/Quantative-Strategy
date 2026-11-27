@@ -4,7 +4,7 @@
 
 每个策略一个文件：`strategies/<编号>_<名称>.py`，一条命令运行：`python strategies/<文件>.py`（依赖见 requirements.txt）。文件头写明数据源与抓取时间、样本期、IS/OOS 划分、成本与滑点、信号滞后、复权口径、幸存者偏差说明、尝试的参数组合数，以及在记录的 commit 上实际运行得到的关键数字（backtest reproduced）。收录条件：真实运行、确有交易、无同收盘成交前视、Codex 自审 PASS（进入本仓库前的审查为作者自审，不是独立第三方审查）、单文件复跑与审查时结果一致。
 
-本表由文件实际内容生成（2026-11-27 11:14 Europe/Oslo），共 37 个。
+本表由文件实际内容生成（2026-11-27 11:20 Europe/Oslo），共 37 个。
 
 | 文件 | 作者 | 代码 commit | 全样本 Sharpe | 全样本 CAGR |
 |---|---|---|---|---|
@@ -53,23 +53,23 @@
 | 文件 | 最新自审 | 问题类别 |
 |---|---|---|
 | strategies/546_generalizing_markowitz_portfolio_optimiz.py | FAIL | see review |
-| strategies/547_generalizing_markowitz_portfolio_optimiz.py | FAIL | 成交数量使用成交日收盘价 |
-| strategies/544_special_markowitz_thermodynamic_formalis.py | FAIL | 成交量依赖执行日收盘 |
-| strategies/501_nested_clustered_optimization_is_one_end.py | FAIL | 成交数量使用成交日收盘价 |
-| strategies/451_a_declining_cvar_glidepath_framework_for.py | FAIL | 成交量依赖成交日收盘价 |
-| strategies/510_some_general_results_on_risk_budgeting_p.py | FAIL | 成交数量使用成交日收盘信息 |
-| strategies/452_simple_dynamic_stock_bond_gold_portfolio.py | FAIL | 按成交日收盘反推成交规模; 成交日历依赖行情行 |
+| strategies/547_generalizing_markowitz_portfolio_optimiz.py | FAIL | 最终买入数量可由成交日收盘价决定 |
+| strategies/544_special_markowitz_thermodynamic_formalis.py | FAIL | 成交日收盘价决定部分实际买入份额 |
+| strategies/501_nested_clustered_optimization_is_one_end.py | FAIL | 收盘价决定实际买入份额 |
+| strategies/451_a_declining_cvar_glidepath_framework_for.py | FAIL | 资金不足时，最终买入份额由成交日收盘价反算 |
+| strategies/510_some_general_results_on_risk_budgeting_p.py | FAIL | 实际买入数量由成交日收盘价决定 |
+| strategies/452_simple_dynamic_stock_bond_gold_portfolio.py | FAIL | 现金不足时，成交日收盘价决定实际买入份额 |
 | strategies/494_wasserstein_penalisation_as_an_endogenou.py | FAIL | look-ahead / same-close fill |
 | strategies/533_special_markowitz_thermodynamic_formalis.py | FAIL | see review |
-| strategies/514_risk_limited_asset_allocation_with_a_bud.py | FAIL | 成交额和目标头寸依赖成交日收盘价 |
+| strategies/514_risk_limited_asset_allocation_with_a_bud.py | FAIL | see review |
 | strategies/484_nonlinear_shrinkage_for_higher_moments_e.py | FAIL | 实际买入份额可由成交日收盘价决定; 股票池是事后固定的幸存者样本 |
-| strategies/476_conditional_value_at_risk_under_reward_p.py | FAIL | 成交量前视，触发 FAIL |
-| strategies/432_revisiting_equity_bond_diversification_u.py | FAIL | 成交日收盘参与反推成交数量 |
-| strategies/505_competitive_optimal_portfolio_selection.py | FAIL | 成交日收盘价参与反算同一收盘的成交量 |
-| strategies/539_schur_complementary_allocation_a_unifica.py | FAIL | 成交量使用成交日收盘信息 |
-| strategies/449_the_mathematics_of_heuristic_portfolio_o.py | FAIL | 成交数量使用成交日收盘信息 |
-| strategies/483_wasserstein_penalisation_as_an_endogenou.py | FAIL | 成交数量依赖成交日收盘价 |
-| strategies/503_risk_limited_asset_allocation_with_a_bud.py | FAIL | 成交额使用成交日收盘价 |
+| strategies/476_conditional_value_at_risk_under_reward_p.py | FAIL | 成交日收盘价参与决定实际买入数量 |
+| strategies/432_revisiting_equity_bond_diversification_u.py | FAIL | 共用模拟器在成交收盘重新确定买入份额; 收盘模型使用事后复权快照与简化费用 |
+| strategies/505_competitive_optimal_portfolio_selection.py | FAIL | 成交日收盘价决定部分实际买入份额 |
+| strategies/539_schur_complementary_allocation_a_unifica.py | FAIL | 现金不足时用成交日收盘价重算买入份额 |
+| strategies/449_the_mathematics_of_heuristic_portfolio_o.py | FAIL | see review |
+| strategies/483_wasserstein_penalisation_as_an_endogenou.py | FAIL | 最终买入份额由成交日收盘价决定 |
+| strategies/503_risk_limited_asset_allocation_with_a_bud.py | FAIL | 收盘后重定买入份额 |
 | strategies/431_mitigating_return_drag_and_regime_whipsa.py | FAIL | 成交数量使用成交日收盘信息 |
 | strategies/532_robust_enhanced_index_tracking_portfolio.py | FAIL | 成交规模前视; 股票池存在幸存者偏差与事后选样 |
 | strategies/194_breaking_beta_defensive.py | FAIL | 成交数量依赖成交日收盘字段; 开盘成交与滑点假设 |
@@ -82,7 +82,7 @@
 | strategies/548_entropic_value_at_risk_portfolio_optimiz.py | FAIL | see review |
 | strategies/395_signature_based_optimal_execution_for_st.py | FAIL | see review |
 | strategies/450_a_declining_cvar_glidepath_framework_for.py | FAIL | 成交数量依赖成交日收盘价 |
-| strategies/551_squeezed_covariance_matrix_estimation_an.py | FAIL | see review |
+| strategies/551_squeezed_covariance_matrix_estimation_an.py | FAIL | 成交时用收盘价缩减买量; 事后固定股票池 |
 | strategies/481_optimal_portfolio_construction_a_reinfor.py | FAIL | 成交数量使用成交日收盘信息 |
 | strategies/500_dynamic_portfolio_optimization_under_cva.py | FAIL | 成交数量依赖成交日收盘价 |
 | strategies/541_entropy_regularization_under_no_shorting.py | FAIL | 成交数量使用执行日收盘价 |
@@ -99,7 +99,7 @@
 | strategies/480_topological_risk_parity.py | FAIL | 成交数量依赖成交日收盘价 |
 | strategies/341_monitoring_attention_inflation_news.py | FAIL | 成交数量使用了成交日收盘信息 |
 | strategies/545_portfolio_diversification_and_concentrat.py | FAIL | 成交数量使用成交日收盘价 |
-| strategies/552_a_novel_robust_mixed_integer_linear_prog.py | FAIL | 成交日收盘信息进入同次调仓的定仓; 事后确定的幸存股票池 |
+| strategies/552_a_novel_robust_mixed_integer_linear_prog.py | FAIL | 现金不足时按成交日收盘改写实际买入股数; 固定候选池存在幸存者偏差及事后选样; 模拟成交与实际市场价格、容量和公司行动有差距 |
 | strategies/543_robust_enhanced_index_tracking_portfolio.py | FAIL | 成交日收盘价参与定量; 股票池存在已披露的幸存者和事后选择偏差 |
 | strategies/461_breaking_the_trend_how_to_avoid_cherry_p.py | FAIL | see review |
 | strategies/487_conditional_value_at_risk_under_reward_p.py | FAIL | 成交数量使用成交日收盘价; 股票池存在事后选择和幸存者偏差 |
@@ -119,7 +119,7 @@
 | strategies/511_dynamic_portfolio_optimization_under_cva.py | FAIL | 成交日收盘价参与确定同一收盘的交易量 |
 | strategies/400_noxtrader_lstm_based_stock_return_moment.py | FAIL | see review |
 | strategies/504_exploratory_mean_variance_with_jumps_an.py | FAIL | 成交数量使用成交日收盘价 |
-| strategies/458_two_sides_of_schur_damping_high_dimensio.py | FAIL | 成交数量依赖成交日收盘价 |
+| strategies/458_two_sides_of_schur_damping_high_dimensio.py | FAIL | see review |
 | strategies/454_semivariance_and_semivolatility_in_portf.py | FAIL | 成交日收盘后倒算成交量 |
 | strategies/492_optimal_portfolio_construction_a_reinfor.py | FAIL | 成交数量依赖成交日收盘价 |
 | strategies/549_drawdown_risk_beyond_brownian_motion_a_m.py | FAIL | 换仓买入金额由成交日收盘值决定 |
@@ -139,7 +139,7 @@
 | strategies/197_tsmom_boundaries.py | FAIL | 开盘换仓金额依赖当日收盘字段 |
 | strategies/316_hidden_cost_etf_investing.py | FAIL | 收盘建仓和调仓数量依赖成交日收盘价 |
 | strategies/535_shrinkage_estimators_for_mean_and_covari.py | FAIL | 成交日收盘参与定量 |
-| strategies/553_large_scale_portfolio_optimization_probl.py | FAIL | 成交日收盘价参与当日成交数量计算; 候选池存在幸存者偏差和成分选择偏差 |
+| strategies/553_large_scale_portfolio_optimization_probl.py | FAIL | see review |
 | strategies/310_factor_beta_overnight_intraday.py | FAIL | 收盘成交使用同一收盘价确定股数; 成本已计入，拍卖成交与做空摩擦仍是简化假设 |
 | strategies/353_hold_the_dip.py | FAIL | see review |
 | strategies/445_dynamic_scenario_based_portfolio_optimiz.py | FAIL | 成交数量使用成交日收盘信息 |
@@ -149,6 +149,6 @@
 | strategies/528_schur_complementary_allocation_a_unifica.py | FAIL | look-ahead / same-close fill |
 | strategies/354_strategy.py | FAIL | 买入规模依赖成交收盘价 |
 | strategies/470_entropic_value_at_risk_parity_for_temper.py | FAIL | look-ahead / same-close fill |
-| strategies/522_asset_allocation_using_a_markov_process.py | FAIL | 成交数量依赖成交日收盘价，触发否决条件 |
+| strategies/522_asset_allocation_using_a_markov_process.py | FAIL | 实际买入份额取决于成交日收盘价 |
 | strategies/479_noise_proofing_universal_portfolio_shrin.py | FAIL | 成交日收盘价反推成交数量和名义金额 |
 | strategies/156_cta_replication_trend_factors.py | FAIL | see review |

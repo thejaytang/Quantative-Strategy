@@ -1,3 +1,23 @@
+"""353_hold_the_dip
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/353_hold_the_dip.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 92e75bea82090bd8b6723b610a02dabec59e659b on 2026-11-27 07:29 Europe/Oslo, exit 0, output sha256 e7bf88552bb0b26251fdc3026efe7c1445c0703e834f888db232f8d7f88e59c0
+Data source: Yahoo Finance via yfinance, daily adjusted ETF closes for SPY (equity) and BIL (cash proxy). The loader uses a dated CSV snapshot in data_cache/ when present and downloads on a cache miss. The run reports a snapshot fetch timestamp of 2026-11-27T05:47:18+00:00.
+Data fetched: 2026-11-27T06:29:51+00:00
+Sample period: 2008-07-01 through 2026-11-25, inclusive, for both the configured evaluation and the log's actual data range. Earlier closes initialize the signal.   data_range (from output): {'start': '2008-07-01', 'end': '2026-11-25'}
+IS/OOS split: IS runs through 2025-12-01. OOS starts on 2025-12-02 and runs through 2026-11-25. The same parameters and continuous simulated portfolio span both periods, with the IS closing position carried into OOS. The README describes the OOS period as a retrospective historical evaluation of the selected rule.
+Costs and slippage: Each buy or sell charges 1 bp in transaction costs and 2 bps in modeled fixed slippage, applied together as 3 bps of each leg's executed notional. The initial purchase is one leg. An ETF switch sells the old holding and buys the new one with the remaining proceeds after fees. Holding days incur no charge. The passive SPY benchmark pays the same initial purchase fee, and the simulation values holdings at the final close without forcing liquidation.
+Signal lag: The signal compares SPY's adjusted close at session t with the adjusted close on or before the date 12 calendar months earlier. The resulting target is filled at the next session's close (t+1). The old position earns the close-to-close return ending at t+1, and the new position first earns the return ending at t+2. The first evaluation close uses a target initialized from earlier data.
+Price adjustment: yfinance auto_adjust=True total-return closes
+Survivorship bias: The fixed universe uses the two ETFs' historical fund prices and does not reconstruct historical returns from today's index constituents. The retrospective selection of two surviving ETFs retains fund and market selection bias.
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.09419677454492215, ann_vol=0.1416875996463747, sharpe=0.7075975878691806, sharpe_excess=0.6255480379407973, max_drawdown=-0.2771256477673928, total_return=3.7971828068039013, turnover=7.518456110447595, n_trades=131
+    oos: cagr=0.06608402047291162, ann_vol=0.1498880140403393, sharpe=0.5011535022983999, sharpe_excess=0.25883823919019355, max_drawdown=-0.11459526655375618, total_return=0.06491866654598843, turnover=0.0, n_trades=0
+    full: cagr=0.09267657072001478, ann_vol=0.14212221402788594, sharpe=0.6959605518103854, sharpe_excess=0.6048300600614466, max_drawdown=-0.2771256477673928, total_return=4.108609517798955, turnover=7.116860255120905, n_trades=131
+    benchmark: cagr=0.11792002594575579, ann_vol=0.19744640019426357, sharpe=0.6642171826134416, sharpe_excess=0.5968212877351021, max_drawdown=-0.47165210814843506, total_return=6.777299986898728, turnover=0.05432717752000691, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

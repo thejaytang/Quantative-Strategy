@@ -1,3 +1,23 @@
+"""194_breaking_beta_defensive
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/194_breaking_beta_defensive.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 92e75bea82090bd8b6723b610a02dabec59e659b on 2026-11-27 07:29 Europe/Oslo, exit 0, output sha256 5612696553fac1c160ff2750179639c811aee2f41e258efce8552c5fd5a3f27d
+Data source: Yahoo Finance 免费公开美元日线，脚本通过 requests 直接读取 yfinance 所用的 chart 接口。ETF 为 SPY、USMV、SPLV，另用固定 US24 篮子的 24 只美国股票计算广度。命中本地 CSV 缓存时从缓存读取。（strategy.py:18-38、65-84、209-214、237-255；config.yaml:4-33；README.md:21）
+Data fetched: 2026-11-27 07:29 Europe/Oslo (run time)
+Sample period: 配置从 2012-01-01 开始预热，报告筛选范围为 2013-01-01 至 2026-11-24。日志记录的实际收益日期为 2013-01-02 至 2026-11-24，共 3,496 个交易日。（config.yaml:4-5、35-40；strategy.py:215-219、237-240、258-259；logs/run_20261125_123224.log:1、42；backtest_results.md:14、55）   data_range (from output): 2013-01-02 to 2026-11-24
+IS/OOS split: IS 为 2013-01-01 至 2021-12-31（2,267 个交易日），OOS 为 2022-01-01 至 2026-11-24（1,229 个交易日），均含配置日期边界。代码先连续模拟全区间，再切片统计，跨界不重置持仓。README 将 OOS 定义为回溯历史留出，大部分早于文档所列的原文发布日期 2026-10-28。（config.yaml:35-40；strategy.py:258-268、280-297；logs/run_20261125_123224.log:42；README.md:5、11、20）
+Costs and slippage: 主费率为每美元实际成交额 5 bps，另测试 0 和 15 bps。每次模拟开盘成交（含首次建仓）按买入额和卖出额绝对值之和计费，求解扣费后净值并据此确定目标持仓。滑点未建模，买卖价差和市场冲击也未建模。（config.yaml:50-52；strategy.py:121-153、232-235、263-268、275-289；README.md:11、28；logs/run_20261125_123224.log:42）
+Signal lag: 以月末最后一个交易日 t 的复权收盘价及此前数据计算信号，将目标权重用于下一交易日（新月首个交易日）的模拟开盘成交。首次在报告期首个交易日开盘建仓，使用截至该开盘日最新的已移位月度信号。（strategy.py:87-118、141-153、254-268、275-287；README.md:9-11）
+Price adjustment: 收盘价取 Yahoo adjclose，复权开盘价为原始开盘价乘以复权收盘价与原始收盘价之比。README 说明采用股息再投资口径。信号使用复权收盘价，开盘成交模拟和收益计量使用复权开盘价及收盘价。（strategy.py:45-56、87-94、242-256、275-287；README.md:21、28）
+Survivorship bias: 广度使用固定 US24，README 说明其由已知存续的大盘股组成，有存续偏差和行业代表性偏差。代码对固定名单按滚动贝塔是否可用筛选当期合格股票，未使用逐时点历史成分名单，缺失股票观测不填充。（config.yaml:9-33、42-45；strategy.py:87-101、209-214、254-256；README.md:10、21、26）
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.13540007107054364, ann_vol=0.14653852444577553, sharpe=0.9404207871339295, max_drawdown=-0.34685841774799797, total_return=2.134161769307445, turnover=1.362820909852387, n_trades=216
+    oos: cagr=0.05033548792651965, ann_vol=0.1360043621590298, sharpe=0.42893524858203724, max_drawdown=-0.16756589675682354, total_return=0.2706224058790563, turnover=7.8804061119864075, n_trades=137
+    full: cagr=0.10473819474909929, ann_vol=0.14292425029093025, sharpe=0.768731258142307, max_drawdown=-0.34685841774799797, total_return=2.9823361677315923, turnover=9.243227021838795, n_trades=353
+    benchmark  full: cagr=0.10672769685658623, ann_vol=0.13849533338864037, sharpe=0.8018848202067298, max_drawdown=-0.34685841774799797, total_return=3.08299099286077, turnover=1.7589056475081666, n_trades=334
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

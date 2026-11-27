@@ -4,7 +4,7 @@
 
 每个策略一个文件：`strategies/<编号>_<名称>.py`，一条命令运行：`python strategies/<文件>.py`（依赖见 requirements.txt）。文件头写明数据源与抓取时间、样本期、IS/OOS 划分、成本与滑点、信号滞后、复权口径、幸存者偏差说明、尝试的参数组合数，以及在记录的 commit 上实际运行得到的关键数字（backtest reproduced）。收录条件：真实运行、确有交易、无同收盘成交前视、Codex 自审 PASS（进入本仓库前的审查为作者自审，不是独立第三方审查）、单文件复跑与审查时结果一致。
 
-本表由文件实际内容生成（2026-11-27 07:05 Europe/Oslo），共 49 个。
+本表由文件实际内容生成（2026-11-27 07:29 Europe/Oslo），共 58 个。
 
 | 文件 | 作者 | 代码 commit | 全样本 Sharpe | 全样本 CAGR |
 |---|---|---|---|---|
@@ -35,9 +35,15 @@
 | strategies/179_crude_oil_news_sentiment.py | Codex | 2b23c5bbf7 | -0.3389139440305118 | -0.039653231117312226 |
 | strategies/183_safe_asset_dollar_cycle.py | Codex | 2b23c5bbf7 | 0.1397995385765699 | 0.004613464128480738 |
 | strategies/185_gold_month_seasonality.py | Codex | 2b23c5bbf7 | 0.7807274675730697 | 0.062351172766873075 |
+| strategies/186_federal_holiday_effect.py | Codex | 92e75bea82 | -0.25031295695704375 | 0.0013228055598666355 |
+| strategies/187_midterm_cycle.py | Codex | 92e75bea82 | 0.5276164995401547 | 0.03806831979746761 |
+| strategies/188_opex_week.py | Codex | 92e75bea82 | 0.1560391651359337 | 0.009701616162450577 |
 | strategies/191_shap_quantile_sector_allocation.py | Codex | 2b23c5bbf7 | 0.4696202287092069 | 0.05901278586658676 |
 | strategies/192_downside_upside_rv_forecast.py | Codex | 2b23c5bbf7 | 0.5860331533877041 | 0.04621676334252989 |
+| strategies/194_breaking_beta_defensive.py | Codex | 92e75bea82 | 0.768731258142307 | 0.10473819474909929 |
 | strategies/195_century_reversals_volatility.py | Codex | 7f58470906 | 0.22717879797260454 | 0.015693851583082008 |
+| strategies/197_tsmom_boundaries.py | Codex | 92e75bea82 | 0.8837194303501501 | 0.1331516279106011 |
+| strategies/199_pca_stat_arb.py | Codex | 92e75bea82 | 0.2546514486659549 | 0.014364586479493235 |
 | strategies/303_timing_moving_average_distance.py | Codex | 14eecadd0b | 0.4586740593305042 | 0.07523509455182698 |
 | strategies/304_unintended_consequences_rebalancing.py | Codex | 2b23c5bbf7 | 0.8171238877819083 | 0.09014626117652913 |
 | strategies/305_price_discovery_or_overreaction.py | Codex | 7f58470906 | -1.0653912895778344 | -0.027053797736966922 |
@@ -57,3 +63,6 @@
 | strategies/338_optimal_portfolio_using_factor.py | Codex | 3140bbcffa | 0.666182564775382 | 0.0959349329372805 |
 | strategies/339_dancing_dynamic_rebalancing_mechanism.py | Codex | 3140bbcffa | 0.8542589301354799 | 0.09623018976702165 |
 | strategies/341_monitoring_attention_inflation_news.py | Codex | 3140bbcffa | 0.24566318826798883 | 0.014280753041128635 |
+| strategies/350_continuous_timing_growth_defensive.py | Codex | 92e75bea82 | 0.9164036107251631 | 0.17281151630967062 |
+| strategies/353_hold_the_dip.py | Codex | 92e75bea82 | 0.6959605518103854 | 0.09267657072001478 |
+| strategies/354_strategy.py | Codex | 92e75bea82 | 0.17788436987988948 | 0.011436229915955831 |

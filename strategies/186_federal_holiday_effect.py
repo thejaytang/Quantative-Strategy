@@ -1,3 +1,23 @@
+"""186_federal_holiday_effect
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/186_federal_holiday_effect.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 92e75bea82090bd8b6723b610a02dabec59e659b on 2026-11-27 07:28 Europe/Oslo, exit 0, output sha256 bfc572d0f1fb0230a8c3544d5fb56b210b3c61277bffa7329ed8faf28eafdb81
+Data source: Public Yahoo Finance daily ETF Open and Close via yfinance for IWM (small cap), SPY (large cap), and BIL (cash proxy). The loader uses a valid CSV cache or downloads from Yahoo Finance on a cache miss or validation failure. The recorded run used the cache for all three ETFs. Its reported 2026-11-25T12:18:09+01:00 timestamp comes from the CSV modification times. config.yaml:2-5, strategy.py:98-129, strategy.py:256-260, strategy.py:300-303, logs/codex_fix_d2_run_20261126_180438.log:3-7.
+Data fetched: 2026-11-27T07:29:03+01:00
+Sample period: Observed trading sessions span 2008-01-02 through 2026-11-24, with 4,755 sessions in the full window. README.md:22, logs/codex_fix_d2_run_20261126_180438.log:1, logs/codex_fix_d2_run_20261126_180438.log:53.   data_range (from output): 2008-01-02 to 2026-11-24
+IS/OOS split: Fixed, nonoverlapping calendar-date windows with inclusive endpoints: IS 2008-01-01 through 2025-09-30; OOS 2025-10-01 through 2026-11-24. The README gives 2025-09-16 as the paper's online publication date. The same rules run in IS, OOS, and the full window, with no parameter fitting documented. config.yaml:7-13, README.md:7, README.md:22, strategy.py:236-244, strategy.py:262-281.
+Costs and slippage: 1 bp fee plus 1 bp fixed adverse slippage per ETF buy or sell (2 bp per side). With c = 0.0002, a buy multiplies portfolio growth by 1/(1+c) and a sell by 1-c. An interior event session has two ETF switches, each with one buy and one sell. Each evaluation starts and ends flat, so the first open and last close carry only the applicable entry or liquidation legs. The reported buy-and-hold portfolios pay entry and exit costs. Slippage is modeled as a flat allowance. config.yaml:24-26, strategy.py:142-164, strategy.py:245-247, strategy.py:269-290, README.md:16, README.md:26.
+Signal lag: At session t's close, the rule uses the published holiday schedule to identify the intended next session. It simulates a switch into IWM at that session's open if the session is eligible and the intended date still matches. The exit is predetermined at entry and simulated at that session's close, including scheduled early closes. An unscheduled closure that causes the intended open to be missed invalidates the signal. README.md:14-15, strategy.py:54-88, strategy.py:142-155, strategy.py:262-278.
+Price adjustment: Yahoo Finance dividend- and split-adjusted daily Open and Close (auto_adjust=True)
+Survivorship bias: Uses historical prices for the fixed IWM, SPY, and BIL ETF universe, with no reconstruction from current stock constituent lists. The ETFs themselves are surviving products selected retrospectively. config.yaml:2-5, strategy.py:256-260, README.md:26.
+Parameter combinations tried: 4
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=-0.002939357142245802, ann_vol=0.044837384904199785, sharpe=-0.30480936085584587, sharpe_excess=-0.30480936085584587, max_drawdown=-0.2067377094326266, total_return=-0.05082013565469523, turnover=25.171780515117582, n_trades=446
+    oos: cagr=0.06870788490417623, ann_vol=0.019165207545128803, sharpe=1.5970926804393235, sharpe_excess=1.5970926804393235, max_drawdown=-0.010316094494458028, total_return=0.07947047837373478, turnover=26.06896551724138, n_trades=30
+    full: cagr=0.0013228055598666355, ann_vol=0.04371671099890008, sharpe=-0.25031295695704375, sharpe_excess=-0.25031295695704375, max_drawdown=-0.2067377094326266, total_return=0.02525728103032865, turnover=25.1205047318612, n_trades=474
+    benchmark: cagr=0.10779770509821596, ann_vol=0.1976132385708575, sharpe=0.5488803818198398, sharpe_excess=0.5488803818198398, max_drawdown=-0.5240878006700243, total_return=5.901230901184021, turnover=0.10599369085173502, n_trades=2
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

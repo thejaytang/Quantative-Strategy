@@ -1,3 +1,23 @@
+"""458_two_sides_of_schur_damping_high_dimensio
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/458_two_sides_of_schur_damping_high_dimensio.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 9e9ff3660187503321abd71fccfdc940b2ed36ad on 2026-11-27 08:24 Europe/Oslo, exit 0, output sha256 b3030079ac0255f0d711f8e2f865b40f49f9c8c0b2cf1b4a5ffe335c996908c3
+Data source: Yahoo Finance via yfinance supplies daily adjusted ETF closes for SPY, IWM, EFA, EEM, VNQ, IEF, TLT, LQD, HYG, GLD and DBC. BIL daily adjusted closes supply the cash-proxy returns used in the excess Sharpe calculation. See config.yaml:2-3, README.md:20-22, strategy.py:61-81, strategy.py:208-223 and strategy.py:243-271.
+Data fetched: 2026-11-27T07:24:52.467921+00:00
+Sample period: The configured download starts on 2009-01-01 for warm-up. The configured backtest spans 2010-01-01 through 2025-12-31. The logged trading-session range is 2010-01-04 through 2025-12-31. See config.yaml:4-8, README.md:21, strategy.py:246-253 and logs/run_20261127_075046.log:11.   data_range (from output): 2010-01-04 to 2025-12-31
+IS/OOS split: The historical split uses calendar dates. IS runs from 2010-01-01 through 2018-12-31, with tuning through 2018-11-30 and one December rebalance. OOS runs from 2019-01-01 through 2025-12-31. Gamma is selected by minimizing net daily return volatility over the tuning period, with ties going to the smaller gamma. The selected gamma is also used retrospectively for the reported IS series and stays fixed in OOS, while holdings carry through the split. See config.yaml:5-8, README.md:16, README.md:21, strategy.py:231-237 and strategy.py:249-271.
+Costs and slippage: Each rebalance deducts 2 bps in transaction costs plus 3 bps in modeled slippage on the sum of absolute buy and sell notionals, including initial entry. The 5 bps combined rate is funded from NAV and solved jointly with the post-cost target holdings. Slippage is a flat NAV charge. The simulator does not model separate execution prices, variable spreads or market impact. See config.yaml:12-13, strategy.py:185-205 and README.md:23-28.
+Signal lag: The 60-session return window includes the month-end close at t. The target is filled at the next trading session's close, t+1. Existing weights earn the return through the t+1 close. The simulator then deducts rebalance costs and installs the new weights, which first earn the close-to-close return from t+1 to t+2. See config.yaml:9-11, strategy.py:157-182, strategy.py:185-205 and README.md:22.
+Price adjustment: yfinance auto_adjust=True, split- and distribution-adjusted total-return close
+Survivorship bias: The fixed universe was selected retrospectively from ETFs with complete available histories. The README flags survivorship and hindsight selection bias. See config.yaml:2-3, strategy.py:49-58 and README.md:28.
+Parameter combinations tried: 3
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.03579591682939487, ann_vol=0.04431528837554461, sharpe=0.8158455063965606, sharpe_excess=0.7613485966178857, max_drawdown=-0.06873485745908148, total_return=0.3715931405156103, turnover=4.295057309677388, n_trades=941
+    oos: cagr=0.02382320913146274, ann_vol=0.0675066391376081, sharpe=0.3825451026530908, sharpe_excess=0.007945876410710285, max_drawdown=-0.22190021018294626, total_return=0.1787249913841944, turnover=4.143730357564976, n_trades=708
+    full: cagr=0.030542213978524968, ann_vol=0.055653799300377796, sharpe=0.5684480919250842, sharpe_excess=0.34570382144678596, max_drawdown=-0.22190021018294648, total_return=0.61673111273688, turnover=4.228870571178918, n_trades=1649
+    benchmark: cagr=0.04114586720686564, ann_vol=0.0615053458220701, sharpe=0.6864080001166784, sharpe_excess=0.4847561665005102, max_drawdown=-0.1975789894676817, total_return=0.9038351882576299, turnover=3.4065617771997814, n_trades=2112
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

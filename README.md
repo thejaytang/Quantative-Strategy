@@ -4,7 +4,7 @@
 
 每个策略一个文件：`strategies/<编号>_<名称>.py`，一条命令运行：`python strategies/<文件>.py`（依赖见 requirements.txt）。文件头写明数据源与抓取时间、样本期、IS/OOS 划分、成本与滑点、信号滞后、复权口径、幸存者偏差说明、尝试的参数组合数，以及在记录的 commit 上实际运行得到的关键数字（backtest reproduced）。收录条件：真实运行、确有交易、无同收盘成交前视、Codex 自审 PASS（进入本仓库前的审查为作者自审，不是独立第三方审查）、单文件复跑与审查时结果一致。
 
-本表由文件实际内容生成（2026-11-27 08:11 Europe/Oslo），共 74 个。
+本表由文件实际内容生成（2026-11-27 08:24 Europe/Oslo），共 81 个。
 
 | 文件 | 作者 | 代码 commit | 全样本 Sharpe | 全样本 CAGR |
 |---|---|---|---|---|
@@ -81,4 +81,11 @@
 | strategies/449_the_mathematics_of_heuristic_portfolio_o.py | Codex | 6df04a4d89 | 0.7001079284400838 | 0.04575443705311044 |
 | strategies/450_a_declining_cvar_glidepath_framework_for.py | Codex | 6df04a4d89 | 0.7540691369308014 | 0.04387519298450271 |
 | strategies/451_a_declining_cvar_glidepath_framework_for.py | Codex | 6df04a4d89 | 0.9852314012909932 | 0.0866587923905131 |
+| strategies/452_simple_dynamic_stock_bond_gold_portfolio.py | Codex | 9e9ff36601 | 1.056539332259873 | 0.07721666821953521 |
 | strategies/454_semivariance_and_semivolatility_in_portf.py | Codex | 6df04a4d89 | 0.7295249752825032 | 0.09387382894578122 |
+| strategies/455_hierarchical_risk_parity_for_portfolio_a.py | Codex | 9e9ff36601 | 0.23678269808010283 | 0.028074718863321912 |
+| strategies/456_an_entropic_factor_model_for_robust_port.py | Codex | 9e9ff36601 | 0.7756769929683104 | 0.1399969065847777 |
+| strategies/457_cleaning_correlation_matrices_with_exter.py | Codex | 9e9ff36601 | 0.9166407950170683 | 0.02936608233104887 |
+| strategies/458_two_sides_of_schur_damping_high_dimensio.py | Codex | 9e9ff36601 | 0.5684480919250842 | 0.030542213978524968 |
+| strategies/459_entropic_value_at_risk_parity_for_temper.py | Codex | 9e9ff36601 | 0.7608718779979594 | 0.0527949031704531 |
+| strategies/460_understanding_the_long_only_minimum_vari.py | Codex | 9e9ff36601 | 0.7994607608086711 | 0.10517382226498317 |

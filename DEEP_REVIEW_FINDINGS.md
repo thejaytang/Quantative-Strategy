@@ -39,7 +39,7 @@ Generated 2026-11-27 22:13 Europe/Oslo.
 | strategies/113_kalman_garch_pairs.py | INVALID | 固定存续配对限制结果的外推; 成交与资金约束为简化模型 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 | strategies/315_leveraged_funds_robust_replication.py | INVALID | 事后选池限制结论的适用范围 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 | strategies/545_portfolio_diversification_and_concentrat.py | INVALID | defect listed in self-review; not a published fix | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
-| strategies/552_a_novel_robust_mixed_integer_linear_prog.py | INVALID | 固定股票池存在幸存者偏差; 成交与异常行情采用简化规则 | kept_from_origin: 完整性不合格：lag_ok |
+| strategies/552_a_novel_robust_mixed_integer_linear_prog.py | INVALID | 固定股票池存在幸存者偏差; 成交与异常行情采用简化规则 | kept_from_origin: 完整性不合格：lag_ok; official fix file sha256 2adcc9300672775464740b1ecab11a2b6e45fd370cfbcd91587228e86400e75b (431 lines). META lag_ok is False; that flag comes from the META JSON, not from the run output. The snapshot cannot prove historical first-publication lag or revision vintages for close and adjusted-close fields, and the OOS cut is a retrospective split (known limitations). reads_local is False. broker_check True is a documented false positive (see note below; file sha256 2dd9bc675f38adb18179c0744bec9309a094b53ec33c34fd5bf34ca144f428dc). Stays INVALID pending Gatekeeper spot-check. |
 | strategies/461_breaking_the_trend_how_to_avoid_cherry_p.py | INVALID | 固定基金名单带来幸存者偏差 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 | strategies/487_conditional_value_at_risk_under_reward_p.py | INVALID | 事后选股与幸存者偏差; 资金约束与成交假设 | kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
 | strategies/467_an_entropic_factor_model_for_robust_port.py | INVALID | look-ahead / same-close fill | kept_from_origin: latest self-review is not a post-fix PASS with 成交数量检查 |
@@ -112,6 +112,16 @@ The original fetch DATA_SHA256 is `4efef0137d8cc8eee1dedc185d6eeb61cf5e0d617a078
 broker_check returns True because the file's `_CONFIG_YAML` gzip/base64 literal at strategies/551_squeezed_covariance_matrix_estimation_an.py:25 contains the coincidental marker substrings `IbKr` (in `...wGvlIbKrRyreUjx...`) and `iBkR` (in `...c6lJiBkRtUT+a5p...`). These are fragments of the compressed original snapshot, not a live IBKR API.
 
 META lag_ok is True; that flag comes from the META JSON, not from the run output.
+
+## 552 broker_check false-positive reason
+
+This note cites the published file sha256 `2dd9bc675f38adb18179c0744bec9309a094b53ec33c34fd5bf34ca144f428dc` (strategies/552_a_novel_robust_mixed_integer_linear_prog.py). META was not hand-edited. The broker-string rule was not relaxed. This commit embeds the original, unpadded snapshot bytes rather than altering them to hide a marker.
+
+The original fetch DATA_SHA256 is `8b366b4298a14d0a5894f5712566bc6966d38204516b35d205c0ea78784d5a86`, from `data_cache/yahoo_daily_0f53466f5fbe686d1788.csv.gz` (identical in ORIG, fix_official, and fix_work). Provenance: the official log `logs/codex_fix_d2_run_20261127_174926.log` records DATA_FETCHED_AT 2026-11-27T08:22:14+00:00. The official embed rerun `logs/official_embed_20261127_230734.log` (official strategy sha256 `2adcc9300672775464740b1ecab11a2b6e45fd370cfbcd91587228e86400e75b`, 431 lines) replayed that snapshot and matched the 17:49 RESULTS. Official strategy.py is broker_check False.
+
+broker_check returns True because the file's `_CONFIG_YAML` gzip/base64 literal contains the coincidental marker substrings `ibKR` (in `...Y7bQfwibKRRzIwaY6...`) and `iBkR` (in `...ssnoyL8iBkR83cZnaD...`). These are fragments of the compressed original snapshot, not a live IBKR API.
+
+META lag_ok is False; that flag comes from the META JSON, not from the run output.
 
 ## 551 CHANGES
 

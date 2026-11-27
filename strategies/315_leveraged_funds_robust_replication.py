@@ -1,3 +1,23 @@
+"""315_leveraged_funds_robust_replication
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; non-author review: PASS; publication gate: Codex.
+Run (one command): python strategies/315_leveraged_funds_robust_replication.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 10f82382008748cd9ff2f56e2b8ef160caa66e38 on 2026-11-27 11:24 Europe/Oslo, exit 0, output sha256 d8aa6aea31e90d4d3e367f5837f1ff90d66038d0dd0b1e0f1ffd5d6b34c4a48d
+Data source: 通过 yfinance 获取 Yahoo Finance 的日频 ETF 复权收盘价（QLD、QQQ、SPY、SSO、TQQQ、UPRO），并通过 FRED CSV 获取联邦基金有效利率 DFF。两类数据均优先读取对应的本地 CSV 缓存。（config.yaml:11-17；strategy.py:27-29；strategy.py:64-77；strategy.py:94-105；strategy.py:224-235；README.md:7；README.md:11；README.md:21）
+Data fetched: Yahoo Finance 2026-11-27T10:24:19+00:00; FRED 2026-11-27T10:24:21+00:00
+Sample period: 价格数据请求自 2011-01-01 至 2025-12-31，2011 年用于滚动预热。实际报告区间为 2012-01-03 至 2025-12-31。（config.yaml:3-9；strategy.py:64-74；strategy.py:214-217；strategy.py:239-246；strategy.py:278-291；README.md:19；logs/run_20261125_140620.log:1）   data_range (from output): 2012-01-03 to 2025-12-31
+IS/OOS split: 样本内 2012-01-01 至 2018-12-31，样本外 2019-01-01 至 2025-12-31。按日期切分同一次连续模拟的收益，样本外延续此前的持仓与信号历史。README 记载参数在首次回测前固定，两个区间均未用于调参。（config.yaml:4-9；strategy.py:239-260；strategy.py:271-275；README.md:19；logs/run_20261125_140620.log:2）
+Costs and slippage: 每条腿按净单向成交额收取 5 bp，计入入场、再平衡和出场。空头借券费按期初空头权重名义额以年化 30 bp 和实际日历天数/360 计提。主策略的合成复制收益扣除 (L−1) 倍的融资成本，利率为期初已知 DFF 加年化 100 bp，同样按实际日历天数/360 计提。现金及空头抵押品利息按零处理。未建模滑点或市场冲击。（config.yaml:25-29；strategy.py:127-137；strategy.py:157-179；strategy.py:235-237；strategy.py:254-260；README.md:11；README.md:15；README.md:25）
+Signal lag: 每周最后一个计划交易日收盘 t，用截至该收盘的价格计算分数。在下一交易日收盘 t+1 模拟执行符合阈值的最低分组合，若原组合仍在持有期内则跳过。执行后的目标权重参与 t+1 至 t+2 的收盘到收盘收益。目标持有期为五个收盘到收盘区间，期间每日收盘再平衡。（config.yaml:19-23；strategy.py:123-154；strategy.py:157-179；strategy.py:226-231；strategy.py:254-260；README.md:13）
+Price adjustment: Yahoo Finance dividend- and split-adjusted daily close; fractional adjusted units
+Survivorship bias: 固定选择 SSO/SPY、UPRO/SPY、QLD/QQQ、TQQQ/QQQ 四组。价格校验要求各标的覆盖全部计划交易日。README 明示可能存在基金层面的存续和样本选择偏差，研究范围限于所选标的。（config.yaml:11-16；strategy.py:78-88；strategy.py:224-233；README.md:25）
+Parameter combinations tried: 2 (one main specification, one zero-financing control)
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=-0.007594995415349137, ann_vol=0.002639441130891839, sharpe=-2.887121205240521, sharpe_excess=-2.9212514211567138, max_drawdown=-0.051854089216154864, total_return=-0.051854089216154864, turnover=12.708795117049679, n_trades=569
+    oos: cagr=-0.014934051904091583, ann_vol=0.003428407760174544, sharpe=-4.386981661311098, sharpe_excess=-9.806465754664393, max_drawdown=-0.09975468211786631, total_return=-0.09975468211786631, turnover=20.155210221376894, n_trades=888
+    full: cagr=-0.011271333106851134, ann_vol=0.0030679454519118815, sharpe=-3.6931472194596076, sharpe_excess=-6.3655704418292505, max_drawdown=-0.14643608314775347, total_return=-0.14643608314775347, turnover=16.432002669213286, n_trades=1457
+    benchmark  full: cagr=0.14791185059635037, ann_vol=0.16577436665061196, sharpe=0.9154259186549065, sharpe_excess=0.8293999692060713, max_drawdown=-0.3356242879788358, total_return=5.867800849711584, turnover=0.07052655169163688, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

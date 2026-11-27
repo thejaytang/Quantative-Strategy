@@ -1,3 +1,23 @@
+"""124_dollar_safe_haven_reversal
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; non-author review: PASS; publication gate: Codex.
+Run (one command): python strategies/124_dollar_safe_haven_reversal.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 10f82382008748cd9ff2f56e2b8ef160caa66e38 on 2026-11-27 11:24 Europe/Oslo, exit 0, output sha256 a0dab3951f3d77485b81cce219e0999e92776e08a3aa01816d3b503d718d25b8
+Data source: Yahoo Finance 免费日线，经 yfinance 获取美国上市 ETF 的开盘价和收盘价。SPY 与 UUP 生成信号，UUP 也用于匹配窗口对照，FXE 与 FXY 构成反转组合，BIL 用作防御持仓和买入持有基准。本次日志记录的数据获取日期为 2026-11-26（Europe/Oslo）。[config.yaml:4-8, strategy.py:19-41, strategy.py:248-258, strategy.py:271-276, README.md:30, logs/codex_fix_d2_run_20261126_131116.log:1-2]
+Data fetched: 2026-11-27
+Sample period: 实际回测交易日为 2010-06-07 至 2026-11-24，共 4,144 个交易日。代码请求从样本起点提前 14 个日历日的数据，计算信号所需的前收盘价。[config.yaml:18-24, strategy.py:240-253, strategy.py:256-266, logs/codex_fix_d2_run_20261126_131116.log:1, logs/codex_fix_d2_run_20261126_131116.log:39]   data_range (from output): 2010-06-07 to 2026-11-24
+IS/OOS split: 含边界的连续日历划分：IS 为 2010-06-07 至 2023-12-31（3,416 个交易日），OOS 为 2024-01-01 至 2026-11-24（728 个交易日），首个 OOS 交易日为 2024-01-02。组合在全样本连续模拟后按日期切分报告，持仓可跨边界。README 说明 OOS 与研究假设所依据的论文研究期部分重叠。[config.yaml:18-24, strategy.py:240-245, strategy.py:270-288, README.md:22-24, logs/codex_fix_d2_run_20261126_131116.log:39]
+Costs and slippage: 每笔买入和卖出均按各自成交名义金额计 2.5 bps 交易费用和 2.5 bps 固定滑点，每边合计 5 bps。令 c = 0.0005，首次买入 BIL 的因子为 1/(1+c)，进入外汇组合和切回 BIL 时各乘 (1-c)/(1+c)，先扣卖出成本再用净额买入。滑点已作为固定成本建模。[config.yaml:13-15, strategy.py:228-238, strategy.py:81-104, README.md:24, README.md:34, logs/codex_fix_d2_run_20261126_131116.log:5]
+Signal lag: 交易日 t 收盘后，用 SPY 和 UUP 的复权收盘至收盘收益判断 SPY < −1% 且 UUP > 0%。信号在下一交易日 t+1 开盘执行，模拟卖出 BIL 并等额买入 FXE 和 FXY。按预先确定的持有期，在第五个持有交易日收盘切回 BIL。该退出日的新信号仍在下一交易日开盘执行。[config.yaml:4-13, strategy.py:60-78, strategy.py:81-104, strategy.py:256-275, README.md:9-12]
+Price adjustment: Yahoo Finance split- and distribution-adjusted Open and Close (yfinance auto_adjust=True)
+Survivorship bias: 固定使用事后可见的存续 ETF 作为代理，存在代理选择及存续偏差的可能。代码从固定标的列表取数。[config.yaml:4-8, strategy.py:220-226, strategy.py:248-254, README.md:34]
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=-0.01941784786262657, ann_vol=0.037351022932561186, sharpe=-0.5062965473919433, sharpe_excess=-0.7167257668261554, max_drawdown=-0.3637792595441651, total_return=-0.23341436718384734, turnover=636.4492107234412, n_trades=491
+    oos: cagr=0.030560960288576355, ann_vol=0.03269126194003001, sharpe=0.9371345354317572, sharpe_excess=-0.3704972911432689, max_drawdown=-0.02913449659487799, total_return=0.09085851916394705, turnover=111.90260486055072, n_trades=85
+    full: cagr=-0.010816713521787924, ann_vol=0.03659099746493098, sharpe=-0.278935429402221, sharpe_excess=-0.6616333481619691, max_drawdown=-0.3637792595441651, total_return=-0.16376353177381475, turnover=748.351815583992, n_trades=576
+    benchmark BIL full: cagr=0.014049331484786709, ann_vol=0.0026414119009005384, sharpe=5.283321390172531, sharpe_excess=None, max_drawdown=-0.004594416921901434, total_return=0.2578772282001718, turnover=0.9990004997501251, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

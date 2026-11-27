@@ -112,3 +112,11 @@ The original fetch DATA_SHA256 is `4efef0137d8cc8eee1dedc185d6eeb61cf5e0d617a078
 broker_check returns True because the file's `_CONFIG_YAML` gzip/base64 literal at strategies/551_squeezed_covariance_matrix_estimation_an.py:25 contains the coincidental marker substrings `IbKr` (in `...wGvlIbKrRyreUjx...`) and `iBkR` (in `...c6lJiBkRtUT+a5p...`). These are fragments of the compressed original snapshot, not a live IBKR API.
 
 META lag_ok is True; that flag comes from the META JSON, not from the run output.
+
+## 551 CHANGES
+
+This section is documentation only. It does not change the packed file or official strategy.py.
+
+- `load_prices` relaxed the first-line prefix match so it can read the original fetch format. The loader still accepts a first line that starts with `# DATA_FETCHED_AT: `, but it also accepts a bare timezone-aware ISO timestamp on that line (the original cache form, `2026-11-27T08:22:26+00:00`). That is how the restored original snapshot bytes are parsed.
+- Commit 5e2f34d had added the `# DATA_FETCHED_AT: ` prefix, and then 16 trailing spaces, to that header line. Those edits changed the decompressed snapshot bytes (the padded form hashed to `1bf839be88588301c256aa5ad82faf2e8a1df36c52cdc2ca553947be2f861592`). The prefix/padding was later rejected as altering input to dodge the checker. The current embed uses the original unpadded fetch bytes instead (DATA_SHA256 `4efef0137d8cc8eee1dedc185d6eeb61cf5e0d617a078530ab2499829f81ed26`).
+- The blank line at strategies/551_squeezed_covariance_matrix_estimation_an.py:23 sits between the closing `"""` of the publication header (line 22) and the pack shim import on line 24. It is the ordinary separator after the module docstring so the shim is not glued to the header. It does not change the snapshot bytes or the run results.

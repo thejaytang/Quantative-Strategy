@@ -1,28 +1,7 @@
-"""514_risk_limited_asset_allocation_with_a_bud
-WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
-研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
-Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/514_risk_limited_asset_allocation_with_a_bud.py (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit c0a8f76240a0431b019ab49c34040a95a765860a on 2026-11-27 10:04 Europe/Oslo, exit 0, output sha256 24709d43ebe800eb76dcc753d8db0eb9cfdd849729609cc8118148aa7b5c361e
-Data source: yfinance 美元 ETF 日收盘价。风险资产为 SPY、QQQ、EFA、TLT、GLD、VNQ，BIL 为现金替代，SPY 同时用作买入持有基准。运行日志记录的数据抓取时间为 2026-11-27T08:00:19+00:00。
-Data fetched: 2026-11-27T09:04:19+00:00
-Sample period: 价格覆盖 2007-10-01 至 2025-12-31，2007-10-01 起的数据用于预热。回测收益区间为 2009-01-02 至 2025-12-31，含首尾交易日。 data_range (from output): {'start': '2009-01-02', 'end': '2025-12-31'}
-IS/OOS split: 样本内（IS）为 2009-01-02 至 2017-12-29；样本外（OOS）为 2018-01-02 至 2025-12-31，均含首尾交易日。两段从同一次默认参数模拟的连续持仓和收益路径切分。OOS 为历史留出期，其中大部分日期早于论文发表。五组稳健性对照仅运行至 IS 截止日。
-Costs and slippage: 默认每笔买卖按成交额计 5 bps 成本和 5 bps 固定滑点，两项合计 10 bps，买卖两边及 BIL 均计入。调仓时以费后资产价值确定目标持仓金额，按其与成交前持仓金额的绝对差之和计算扣费，并从净值扣除；滑点以固定费率建模。样本内双倍成本对照将成本和滑点各提高至 10 bps。
-Signal lag: 月末最后一个交易日收盘 t 生成信号，默认在下一交易日收盘 t+1 模拟成交。t 至 t+1 的收盘到收盘收益按原持仓计入，随后扣费并更新权重。SPY 基准在回测首日收盘按预先设定的目标从 BIL 转为 SPY。
-Price adjustment: yfinance auto_adjust=True adjusted close, total-return basis
-Survivorship bias: 固定资产池选自研究时仍存续且具有长历史的 ETF，README 明示存在事后选择与存续偏差。加载器按配置读取同一组标的，并在发现任一标的缺价或价格无效时停止。
-Parameter combinations tried: 6
-Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=0.05815685244260593, ann_vol=0.07720268842020143, sharpe=0.770900074161784, sharpe_excess=0.7616039971689724, max_drawdown=-0.12346042848999783, total_return=0.6621039279319347, turnover=3.344732880658356, n_trades=295
-    oos: cagr=0.052023056046132776, ann_vol=0.09691245898784251, sharpe=0.5722335272034725, sharpe_excess=0.32163466163332377, max_drawdown=-0.2365405010576883, total_return=0.49887375058351746, turnover=2.9762307541275472, n_trades=232
-    full: cagr=0.05526769010108934, ann_vol=0.08701960100425812, sharpe=0.6619958322659767, sharpe_excess=0.5263230736183157, max_drawdown=-0.23654050105768853, total_return=1.491283948318939, turnover=3.1714265718525896, n_trades=527
-    benchmark SPY full: cagr=0.14524231948766286, ann_vol=0.17887852829174625, sharpe=0.8479660123111793, sharpe_excess=0.7813775640669344, max_drawdown=-0.337172719764255, total_return=8.98586833816174, turnover=0.11774941615914487, n_trades=2
-"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os
-_CONFIG_YAML = "strategy: '514_ risk_limited_asset_allocation_with_a_bud'\nuniverse: [SPY, QQQ, EFA, TLT, GLD, VNQ]\ncash_proxy: BIL\nbenchmark: SPY\n\ndates:\n  price_start: 2007-10-01\n  backtest_start: 2009-01-02\n  is_end: 2017-12-29\n  backtest_end: 2025-12-31\n\nsignal:\n  lookback_sessions: 252\n  horizon_sessions: 21\n  risk_barrier: 0.40\n  downside_aversion: 8.0\n  max_asset_weight: 0.30\n\nexecution:\n  lag_sessions: 1\n  cost_bps: 5.0\n  slippage_bps: 5.0\n\nrobustness:\n  - label: risk_barrier_0.35\n    signal: {risk_barrier: 0.35}\n  - label: risk_barrier_0.45\n    signal: {risk_barrier: 0.45}\n  - label: downside_aversion_6\n    signal: {downside_aversion: 6.0}\n  - label: downside_aversion_10\n    signal: {downside_aversion: 10.0}\n  - label: double_execution_cost\n    execution: {cost_bps: 10.0, slippage_bps: 10.0}\n"
+_CONFIG_YAML = "strategy: '514_risk_limited_asset_allocation_with_a_bud'\nuniverse: [SPY, QQQ, EFA, TLT, GLD, VNQ]\ncash_proxy: BIL\nbenchmark: SPY\n\ndates:\n  price_start: 2007-10-01\n  backtest_start: 2009-01-02\n  is_end: 2017-12-29\n  backtest_end: 2025-12-31\n\nsignal:\n  lookback_sessions: 252\n  horizon_sessions: 21\n  risk_barrier: 0.40\n  downside_aversion: 8.0\n  max_asset_weight: 0.30\n\nexecution:\n  # Size at the close immediately before the fill session, using the lagged signal.\n  lag_sessions: 1  # Month-end close signal fills at the next session's close.\n  cost_bps: 5.0\n  slippage_bps: 5.0\n  # Reserve 5% of prior-close value, including at SPY entry, and budget fees separately.\n  # Keep any proceeds left after settlement in zero-interest cash.\n  cash_buffer_bps: 500.0\n\nrobustness:\n  - label: risk_barrier_0.35\n    signal: {risk_barrier: 0.35}\n  - label: risk_barrier_0.45\n    signal: {risk_barrier: 0.45}\n  - label: downside_aversion_6\n    signal: {downside_aversion: 6.0}\n  - label: downside_aversion_10\n    signal: {downside_aversion: 10.0}\n  - label: double_execution_cost\n    execution: {cost_bps: 10.0, slippage_bps: 10.0}\n"
 _orig_open = _b.open
 def _open(f, *a, **k):
     try:
@@ -47,13 +26,44 @@ import numpy as np
 import pandas as pd
 import yaml
 import yfinance as yf
+from pandas.tseries.holiday import (
+    AbstractHolidayCalendar,
+    GoodFriday,
+    Holiday,
+    USLaborDay,
+    USMartinLutherKingJr,
+    USMemorialDay,
+    USPresidentsDay,
+    USThanksgivingDay,
+    nearest_workday,
+    sunday_to_monday,
+)
 from scipy.optimize import minimize
 
 
 ROOT = Path(__file__).resolve().parent
 CACHE = ROOT / "data_cache"
 SESSIONS_PER_YEAR = 252
-TIME_LIMIT_SECONDS = 720
+TIME_LIMIT_SECONDS = 570
+CALENDAR_START = pd.Timestamp("2007-10-01")
+CALENDAR_END = pd.Timestamp("2025-12-31")
+EXTRA_MARKET_CLOSURES = pd.DatetimeIndex([
+    "2012-10-29", "2012-10-30",  # Hurricane Sandy
+    "2018-12-05",  # George H. W. Bush national day of mourning
+    "2025-01-09",  # Jimmy Carter national day of mourning
+])
+US_EQUITY_HOLIDAYS = AbstractHolidayCalendar(rules=[
+    Holiday("New Year's Day", month=1, day=1, observance=sunday_to_monday),
+    USMartinLutherKingJr,
+    USPresidentsDay,
+    GoodFriday,
+    USMemorialDay,
+    Holiday("Juneteenth", month=6, day=19, start_date="2022-01-01", observance=nearest_workday),
+    Holiday("Independence Day", month=7, day=4, observance=nearest_workday),
+    USLaborDay,
+    USThanksgivingDay,
+    Holiday("Christmas Day", month=12, day=25, observance=nearest_workday),
+])
 
 
 class DeadlineReached(BaseException):
@@ -62,6 +72,25 @@ class DeadlineReached(BaseException):
 
 def stop_at_deadline(_signum, _frame):
     raise DeadlineReached
+
+
+def validate_sessions(dates, start, end):
+    if not CALENDAR_START <= start <= end <= CALENDAR_END:
+        raise ValueError(f"Equity calendar covers {CALENDAR_START.date()} through {CALENDAR_END.date()}")
+    if dates.empty or not dates.is_unique or not dates.is_monotonic_increasing:
+        raise ValueError("Price history must contain unique, sorted dates")
+    closures = US_EQUITY_HOLIDAYS.holidays(start, end).union(EXTRA_MARKET_CLOSURES)
+    expected = pd.date_range(start, end, freq="B").difference(closures)
+    missing = expected.difference(dates)
+    unexpected = dates.difference(expected)
+    if len(missing) or len(unexpected):
+        raise ValueError(
+            f"Price dates differ from the U.S. equity calendar: "
+            f"missing {list(missing.strftime('%Y-%m-%d')[:5])}, "
+            f"unexpected {list(unexpected.strftime('%Y-%m-%d')[:5])}"
+        )
+    if dates[0] != start or dates[-1] != end:
+        raise ValueError(f"Start and end must be trading sessions: {start.date()} through {end.date()}")
 
 
 def load_prices(tickers, start, end):
@@ -77,7 +106,8 @@ def load_prices(tickers, start, end):
             if not header.startswith(stamp_prefix):
                 raise ValueError(f"Missing fetch timestamp in {path.name}")
             fetched_at = header.removeprefix(stamp_prefix)
-            datetime.fromisoformat(fetched_at)
+            if datetime.fromisoformat(fetched_at).utcoffset() is None:
+                raise ValueError(f"Fetch timestamp in {path.name} needs a UTC offset")
             prices = pd.read_csv(source, index_col="date", parse_dates=["date"])
     else:
         with tempfile.TemporaryDirectory(dir=CACHE, prefix="yfinance_") as yf_cache:
@@ -88,6 +118,7 @@ def load_prices(tickers, start, end):
                 end=(end + pd.Timedelta(days=1)).date().isoformat(),
                 interval="1d",
                 auto_adjust=True,
+                ignore_tz=True,
                 keepna=True,
                 threads=False,
                 progress=False,
@@ -98,12 +129,9 @@ def load_prices(tickers, start, end):
         fetched_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
         prices = data["Close"].sort_index()
 
-    if prices.empty or not prices.index.is_unique or not prices.index.is_monotonic_increasing:
-        raise ValueError("Price history must contain unique, sorted dates")
-    if prices.index[0] != start or prices.index[-1] != end:
-        raise ValueError(f"Missing boundary price dates for {start.date()} through {end.date()}")
     prices = prices.reindex(columns=tickers).rename_axis(columns=None)
     prices.index = prices.index.as_unit("ns").rename("date")
+    validate_sessions(prices.index, start, end)
     values = prices.to_numpy(dtype=float)
     good = np.isfinite(values) & (values > 0)
     if not good.all():
@@ -192,46 +220,92 @@ def execution_targets(prices, universe, cash_proxy, backtest_start, signal_cfg, 
     return targets
 
 
-def rebalance(current, desired, drag):
-    """Find the post-fee size that funds both trade legs without leverage."""
-    remaining = 1.0
-    for _ in range(100):
-        changes = remaining * desired - current
-        after_fees = 1.0 - drag * np.abs(changes).sum()
-        if abs(after_fees - remaining) <= 1e-14:
-            trades = np.abs(after_fees * desired - current)
-            return after_fees, float(trades.sum()), int(np.count_nonzero(trades > 1e-10))
-        remaining = after_fees
-    raise RuntimeError("Execution fee calculation did not converge")
+def size_orders(positions, cash, previous_close, target, fee_rate, buffer_rate):
+    """Lock share quantities using the previous session's close and cash."""
+    previous_value = cash + float(positions @ previous_close)
+    reserve = previous_value * buffer_rate
+    changes = (previous_value - reserve) * target / previous_close - positions
+    changes[np.abs(changes) * previous_close <= previous_value * 1e-10] = 0.0
+    sell_shares = np.maximum(-changes, 0.0)
+    buy_shares = np.maximum(changes, 0.0)
+    estimated_proceeds = float(sell_shares @ (previous_close * (1.0 - fee_rate)))
+    estimated_spend = float(buy_shares @ (previous_close * (1.0 + fee_rate)))
+    budget = max(0.0, cash + estimated_proceeds - reserve)
+    if estimated_spend > budget:
+        buy_shares *= budget / estimated_spend
+    # Settlement can read these quantities to price the fill and fees.
+    sell_shares.setflags(write=False)
+    buy_shares.setflags(write=False)
+    return sell_shares, buy_shares
 
 
-def simulate(returns, targets, execution_cfg):
+def fill_orders(cash, sell_shares, buy_shares, close, fee_rate, date):
+    """Settle the fixed quantities at the close, including fees and slippage."""
+    proceeds = float(sell_shares @ (close * (1.0 - fee_rate)))
+    spent = float(buy_shares @ (close * (1.0 + fee_rate)))
+    remaining_cash = cash + proceeds - spent
+    if not np.isfinite(remaining_cash):
+        raise RuntimeError(f"{date.date()}: scheduled fill would leave nonfinite cash")
+    if remaining_cash < 0.0:
+        raise RuntimeError(f"{date.date()}: scheduled fill would leave negative cash ({remaining_cash:.8g})")
+    return remaining_cash
+
+
+def simulate(prices, start, targets, execution_cfg):
     cost = execution_cfg["cost_bps"]
     slippage = execution_cfg["slippage_bps"]
     if not (cost >= 0 and slippage >= 0 and cost + slippage < 5000):
         raise ValueError("Costs must be nonnegative and sum to less than 5000 bps")
-    drag = (cost + slippage) / 10_000
-    weights = np.zeros(returns.shape[1])
-    weights[-1] = 1.0
+    fee_rate = (cost + slippage) / 10_000
+    buffer_rate = execution_cfg["cash_buffer_bps"] / 10_000
+    if not 0 < buffer_rate < 1:
+        raise ValueError("Cash buffer must be between 0 and 10000 bps")
+    start_pos = prices.index.get_loc(start)
+    if start_pos == 0:
+        raise ValueError("Simulation needs the close of the session before its start")
+    dates = prices.index[start_pos:]
+    # A unit is the total-return value of one dollar at the initial close.
+    price_scale = prices.iloc[start_pos - 1].to_numpy(dtype=float)
+    closes = prices.iloc[start_pos:].to_numpy(dtype=float)
+    previous_close = np.ones_like(price_scale)
+    positions = np.zeros(prices.shape[1])
+    positions[-1] = 1.0
+    cash = 0.0
     daily_results = []
-    for date, row in zip(returns.index, returns.to_numpy(), strict=True):
-        marked = weights * (1.0 + row)
-        growth = marked.sum()
-        weights = marked / growth
+    for offset, date in enumerate(dates):
+        previous_value = cash + float(positions @ previous_close)
         turnover, trades = 0.0, 0
-        if date in targets:
-            desired = targets[date]
-            remaining, turnover, trades = rebalance(weights, desired, drag)
-            growth *= remaining
-            weights = desired
-        daily_results.append((growth - 1.0, row[-1], turnover, trades))
-    return pd.DataFrame(daily_results, index=returns.index, columns=["net", "bills", "turnover", "trades"])
+        target = targets.get(date)
+        planned = None
+        if target is not None:
+            sell_shares, buy_shares = size_orders(positions, cash, previous_close, target, fee_rate, buffer_rate)
+            next_positions = positions - sell_shares + buy_shares
+            if not np.isfinite(next_positions).all() or (next_positions < 0.0).any():
+                raise RuntimeError(f"{date.date()}: scheduled quantities would leave invalid positions")
+            planned = sell_shares, buy_shares, next_positions
+
+        # The current close first enters the simulation after quantities are locked.
+        close = closes[offset] / price_scale
+        if planned is not None:
+            sell_shares, buy_shares, next_positions = planned
+            remaining_cash = fill_orders(cash, sell_shares, buy_shares, close, fee_rate, date)
+            value_before_fill = cash + float(positions @ close)
+            traded_shares = sell_shares + buy_shares
+            turnover = float(traded_shares @ close) / value_before_fill
+            trades = int(np.count_nonzero(traded_shares))
+            positions, cash = next_positions, remaining_cash
+        close_value = cash + float(positions @ close)
+        net_return = close_value / previous_value - 1.0
+        bills_return = close[-1] / previous_close[-1] - 1.0
+        daily_results.append((net_return, bills_return, turnover, trades))
+        previous_close = close
+    return pd.DataFrame(daily_results, index=dates, columns=["net", "bills", "turnover", "trades"])
 
 
 def metrics(daily_results):
     net = daily_results["net"]
-    if len(net) < 2:
-        raise ValueError("Each measurement period needs at least two return observations")
+    if net.empty:
+        raise ValueError("Each measurement period needs at least one return observation")
     growth = np.r_[1.0, (1.0 + net.to_numpy()).cumprod()]
     excess = net - daily_results["bills"]
     annualizer = np.sqrt(SESSIONS_PER_YEAR)
@@ -240,7 +314,7 @@ def metrics(daily_results):
     years = len(net) / SESSIONS_PER_YEAR
     return {
         "cagr": float(growth[-1] ** (1.0 / years) - 1.0),
-        "ann_vol": float(ann_vol),
+        "ann_vol": float(ann_vol) if np.isfinite(ann_vol) else None,
         "sharpe": float(SESSIONS_PER_YEAR * net.mean() / ann_vol) if ann_vol > 1e-12 else None,
         "sharpe_excess": float(SESSIONS_PER_YEAR * excess.mean() / excess_vol) if excess_vol > 1e-12 else None,
         "max_drawdown": float((growth / np.maximum.accumulate(growth) - 1.0).min()),
@@ -274,13 +348,12 @@ def main():
     prices, fetched_at = load_prices(tickers, price_start, end)
     if start not in prices.index or is_end not in prices.index:
         raise ValueError("The backtest start and IS end must be observed price dates")
-    returns = prices.pct_change(fill_method=None).loc[start:]
-    strategy_returns = returns[[*universe, cash_proxy]]
+    strategy_prices = prices[[*universe, cash_proxy]]
     signal_cfg = config["signal"]
     execution_cfg = config["execution"]
 
     print(f"DATA_FETCHED_AT: {fetched_at}")
-    print("PRICE_ADJUSTMENT: yfinance auto_adjust=True adjusted close, total-return basis")
+    print("PRICE_ADJUSTMENT: yfinance auto_adjust=True adjusted close, fractional total-return units")
     print("ROBUSTNESS: in-sample only, fixed one-at-a-time cases", flush=True)
     attempts = 0
     for case in config["robustness"]:
@@ -290,23 +363,23 @@ def main():
             prices.loc[:is_end], universe, cash_proxy, start,
             {**signal_cfg, **case.get("signal", {})}, case_execution["lag_sessions"],
         )
-        result = simulate(strategy_returns.loc[:is_end], targets, case_execution)
+        result = simulate(strategy_prices.loc[:is_end], start, targets, case_execution)
         print(f"ROBUSTNESS_IS {case['label']}: {json.dumps(metrics(result), allow_nan=False)}")
 
     attempts += 1
     targets = execution_targets(prices, universe, cash_proxy, start, signal_cfg, execution_cfg["lag_sessions"])
-    official = periods(simulate(strategy_returns, targets, execution_cfg), is_end)
-    benchmark_returns = returns[[benchmark_ticker, cash_proxy]]
+    default_periods = periods(simulate(strategy_prices, start, targets, execution_cfg), is_end)
+    benchmark_prices = prices[[benchmark_ticker, cash_proxy]]
     benchmark_targets = {start: np.array([1.0, 0.0])}
-    benchmark = periods(simulate(benchmark_returns, benchmark_targets, execution_cfg), is_end)
+    benchmark = periods(simulate(benchmark_prices, start, benchmark_targets, execution_cfg), is_end)
     results = {
         "strategy": config["strategy"],
         "data_range": {"start": start.date().isoformat(), "end": end.date().isoformat()},
-        **official,
+        **default_periods,
         "benchmark": {"ticker": benchmark_ticker, **benchmark},
     }
     for period in ("is", "oos", "full"):
-        print(f"{period.upper()}: {json.dumps(official[period], allow_nan=False)}")
+        print(f"{period.upper()}: {json.dumps(default_periods[period], allow_nan=False)}")
         print(f"BENCHMARK {benchmark_ticker} {period.upper()}: {json.dumps(benchmark[period], allow_nan=False)}")
     print(f"PARAM_COMBOS_TRIED: {attempts}")
     print("RESULTS_JSON: " + json.dumps(results, allow_nan=False))

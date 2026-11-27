@@ -1,28 +1,7 @@
-"""538_mirror_descent_algorithms_for_risk_budge
-WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
-研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
-Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/538_mirror_descent_algorithms_for_risk_budge.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit c0a8f76240a0431b019ab49c34040a95a765860a on 2026-11-27 10:04 Europe/Oslo, exit 0, output sha256 425598b99088a568c1a5c52467ee1e986128f907bf85369589e49882a4876fcd
-Data source: Yahoo Finance (yfinance) daily adjusted ETF closes for SPY, QQQ, TLT and GLD. BIL is also fetched, and its realized daily return is used for excess Sharpe reporting only. The loader uses a matching price cache if present and otherwise downloads the data. The run records the source as 'yfinance download' and the original fetch timestamp as 2026-11-27T08:18:30+00:00.
-Data fetched: 2026-11-27T09:04:29+00:00
-Sample period: Configured price window 2007-06-01 through 2025-12-31, with pre-backtest data used for rolling-window warm-up. Logged backtest sessions span 2009-01-02 through 2025-12-31.   data_range (from output): {'start': '2009-01-02', 'end': '2025-12-31'}
-IS/OOS split: IS 2009-01-02 through 2018-12-31 inclusive. OOS 2019-01-02 through 2025-12-31. The main specification is simulated continuously across the cutoff and the resulting daily series is split for reporting. The three robustness alternatives run only on IS data.
-Costs and slippage: Base friction is 2 bps transaction cost plus 3 bps modeled fixed slippage, totaling 5 bps on the absolute dollar amount of each buy and sell at each rebalance, including the initial purchase. The simulator marks the existing holdings to the execution close and solves for the post-cost portfolio value using the absolute differences between the resulting target dollar holdings and the marked holdings. It debits the friction on the execution date. The IS higher-friction case uses 6 bps cost plus 9 bps slippage.
-Signal lag: The target uses daily returns through the final trading session of the month, close t. The configured one-session lag fills at the next trading session's close. The old holdings receive the execution day's close-to-close return, friction is booked at execution, and the new weights receive returns starting with the following close-to-close interval.
-Price adjustment: yfinance auto_adjust=True, total-return daily closes
-Survivorship bias: The universe is a fixed, retrospectively selected list of SPY, QQQ, TLT and GLD. The README identifies selection and survivorship bias and states that funds that had exited and alternatives available at the time were excluded.
-Parameter combinations tried: 4
-Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=0.09001801391864306, ann_vol=0.07845001447984494, sharpe=1.138121201968981, sharpe_excess=1.1053160131472926, max_drawdown=-0.11006413957676786, total_return=1.3645176888616115, turnover=5.305555076437441, n_trades=480
-    oos: cagr=0.11871767823210821, ann_vol=0.11150219557860876, sharpe=1.062058193988751, sharpe_excess=0.835364842407527, max_drawdown=-0.24830268087345975, total_return=1.1891230075505805, turnover=2.9548176864135147, n_trades=336
-    full: cagr=0.10174053575989217, ann_vol=0.09347233457236347, sharpe=1.083508532021487, sharpe_excess=0.9563839976796435, max_drawdown=-0.24830268087346075, total_return=4.176220074447265, turnover=8.260372762850956, n_trades=816
-    benchmark  full: cagr=0.12040915777659045, ann_vol=0.10492450140736359, sharpe=1.1362798381054147, sharpe_excess=1.0226001170070418, max_drawdown=-0.25513828583784337, total_return=5.883915581486703, turnover=6.878530547059312, n_trades=816
-"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os
-_CONFIG_YAML = 'strategy: "538_ mirror_descent_algorithms_for_risk_budge"\nuniverse: [SPY, QQQ, TLT, GLD]\nrisk_free: BIL\ndata_start: 2007-06-01\nstart: 2009-01-01\nis_end: 2018-12-31\nend: 2025-12-31\n\nlookback_sessions: 252\nexecution_lag_sessions: 1\ncost_bps: 2.0\nslippage_bps: 3.0\n\nsolver:\n  step_exponent: 0.55\n  max_iterations: 20000\n  contribution_tolerance: 0.000001\n\nrobustness:\n  lookback_sessions: [189, 315]\n  friction_multiplier: 3.0\n'
+_CONFIG_YAML = 'strategy: "538_mirror_descent_algorithms_for_risk_budge"\nuniverse: [SPY, QQQ, TLT, GLD]\nrisk_free: BIL\ndata_start: 2007-06-01\nstart: 2009-01-02\nis_end: 2018-12-31\nend: 2025-12-31\n\nlookback_sessions: 252\nexecution_lag_sessions: 1\ncash_buffer_bps: 200.0  # Prior-close cash reserve shared by strategy and benchmark.\ncost_bps: 2.0\nslippage_bps: 3.0\n\nsolver:\n  step_exponent: 0.55\n  max_iterations: 20000\n  contribution_tolerance: 0.000001\n\nrobustness:\n  lookback_sessions: [189, 315]\n  friction_multiplier: 3.0\n'
 _orig_open = _b.open
 def _open(f, *a, **k):
     try:
@@ -40,13 +19,18 @@ import json
 import signal
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
+from hashlib import sha256
+from io import StringIO
 from pathlib import Path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 
 import numpy as np
 import pandas as pd
 import yaml
-from scipy.optimize import brentq
+from pandas.tseries.holiday import (
+    AbstractHolidayCalendar, GoodFriday, Holiday, USLaborDay, USMartinLutherKingJr,
+    USMemorialDay, USPresidentsDay, USThanksgivingDay, nearest_workday, sunday_to_monday,
+)
 
 
 ROOT = Path(__file__).resolve().parent
@@ -54,6 +38,26 @@ CACHE_DIR = ROOT / "data_cache"
 SESSIONS_PER_YEAR = 252
 FETCH_HEADER = "# fetched_at="
 SOURCE_HEADER = "# source="
+CALENDAR_START = pd.Timestamp("2007-01-01")
+CALENDAR_END = pd.Timestamp("2025-12-31")
+SPECIAL_CLOSURES = pd.DatetimeIndex([
+    "2007-01-02",  # Gerald Ford national day of mourning
+    "2012-10-29", "2012-10-30",  # Hurricane Sandy
+    "2018-12-05",  # George H.W. Bush national day of mourning
+    "2025-01-09",  # Jimmy Carter national day of mourning
+])
+
+
+class ExchangeHolidays(AbstractHolidayCalendar):
+    rules = [
+        Holiday("New Year's Day", month=1, day=1, observance=sunday_to_monday),
+        USMartinLutherKingJr, USPresidentsDay, GoodFriday, USMemorialDay,
+        Holiday("Juneteenth", month=6, day=19, start_date="2022-01-01",
+                observance=nearest_workday),
+        Holiday("Independence Day", month=7, day=4, observance=nearest_workday),
+        USLaborDay, USThanksgivingDay,
+        Holiday("Christmas Day", month=12, day=25, observance=nearest_workday),
+    ]
 
 
 @dataclass(frozen=True)
@@ -73,14 +77,21 @@ def price_cache_path(tickers, start, end):
 
 
 def validate_prices(prices, tickers, start, end):
+    if start < CALENDAR_START or end > CALENDAR_END:
+        raise ValueError("The exchange calendar covers 2007 through 2025.")
     if not set(tickers).issubset(prices.columns):
         raise ValueError("Adjusted closing prices are missing for one or more symbols.")
-    prices = prices.loc[start:end, tickers]
     dates = prices.index
-    if (dates.empty or not dates.is_monotonic_increasing or dates.has_duplicates
-            or dates[0] > start + pd.Timedelta(days=7)
-            or dates[-1] < end - pd.Timedelta(days=7)):
-        raise ValueError("Price history has invalid dates or incomplete coverage.")
+    if not isinstance(dates, pd.DatetimeIndex) or not dates.is_monotonic_increasing or dates.has_duplicates:
+        raise ValueError("Price history has invalid, unsorted or duplicate dates.")
+    prices = prices.loc[start:end, tickers]
+    holidays = ExchangeHolidays().holidays(start, end).union(SPECIAL_CLOSURES)
+    expected = pd.bdate_range(start, end).difference(holidays)
+    if expected.empty or not prices.index.equals(expected):
+        missing = expected.difference(prices.index).strftime("%Y-%m-%d").tolist()
+        unexpected = prices.index.difference(expected).strftime("%Y-%m-%d").tolist()
+        raise ValueError(f"Price dates do not match the exchange calendar. "
+                         f"Missing: {missing[:5]}; unexpected: {unexpected[:5]}.")
     values = prices.to_numpy()
     if not np.isfinite(values).all() or (values <= 0).any():
         raise ValueError("Price history contains missing or nonpositive closes.")
@@ -95,7 +106,9 @@ def save_prices(path, prices, fetched_at, source):
         with candidate.open("w", encoding="utf-8") as stream:
             stream.write(f"{FETCH_HEADER}{fetched_at}\n{SOURCE_HEADER}{source}\n")
             prices.to_csv(stream, index_label="date")
+        digest = sha256(candidate.read_bytes()).hexdigest()
         candidate.replace(path)
+        return digest
     finally:
         candidate.unlink(missing_ok=True)
 
@@ -103,14 +116,16 @@ def save_prices(path, prices, fetched_at, source):
 def load_prices(tickers, start, end):
     path = price_cache_path(tickers, start, end)
     if path.is_file():
-        with path.open(encoding="utf-8") as stream:
+        contents = path.read_bytes()
+        with StringIO(contents.decode("utf-8")) as stream:
             fetched_at = stream.readline().strip().removeprefix(FETCH_HEADER)
             source = stream.readline().strip().removeprefix(SOURCE_HEADER)
             if datetime.fromisoformat(fetched_at).tzinfo is None or not source.startswith("yfinance"):
                 raise ValueError(f"Missing timestamp or yfinance provenance in {path.name}.")
             prices = pd.read_csv(stream, index_col=0, parse_dates=True,
                                  dtype=dict.fromkeys(tickers, str)).astype(float)
-        return validate_prices(prices, tickers, start, end), fetched_at, source
+        return (validate_prices(prices, tickers, start, end), fetched_at,
+                f"{source} (cached snapshot)", sha256(contents).hexdigest())
 
     import yfinance as yf
 
@@ -128,8 +143,8 @@ def load_prices(tickers, start, end):
     prices = validate_prices(bars["Close"].sort_index(), tickers, start, end)
     fetched_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
     source = "yfinance download"
-    save_prices(path, prices, fetched_at, source)
-    return prices, fetched_at, source
+    digest = save_prices(path, prices, fetched_at, source)
+    return prices, fetched_at, source, digest
 
 
 def risk_budget_weights(history, *, step_exponent, max_iterations, contribution_tolerance):
@@ -185,7 +200,7 @@ def make_targets(asset_returns, schedule, lookback, solver):
     for signal_session, execution_session in schedule:
         window_start = signal_session + 1 - lookback
         date = asset_returns.index[signal_session].date()
-        if window_start < 0:
+        if window_start < 1:
             raise ValueError(f"The {date} signal needs {lookback} returns. Set an earlier data_start.")
         try:
             targets[execution_session] = risk_budget_weights(
@@ -193,56 +208,78 @@ def make_targets(asset_returns, schedule, lookback, solver):
             )
         except (ValueError, RuntimeError) as exc:
             raise RuntimeError(f"Failed to compute the {date} signal: {exc}") from exc
-    if not targets:
-        raise ValueError("The sample has no scheduled rebalances.")
     return targets
 
 
-def simulate(asset_returns, targets, start, friction):
-    dates = asset_returns.index
+def size_orders(positions, cash, previous_close, target, friction, cash_buffer):
+    previous_value = cash + positions @ previous_close
+    reserve = cash_buffer * previous_value
+    desired = (previous_value - reserve) * target / previous_close
+    changes = desired - positions
+    sells = np.minimum(changes, 0)
+    buys = np.maximum(changes, 0)
+    cash_after_sells = cash - (sells @ previous_close) * (1 - friction)
+    buy_budget = max(0.0, cash_after_sells - reserve)
+    estimated_debit = (buys @ previous_close) * (1 + friction)
+    if estimated_debit > buy_budget:
+        buys *= buy_budget / estimated_debit
+    orders = sells + buys
+    orders.setflags(write=False)
+    return orders
+
+
+def settle_orders(orders, cash, close, friction):
+    traded_amounts = orders * close
+    traded_value = np.abs(traded_amounts).sum()
+    remaining_cash = cash - traded_amounts.sum() - friction * traded_value
+    if remaining_cash < 0:
+        raise ArithmeticError(f"Predetermined fills exceeded available cash by {-remaining_cash:.6g}.")
+    return remaining_cash, traded_value
+
+
+def simulate(asset_prices, targets, start, friction, cash_buffer):
+    dates = asset_prices.index
     first_session = dates.searchsorted(start)
-    returns = asset_returns.to_numpy()
-    weights = np.zeros(returns.shape[1])
+    closes = asset_prices.to_numpy()
+    positions = np.zeros(closes.shape[1])
+    cash = previous_value = 1.0
     daily_results = []
     for session in range(first_session, len(dates)):
-        marked = weights * (1 + returns[session])
-        gross_growth = 1 + weights @ returns[session]
-        weights = marked / gross_growth
-        post_cost_fraction = 1.0
         turnover = 0.0
         n_trades = 0
         if session in targets:
-            target = targets[session]
-
-            def rebalance_gap(fraction):
-                return fraction + friction * np.abs(fraction * target - weights).sum() - 1
-
-            post_cost_fraction = brentq(rebalance_gap, 0, 1, xtol=1e-14)
-            changes = np.abs(post_cost_fraction * target - weights)
-            turnover = changes.sum()
-            n_trades = np.count_nonzero(changes > 1e-10)
-            weights = target
-        daily_results.append((gross_growth * post_cost_fraction - 1, turnover, n_trades))
+            orders = size_orders(positions, cash, closes[session - 1], targets[session],
+                                 friction, cash_buffer)
+            close = closes[session]
+            before_fill = cash + positions @ close
+            try:
+                cash, traded_value = settle_orders(orders, cash, close, friction)
+            except ArithmeticError as exc:
+                raise ArithmeticError(f"{dates[session].date()}: {exc}") from exc
+            positions += orders
+            turnover = traded_value / before_fill
+            n_trades = np.count_nonzero(orders)
+        closing_value = cash + positions @ closes[session]
+        daily_results.append((closing_value / previous_value - 1, turnover, n_trades))
+        previous_value = closing_value
     return pd.DataFrame(daily_results, index=dates[first_session:],
                         columns=["return", "turnover", "n_trades"])
 
 
 def metrics(daily_results, risk_free):
     returns = daily_results["return"]
-    if len(returns) < 2:
-        raise ValueError("Each reporting period needs at least two daily returns.")
     excess = returns - risk_free.loc[returns.index]
     curve = np.r_[1.0, (1 + returns).cumprod().to_numpy()]
     ann_scale = np.sqrt(SESSIONS_PER_YEAR)
     volatility = returns.std()
     excess_volatility = excess.std()
     return {
-        "cagr": float(curve[-1] ** (SESSIONS_PER_YEAR / len(returns)) - 1),
-        "ann_vol": float(volatility * ann_scale),
-        "sharpe": float(returns.mean() * ann_scale / volatility) if volatility else None,
-        "sharpe_excess": float(excess.mean() * ann_scale / excess_volatility) if excess_volatility else None,
-        "max_drawdown": float(np.min(curve / np.maximum.accumulate(curve) - 1)),
-        "total_return": float(curve[-1] - 1),
+        "cagr": float(curve[-1] ** (SESSIONS_PER_YEAR / len(returns)) - 1) if len(returns) else None,
+        "ann_vol": float(volatility * ann_scale) if len(returns) > 1 else None,
+        "sharpe": float(returns.mean() * ann_scale / volatility) if volatility > 0 else None,
+        "sharpe_excess": float(excess.mean() * ann_scale / excess_volatility) if excess_volatility > 0 else None,
+        "max_drawdown": float(np.min(curve / np.maximum.accumulate(curve) - 1)) if len(returns) else None,
+        "total_return": float(curve[-1] - 1) if len(returns) else None,
         "turnover": float(daily_results["turnover"].sum()),
         "n_trades": int(daily_results["n_trades"].sum()),
     }
@@ -268,6 +305,9 @@ def main():
     lag = config["execution_lag_sessions"]
     if not data_start < start < is_end < end or type(lag) is not int or lag < 1:
         raise ValueError("Check the date order and use a delay of at least one session.")
+    cash_buffer = config["cash_buffer_bps"] / 10_000
+    if not 0 < cash_buffer < 1:
+        raise ValueError("The sizing cash buffer must be between zero and 10,000 bps.")
     solver = config["solver"]
     if (not 0.5 < solver["step_exponent"] <= 1 or solver["max_iterations"] < 1
             or not 0 < solver["contribution_tolerance"] < 1):
@@ -289,12 +329,16 @@ def main():
                 or not 0 <= spec.friction < 1):
             raise ValueError(f"Invalid lookback or friction: {spec}")
 
-    prices, fetched_at, source = load_prices(price_symbols, data_start, end)
+    prices, fetched_at, source, digest = load_prices(price_symbols, data_start, end)
     print(f"DATA_FETCHED_AT: {fetched_at}")
     print(f"DATA_SOURCE: {source}")
-    print("PRICE_ADJUSTMENT: yfinance auto_adjust=True, total-return daily closes")
-    returns = prices.pct_change(fill_method=None).iloc[1:]
+    print(f"DATA_CACHE_SHA256: {digest}")
+    print(f"PRICE_SESSIONS: {len(prices)}")
+    print("PRICE_ADJUSTMENT: yfinance auto_adjust=True, total-return daily closes and adjusted units")
+    print(f"SIZING_CASH_BUFFER_BPS: {config['cash_buffer_bps']}")
+    returns = prices.pct_change(fill_method=None)
     assets = returns[tickers]
+    asset_prices = prices[tickers]
     risk_free = returns[risk_free_ticker]
     print(f"RISK_FREE: {risk_free_ticker}")
 
@@ -306,20 +350,23 @@ def main():
         combos_tried += 1
         targets = make_targets(is_assets, schedule_rebalances(is_assets.index, start, lag),
                                spec.lookback_sessions, solver)
-        daily_results = simulate(is_assets, targets, start, spec.friction)
+        daily_results = simulate(asset_prices.loc[:is_end], targets, start, spec.friction, cash_buffer)
         print(json.dumps({**asdict(spec), "is": metrics(daily_results, is_risk_free)}, allow_nan=False))
 
     combos_tried += 1
     schedule = schedule_rebalances(assets.index, start, lag)
     targets = make_targets(assets, schedule, base.lookback_sessions, solver)
-    daily_results = simulate(assets, targets, start, base.friction)
+    daily_results = simulate(asset_prices, targets, start, base.friction, cash_buffer)
+    if daily_results.empty:
+        raise ValueError("The backtest period has no exchange sessions.")
     benchmark_name = "Monthly equal weight"
     equal = np.full(len(tickers), 1 / len(tickers))
-    benchmark_daily = simulate(assets, dict.fromkeys(targets, equal), start, base.friction)
-    official = period_metrics(daily_results, risk_free, is_end)
+    benchmark_daily = simulate(asset_prices, dict.fromkeys(targets, equal), start, base.friction,
+                               cash_buffer)
+    summaries = period_metrics(daily_results, risk_free, is_end)
     benchmark = period_metrics(benchmark_daily, risk_free, is_end)
     print(f"PARAM_COMBOS_TRIED: {combos_tried}")
-    for period, summary in official.items():
+    for period, summary in summaries.items():
         print(f"{period.upper()}: {json.dumps(summary, allow_nan=False)}")
         print(f"BENCHMARK {period.upper()} ({benchmark_name}): "
               f"{json.dumps(benchmark[period], allow_nan=False)}")
@@ -330,18 +377,18 @@ def main():
             "start": daily_results.index[0].date().isoformat(),
             "end": daily_results.index[-1].date().isoformat(),
         },
-        **official,
+        **summaries,
         "benchmark": {"name": benchmark_name, **benchmark},
     }, allow_nan=False))
 
 
 def stop_at_deadline(_signal_number, _frame):
-    raise TimeoutError("The backtest exceeded its 14-minute limit.")
+    raise TimeoutError("The backtest exceeded its 590-second limit.")
 
 
 if __name__ == "__main__":
     signal.signal(signal.SIGALRM, stop_at_deadline)
-    signal.alarm(14 * 60)
+    signal.alarm(590)
     try:
         main()
     finally:

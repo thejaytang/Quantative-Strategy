@@ -64,7 +64,7 @@ Generated 2026-11-27 22:13 Europe/Oslo.
 | strategies/474_multiperiod_bond_portfolio_optimization.py | INVALID | 规划成本与实际成交近似不同 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 | strategies/512_nested_clustered_optimization_is_one_end.py | INVALID | defect listed in self-review; not a published fix | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 | strategies/197_tsmom_boundaries.py | INVALID | 开盘成交和股息现金的近似 | kept_from_origin: latest-tree PASS but META is missing or older than the current code; broker_check True is a documented false positive (see note below; file sha256 6cfadb7fd9b55c2e1c6e0cf7973dbd743fff2e2ed799eb9cd9032493c5d2197a) |
-| strategies/553_large_scale_portfolio_optimization_probl.py | INVALID | 候选池有幸存者和事后选样偏差; 成交与资金模型简化 | kept_from_origin: 完整性不合格：lag_ok |
+| strategies/553_large_scale_portfolio_optimization_probl.py | INVALID | 候选池有幸存者和事后选样偏差; 成交与资金模型简化 | kept_from_origin: 完整性不合格：lag_ok; official fix file sha256 345fda983f735ac32615cb3a52ecf97b874efe0fc29b219e558cbef9b059053a (455 lines). META lag_ok is False; that flag comes from the META JSON, not from the run output. The snapshot cannot prove historical first-publication lag or revision vintages for close and adjusted-close fields, and the OOS cut is a retrospective split (known limitations). reads_local is False. META has_broker_or_order_code is True (in-memory backtest sizing and fills only; official strategy.py is broker_check False). packed broker_check True is a documented false positive (see note below; file sha256 b1cd67bcd7010023f192b99ab1b4d1d5f19c2351a0c6b872ec5d47a24b9783d8). Stays INVALID pending Gatekeeper spot-check. |
 | strategies/310_factor_beta_overnight_intraday.py | INVALID | OOS 的独立性不足; 费用与成交模型简化 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 | strategies/353_hold_the_dip.py | INVALID | look-ahead / same-close fill | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 | strategies/445_dynamic_scenario_based_portfolio_optimiz.py | INVALID | ETF 池有幸存者和事后选择偏差; 复权成交与资金处理是模型假设 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
@@ -120,6 +120,16 @@ This note cites the published file sha256 `2dd9bc675f38adb18179c0744bec9309a094b
 The original fetch DATA_SHA256 is `8b366b4298a14d0a5894f5712566bc6966d38204516b35d205c0ea78784d5a86`, from `data_cache/yahoo_daily_0f53466f5fbe686d1788.csv.gz` (identical in ORIG, fix_official, and fix_work). Provenance: the official log `logs/codex_fix_d2_run_20261127_174926.log` records DATA_FETCHED_AT 2026-11-27T08:22:14+00:00. The official embed rerun `logs/official_embed_20261127_230734.log` (official strategy sha256 `2adcc9300672775464740b1ecab11a2b6e45fd370cfbcd91587228e86400e75b`, 431 lines) replayed that snapshot and matched the 17:49 RESULTS. Official strategy.py is broker_check False.
 
 broker_check returns True because the file's `_CONFIG_YAML` gzip/base64 literal contains the coincidental marker substrings `ibKR` (in `...Y7bQfwibKRRzIwaY6...`) and `iBkR` (in `...ssnoyL8iBkR83cZnaD...`). These are fragments of the compressed original snapshot, not a live IBKR API.
+
+META lag_ok is False; that flag comes from the META JSON, not from the run output.
+
+## 553 broker_check false-positive reason
+
+This note cites the published file sha256 `b1cd67bcd7010023f192b99ab1b4d1d5f19c2351a0c6b872ec5d47a24b9783d8` (strategies/553_large_scale_portfolio_optimization_probl.py). META was not hand-edited. The broker-string rule was not relaxed. This commit embeds the original, unpadded snapshot bytes rather than altering them to hide a marker.
+
+The original fetch DATA_SHA256 is `dd178c1d6d601337741400b2131c3d02ce2cd4259e81f5fe7ab03d4c3ee97abf`, from `data_cache/yfinance_f6b4c2df62df4e1c.csv.gz` (identical in ORIG, fix_official, and fix_work). Provenance: the official log `logs/codex_fix_d2_run_20261127_180114.log` records DATA_FETCHED_AT 2026-11-27T08:40:54+00:00 and Input SHA-256 `5a7b37d82aaf83080a6435e1502ca301e15e017414909fbff9932b8d92e14e11`. The official embed rerun `logs/official_embed_20261127_231437.log` (official strategy sha256 `345fda983f735ac32615cb3a52ecf97b874efe0fc29b219e558cbef9b059053a`, 455 lines) replayed that snapshot and matched the 18:01 RESULTS. Official strategy.py is broker_check False.
+
+broker_check returns True because the file's `_CONFIG_YAML` gzip/base64 literal contains the coincidental marker substrings `ibkR` (in `...t+QibkRjljncH8X...`), `IBkR` (in `...9HeIBkRU4Hw37BE...`), and `ibKR` (in `...uEoibKReB7eWZ9c...` and `...sixibKR7HsSb7iV...`). These are fragments of the compressed original snapshot, not a live IBKR API.
 
 META lag_ok is False; that flag comes from the META JSON, not from the run output.
 

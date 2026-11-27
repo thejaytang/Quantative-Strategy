@@ -1,3 +1,23 @@
+"""491_topological_risk_parity
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/491_topological_risk_parity.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit d2f4ee010416fa7342bf8a9f3404c2adc27e3f7d on 2026-11-27 09:18 Europe/Oslo, exit 0, output sha256 f122249022bd09dea69a898e771e2120f906a40c024fe3f1ed2034ae3c18fe36
+Data source: Public Yahoo Finance daily ETF closes via yfinance (`interval="1d"`), with a local CSV cache. SPY is the market label and buy-and-hold benchmark, and BIL adjusted-close returns are the cash proxy. Sector ETFs: XLB, XLC, XLE, XLF, XLI, XLK, XLP, XLRE, XLU, XLV, XLY. Industry ETFs: SMH, IGV, XBI, IHF, KRE, IAI, XRT, ITB, XOP, XME, IYT, IYZ.
+Data fetched: 2026-11-27T08:18:31+00:00
+Sample period: Reported evaluation sessions: 2020-01-02 through 2025-12-31, inclusive. Price history was requested from 2019-01-01, with 2019 used for warm-up.   data_range (from output): {'start': '2020-01-02', 'end': '2025-12-31'}
+IS/OOS split: Retrospective chronological split. IS: 2020-01-02 through 2022-12-30. OOS: 2023-01-03 through 2025-12-31. The default configuration is simulated continuously and the resulting daily returns are split at the inclusive IS end. The seven alternative specifications are evaluated on IS data only.
+Costs and slippage: 2 bps one-way transaction cost plus 3 bps one-way slippage, modelled as a fixed 5 bps charge on the absolute dollar value of each ETF buy and sell. Drifted weights are marked at the execution close, then the simulator deducts the charge while solving for post-cost target weights. The initial SPY benchmark buy uses the same rate. Extra friction on cash movements is unmodelled.
+Signal lag: The strategy calculates each monthly signal with data through the first trading session’s close t and fills at the next trading session’s close (t+1 under the default one-session lag). The old weights earn the return through the fill close. New weights first earn the close-to-close return from the fill close to the following session’s close.
+Price adjustment: yfinance auto_adjust total-return ETF closes (splits and distributions)
+Survivorship bias: The fixed list was selected retrospectively from ETFs with available public histories. README.md:27 explicitly identifies survivorship and selection bias and places the evaluation start after all selected ETFs have common price history. The backtest requires valid adjusted closes for all configured tickers across the loaded rows.
+Parameter combinations tried: 8
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.08951278418141495, ann_vol=0.2486998574020095, sharpe=0.47038092506815904, sharpe_excess=0.44760080326046864, max_drawdown=-0.33608297430294753, total_return=0.29329319277232235, turnover=5.705305537436436, n_trades=587
+    oos: cagr=0.1474535747324024, ann_vol=0.16793536626114278, sharpe=0.9032949003251809, sharpe_excess=0.6245309374437, max_drawdown=-0.2094566056700624, total_return=0.5074995572806313, turnover=6.113904573034962, n_trades=647
+    full: cagr=0.11803109480608964, ann_vol=0.21223319275122482, sharpe=0.6327633121732696, sharpe_excess=0.5094196215523761, max_drawdown=-0.33608297430294753, total_return=0.9496389155383314, turnover=5.909063146700421, n_trades=1234
+    benchmark: cagr=0.1485220983280331, ann_vol=0.20741315957075898, sharpe=0.7717652998676106, sharpe_excess=0.6455120118504614, max_drawdown=-0.33717257210811413, total_return=1.2902428786454272, turnover=0.1670252406953022, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

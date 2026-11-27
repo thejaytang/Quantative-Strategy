@@ -1,3 +1,23 @@
+"""490_noise_proofing_universal_portfolio_shrin
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/490_noise_proofing_universal_portfolio_shrin.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit d2f4ee010416fa7342bf8a9f3404c2adc27e3f7d on 2026-11-27 09:18 Europe/Oslo, exit 0, output sha256 0cf025762b1e3a98d0e4feb6aea32f7da7ea23441eef61fe4c434f99fe96c3c6
+Data source: Yahoo Finance via yfinance, daily USD ETF closes for SPY, QQQ, IWM, EFA, EEM, IEF, TLT, LQD, TIP, GLD, VNQ and XLU. BIL daily returns are used for the excess Sharpe calculation.
+Data fetched: 2026-11-27T08:18:29+00:00
+Sample period: Price history 2005-01-03 through 2026-10-30. Pre-2019 history is used for warm-up. Evaluated sessions run from 2019-01-02 through 2026-10-30.   data_range (from output): 2019-01-02 to 2026-10-30
+IS/OOS split: IS 2019-01-02 through 2021-12-31 inclusive. OOS 2022-01-03 through 2026-10-30 inclusive. The default strategy uses the same settings across the split and continues updating with then-available history. The five robustness variants use IS data only.
+Costs and slippage: Each simulated buy and sell is charged 2 bps in transaction costs plus 3 bps in modelled slippage, for 5 bps of absolute executed notional. The simulator deducts the combined charge at the fill and sizes targets against post-cost portfolio value. The equal-weight benchmark uses the same default charge. The IS friction variant triples both components to 6 bps and 9 bps, respectively.
+Signal lag: Weights formed with the month-end close at t fill at the next trading session's close. Pre-fill holdings earn that session's close-to-close price return, and new weights take effect after the fill. The equal-weight benchmark uses the same fill schedule.
+Price adjustment: yfinance auto_adjust total-return close in USD
+Survivorship bias: The fixed ETF universe was selected retrospectively from funds that still existed, introducing survivorship and universe selection bias.
+Parameter combinations tried: 6
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.18824966044676317, ann_vol=0.14142827384478363, sharpe=1.2911526128984006, sharpe_excess=1.2369833625395963, max_drawdown=-0.23072018649367454, total_return=0.6788826822407139, turnover=0.8529532112693573, n_trades=432
+    oos: cagr=0.09419493977730342, ann_vol=0.15183253497366342, sharpe=0.6687682990805395, sharpe_excess=0.4177528930518478, max_drawdown=-0.2574884941653609, total_return=0.5417959485346975, turnover=0.6408243185979156, n_trades=680
+    full: cagr=0.12944044360866402, ann_vol=0.14790363857324654, sharpe=0.8972520895312583, sharpe_excess=0.7185718057108305, max_drawdown=-0.25896707745926073, total_return=1.5884945175437997, turnover=0.7223792052166468, n_trades=1112
+    benchmark  full: cagr=0.09326735427968669, ann_vol=0.11711565856090539, sharpe=0.8202380572224098, sharpe_excess=0.5946032661971503, max_drawdown=-0.23234432945883432, total_return=1.0071889734291326, turnover=0.43618693282757565, n_trades=1128
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

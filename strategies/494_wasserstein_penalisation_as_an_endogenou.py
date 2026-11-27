@@ -1,3 +1,23 @@
+"""494_wasserstein_penalisation_as_an_endogenou
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/494_wasserstein_penalisation_as_an_endogenou.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit d2f4ee010416fa7342bf8a9f3404c2adc27e3f7d on 2026-11-27 09:18 Europe/Oslo, exit 0, output sha256 bd006c59bb4d89c767d9479487da142c8051e40473881e7b81ba250fdb7e8eb6
+Data source: Yahoo Finance（yfinance）日频调整收盘价。配置的组合为九只美国 Select Sector SPDR ETF：XLB、XLE、XLF、XLI、XLK、XLP、XLU、XLV、XLY。BIL 的日收益仅用于计算超额夏普比率。（config.yaml:2-3；README.md:15；strategy.py:69-80、175-186、225-228）
+Data fetched: 2026-11-27T08:18:37.121411+00:00
+Sample period: 配置自 2008-07-01 起下载行情用于预热，评价区间设为 2010-01-01 至 2025-12-31。日志记录的实际评价区间为 2010-01-04 至 2025-12-31。（config.yaml:4-8；README.md:17；strategy.py:225-229、256-261；logs/run_20261127_084116.log:19）   data_range (from output): {'start': '2010-01-04', 'end': '2025-12-31'}
+IS/OOS split: 样本内从评价期首个交易日至 2017-12-31（含），样本外为 2018-01-01 至 2025-12-31，均按实际交易日计。正式模型以固定参数滚动估计，并在分界处延续同一次模拟的持仓。六组单参数变体仅在样本内运行。（config.yaml:4-12、17-23；README.md:17、23；strategy.py:229-243、246-248、263-266）
+Costs and slippage: 交易成本 5 bp，固定滑点费用 5 bp。每次调仓按执行日收盘时的买入与卖出金额分别扣除合计 10 bp，首次建仓同样计费。模拟以收盘价成交，滑点通过扣减组合净值计入。（config.yaml:13-16；strategy.py:150-172、213-219；README.md:19）
+Signal lag: 使用截至月末最后一个交易日收盘 t 的数据计算目标权重，于下一交易日收盘 t+1 执行。旧持仓计入截至 t+1 收盘的收益，新持仓从 t+1 收盘至再下一交易日收盘的区间开始贡献收益。（config.yaml:13-14；strategy.py:129-147、150-172；README.md:19）
+Price adjustment: yfinance auto_adjust total-return adjusted close
+Survivorship bias: 固定使用九只早期行业 ETF，存在事后选择和存续偏差风险。行业分类、成分调整及后来增设的行业 ETF 会影响代表性。（config.yaml:2；strategy.py:198-206、225-228；README.md:15、27）
+Parameter combinations tried: 7
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.12566735348053282, ann_vol=0.13045785079606306, sharpe=0.9729468784197771, sharpe_excess=0.9681872677405006, max_drawdown=-0.16126163576153585, total_return=1.5743556354858965, turnover=1.3116130203998737, n_trades=817
+    oos: cagr=0.10183296367771555, ann_vol=0.1716739306243289, sharpe=0.6511371829737314, sharpe_excess=0.5095345032396296, max_drawdown=-0.3302553340803467, total_return=1.1681556590601505, turnover=1.4689327242925239, n_trades=821
+    full: cagr=0.11369232235830018, ann_vol=0.15243670395615222, sharpe=0.7830114386936448, sharpe_excess=0.7013912723831803, max_drawdown=-0.33025533408034713, total_return=4.581603739512112, turnover=1.3902337769923487, n_trades=1638
+    benchmark: cagr=0.12455456780964957, ann_vol=0.16569857321703862, sharpe=0.7917386012723643, sharpe_excess=0.7166443424684629, max_drawdown=-0.36716111915496197, total_return=5.517336032309704, turnover=0.34399504283592286, n_trades=1728
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

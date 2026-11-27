@@ -4,7 +4,7 @@
 
 每个策略一个文件：`strategies/<编号>_<名称>.py`，一条命令运行：`python strategies/<文件>.py`（依赖见 requirements.txt）。文件头写明数据源与抓取时间、样本期、IS/OOS 划分、成本与滑点、信号滞后、复权口径、幸存者偏差说明、尝试的参数组合数，以及在记录的 commit 上实际运行得到的关键数字（backtest reproduced）。收录条件：真实运行、确有交易、无同收盘成交前视、Codex 自审 PASS（进入本仓库前的审查为作者自审，不是独立第三方审查）、单文件复跑与审查时结果一致。
 
-本表由文件实际内容生成（2026-11-27 09:02 Europe/Oslo），共 96 个。
+本表由文件实际内容生成（2026-11-27 09:18 Europe/Oslo），共 103 个。
 
 | 文件 | 作者 | 代码 commit | 全样本 Sharpe | 全样本 CAGR |
 |---|---|---|---|---|
@@ -100,7 +100,14 @@
 | strategies/472_breaking_the_trend_how_to_avoid_cherry_p.py | Codex | e0683ac343 | 0.9079084863390342 | 0.05142397295818801 |
 | strategies/474_multiperiod_bond_portfolio_optimization.py | Codex | cc50485fb6 | 0.5871387515970263 | 0.01906043687828962 |
 | strategies/476_conditional_value_at_risk_under_reward_p.py | Codex | e0683ac343 | 0.4794210465838699 | 0.028021860173570445 |
+| strategies/478_portfolio_allocation_under_heterogeneous.py | Codex | d2f4ee0104 | 0.9425232434572632 | 0.10572625506829669 |
 | strategies/479_noise_proofing_universal_portfolio_shrin.py | Codex | cc50485fb6 | 0.707248188896376 | 0.07619600855498909 |
 | strategies/480_topological_risk_parity.py | Codex | cc50485fb6 | 0.8093111274760761 | 0.14951340952440417 |
+| strategies/481_optimal_portfolio_construction_a_reinfor.py | Codex | d2f4ee0104 | 0.6907391137683717 | 0.11802764213058414 |
 | strategies/482_dynamic_inclusion_and_bounded_multi_fact.py | Codex | cc50485fb6 | 0.7334986649896756 | 0.10711880725022493 |
 | strategies/483_wasserstein_penalisation_as_an_endogenou.py | Codex | cc50485fb6 | 0.7980796208659574 | 0.11596139012990725 |
+| strategies/484_nonlinear_shrinkage_for_higher_moments_e.py | Codex | d2f4ee0104 | 0.8108790169499206 | 0.10250898401046205 |
+| strategies/490_noise_proofing_universal_portfolio_shrin.py | Codex | d2f4ee0104 | 0.8972520895312583 | 0.12944044360866402 |
+| strategies/491_topological_risk_parity.py | Codex | d2f4ee0104 | 0.6327633121732696 | 0.11803109480608964 |
+| strategies/492_optimal_portfolio_construction_a_reinfor.py | Codex | d2f4ee0104 | 0.8989622255131555 | 0.13221921836627493 |
+| strategies/494_wasserstein_penalisation_as_an_endogenou.py | Codex | d2f4ee0104 | 0.7830114386936448 | 0.11369232235830018 |

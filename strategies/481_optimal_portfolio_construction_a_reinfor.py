@@ -1,3 +1,23 @@
+"""481_optimal_portfolio_construction_a_reinfor
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/481_optimal_portfolio_construction_a_reinfor.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit d2f4ee010416fa7342bf8a9f3404c2adc27e3f7d on 2026-11-27 09:18 Europe/Oslo, exit 0, output sha256 6972caad5beb669e6ef9953d09e3a7c570f5c648d320a1904401277c356edd61
+Data source: 通过 yfinance 获取 Yahoo Finance 免费日线。组合使用 11 只美国 SPDR 行业 ETF（XLB、XLY、XLF、XLRE、XLC、XLE、XLI、XLK、XLP、XLV、XLU）。BIL 的日收益仅用于样本内参数选择及超额夏普计算。见 config.yaml:3-7、strategy.py:20-41、strategy.py:183-189、strategy.py:203-206、strategy.py:218-219、strategy.py:148-156、README.md:5、README.md:15。
+Data fetched: 2026-11-27T08:18:12.417975+00:00
+Sample period: 配置的数据请求区间为 2018-06-19 至 2025-08-13（含结束日），2019-08-01 前的数据用于预热。日志记录的实际回测区间为 2019-08-01 至 2025-08-13。见 config.yaml:9-13、strategy.py:34-38、strategy.py:94-111、strategy.py:203-209、strategy.py:231-244、logs/run_20261127_081125.log:12。   data_range (from output): 2019-08-01 to 2025-08-13
+IS/OOS split: 按交易日顺序划分。样本内为 2019-08-01 至 2021-12-31，样本外为 2022-01-01 至 2025-08-13（区间内实际交易日）。仅按样本内扣费后的 BIL 超额夏普选择回看窗口，并列时选短窗口。本次选中 252 个交易日。样本外沿用该窗口滚动估计协方差，并承接样本内期末仓位。见 config.yaml:9-15、strategy.py:94-111、strategy.py:116-137、strategy.py:164-170、strategy.py:207-230、README.md:16-17、logs/run_20261127_081125.log:4。
+Costs and slippage: 每笔买卖按实际成交名义金额计入 5 bps 费用和 2 bps 滑点，共 7 bps，首次建仓也扣除。滑点建模为固定比例扣款。回测在成交收盘从组合价值扣除这笔成本，再按扣费后净值配置目标权重。等权基准使用相同费率。见 config.yaml:17-18、strategy.py:116-137、strategy.py:192-201、strategy.py:225-228、README.md:22。
+Signal lag: 以月末最后一条日线的收盘 t 为信号时点，使用截至 t 收盘的日收益。配置为在下一条日线（下一交易日）收盘成交。旧权重承担 t 至成交收盘的收益，新权重从成交收盘之后生效。见 config.yaml:16、strategy.py:94-112、strategy.py:116-137、README.md:21。
+Price adjustment: yfinance auto_adjust total-return close (splits and distributions)
+Survivorship bias: 行业 ETF 名单固定为当前留存的产品，未纳入退市或关闭基金，也未按历史时点重建行业分类，存在存续偏差。见 config.yaml:3-6、strategy.py:183-189、README.md:27。
+Parameter combinations tried: 3
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.1977457824946769, ann_vol=0.23140466015374145, sharpe=0.8965517923892831, sharpe_excess=0.8786491222654823, max_drawdown=-0.34702573854434904, total_return=0.5488279593021037, turnover=2.0268241752917415, n_trades=319
+    oos: cagr=0.06728406703342515, ann_vol=0.1498080975295015, sharpe=0.509567825513133, sharpe_excess=0.25270804116908646, max_drawdown=-0.1792413979211791, total_return=0.26378567164672706, turnover=1.2822491904440128, n_trades=484
+    full: cagr=0.11802764213058414, ann_vol=0.18697650210758346, sharpe=0.6907391137683717, sharpe_excess=0.5587829182778951, max_drawdown=-0.34702573854434904, total_return=0.9573865828118413, turnover=3.3090733657357547, n_trades=803
+    benchmark: cagr=0.12761358799829914, ann_vol=0.1977643902127808, sharpe=0.7068310637904088, sharpe_excess=0.582070882112418, max_drawdown=-0.36176255218303355, total_return=1.060614398218536, turnover=2.9880752659488206, n_trades=803
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

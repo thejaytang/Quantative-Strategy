@@ -1,3 +1,23 @@
+"""492_optimal_portfolio_construction_a_reinfor
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/492_optimal_portfolio_construction_a_reinfor.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit d2f4ee010416fa7342bf8a9f3404c2adc27e3f7d on 2026-11-27 09:18 Europe/Oslo, exit 0, output sha256 af68d679cd0b9a557c3dc67b7bcb226692a01323df3c2d0bf8f1847c0d7bf29b
+Data source: Public Yahoo Finance daily USD adjusted closing prices via yfinance for sector ETFs XLB, XLE, XLF, XLI, XLRE, XLY, XLP, XLU, XLV, XLK and XLC, plus BIL for excess-return metrics.
+Data fetched: 2026-11-27T08:18:33+00:00
+Sample period: 2012-01-03 through 2025-08-13 inclusive, as recorded in the run. The configured sample start is 2012-01-01 and the warm-up price request starts on 2010-01-01.   data_range (from output): {'start': '2012-01-03', 'end': '2025-08-13'}
+IS/OOS split: One chronological split. In-sample runs from 2012-01-03 through 2019-12-31 and out-of-sample runs from 2020-01-02 through 2025-08-13. The main simulation uses fixed parameters and rolling monthly covariance estimates, and carries positions across the split. The three alternative settings are evaluated in-sample only.
+Costs and slippage: The main strategy and benchmark model 5 bps commission plus 2 bps fixed slippage per side, for 7 bps on actual dollars bought or sold. At each rebalance, including initial entry, the simulation first marks existing holdings to close, then deducts friction on absolute position changes and allocates the remaining value to the targets. The higher-cost in-sample case uses 23 bps commission plus 2 bps slippage, for 25 bps per side.
+Signal lag: Targets use returns through the last trading session's close in each month. With the configured one-session lag, the strategy and benchmark fill at the next trading session's close. The old weights earn the fill day's close-to-close return and the new weights first earn price returns on the following session.
+Price adjustment: yfinance auto_adjust total-return
+Survivorship bias: The strategy uses a fixed, retrospectively selected basket of surviving sector ETFs and fixed groups, so survivorship and selection bias remain. Pre-inception prices are left missing. XLRE and XLC enter only after they have 150 consecutive daily returns at a signal date, as required for all eligible ETFs.
+Parameter combinations tried: 4
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.14058492907090936, ann_vol=0.11531259056111783, sharpe=1.1987422049280898, sharpe_excess=1.1524788099268626, max_drawdown=-0.15864095417318103, total_return=1.8583423416494789, turnover=0.5940658195750473, n_trades=918
+    oos: cagr=0.12039624189294762, ann_vol=0.1904701642098814, sharpe=0.6926012903913774, sharpe_excess=0.5599657479472204, max_drawdown=-0.33017816668968536, total_return=0.8899139003586529, turnover=0.5091975435658241, n_trades=748
+    full: cagr=0.13221921836627493, ann_vol=0.15087278783720967, sharpe=0.8989622255131555, sharpe_excess=0.8092027779355608, max_drawdown=-0.3301781666896856, total_return=4.402020923467045, turnover=0.5590821393387009, n_trades=1666
+    benchmark  full: cagr=0.12726668180650602, ann_vol=0.15929936339863326, sharpe=0.8321671242701799, sharpe_excess=0.7471666970436723, max_drawdown=-0.361762588788232, total_return=4.089740181409756, turnover=0.37942828001471757, n_trades=1666
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

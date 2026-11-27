@@ -1,3 +1,23 @@
+"""484_nonlinear_shrinkage_for_higher_moments_e
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/484_nonlinear_shrinkage_for_higher_moments_e.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit d2f4ee010416fa7342bf8a9f3404c2adc27e3f7d on 2026-11-27 09:18 Europe/Oslo, exit 0, output sha256 60eb54e3ea5492dfecc1f3d523c8d9eded2887e03f74da857f3f1218cb1b9fb0
+Data source: Yahoo Finance 的公开日线，经 yfinance 获取固定股票池的 50 只美国大盘股及无风险收益代理 BIL。股票日收益用于生成信号，BIL 日收益仅用于事后计算超额收益指标（config.yaml:2-53, strategy.py:53-70, strategy.py:224-239, strategy.py:259-269）。
+Data fetched: 2026-11-27T08:18:25+00:00
+Sample period: 价格请求区间为 2008-12-01 至 2025-12-31（含截止日），含滚动窗口所需的前置历史。运行记录中的实际回测区间为 2010-01-04 至 2025-12-31（config.yaml:54-58, strategy.py:59-62, strategy.py:269-276, README.md:17, logs/run_20261127_081326.log:10）。   data_range (from output): 2010-01-04 to 2025-12-31
+IS/OOS split: 以 2018-01-01 为日历切分点。IS 为 2010-01-04 起且早于切分点的回测交易日，OOS 为切分点起至 2025-12-31 的回测交易日。两个区间沿用同一配置和滚动估计规则，连续模拟后按日期分段，切分时延续原有仓位（config.yaml:55-59, strategy.py:175-196, strategy.py:247-253, strategy.py:269-278, logs/run_20261127_081326.log:10）。
+Costs and slippage: 交易费用 5 bps，固定滑点 5 bps，合计 10 bps。每次模拟调仓按实际买入和卖出名义金额之和扣减组合净值，按扣费后净值求解目标持仓金额。首次建仓与等权基准也应用同一规则（config.yaml:61-62, strategy.py:199-220, strategy.py:274-276, README.md:19）。
+Signal lag: 在月末最后一个交易日 t 收盘后，使用截至 t 的 252 个交易日日收益计算目标权重。默认在下一交易日 t+1 收盘模拟成交，t 至 t+1 的收益按原权重计算，新权重首次获得 t+1 至 t+2 的收益（config.yaml:58-60, strategy.py:175-195, strategy.py:199-220, README.md:18）。
+Price adjustment: yfinance auto_adjust total-return adjusted daily close
+Survivorship bias: 50 只美国大盘股的固定股票池为研究时事后选定，缺少历史逐日成分、退市证券和并购退出证券，存在幸存者偏差和股票池选择偏差。等权基准使用同一股票池，也受上述偏差影响。任一已有数据行出现个股缺失或无效收盘价时程序报错（config.yaml:2-52, strategy.py:77-90, strategy.py:175-196, strategy.py:259-269, README.md:12, README.md:24）。
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.10925985737944677, ann_vol=0.1054737969705935, sharpe=1.0360890907790081, sharpe_excess=1.0304130866734713, max_drawdown=-0.11659661675747957, total_return=1.289445255380727, turnover=3.721451466288071, n_trades=1333
+    oos: cagr=0.09579254323839481, ann_vol=0.15225831984769353, sharpe=0.6769863189968477, sharpe_excess=0.5175199843691293, max_drawdown=-0.2497789731199539, total_return=1.0750973008012323, turnover=4.067754715177445, n_trades=1625
+    full: cagr=0.10250898401046205, ann_vol=0.130944400262994, sharpe=0.8108790169499206, sharpe_excess=0.7161216660206035, max_drawdown=-0.24977897311995367, total_return=3.750821669772721, turnover=3.894517031277269, n_trades=2958
+    benchmark: cagr=0.15377694920716278, ann_vol=0.16591802014287343, sharpe=0.9455179522640311, sharpe_excess=0.8705045031286147, max_drawdown=-0.3321161574784689, total_return=8.816973251413843, turnover=0.5884623445346606, n_trades=9600
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

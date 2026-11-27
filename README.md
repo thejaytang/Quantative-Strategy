@@ -4,7 +4,7 @@
 
 每个策略一个文件：`strategies/<编号>_<名称>.py`，一条命令运行：`python strategies/<文件>.py`（依赖见 requirements.txt）。文件头写明数据源与抓取时间、样本期、IS/OOS 划分、成本与滑点、信号滞后、复权口径、幸存者偏差说明、尝试的参数组合数，以及在记录的 commit 上实际运行得到的关键数字（backtest reproduced）。收录条件：真实运行、确有交易、无同收盘成交前视、Codex 自审 PASS（进入本仓库前的审查为作者自审，不是独立第三方审查）、单文件复跑与审查时结果一致。
 
-本表由文件实际内容生成（2026-11-27 19:24 Europe/Oslo），见下表（accepted + origin accepted kept）。
+本表由文件实际内容生成（2026-11-27 20:29 Europe/Oslo），见下表（accepted + origin accepted kept）。
 
 | 文件 | 作者 | 代码 commit | 全样本 Sharpe | 全样本 CAGR |
 |---|---|---|---|---|
@@ -63,6 +63,7 @@
 | strategies/337_adaptive_eventdriven_labeling_multiscale.py | Codex | c5088ecf80 | 0.24586500117894552 | 0.022129935252036992 |
 | strategies/338_optimal_portfolio_using_factor.py | Codex | 10f8238200 | 0.6617808751579951 | 0.09403463821519598 |
 | strategies/339_dancing_dynamic_rebalancing_mechanism.py | Codex | 3140bbcffa | 0.8542589301354799 | 0.09623018976702165 |
+| strategies/341_monitoring_attention_inflation_news.py | Codex | 0ad743fb19 | 0.24769001759345974 | 0.014321528863530775 |
 | strategies/350_continuous_timing_growth_defensive.py | Codex | 9102661980 | 0.9164034821773692 | 0.1728115110163706 |
 | strategies/382_statistical_arbitrage_in_polish_equities.py | Codex | ea97bbcbc9 | 0.500628613686733 | 0.023135888068235744 |
 | strategies/391_evolutionary_factor_searching_for_sparse.py | Codex | da9754ee51 | 0.9903968721257259 | 0.25587424645442103 |
@@ -72,10 +73,11 @@
 | strategies/492_optimal_portfolio_construction_a_reinfor.py | Codex | da9754ee51 | 0.89927754240382 | 0.1296232752782156 |
 | strategies/504_exploratory_mean_variance_with_jumps_an.py | Codex | da9754ee51 | 0.7431772376620975 | 0.05658096575636318 |
 | strategies/511_dynamic_portfolio_optimization_under_cva.py | Codex | 4ea0dd4e23 | 0.678115570051477 | 0.05417596316252293 |
-
-Note on 511: the self-defined backtest helper previously named `execute_order()` was renamed to `apply_fill` in this fix-only commit (official re-run + Codex self-review). `broker_check` is now False. It was never a live or broker API.
 | strategies/549_drawdown_risk_beyond_brownian_motion_a_m.py | Codex | f0c72714f0 | 0.6380887390535539 | 0.07247489420330977 |
 | strategies/560_drawdown_risk_beyond_brownian_motion_a_m.py | Codex | dabba95798 | 0.6719090607841077 | 0.08084054202667357 |
+
+
+Note on 511: the self-defined backtest helper previously named `execute_order()` was renamed to `apply_fill` (official re-run + Codex self-review). `broker_check` is now False. It was never a live or broker API. The approximately 1e-7 change in reported full-sample Sharpe (0.6781159099371227 → 0.678115570051477) comes from a different Yahoo Finance data snapshot (fetched 2026-11-27T11:05:24+00:00 vs 2026-11-27T08:00:04+00:00), not from the rename.
 
 ## 已收录后的深审发现
 
@@ -115,7 +117,6 @@ Note on 511: the self-defined backtest helper previously named `execute_order()`
 | strategies/465_semivariance_and_semivolatility_in_portf.py | INVALID | 成交和现金取决于简化假设 |
 | strategies/113_kalman_garch_pairs.py | INVALID | 固定存续配对限制结果的外推; 成交与资金约束为简化模型 |
 | strategies/315_leveraged_funds_robust_replication.py | INVALID | 事后选池限制结论的适用范围 |
-| strategies/341_monitoring_attention_inflation_news.py | INVALID | defect listed in self-review; not a published fix |
 | strategies/545_portfolio_diversification_and_concentrat.py | INVALID | defect listed in self-review; not a published fix |
 | strategies/552_a_novel_robust_mixed_integer_linear_prog.py | INVALID | 固定股票池存在幸存者偏差; 成交与异常行情采用简化规则 |
 | strategies/461_breaking_the_trend_how_to_avoid_cherry_p.py | INVALID | 固定基金名单带来幸存者偏差 |

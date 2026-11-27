@@ -2,7 +2,7 @@
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
 Run (one command): python strategies/341_monitoring_attention_inflation_news.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code on 2026-11-27 20:25 Europe/Oslo, exit 0, output sha256 58ce00d8783314ba5fd3a57013646dab08671641d3fb11060be043ac9a3d9c7c
+Backtest reproduced: run of this file's code at commit 0ad743fb193f63a14ae269431b67622483530770 on 2026-11-27 20:25 Europe/Oslo, exit 0, output sha256 58ce00d8783314ba5fd3a57013646dab08671641d3fb11060be043ac9a3d9c7c
 Data source: Daily Yahoo Finance series for TIP and IEF (split-adjusted Close plus cash distributions) and BIL (adjusted close as the cash-proxy return), gzip-embedded in config.yaml. Public St. Louis Fed ALFRED vintage CSVs for monthly EMVMACROINFLATION and daily T10YIE, also gzip-embedded in config.yaml (14 snapshots, manifest sha256 0069208ce8c361ad76317afef713511f65977b5fa81ec6a6d8146e19c77a7fd4). The run reads only those embedded snapshots; it does not request a network host.
 Data fetched: Yahoo Finance 2026-11-27T18:48:19+01:00 | ALFRED archives 2026-11-25 (Europe/Oslo)
 Sample period: 2019-11-01 to 2025-12-31, inclusive, for the evaluated ETF sessions. The embedded ETF snapshot begins earlier to provide the signal lookback. data_range (from output): 2019-11-01 to 2025-12-31

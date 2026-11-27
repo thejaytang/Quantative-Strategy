@@ -38,7 +38,6 @@ Generated 2026-11-27 19:24 Europe/Oslo.
 | strategies/465_semivariance_and_semivolatility_in_portf.py | INVALID | 成交和现金取决于简化假设 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 | strategies/113_kalman_garch_pairs.py | INVALID | 固定存续配对限制结果的外推; 成交与资金约束为简化模型 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 | strategies/315_leveraged_funds_robust_replication.py | INVALID | 事后选池限制结论的适用范围 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
-| strategies/341_monitoring_attention_inflation_news.py | INVALID | defect listed in self-review; not a published fix | kept_from_origin: skipped for this run (STAGE_SKIP) |
 | strategies/545_portfolio_diversification_and_concentrat.py | INVALID | defect listed in self-review; not a published fix | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 | strategies/552_a_novel_robust_mixed_integer_linear_prog.py | INVALID | 固定股票池存在幸存者偏差; 成交与异常行情采用简化规则 | kept_from_origin: 完整性不合格：lag_ok |
 | strategies/461_breaking_the_trend_how_to_avoid_cherry_p.py | INVALID | 固定基金名单带来幸存者偏差 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |

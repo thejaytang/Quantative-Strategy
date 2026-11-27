@@ -1,3 +1,23 @@
+"""544_special_markowitz_thermodynamic_formalis
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/544_special_markowitz_thermodynamic_formalis.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 69a306c0280e31031e1c1674f053aa22730544ac on 2026-11-27 09:47 Europe/Oslo, exit 0, output sha256 9683e427768ebbad0b5e92bced08fe0127eb9038a109abd54ec88edcd2ded8ec
+Data source: yfinance daily USD closes for nine US sector ETFs (XLB, XLE, XLF, XLI, XLK, XLP, XLU, XLV, XLY) and BIL. BIL daily returns serve as the risk-free proxy for excess Sharpe.
+Data fetched: 2026-11-27T08:47:55+00:00
+Sample period: Requested price history starts on 2007-08-01 for warm-up. The configured backtest spans 2009-01-01 through 2025-12-31. The recorded simulation rows span 2009-01-02 through 2025-12-31.   data_range (from output): {'start': '2009-01-02', 'end': '2025-12-31'}
+IS/OOS split: Chronological split. IS runs through 2017-12-31 inclusive. OOS covers 2018-01-01 through 2025-12-31 on the available sessions. The official portfolio runs continuously across the split with carried weights and rolling estimation. The five robustness variants run on IS only.
+Costs and slippage: Trading cost is 2 bps and modeled slippage is 3 bps. Both apply to gross simulated buy plus sell notional at each rebalance, including the initial allocation, for a combined 5 bps. The simulator solves for the post-cost portfolio value and sizes target positions against that value. The equal-weight benchmark uses the same rates.
+Signal lag: The month-end signal includes the return through session t's close. Its target is filled in the simulation at the next trading session's close. Old weights earn the return into that execution close. New weights first earn the following close-to-close return.
+Price adjustment: yfinance auto_adjust total-return closes
+Survivorship bias: The fixed nine-ETF universe was selected from early funds still in existence, which introduces fund-level survivorship bias. The README records that later-launched sector funds were excluded and that sector classifications and index constituent changes can affect historical ETF exposures.
+Parameter combinations tried: 6
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.12613559202638078, ann_vol=0.16627263401814893, sharpe=0.7978847482762031, sharpe_excess=0.7924081413448059, max_drawdown=-0.25945617165012724, total_return=1.9087204753204117, turnover=4.0752502302945395, n_trades=712
+    oos: cagr=0.12968692054931696, ann_vol=0.19010264384307593, sharpe=0.736975560581605, sharpe_excess=0.6090860080577553, max_drawdown=-0.3198499418930348, total_return=1.6461474982067554, turnover=4.015968714565851, n_trades=621
+    full: cagr=0.12780438677057213, ann_vol=0.1778569839324326, sharpe=0.7655751549111515, sharpe_excess=0.6986519983867893, max_drawdown=-0.31984994189303473, total_return=6.696903408751858, turnover=4.047370172265917, n_trades=1333
+    benchmark  full: cagr=0.13253731155342308, ann_vol=0.1736191946663135, sharpe=0.8040987828590835, sharpe_excess=0.7354593360402744, max_drawdown=-0.36715463782547575, total_return=7.263744222535059, turnover=0.34735110525670937, n_trades=1836
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

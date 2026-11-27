@@ -4,7 +4,7 @@
 
 每个策略一个文件：`strategies/<编号>_<名称>.py`，一条命令运行：`python strategies/<文件>.py`（依赖见 requirements.txt）。文件头写明数据源与抓取时间、样本期、IS/OOS 划分、成本与滑点、信号滞后、复权口径、幸存者偏差说明、尝试的参数组合数，以及在记录的 commit 上实际运行得到的关键数字（backtest reproduced）。收录条件：真实运行、确有交易、无同收盘成交前视、Codex 自审 PASS（进入本仓库前的审查为作者自审，不是独立第三方审查）、单文件复跑与审查时结果一致。
 
-本表由文件实际内容生成（2026-11-27 09:42 Europe/Oslo），共 106 个。
+本表由文件实际内容生成（2026-11-27 09:48 Europe/Oslo），共 113 个。
 
 | 文件 | 作者 | 代码 commit | 全样本 Sharpe | 全样本 CAGR |
 |---|---|---|---|---|
@@ -73,7 +73,6 @@
 | strategies/431_mitigating_return_drag_and_regime_whipsa.py | Codex | c3e441c5e4 | 0.728074135788041 | 0.12853122062775846 |
 | strategies/432_revisiting_equity_bond_diversification_u.py | Codex | 4d91396b47 | 0.40210518871874146 | 0.029671517239883816 |
 | strategies/434_dynamic_scenario_based_portfolio_optimiz.py | Codex | 9102661980 | 1.3383455296814277 | 0.11066568439098967 |
-| strategies/438_the_mathematics_of_heuristic_portfolio_o.py | Codex | 6df04a4d89 | 0.5563279807720216 | 0.03492991426966907 |
 | strategies/442_mitigating_return_drag_and_regime_whipsa.py | Codex | 6df04a4d89 | 0.6937116087752424 | 0.11017180962771933 |
 | strategies/443_revisiting_equity_bond_diversification_u.py | Codex | 6df04a4d89 | 0.4011140749144018 | 0.029589114790648408 |
 | strategies/445_dynamic_scenario_based_portfolio_optimiz.py | Codex | 6df04a4d89 | 1.3355881700688872 | 0.11041458689309525 |
@@ -114,6 +113,14 @@
 | strategies/497_interpretable_allocation_and_model_predi.py | Codex | fb92b5054b | 0.7253889960565298 | 0.10901374322318902 |
 | strategies/500_dynamic_portfolio_optimization_under_cva.py | Codex | fb92b5054b | 0.6303740440989759 | 0.05259934464748861 |
 | strategies/532_robust_enhanced_index_tracking_portfolio.py | Codex | fb92b5054b | 1.2747285536143536 | 0.24265350953695464 |
+| strategies/533_special_markowitz_thermodynamic_formalis.py | Codex | 69a306c028 | 0.7957125987456758 | 0.13224764257513222 |
+| strategies/534_portfolio_diversification_and_concentrat.py | Codex | 69a306c028 | 0.9303126607942586 | 0.08857673016005974 |
+| strategies/535_shrinkage_estimators_for_mean_and_covari.py | Codex | 69a306c028 | 0.7527550631832428 | 0.09883262293956352 |
+| strategies/541_entropy_regularization_under_no_shorting.py | Codex | 69a306c028 | 0.8748093514371832 | 0.11185319061228483 |
+| strategies/543_robust_enhanced_index_tracking_portfolio.py | Codex | 69a306c028 | 1.2722546674515127 | 0.24111211900700025 |
+| strategies/544_special_markowitz_thermodynamic_formalis.py | Codex | 69a306c028 | 0.7655751549111515 | 0.12780438677057213 |
+| strategies/547_generalizing_markowitz_portfolio_optimiz.py | Codex | 69a306c028 | 0.8098453527505234 | 0.14855204484709716 |
+| strategies/552_a_novel_robust_mixed_integer_linear_prog.py | Codex | 69a306c028 | 0.8731421056414895 | 0.16873135286990282 |
 
 ## 已收录后的深审发现
 
@@ -121,4 +128,5 @@
 
 | 文件 | 最新自审 | 问题类别 |
 |---|---|---|
+| strategies/438_the_mathematics_of_heuristic_portfolio_o.py | 待修 | 成交规模依赖成交日最终收盘价 |
 | strategies/463_simple_dynamic_stock_bond_gold_portfolio.py | 待修 | 成交金额依赖成交当日最终收盘 |

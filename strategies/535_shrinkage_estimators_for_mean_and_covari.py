@@ -1,3 +1,23 @@
+"""535_shrinkage_estimators_for_mean_and_covari
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/535_shrinkage_estimators_for_mean_and_covari.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 69a306c0280e31031e1c1674f053aa22730544ac on 2026-11-27 09:47 Europe/Oslo, exit 0, output sha256 1f483635520a4915e9ee27679a380fa81e56a1c04f3390c1120acb8ea0cab9a0
+Data source: Yahoo Finance via yfinance, daily USD ETF prices. The fixed sector universe is XLB, XLE, XLF, XLI, XLK, XLP, XLU, XLV and XLY. BIL supplies the daily cash proxy for excess-return metrics.
+Data fetched: 2026-11-27T08:47:40+00:00
+Sample period: Price history starts on 2012-09-20 for warm-up. The configured backtest start is 2014-01-01, and the logged evaluation runs from the first simulated fill on 2014-01-02 through 2026-10-30, inclusive.   data_range (from output): {'start': '2014-01-02', 'end': '2026-10-30'}
+IS/OOS split: IS is 2014-01-02 through 2024-06-06 inclusive. OOS is 2024-06-07 through 2026-10-30 inclusive. The cutoff is the original paper's sample end and the split is retrospective. The default specification runs continuously across the boundary, carrying drifted holdings and continuing rolling estimation. The four alternative specifications run only on IS data.
+Costs and slippage: The default models 2 bps of fees and 3 bps of fixed slippage per dollar bought or sold, for 5 bps combined. The IS stress case uses 4 bps of fees and 6 bps of slippage, for 10 bps combined. At each fill, including initial entry, the charge is deducted from NAV using the summed absolute dollar changes between drifted pre-fill holdings and post-charge target holdings. The equal-weight benchmark uses the default friction on the same fill dates.
+Signal lag: Targets use trailing daily sector ETF returns through the last trading session of the month, t. The default fill is at the next trading session's close, t+1. Existing holdings receive the close-to-close return ending at t+1, then costs are deducted on the turnover and target weights take effect for the following close-to-close interval.
+Price adjustment: yfinance auto_adjust=True dividend- and split-adjusted close total-return
+Survivorship bias: The same nine retrospectively selected surviving sector ETFs make up the eligible universe throughout the sample. This creates fund-selection and survivorship exposure, and the universe omits later-launched sector funds and historical sector classification changes.
+Parameter combinations tried: 5
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.09877330090042968, ann_vol=0.14376956811215993, sharpe=0.7274094373013541, sharpe_excess=0.6398388795983337, max_drawdown=-0.3289705975411237, total_return=1.667632625981481, turnover=1.702995707227871, n_trades=667
+    oos: cagr=0.09909133205491871, ann_vol=0.10873532775466782, sharpe=0.9234431140841088, sharpe_excess=0.5431153283473106, max_drawdown=-0.10958684526440088, total_return=0.2532137403419994, turnover=1.3006442896956496, n_trades=161
+    full: cagr=0.09883262293956352, ann_vol=0.13789573411217346, sharpe=0.7527550631832428, sharpe_excess=0.6225275910840667, max_drawdown=-0.3289705975411237, total_return=2.343113861064592, turnover=1.6279366575363936, n_trades=828
+    benchmark  full: cagr=0.1225191885055057, ann_vol=0.16141666114745035, sharpe=0.7971842107083177, sharpe_excess=0.685930455365503, max_drawdown=-0.3671546014215489, total_return=3.39297929934423, turnover=0.3829550787054165, n_trades=1386
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

@@ -1,3 +1,23 @@
+"""547_generalizing_markowitz_portfolio_optimiz
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/547_generalizing_markowitz_portfolio_optimiz.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 69a306c0280e31031e1c1674f053aa22730544ac on 2026-11-27 09:47 Europe/Oslo, exit 0, output sha256 eaa61849ff7726942397fc803a2d4f2b482dd605464c66a87bc982996d2fc46d
+Data source: Yahoo Finance via yfinance daily ETF closes for XLK, XLF, XLE and XLV. BIL daily total returns are used solely as the cash proxy for excess-return statistics. The downloader uses an on-disk cache and records the original fetch time, which the supplied run reports as 2026-11-27T08:20:37+00:00.
+Data fetched: 2026-11-27T08:47:57+00:00
+Sample period: The realized backtest runs from 2010-01-04 through 2025-12-31. The requested price history starts on 2008-01-01 to supply the rolling estimation window.   data_range (from output): {'start': '2010-01-04', 'end': '2025-12-31'}
+IS/OOS split: In-sample runs from 2010-01-04 through 2017-12-29 and out-of-sample from 2018-01-02 through 2025-12-31. The split partitions one continuous simulation, carrying portfolio state and rolling estimates across the boundary. The five robustness variants are run on the in-sample period only. This is a retrospective chronological holdout.
+Costs and slippage: The default applies 2 bps of cost and 3 bps of modeled slippage to the executed dollar value of every buy and sell, including initial entry. On each execution date, the simulator solves for the remaining portfolio value after charging 5 bps on total absolute traded dollars and deducts the charge from portfolio value. The in-sample friction stress test applies 4 bps of cost and 6 bps of slippage.
+Signal lag: At the close of the first backtest session and each subsequent month's first trading session, the optimizer uses daily returns through that close to compute target weights. The target fills at the next trading session's close. The old positions earn the return through the execution close, and the new positions first earn returns over the following close-to-close interval.
+Price adjustment: yfinance auto_adjust=True, dividend- and split-adjusted total-return closes
+Survivorship bias: The fixed four-ETF universe was formed retrospectively from surviving funds and omits historical exits. The README identifies survivorship and hindsight selection bias.
+Parameter combinations tried: 6
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.13057256533969697, ann_vol=0.16138670017749449, sharpe=0.8415858942580361, sharpe_excess=0.8378256283229593, max_drawdown=-0.25904429755690395, total_return=1.66534256810258, turnover=2.7217498158316893, n_trades=219
+    oos: cagr=0.16683576108616127, ann_vol=0.22284519313778237, sharpe=0.8044545805505107, sharpe_excess=0.6952984080051652, max_drawdown=-0.31153216806510253, total_return=2.425691805781753, turnover=2.797859395619548, n_trades=217
+    full: cagr=0.14855204484709716, ann_vol=0.19452356627552708, sharpe=0.8098453527505234, sharpe_excess=0.7458668791405988, max_drawdown=-0.31153216806510253, total_return=8.130642195150307, turnover=2.7597856918141406, n_trades=436
+    benchmark: cagr=0.1288610798657226, ann_vol=0.18497753736361533, sharpe=0.7482960014445226, sharpe_excess=0.6810549314895016, max_drawdown=-0.39914032845198444, total_return=5.927505394448202, turnover=0.35132228744946703, n_trades=768
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

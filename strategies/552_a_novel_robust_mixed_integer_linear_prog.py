@@ -1,3 +1,23 @@
+"""552_a_novel_robust_mixed_integer_linear_prog
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/552_a_novel_robust_mixed_integer_linear_prog.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 69a306c0280e31031e1c1674f053aa22730544ac on 2026-11-27 09:47 Europe/Oslo, exit 0, output sha256 39ae3de8e71bddd78a11b4eeda1c2a5d32696a1c90ec659d8810076314a92dca
+Data source: 通过 yfinance 获取 Yahoo Finance 免费日线，字段为 Adj Close、Close 和 Volume。数据覆盖固定名单内的 76 只美国大盘股、跟踪基准 ETF SPY，以及计算每日超额收益所用的短期国债 ETF BIL。行情优先从 data_cache/yahoo_daily_<digest>.csv.gz 读取。该次运行记录的数据抓取时间为 2026-11-27T08:22:14+00:00。（config.yaml:7-85；strategy.py:18-36、46-51、273-276、293-296；README.md:19、28；logs/run_20261127_092612.log:1）
+Data fetched: 2026-11-27T08:48:01+00:00
+Sample period: 配置从 2017-01-01 开始请求行情用于预热，默认信号回看 252 个交易日。实际回测为 2018-07-02 至 2025-12-31，含首尾交易日。（config.yaml:2-5、87；strategy.py:24-26、46-50、110-117、282-287；logs/run_20261127_092612.log:3、22）   data_range (from output): {'start': '2018-07-02', 'end': '2025-12-31'}
+IS/OOS split: 样本内为 2018-07-02 至 2022-06-30，样本外为 2022-07-01 至 2025-12-31。替代参数只在样本内运行。默认参数在全期连续模拟，分界处延续原组合，并按既定日程用滞后的历史日线更新权重。（config.yaml:2-5；strategy.py:143-157、287-289、301-322；README.md:21-22、27；logs/run_20261127_092612.log:3-4）
+Costs and slippage: 默认买入和卖出各按实际成交额扣 5 bps 交易成本和 5 bps 滑点，单边合计 10 bps。滑点作为固定费率建模，随交易成本从调仓日组合净值扣除，费率乘以买卖成交额绝对值之和。SPY 买入持有基准的首次建仓用相同费率。样本内另测成本和滑点各 10 bps 的联合情景。税费和市场冲击未单独计入。（config.yaml:96-97、103-104；strategy.py:175-194、238-239、315-316；README.md:23、29；logs/run_20261127_092612.log:10）
+Signal lag: 以 SPY 日线建立交易日历。默认在回测首日和每年 7 月首个交易日收盘换权重。若信号使用截至 t 日收盘的数据，则在下一交易日 t+1 的收盘模拟成交。旧持仓承担截至执行日收盘的收益，新持仓从该收盘之后开始承担收益。（config.yaml:94-95；strategy.py:143-157、161-194、282-287；README.md:22）
+Price adjustment: yfinance Adj Close, dividend- and split-adjusted total-return proxy
+Survivorship bias: 候选池在研究时点选定，为仍有完整公开行情的固定大盘股名单，存在幸存者偏差及候选范围的事后选择。逐期成交额筛选局限于该名单。未重建历史指数成分、权重、成分变更或退市股票收益。（config.yaml:9-85；strategy.py:110-124、273-276；README.md:15、28）
+Parameter combinations tried: 7
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.12281623793818297, ann_vol=0.22676107012579438, sharpe=0.6248847481867573, sharpe_excess=0.5871159075804567, max_drawdown=-0.32648016841394234, total_return=0.5886751453453372, turnover=1.3872351321699732, n_trades=64
+    oos: cagr=0.22364479845787488, ann_vol=0.16950718800292952, sharpe=1.2756109950371826, sharpe_excess=1.0172067756834668, max_drawdown=-0.1745657821418527, total_return=1.0218562420710984, turnover=1.6310788002633327, n_trades=67
+    full: cagr=0.16873135286990282, ann_vol=0.20206723335804852, sharpe=0.8731421056414895, sharpe_excess=0.7496604642348567, max_drawdown=-0.32648016841394234, total_return=2.212072759239675, turnover=1.5008823136408442, n_trades=131
+    benchmark: cagr=0.14832168586750694, ann_vol=0.1964057566667045, sharpe=0.8027830959090245, sharpe_excess=0.6757490427989172, max_drawdown=-0.337172391004658, total_return=1.8152914324640967, turnover=0.1334826361337496, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

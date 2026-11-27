@@ -1,3 +1,23 @@
+"""534_portfolio_diversification_and_concentrat
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/534_portfolio_diversification_and_concentrat.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 69a306c0280e31031e1c1674f053aa22730544ac on 2026-11-27 09:47 Europe/Oslo, exit 0, output sha256 cdc5ec100dae0b2172dbf43e7d50a845c6fef749a0d3406d7a8ea301ad971482
+Data source: Yahoo Finance 公开 ETF 日线，经 yfinance 下载。配置的投资标的为 SPY、TLT、GLD、VNQ、EFA，另取 BIL 日收益作为超额收益计算的无风险代理。下载数据可从 data_cache/closes_<hash>.json 复用。（config.yaml:2-3，strategy.py:45-73，strategy.py:187-191，strategy.py:233-242，README.md:13，README.md:17）
+Data fetched: 2026-11-27T08:47:34.138659+00:00
+Sample period: 请求的行情区间为 2007-06-01 至 2025-12-31，评价前行情用于预热。日志记录的实际评价区间为 2010-01-04 至 2025-12-31。（config.yaml:4-7，strategy.py:55-59，strategy.py:239-243，README.md:14，logs/run_20261127_091719.log:16）   data_range (from output): ['2010-01-04', '2025-12-31']
+IS/OOS split: 样本内为 2010-01-04 至 2017-12-31，样本外为 2018-01-01 至 2025-12-31，按实际行情交易日切分。默认策略先连续模拟，再按日期分段计量，样本外起点继承原有持仓。7 组敏感性测试仅运行样本内。README 记载该分割是论文发表后设计的历史评价。（config.yaml:5-7，strategy.py:247-265，README.md:14，README.md:21）
+Costs and slippage: 默认按每只 ETF 的每笔模拟买入或卖出金额收取成本 5 bps 和滑点 5 bps，共 10 bps。滑点按固定比例计入，与成本合并从组合净值扣除。每次调整先将旧权重按当日收益更新，再求解扣除摩擦后可用于目标配置的资金，费基为买卖金额绝对值之和，含首次建仓。样本内高摩擦情形将两项分别调为 10 bps，共 20 bps。（config.yaml:14-15，config.yaml:21-23，strategy.py:40-42，strategy.py:162-184，strategy.py:211-218，strategy.py:247-252，README.md:16）
+Signal lag: 用截至每月最后一条交易日收盘的滚动日收益计算信号 t，默认在下一条交易日收盘 t+1 模拟成交。t+1 当天的收盘到收盘收益使用旧持仓，新持仓从成交后的下一段收盘到收盘区间开始计收益。（config.yaml:8，strategy.py:141-156，strategy.py:162-183，strategy.py:230-232，README.md:15）
+Price adjustment: yfinance auto_adjust=True, split- and dividend-adjusted close total return
+Survivorship bias: 代码使用配置中的固定 ETF 名单。README 明确记载，资产池事后选自目前仍存续且有长历史的 ETF，存在幸存者偏差和标的选择偏差。（config.yaml:2，strategy.py:233-242，README.md:23）
+Parameter combinations tried: 8
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.11105023786021362, ann_vol=0.07688780529820026, sharpe=1.4083310227791432, sharpe_excess=1.4018860014024064, max_drawdown=-0.0815415886422276, total_return=1.3191301643794375, turnover=5.979214733564817, n_trades=262
+    oos: cagr=0.06653612477153037, ann_vol=0.11229653380617459, sharpe=0.6298484956127925, sharpe_excess=0.4136739061216934, max_drawdown=-0.3231870393806132, total_return=0.6720508838798762, turnover=12.655513355456325, n_trades=319
+    full: cagr=0.08857673016005974, ann_vol=0.09622138704022093, sharpe=0.9303126607942586, sharpe_excess=0.8016755222966933, max_drawdown=-0.32318703938061166, total_return=2.8777036411831283, turnover=18.63472808902114, n_trades=581
+    benchmark: cagr=0.08748840317992723, ann_vol=0.10862820357639907, sharpe=0.8266208571591914, sharpe_excess=0.7121995493118695, max_drawdown=-0.2535979941195221, total_return=2.816258747286204, turnover=6.097575940197556, n_trades=960
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

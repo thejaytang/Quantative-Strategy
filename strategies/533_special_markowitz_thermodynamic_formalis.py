@@ -1,3 +1,23 @@
+"""533_special_markowitz_thermodynamic_formalis
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/533_special_markowitz_thermodynamic_formalis.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 69a306c0280e31031e1c1674f053aa22730544ac on 2026-11-27 09:47 Europe/Oslo, exit 0, output sha256 9ad0b7a777db7b77b4e09a4f483deb1c7623b5e68dac631aedbf01e78277dfcf
+Data source: Public yfinance daily U.S. ETF closes for XLB, XLE, XLF, XLI, XLK, XLP, XLU, XLV and XLY. SPY is the buy-and-hold benchmark and BIL is the cash and risk-free return proxy. The run records a data fetch at 2026-11-27T08:14:07+00:00.
+Data fetched: 2026-11-27T08:47:30+00:00
+Sample period: Price history spans 2007-06-01 through 2025-12-31 and includes warm-up data. The evaluated return sample spans 2009-01-02 through 2025-12-31.   data_range (from output): {'start': '2009-01-02', 'end': '2025-12-31'}
+IS/OOS split: IS 2009-01-02 through 2016-12-30 and OOS 2017-01-03 through 2025-12-31. The configured cutoff is 2016-12-31 inclusive for IS. The default portfolio runs continuously across the split, and the seven alternative parameter combinations run on the IS prefix only.
+Costs and slippage: Default costs are 2 bps in fees plus 3 bps in modeled fixed slippage on the combined buy and sell notional at each simulated fill, including initial entry. The simulator marks the existing positions to the fill-day close, solves for the remaining portfolio value after friction, and deducts the charge from that day's return. The SPY entry uses the same rates. One IS variant uses 4 bps in fees plus 6 bps in slippage.
+Signal lag: A target based on daily returns through the last observed trading close of month t fills at the next trading session's close. The previous holdings or cash earn the return through that fill close, and the target earns portfolio returns starting with the following close-to-close interval.
+Price adjustment: yfinance auto_adjust=True, dividend- and split-adjusted close (total-return proxy)
+Survivorship bias: The same nine sector ETFs are used throughout. The README describes them as surviving early ETFs with full sample coverage and discloses survivorship bias and retrospective universe selection. The fixed universe omits sectors carved out later.
+Parameter combinations tried: 8
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.1386075909763238, ann_vol=0.1726365941748872, sharpe=0.8384905520590057, sharpe_excess=0.8374326181038279, max_drawdown=-0.27867298719360223, total_return=1.8219231720991962, turnover=7.998641951292384, n_trades=864
+    oos: cagr=0.1266148851958382, ann_vol=0.17814064060435622, sharpe=0.7588124553738618, sharpe_excess=0.6331575106214786, max_drawdown=-0.3471505251688479, total_return=1.9157253661827003, turnover=17.826998301861163, n_trades=909
+    full: cagr=0.13224764257513222, ann_vol=0.17554952445942762, sharpe=0.7957125987456758, sharpe_excess=0.7278313573282096, max_drawdown=-0.34715052516884837, total_return=7.227952974308357, turnover=25.825640253153544, n_trades=1773
+    benchmark SPY full: cagr=0.1453435575867228, ann_vol=0.17887785794156755, sharpe=0.8484629817101782, sharpe_excess=0.7818749471249359, max_drawdown=-0.3371728189633809, total_return=9.000857458009106, turnover=0.9995002498750625, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

@@ -1,3 +1,23 @@
+"""543_robust_enhanced_index_tracking_portfolio
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/543_robust_enhanced_index_tracking_portfolio.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 69a306c0280e31031e1c1674f053aa22730544ac on 2026-11-27 09:47 Europe/Oslo, exit 0, output sha256 d287f1aca9885e121346b373776d5f09f8b9036ef374346644784b890e71f4cc
+Data source: 免费 Yahoo Finance 日线，由 yfinance 获取或从本地价格缓存读取。股票池为 AAPL、NVDA、MSFT、AVGO、ORCL、JNJ、ABBV、LLY、UNH、ABT、BRK-B、JPM、V、BAC、MA、AMZN、TSLA、HD、MCD、BKNG、WMT、COST、KO、PG、PM。SPY 为跟踪和买入持有基准，BIL 的日收益仅用于计算超额 Sharpe。（config.yaml:2-7；strategy.py:78-105、310-326、335-336；README.md:15）
+Data fetched: 2026-11-27T08:47:50+00:00
+Sample period: 日线请求区间为 2009-12-01 至 2024-12-31（含），配置的评估起点为 2015-01-01。日志记录的实际评估交易日为 2015-01-02 至 2024-12-31。2009 年末至 2014 年末的价格用于初始 60 个月滚动估计。（config.yaml:8-15；strategy.py:81-82、267-270、337-340；README.md:16；logs/run_20261127_092024.log:22）   data_range (from output): {'start': '2015-01-02', 'end': '2024-12-31'}
+IS/OOS split: 样本内为 2015-01-01 至 2019-12-31，样本外为 2020-01-01 至 2024-12-31，均按实际交易日计。默认配置连续模拟全期，按 2019-12-31 切分结果。样本外沿用默认配置参数，以每月已知收益更新滚动估计，7 个稳健性变体仅运行至样本内截止日。（config.yaml:8-15、24-32；README.md:16、27；strategy.py:201-224、315-318、328-349）
+Costs and slippage: 默认在每次模拟成交时，买卖两侧各按实际成交金额扣除 5 bp 成本和 5 bp 固定滑点，合计 10 bp。代码用扣费后目标头寸与漂移后头寸之差的绝对金额加总，并联立求解扣费后的组合价值。首次建仓同样收费，SPY 基准在策略首次成交的收盘建仓并扣费一次。仅样本内的高摩擦变体使用 15 bp 成本和 10 bp 固定滑点，合计 25 bp。（config.yaml:22-32；strategy.py:52-54、232-264、328-336；README.md:21、27）
+Signal lag: 在月末最后一个交易日 t 收盘后，用截至 t 的滚动月收益计算目标权重。默认在下一交易日 t+1 的收盘模拟成交。成交日的收盘到收盘收益由原持仓承担，新权重在 t+1 收盘调仓后生效。（config.yaml:13-15；strategy.py:201-224、232-263、307-309；README.md:21）
+Price adjustment: yfinance auto_adjust=True, dividend- and split-adjusted daily Close
+Survivorship bias: 25 只股票来自论文事后选定的五个行业的大盘股，为固定名单，存在幸存者偏差和事后股票池选择偏差。股票仅在信号日已有完整的 60 个月滚动收益后才可获权重。该筛选只处理历史价格覆盖，无法重建历史时点股票池。（config.yaml:2-5、15；strategy.py:68-75、212-224；README.md:9、17）
+Parameter combinations tried: 8
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.21074029101027647, ann_vol=0.15029756603590094, sharpe=1.348097852843359, sharpe_excess=1.2888643278274334, max_drawdown=-0.1935592527122909, total_return=1.597740950757772, turnover=1.2230471165179937, n_trades=1372
+    oos: cagr=0.27224583453874085, ann_vol=0.21086310513124484, sharpe=1.2483044498491502, sharpe_excess=1.1382364366202002, max_drawdown=-0.3049388378533605, total_return=2.3267890185821645, turnover=1.085551144800468, n_trades=1390
+    full: cagr=0.24111211900700025, ann_vol=0.1830754448863819, sharpe=1.2722546674515127, sharpe_excess=1.1846384222263628, max_drawdown=-0.3049388378533606, total_return=7.642136068102127, turnover=1.1542991306592307, n_trades=2762
+    benchmark: cagr=0.13014547134358656, ann_vol=0.1761576124971584, sharpe=0.7831372216289496, sharpe_excess=0.6921821417622633, max_drawdown=-0.33717263786002827, total_return=2.3923455869719112, turnover=0.10005892358833536, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

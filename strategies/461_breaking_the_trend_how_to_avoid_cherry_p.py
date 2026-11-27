@@ -2,16 +2,16 @@
 WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/461_breaking_the_trend_how_to_avoid_cherry_p.py   (free public data only; config embedded)
+Run (one command): python strategies/461_breaking_the_trend_how_to_avoid_cherry_p.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit f8add1176d5b1caebb66b01079720314ca29fcc4 on 2026-11-27 08:40 Europe/Oslo, exit 0, output sha256 7beacee321c60401c2996e2a7ec62dc06460eefd55658ace92bb1a8b216fd63f
-Data source: yfinance 免费日线 ETF 收盘价。风险资产为 SPY、EFA、IEF、TLT、DBC、GLD、UUP、FXE，BIL 用于计算现金收益。数据优先从本地价格缓存读取，缓存缺失时通过 yfinance 下载。该运行记录的数据获取时间为 2026-11-27T07:03:23+00:00（config.yaml:2-11；strategy.py:33-55、192-205；README.md:15；logs/run_20261127_080506.log:1）。
+Data source: yfinance 免费日线 ETF 收盘价。风险资产为 SPY、EFA、IEF、TLT、DBC、GLD、UUP、FXE，BIL 用于计算现金收益。数据优先从本地价格缓存读取，缓存缺失时通过 yfinance 下载。该运行记录的数据获取时间为 2026-11-27T07:03:23+00:00。
 Data fetched: 2026-11-27T07:40:01+00:00
-Sample period: 配置的数据及指标预热起点为 2008-01-02。日志所载完整评价样本为 2012-01-03 至 2025-12-31，含首尾交易日（config.yaml:12-15；strategy.py:194、199、213；logs/run_20261127_080506.log:8）。   data_range (from output): {'start': '2012-01-03', 'end': '2025-12-31'}
-IS/OOS split: 样本内为 2012-01-03 至 2019-12-31，含边界日。样本外为 2019-12-31 之后至 2025-12-31 的实际交易日。信号估计与持仓连续计算，随后按日期切分同一次模拟的结果（config.yaml:13-15；strategy.py:199-205、211-216；README.md:15、19-22）。
-Costs and slippage: 每次收盘调仓按买卖绝对名义金额合计扣除单边 2 bps 交易成本和 3 bps 滑点，滑点以固定扣费建模，两者合计 5 bps。名义金额为扣费后净值对应的目标持仓减去按收盘价变动后的原持仓。另按调仓前空头敞口扣除年化 50 bps 融券费，乘以两次收盘间的日历天数并除以 365（config.yaml:23-25；strategy.py:122-130、140-152、187-190）。
-Signal lag: 交易日 t 收盘价用于计算目标权重，目标顺延 1 个交易日，在 t+1 收盘模拟调仓。至 t+1 收盘的区间收益归原持仓，新持仓从随后一段收盘到收盘的区间开始计价。样本首次入场在首个评价日收盘（config.yaml:16；strategy.py:70-82、114-115、123-130、137-153、199-205；README.md:26）。
+Sample period: 配置的数据及指标预热起点为 2008-01-02。日志所载完整评价样本为 2012-01-03 至 2025-12-31，含首尾交易日。 data_range (from output): {'start': '2012-01-03', 'end': '2025-12-31'}
+IS/OOS split: 样本内为 2012-01-03 至 2019-12-31，含边界日。样本外为 2019-12-31 之后至 2025-12-31 的实际交易日。信号估计与持仓连续计算，随后按日期切分同一次模拟的结果。
+Costs and slippage: 每次收盘调仓按买卖绝对名义金额合计扣除单边 2 bps 交易成本和 3 bps 滑点，滑点以固定扣费建模，两者合计 5 bps。名义金额为扣费后净值对应的目标持仓减去按收盘价变动后的原持仓。另按调仓前空头敞口扣除年化 50 bps 融券费，乘以两次收盘间的日历天数并除以 365。
+Signal lag: 交易日 t 收盘价用于计算目标权重，目标顺延 1 个交易日，在 t+1 收盘模拟调仓。至 t+1 收盘的区间收益归原持仓，新持仓从随后一段收盘到收盘的区间开始计价。样本首次入场在首个评价日收盘。
 Price adjustment: yfinance auto_adjust total-return adjusted closes
-Survivorship bias: 固定 ETF 名单为事后从仍有公开历史数据的产品中选定。README 明确记录幸存者偏差和代理选择偏差（config.yaml:2-11；README.md:32）。
+Survivorship bias: 固定 ETF 名单为事后从仍有公开历史数据的产品中选定。README 明确记录幸存者偏差和代理选择偏差。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.03167050393839688, ann_vol=0.043443702502825775, sharpe=0.7394671561597753, sharpe_excess=0.6165085679629827, max_drawdown=-0.07846018788139253, total_return=0.2826647957065067, turnover=4.784907378444121, n_trades=16096

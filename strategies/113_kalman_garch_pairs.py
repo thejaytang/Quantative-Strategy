@@ -2,22 +2,22 @@
 WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; non-author review: PASS; publication gate: Codex.
-Run (one command): python strategies/113_kalman_garch_pairs.py   (free public data only; config embedded)
+Run (one command): python strategies/113_kalman_garch_pairs.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit ad594150a0142009ae8f6ffab0995de08b2f8304 on 2026-11-26 13:49 Europe/Oslo, exit 0, output sha256 e8eaa2da358586a14efb23af6aa43e9378f3d06d90a969018f9d9982547394c9
-Data source: Yahoo Finance 公开 Chart API 的日频复权收盘价，经 requests 获取并优先读取本地 CSV 缓存。固定配对为 XOM/CVX、KO/PEP、LMT/NOC，基准为 SPY。（config.yaml:2-3；strategy.py:31-54,210-220；README.md:17）
+Data source: Yahoo Finance 公开 Chart API 的日频复权收盘价，经 requests 获取并优先读取本地 CSV 缓存。固定配对为 XOM/CVX、KO/PEP、LMT/NOC，基准为 SPY。
 Data fetched: 2026-11-26 13:49 Europe/Oslo (run time)
-Sample period: 请求区间为 2015-01-01 至 2025-12-31。日志中 OLS 初始化区间为 2015-01-02 至 2015-07-02，全期绩效统计区间为 2015-07-07 至 2025-12-31。（config.yaml:4-9；strategy.py:194-195,219-220；logs/run_20261125_100500.log:1-2）   data_range (from output): 2015-07-07 to 2025-12-31
-IS/OOS split: 配置的 IS 为 2015-01-01 至 2019-12-31，OOS 为 2020-01-01 至 2025-12-31。日志中的实际统计区间分别为 2015-07-07 至 2019-12-31 和 2020-01-02 至 2025-12-31。IS 的前 126 个交易日用于 OLS 初始化并从绩效统计中排除。模型状态与持仓跨越分界连续更新，在同一模拟路径上按日期分段统计。（config.yaml:4-11；strategy.py:75-108,226-259；README.md:22；logs/run_20261125_100500.log:1-2）
-Costs and slippage: 每买入或卖出 1 美元名义金额收取 2 bps。先按收盘价计算既有持仓的收益及漂移后权重，再将目标权重与漂移后权重之差的绝对值按各标的求和，以 0.0002 乘以该换手比例从调仓前净值扣费，包含对冲调整。SPY 在首个统计日收盘买入时同样计费。未建模滑点，以标记收盘价模拟成交。（config.yaml:18；strategy.py:136-155,240-250；README.md:21,26；logs/run_20261125_100500.log:3）
-Signal lag: 第 t 个交易日收盘价用于计算当日信号和目标权重，目标在下一交易日 t+1 收盘执行。t 至 t+1 的收益归既有持仓，新仓位从 t+1 收盘至下一收盘的区间开始承担价格收益。（strategy.py:95-108,113-133,136-155,240-247；README.md:5）
-Price adjustment: 使用 Yahoo Finance 的 adjclose 字段或缓存中的 adjusted_close 列。按交易所时区归属交易日，使用复权收盘价计算对数价信号与收盘到收盘收益。README 说明复权价格将股息和拆股计入收益。（strategy.py:31-36,49-54,229-242；README.md:26）
-Survivorship bias: 固定配对来自事后可见且仍在交易的股票，README 明示存在幸存者偏差和配对选择偏差。配置固定三组配对，代码遍历这些标的。（config.yaml:2；strategy.py:210-220；README.md:11,26）
+Sample period: 请求区间为 2015-01-01 至 2025-12-31。日志中 OLS 初始化区间为 2015-01-02 至 2015-07-02，全期绩效统计区间为 2015-07-07 至 2025-12-31。 data_range (from output): 2015-07-07 to 2025-12-31
+IS/OOS split: 配置的 IS 为 2015-01-01 至 2019-12-31，OOS 为 2020-01-01 至 2025-12-31。日志中的实际统计区间分别为 2015-07-07 至 2019-12-31 和 2020-01-02 至 2025-12-31。IS 的前 126 个交易日用于 OLS 初始化并从绩效统计中排除。模型状态与持仓跨越分界连续更新，在同一模拟路径上按日期分段统计。
+Costs and slippage: 每买入或卖出 1 美元名义金额收取 2 bps。先按收盘价计算既有持仓的收益及漂移后权重，再将目标权重与漂移后权重之差的绝对值按各标的求和，以 0.0002 乘以该换手比例从调仓前净值扣费，包含对冲调整。SPY 在首个统计日收盘买入时同样计费。未建模滑点，以标记收盘价模拟成交。
+Signal lag: 第 t 个交易日收盘价用于计算当日信号和目标权重，目标在下一交易日 t+1 收盘执行。t 至 t+1 的收益归既有持仓，新仓位从 t+1 收盘至下一收盘的区间开始承担价格收益。
+Price adjustment: 使用 Yahoo Finance 的 adjclose 字段或缓存中的 adjusted_close 列。按交易所时区归属交易日，使用复权收盘价计算对数价信号与收盘到收盘收益。README 说明复权价格将股息和拆股计入收益。
+Survivorship bias: 固定配对来自事后可见且仍在交易的股票，README 明示存在幸存者偏差和配对选择偏差。配置固定三组配对，代码遍历这些标的。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=-0.0008517215722365634, ann_vol=0.022512580416404086, sharpe=-0.02660539657033425, max_drawdown=-0.040609774891884665, total_return=-0.0038169332768013264, turnover=39.46340529825778
     oos: cagr=-0.019753971352626354, ann_vol=0.02866370713095161, sharpe=-0.6816769614834477, max_drawdown=-0.1322857295870491, total_return=-0.11254143108156456, turnover=91.93034382947565
     full: cagr=-0.011697193932705185, ann_vol=0.026206923161372273, sharpe=-0.4358413397896265, max_drawdown=-0.13845164107731966, total_return=-0.11592880122505067, turnover=131.39374912773343
-    benchmark  full: cagr=0.13908683887802442, ann_vol=0.1802285335832455, sharpe=0.8130916128895719, max_drawdown=-0.3372105646036555, total_return=2.9108911977420693, turnover=1.0
+    benchmark full: cagr=0.13908683887802442, ann_vol=0.1802285335832455, sharpe=0.8130916128895719, max_drawdown=-0.3372105646036555, total_return=2.9108911977420693, turnover=1.0
 """
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---

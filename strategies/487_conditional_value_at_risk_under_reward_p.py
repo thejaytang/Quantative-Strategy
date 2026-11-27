@@ -2,22 +2,22 @@
 WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/487_conditional_value_at_risk_under_reward_p.py   (free public data only; config embedded)
+Run (one command): python strategies/487_conditional_value_at_risk_under_reward_p.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit fb92b5054b1596d6a39ea87072bbd5a288327fb7 on 2026-11-27 09:41 Europe/Oslo, exit 0, output sha256 567d01571adca6319bd9089187cc4d3d79e08c59fd7ddcc917a7e994ff9c0efc
-Data source: Yahoo Finance 免费日线，经 yfinance 下载或从本地价格快照读取。股票池为 AAPL、NVDA、MSFT、JNJ、ABBV、LLY、BRK-B、JPM、V、GOOG、META、NFLX、WMT、COST、KO。SPY 为基准，BIL 为现金回报代理，仅用于绩效计算（config.yaml:2-4，strategy.py:65-94、strategy.py:212-214、strategy.py:248-260、strategy.py:286-289，README.md:18-19）。
+Data source: Yahoo Finance 免费日线，经 yfinance 下载或从本地价格快照读取。股票池为 AAPL、NVDA、MSFT、JNJ、ABBV、LLY、BRK-B、JPM、V、GOOG、META、NFLX、WMT、COST、KO。SPY 为基准，BIL 为现金回报代理，仅用于绩效计算。
 Data fetched: 2026-11-27T08:41:40+00:00
-Sample period: 价格区间为 2013-01-02 至 2025-02-28，评估区间为 2017-03-01 至 2025-02-28。评估开始前的价格用于滚动估计预热（config.yaml:5-11，README.md:19，logs/run_20261127_082742.log:3-4、logs/run_20261127_082742.log:19）。   data_range (from output): 2017-03-01 to 2025-02-28
-IS/OOS split: 按交易日顺序切分。样本内为 2017-03-01 至 2020-02-28，样本外为 2020-03-02 至 2025-02-28。配置切点为 2020-02-29，切点当日或之前归入样本内，之后归入样本外。五个参数对照只跑样本内，样本外使用默认设定并延续样本内组合，信号继续按滚动窗口更新（config.yaml:5-9、config.yaml:18-23，strategy.py:140-159、strategy.py:233-238、strategy.py:261-285，README.md:19、README.md:25，logs/run_20261127_082742.log:3-12）。
-Costs and slippage: 默认每笔买入或卖出按绝对成交额计 5 bps 费用和 5 bps 固定滑点，合计 10 bps。滑点建模为成交额比例扣减。模拟器先按旧仓位计算成交日收盘到收盘收益，再按扣费后的目标持仓与成交前漂移持仓之差求成交额，当日扣减费用和滑点。策略与 SPY 基准均计入初始建仓成本。样本内高成本对照使用 10 bps 费用和 10 bps 滑点（config.yaml:16-17、config.yaml:23，strategy.py:44-46、strategy.py:187-209、strategy.py:271-287，README.md:20-21，logs/run_20261127_082742.log:6、logs/run_20261127_082742.log:11）。
-Signal lag: 默认在 t 日收盘后使用截至该收盘的最近 756 个交易日日收益生成目标权重，在 t+1 交易日收盘模拟成交。t 到 t+1 的收盘到收盘收益由旧权重获得，新权重从成交后开始承担价格变动（config.yaml:11、config.yaml:15，strategy.py:140-159、strategy.py:187-209、strategy.py:257-264，README.md:12、README.md:20）。
+Sample period: 价格区间为 2013-01-02 至 2025-02-28，评估区间为 2017-03-01 至 2025-02-28。评估开始前的价格用于滚动估计预热。 data_range (from output): 2017-03-01 to 2025-02-28
+IS/OOS split: 按交易日顺序切分。样本内为 2017-03-01 至 2020-02-28，样本外为 2020-03-02 至 2025-02-28。配置切点为 2020-02-29，切点当日或之前归入样本内，之后归入样本外。五个参数对照只跑样本内，样本外使用默认设定并延续样本内组合，信号继续按滚动窗口更新。
+Costs and slippage: 默认每笔买入或卖出按绝对成交额计 5 bps 费用和 5 bps 固定滑点，合计 10 bps。滑点建模为成交额比例扣减。模拟器先按旧仓位计算成交日收盘到收盘收益，再按扣费后的目标持仓与成交前漂移持仓之差求成交额，当日扣减费用和滑点。策略与 SPY 基准均计入初始建仓成本。样本内高成本对照使用 10 bps 费用和 10 bps 滑点。
+Signal lag: 默认在 t 日收盘后使用截至该收盘的最近 756 个交易日日收益生成目标权重，在 t+1 交易日收盘模拟成交。t 到 t+1 的收盘到收盘收益由旧权重获得，新权重从成交后开始承担价格变动。
 Price adjustment: yfinance auto_adjust total-return (adjusted close)
-Survivorship bias: 使用论文事后选定的固定 15 只股票，README 载明存续偏差和样本选择偏差。整个回测区间早于 README 所列的论文年份 2026。样本外为历史时间切分后的模拟（config.yaml:2、config.yaml:5-9，strategy.py:248-251、strategy.py:257-264，README.md:5-8、README.md:18、README.md:27，logs/run_20261127_082742.log:4）。
+Survivorship bias: 使用论文事后选定的固定 15 只股票，README 载明存续偏差和样本选择偏差。整个回测区间早于 README 所列的论文年份 2026。样本外为历史时间切分后的模拟。
 Parameter combinations tried: 6
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.12590521716811784, ann_vol=0.1206173054262056, sharpe=1.0439757339024995, sharpe_excess=0.918055420473005, max_drawdown=-0.1290973590750284, total_return=0.4265963952623788, turnover=10.454075060066508, n_trades=7718
     oos: cagr=0.14361374264734428, ann_vol=0.16772848638773838, sharpe=0.8843263914851306, sharpe_excess=0.7406791256163456, max_drawdown=-0.260712219570037, total_return=0.953003519358427, turnover=18.367426635409704, n_trades=11528
     full: cagr=0.13693622988591797, ann_vol=0.1517433713145983, sharpe=0.922077932161652, sharpe_excess=0.7852879064655176, max_drawdown=-0.28861915539923955, total_return=1.7861477806514627, turnover=28.82150169547621, n_trades=19246
-    benchmark  full: cagr=0.1389741613729395, ann_vol=0.18426834021191482, sharpe=0.7989105894069222, sharpe_excess=0.6861672428934319, max_drawdown=-0.33717262056512987, total_return=1.8262718254222756, turnover=0.9990009990009991, n_trades=1
+    benchmark full: cagr=0.1389741613729395, ann_vol=0.18426834021191482, sharpe=0.7989105894069222, sharpe_excess=0.6861672428934319, max_drawdown=-0.33717262056512987, total_return=1.8262718254222756, turnover=0.9990009990009991, n_trades=1
 """
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---

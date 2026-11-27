@@ -2,16 +2,16 @@
 WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/483_wasserstein_penalisation_as_an_endogenou.py   (free public data only; config embedded)
+Run (one command): python strategies/483_wasserstein_penalisation_as_an_endogenou.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit cc50485fb68601d5f9b01f48262e3a778be06982 on 2026-11-27 09:02 Europe/Oslo, exit 0, output sha256 1052a65cbd2fd77c02a45f51010578e908e819b2b2853f53b99c9cf04a5fb0b3
-Data source: yfinance 公开日频 ETF 收盘价。投资池为 XLB、XLE、XLF、XLI、XLK、XLP、XLU、XLV、XLY。BIL 的同期日收益仅用于超额夏普计算。该次日志记录的取数时间为 2026-11-27T07:09:52+00:00。依据 config.yaml:2-3、strategy.py:62-90、strategy.py:183-197、strategy.py:205-225、README.md:15、logs/run_20261127_081135.log:1。
+Data source: yfinance 公开日频 ETF 收盘价。投资池为 XLB、XLE、XLF、XLI、XLK、XLP、XLU、XLV、XLY。BIL 的同期日收益仅用于超额夏普计算。该次日志记录的取数时间为 2026-11-27T07:09:52+00:00。依据。
 Data fetched: 2026-11-27T08:02:54+00:00
-Sample period: 预热数据从 2009-01-01 起请求。配置评估区间和该次日志记录的实际评估区间均为 2010-02-02 至 2025-12-31（含首尾）。依据 config.yaml:4-7、strategy.py:62-64、strategy.py:81-85、strategy.py:211-221、logs/run_20261127_081135.log:8。   data_range (from output): {'start': '2010-02-02', 'end': '2025-12-31'}
-IS/OOS split: 样本内为 2010-02-02 至 2018-12-31，样本外为 2019-01-01 至 2025-12-31，均按实际交易日计入。代码先连续模拟，再按日期拆分指标。两段共用固定超参数和滚动估计规则，分界处延续组合权重。依据 config.yaml:5-11、strategy.py:134-151、strategy.py:205-224、README.md:11、README.md:16。
-Costs and slippage: 交易成本 5 bps，滑点以固定费率 5 bps 建模。两者合计 10 bps，按每次调仓实际买入和卖出金额之和扣减组合净值。费用从组合内支付，首次建仓也计费。月度等权基准采用相同费率。依据 config.yaml:12-13、strategy.py:157-178、strategy.py:213-216、README.md:22。
-Signal lag: 每月首个交易日收盘 t，用截至该收盘的最近 252 个交易日日收益生成目标权重，默认在下一交易日收盘 t+1 成交。t 至 t+1 的收盘到收盘收益由原持仓承担，新权重从 t+1 至 t+2 的区间开始承担收益。依据 config.yaml:8-9、strategy.py:134-151、strategy.py:157-178、README.md:21。
+Sample period: 预热数据从 2009-01-01 起请求。配置评估区间和该次日志记录的实际评估区间均为 2010-02-02 至 2025-12-31（含首尾）。依据。 data_range (from output): {'start': '2010-02-02', 'end': '2025-12-31'}
+IS/OOS split: 样本内为 2010-02-02 至 2018-12-31，样本外为 2019-01-01 至 2025-12-31，均按实际交易日计入。代码先连续模拟，再按日期拆分指标。两段共用固定超参数和滚动估计规则，分界处延续组合权重。依据。
+Costs and slippage: 交易成本 5 bps，滑点以固定费率 5 bps 建模。两者合计 10 bps，按每次调仓实际买入和卖出金额之和扣减组合净值。费用从组合内支付，首次建仓也计费。月度等权基准采用相同费率。依据。
+Signal lag: 每月首个交易日收盘 t，用截至该收盘的最近 252 个交易日日收益生成目标权重，默认在下一交易日收盘 t+1 成交。t 至 t+1 的收盘到收盘收益由原持仓承担，新权重从 t+1 至 t+2 的区间开始承担收益。依据。
 Price adjustment: yfinance auto_adjust total-return close
-Survivorship bias: 使用固定的九只行业 ETF。README 说明这些基金在样本开始前已上市，编写时仍存续。固定名单避免把后续新设基金放回早期样本，仍有事后筛选及存续偏差，可能遗漏同期已清盘的基金。依据 config.yaml:2、strategy.py:62-64、strategy.py:208-211、README.md:17。
+Survivorship bias: 使用固定的九只行业 ETF。README 说明这些基金在样本开始前已上市，编写时仍存续。固定名单避免把后续新设基金放回早期样本，仍有事后筛选及存续偏差，可能遗漏同期已清盘的基金。依据。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.10917524105703413, ann_vol=0.13258073188832425, sharpe=0.8481261163177968, sharpe_excess=0.8291732669915215, max_drawdown=-0.1735528850824305, total_return=1.516029740286044, turnover=1.2887418280836356, n_trades=914

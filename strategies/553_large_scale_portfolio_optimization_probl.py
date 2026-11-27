@@ -2,16 +2,16 @@
 WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/553_large_scale_portfolio_optimization_probl.py   (free public data only; config embedded)
+Run (one command): python strategies/553_large_scale_portfolio_optimization_probl.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit c0a8f76240a0431b019ab49c34040a95a765860a on 2026-11-27 10:04 Europe/Oslo, exit 0, output sha256 7842e04cd84f0f3272914400c002351b89c4a466b25fda656a689ed2b3555937
-Data source: Yahoo Finance 日线，经 yfinance 下载。固定股票池含 64 只美国大盘股，SPY 为基准，BIL 为无风险收益代理。流动性代理为 Yahoo 报告的 Close × Volume。行情及下载时间缓存在 data_cache/。（config.yaml:2-68，strategy.py:53-77、84-100，README.md:20、30）
+Data source: Yahoo Finance 日线，经 yfinance 下载。固定股票池含 64 只美国大盘股，SPY 为基准，BIL 为无风险收益代理。流动性代理为 Yahoo 报告的 Close × Volume。行情及下载时间缓存在 data_cache/。
 Data fetched: 2026-11-27T09:05:04+00:00
-Sample period: 请求取数区间为 2010-01-01 至 2025-12-31，其中回测开始前的数据用于预热。日志记录的回测区间为 2012-01-03 至 2025-12-31。（config.yaml:69-72，strategy.py:53-60，README.md:21，logs/run_20261127_094127.log:11）   data_range (from output): {'start': '2012-01-03', 'end': '2025-12-31'}
-IS/OOS split: 样内为 2012-01-03 至 2019-12-31，样外为 2020-01-02 至 2025-12-31。默认设定连续模拟，再按日期切分报告，因此样外继承样内末日的组合状态，估计窗口继续滚动。7 组稳健性变体仅在样内运行。（config.yaml:69-72、84-91，strategy.py:155-174、257-265、280-283、295-308，README.md:21、28）
-Costs and slippage: 默认按每笔买卖的成交名义金额扣除 5 bps 交易成本和 5 bps 固定滑点，合计 10 bps，包含初次建仓。模拟按实际买卖金额之和从组合净值扣减费用，按扣费后净值配置目标权重。SPY 首日建仓用相同费率。样内加倍摩擦情景为交易成本和滑点各 10 bps，合计 20 bps。（config.yaml:82-83、91，strategy.py:36-38、198-218、250-254、303-307，README.md:23）
-Signal lag: 月末交易日 t 收盘确定信号，默认在下一交易日收盘模拟成交。持仓或目标股票缺价时，顺延至所需收盘价齐备，期间若有新目标则覆盖待执行目标。成交日的收盘到收盘收益按调仓前仓位计，随后一个收盘到收盘区间起使用新仓位。（config.yaml:81，strategy.py:155-185、189-218，README.md:22-23）
+Sample period: 请求取数区间为 2010-01-01 至 2025-12-31，其中回测开始前的数据用于预热。日志记录的回测区间为 2012-01-03 至 2025-12-31。 data_range (from output): {'start': '2012-01-03', 'end': '2025-12-31'}
+IS/OOS split: 样内为 2012-01-03 至 2019-12-31，样外为 2020-01-02 至 2025-12-31。默认设定连续模拟，再按日期切分报告，因此样外继承样内末日的组合状态，估计窗口继续滚动。7 组稳健性变体仅在样内运行。
+Costs and slippage: 默认按每笔买卖的成交名义金额扣除 5 bps 交易成本和 5 bps 固定滑点，合计 10 bps，包含初次建仓。模拟按实际买卖金额之和从组合净值扣减费用，按扣费后净值配置目标权重。SPY 首日建仓用相同费率。样内加倍摩擦情景为交易成本和滑点各 10 bps，合计 20 bps。
+Signal lag: 月末交易日 t 收盘确定信号，默认在下一交易日收盘模拟成交。持仓或目标股票缺价时，顺延至所需收盘价齐备，期间若有新目标则覆盖待执行目标。成交日的收盘到收盘收益按调仓前仓位计，随后一个收盘到收盘区间起使用新仓位。
 Price adjustment: yfinance Adj Close total-return (splits and distributions)
-Survivorship bias: 64 只美国大盘股的候选池为事后固定名单，缺少历史逐期标普 500 成分和已退市股票，存在幸存者偏差及成分选择偏差。筛选要求完整收益估计窗口，持仓缺价以最近报价估值，未模拟退市处置。（config.yaml:2-66，strategy.py:171-179、189-207，README.md:23、30）
+Survivorship bias: 64 只美国大盘股的候选池为事后固定名单，缺少历史逐期标普 500 成分和已退市股票，存在幸存者偏差及成分选择偏差。筛选要求完整收益估计窗口，持仓缺价以最近报价估值，未模拟退市处置。
 Parameter combinations tried: 8
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.27091294449884806, ann_vol=0.2841775936866729, sharpe=0.9840068414595214, sharpe_excess=0.9648842267575976, max_drawdown=-0.35738267259073253, total_return=5.780688489381333, turnover=70.42003584159593, n_trades=1211

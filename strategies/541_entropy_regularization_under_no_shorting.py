@@ -2,16 +2,16 @@
 WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/541_entropy_regularization_under_no_shorting.py   (free public data only; config embedded)
+Run (one command): python strategies/541_entropy_regularization_under_no_shorting.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 69a306c0280e31031e1c1674f053aa22730544ac on 2026-11-27 09:47 Europe/Oslo, exit 0, output sha256 88a54e22f26eb76114ebd8d787f6c1397e3f13bf99024dae739b8147e546f88d
-Data source: yfinance 日度 ETF 收盘价：SPY、TLT、GLD、VNQ、IEF 用于配置，BIL 用作无风险代理，其日收益仅用于事后计算超额夏普。行情优先从本地 CSV 快照读取，缺少快照时通过 yfinance 下载。见 config.yaml:2-3、strategy.py:64-79、strategy.py:85-105、strategy.py:247-252、strategy.py:200-213、README.md:23-27。
+Data source: yfinance 日度 ETF 收盘价：SPY、TLT、GLD、VNQ、IEF 用于配置，BIL 用作无风险代理，其日收益仅用于事后计算超额夏普。行情优先从本地 CSV 快照读取，缺少快照时通过 yfinance 下载。见。
 Data fetched: 2026-11-27T08:47:42+00:00
-Sample period: 配置的取价区间为 2008-01-01 至 2025-12-31，配置的回测区间为 2010-01-01 至 2025-12-31，2010 年前数据用于预热。该次运行记录的实际回测区间为 2010-01-04 至 2025-12-31。见 config.yaml:5-8、README.md:24、logs/run_20261127_091936.log:16、backtest_results.md:30。   data_range (from output): {'start': '2010-01-04', 'end': '2025-12-31'}
-IS/OOS split: 样本内从实际回测首日 2010-01-04 至 2018-12-31（含），样本外为 2018-12-31 之后的交易日至 2025-12-31（名义起点 2019-01-01）。稳健性变体只在样本内运行。全期与样本外使用默认参数，均值和协方差按可用历史滚动估计，切分时延续已有持仓。见 config.yaml:6-8、README.md:15-25、README.md:31、strategy.py:185-197、strategy.py:254-273、logs/run_20261127_091936.log:16。
-Costs and slippage: 默认费用 5 bps、滑点 5 bps，合计按 10 bps 乘以每次调仓的买入和卖出金额之和（含初始建仓），从执行日组合价值扣减。目标权重按扣减后的组合价值计算。滑点以固定线性费率建模。样本内高摩擦变体将费用和滑点分别设为 10 bps。见 config.yaml:18-19、config.yaml:27、strategy.py:40-42、strategy.py:157-181、strategy.py:254-261、README.md:26-27。
-Signal lag: 以月末最后一个交易日 t 的收盘为信号时点，使用截至该收盘的滚动日收益计算目标权重。默认在下一交易日 t+1 的收盘模拟成交。原权重承担截至执行日收盘的收益，新权重从 t+1 收盘至下一交易日收盘的区间开始计收益。见 config.yaml:10-11、README.md:25、strategy.py:114-124、strategy.py:168-181、strategy.py:185-197。
+Sample period: 配置的取价区间为 2008-01-01 至 2025-12-31，配置的回测区间为 2010-01-01 至 2025-12-31，2010 年前数据用于预热。该次运行记录的实际回测区间为 2010-01-04 至 2025-12-31。见 、backtest_results.md:30。 data_range (from output): {'start': '2010-01-04', 'end': '2025-12-31'}
+IS/OOS split: 样本内从实际回测首日 2010-01-04 至 2018-12-31（含），样本外为 2018-12-31 之后的交易日至 2025-12-31（名义起点 2019-01-01）。稳健性变体只在样本内运行。全期与样本外使用默认参数，均值和协方差按可用历史滚动估计，切分时延续已有持仓。见。
+Costs and slippage: 默认费用 5 bps、滑点 5 bps，合计按 10 bps 乘以每次调仓的买入和卖出金额之和（含初始建仓），从执行日组合价值扣减。目标权重按扣减后的组合价值计算。滑点以固定线性费率建模。样本内高摩擦变体将费用和滑点分别设为 10 bps。见。
+Signal lag: 以月末最后一个交易日 t 的收盘为信号时点，使用截至该收盘的滚动日收益计算目标权重。默认在下一交易日 t+1 的收盘模拟成交。原权重承担截至执行日收盘的收益，新权重从 t+1 收盘至下一交易日收盘的区间开始计收益。见。
 Price adjustment: yfinance auto_adjust=True, daily dividend- and split-adjusted closes
-Survivorship bias: 资产池事后固定为仍存续的 SPY、TLT、GLD、VNQ、IEF。README 明确指出可能存在存续偏差和资产选择偏差。见 config.yaml:2、strategy.py:229-233、README.md:35。
+Survivorship bias: 资产池事后固定为仍存续的 SPY、TLT、GLD、VNQ、IEF。README 明确指出可能存在存续偏差和资产选择偏差。见。
 Parameter combinations tried: 7
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.0869726100155439, ann_vol=0.11809740774830306, sharpe=0.7654871263356343, sharpe_excess=0.7450862235928994, max_drawdown=-0.17697635995192773, total_return=1.1154000379547977, turnover=4.1549897691364714, n_trades=535

@@ -2,16 +2,16 @@
 WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/431_mitigating_return_drag_and_regime_whipsa.py   (free public data only; config embedded)
+Run (one command): python strategies/431_mitigating_return_drag_and_regime_whipsa.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit c3e441c5e45062dfc079c2de97e601275410b0bf on 2026-11-27 08:00 Europe/Oslo, exit 0, output sha256 f8911c3d07faa4e6116533a8e1e41c4412171dcb4606f3036efc3a4a59090742
-Data source: 免费 Yahoo Finance 日线，由 yfinance 获取。行业 ETF 为 XLK、XLF、XLV、XLE、XLI、XLY、XLP、XLU、XLB、XLRE、XLC，基准为 SPY，参考序列为 ^VIX 和 ^IRX。日期按 SPY 有收盘价的交易日对齐，优先读取 data_cache/ 下对应的价格 CSV。（config.yaml:2-5，strategy.py:32-64，README.md:20）
+Data source: 免费 Yahoo Finance 日线，由 yfinance 获取。行业 ETF 为 XLK、XLF、XLV、XLE、XLI、XLY、XLP、XLU、XLB、XLRE、XLC，基准为 SPY，参考序列为 ^VIX 和 ^IRX。日期按 SPY 有收盘价的交易日对齐，优先读取 data_cache/ 下对应的价格 CSV。
 Data fetched: 2026-11-27T07:00:06+00:00
-Sample period: 配置请求区间为 2018-07-01 至 2026-10-30（含末日）。日志记录的实际输入为 2018-07-02 至 2026-10-30，含 24 个月估计窗口所需的预热数据。评估从首次模拟成交日 2020-08-03 开始，至 2026-10-30 结束。（config.yaml:7-9、20，strategy.py:33-44、247-256、327-328，logs/run_20261127_072106.log:4-5）   data_range (from output): {'start': '2020-08-03', 'end': '2026-10-30'}
-IS/OOS split: IS 为 2020-08-03 至 2025-12-31（含），OOS 为 2026-01-02 至 2026-10-30（含）。程序以同一配置连续生成目标、更新模型状态并模拟持仓，再将同一条日收益序列按 2025-12-31 切分。HMM 在每个信号日以截至当月的扩展窗口重新拟合。（config.yaml:10，README.md:16、21，strategy.py:102-145、247-271、321-342）
-Costs and slippage: 每笔模拟买入和卖出按绝对成交金额收取 5 bps 费用和 5 bps 固定滑点，共 10 bps，在成交收盘从净值扣除。目标金额基于扣减后的净值求解，原持仓先按成交日收盘价计价。SPY 基准的首次买入采用相同费率。（config.yaml:16-17，strategy.py:274-295、327-334，README.md:23）
-Signal lag: 在每月最后一个 SPY 交易日收盘后生成信号，下一 SPY 交易日收盘模拟成交。成交日的收盘至收盘收益先计入原持仓，成交后使用新权重。^VIX 和 ^IRX 均按 SPY 交易日向后移一行，下行收益门槛取上一月末可用的滞后 ^IRX。（config.yaml:13-15，strategy.py:236-268、274-295，README.md:22）
+Sample period: 配置请求区间为 2018-07-01 至 2026-10-30（含末日）。日志记录的实际输入为 2018-07-02 至 2026-10-30，含 24 个月估计窗口所需的预热数据。评估从首次模拟成交日 2020-08-03 开始，至 2026-10-30 结束。 data_range (from output): {'start': '2020-08-03', 'end': '2026-10-30'}
+IS/OOS split: IS 为 2020-08-03 至 2025-12-31（含），OOS 为 2026-01-02 至 2026-10-30（含）。程序以同一配置连续生成目标、更新模型状态并模拟持仓，再将同一条日收益序列按 2025-12-31 切分。HMM 在每个信号日以截至当月的扩展窗口重新拟合。
+Costs and slippage: 每笔模拟买入和卖出按绝对成交金额收取 5 bps 费用和 5 bps 固定滑点，共 10 bps，在成交收盘从净值扣除。目标金额基于扣减后的净值求解，原持仓先按成交日收盘价计价。SPY 基准的首次买入采用相同费率。
+Signal lag: 在每月最后一个 SPY 交易日收盘后生成信号，下一 SPY 交易日收盘模拟成交。成交日的收盘至收盘收益先计入原持仓，成交后使用新权重。^VIX 和 ^IRX 均按 SPY 交易日向后移一行，下行收益门槛取上一月末可用的滞后 ^IRX。
 Price adjustment: yfinance auto_adjust total-return ETF closes; ^VIX and ^IRX levels
-Survivorship bias: 按论文固定选取当前存续的 11 只行业 ETF，待所有基金具备完整月度数据后开始估计。README 明示存续偏差和品种选择偏差，并指出基金成分和行业分类会随时间变化。（config.yaml:2、7-9、20，strategy.py:20、25-29、236-258，README.md:27）
+Survivorship bias: 按论文固定选取当前存续的 11 只行业 ETF，待所有基金具备完整月度数据后开始估计。README 明示存续偏差和品种选择偏差，并指出基金成分和行业分类会随时间变化。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.12594481422059411, ann_vol=0.19371932929656002, sharpe=0.7111685714190015, sharpe_excess=0.5574085993272799, max_drawdown=-0.21985998430820297, total_return=0.9016488450317035, turnover=4.171272534132459, n_trades=175

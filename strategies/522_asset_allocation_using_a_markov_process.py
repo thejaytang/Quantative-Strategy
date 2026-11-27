@@ -2,16 +2,16 @@
 WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/522_asset_allocation_using_a_markov_process.py   (free public data only; config embedded)
+Run (one command): python strategies/522_asset_allocation_using_a_markov_process.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 8cbf3ed748f7cfff4bfd2cf26cd63111c21d942b on 2026-11-27 10:20 Europe/Oslo, exit 0, output sha256 2a0d3723b02b8385d6179ec0c117797b75978fce7a5fe2428c32b9d91a13e506
-Data source: 公开 Yahoo Finance 行情，经 yfinance 获取日线。风险资产为 SPY、EFA、TLT、GLD、VNQ，BIL 为现金基准（config.yaml:2–3；strategy.py:52–74；README.md:22–23）。
+Data source: 公开 Yahoo Finance 行情，经 yfinance 获取日线。风险资产为 SPY、EFA、TLT、GLD、VNQ，BIL 为现金基准。
 Data fetched: 2026-11-27T09:20:23+00:00
-Sample period: 行情覆盖 2007-12-03 至 2025-12-31，初始估计使用 2008-01 至 2015-12 的 96 个完整自然月，实际回测覆盖 2016-01-04 至 2025-12-31（config.yaml:4–7、config.yaml:13；README.md:24；logs/run_20261127_090805.log:3、logs/run_20261127_090805.log:11）。   data_range (from output): {'start': '2016-01-04', 'end': '2025-12-31'}
-IS/OOS split: 样本内为 2016-01-04 至 2020-12-31，样本外为 2021-01-04 至 2025-12-31。稳健性变体仅在样本内运行，正式回测沿用默认参数，模型按月扩展历史重新估计，持仓跨分界连续（README.md:16、README.md:24、README.md:31；strategy.py:156–170、strategy.py:222–227、strategy.py:237–269；logs/run_20261127_090805.log:11）。
-Costs and slippage: 每笔买入或卖出按实际买卖名义金额计 2 bps 手续费及 5 bps 固定比例滑点，合计 7 bps，于换仓收盘从组合净值扣除，首次建仓也计费（config.yaml:9–10；strategy.py:176–197；README.md:26）。
-Signal lag: 月末最后一个交易日收盘后，以截至该日的历史数据计算信号，默认于下一交易日收盘模拟成交。成交日的收盘到收盘收益先按旧权重计入，再换仓扣费，新权重从成交收盘后开始承担收益（config.yaml:8；strategy.py:147–170、strategy.py:183–197；README.md:25）。
+Sample period: 行情覆盖 2007-12-03 至 2025-12-31，初始估计使用 2008-01 至 2015-12 的 96 个完整自然月，实际回测覆盖 2016-01-04 至 2025-12-31。 data_range (from output): {'start': '2016-01-04', 'end': '2025-12-31'}
+IS/OOS split: 样本内为 2016-01-04 至 2020-12-31，样本外为 2021-01-04 至 2025-12-31。稳健性变体仅在样本内运行，正式回测沿用默认参数，模型按月扩展历史重新估计，持仓跨分界连续。
+Costs and slippage: 每笔买入或卖出按实际买卖名义金额计 2 bps 手续费及 5 bps 固定比例滑点，合计 7 bps，于换仓收盘从组合净值扣除，首次建仓也计费。
+Signal lag: 月末最后一个交易日收盘后，以截至该日的历史数据计算信号，默认于下一交易日收盘模拟成交。成交日的收盘到收盘收益先按旧权重计入，再换仓扣费，新权重从成交收盘后开始承担收益。
 Price adjustment: yfinance auto_adjust=True daily total-return adjusted close
-Survivorship bias: 风险资产池为事后固定选取的持续存续代表性基金，因此存在资产选择与幸存者偏差（config.yaml:2–3；README.md:33）。
+Survivorship bias: 风险资产池为事后固定选取的持续存续代表性基金，因此存在资产选择与幸存者偏差。
 Parameter combinations tried: 6
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.14685712340990054, ann_vol=0.1073450501053131, sharpe=1.330605162898823, sharpe_excess=1.2386946625076418, max_drawdown=-0.1714272591093443, total_return=0.9829439295244229, turnover=2.775717042848573, n_trades=299

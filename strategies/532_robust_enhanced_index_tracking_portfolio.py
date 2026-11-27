@@ -2,16 +2,16 @@
 WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/532_robust_enhanced_index_tracking_portfolio.py   (free public data only; config embedded)
+Run (one command): python strategies/532_robust_enhanced_index_tracking_portfolio.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit fb92b5054b1596d6a39ea87072bbd5a288327fb7 on 2026-11-27 09:42 Europe/Oslo, exit 0, output sha256 c7c9ec7a10bccd4d05611bca1c9c4a945cf84838739f3a2a37842a2ba69bf71d
-Data source: 通过 yfinance 下载 Yahoo Finance 日频收盘价，命中有效缓存时读取本地 CSV（README.md:13；strategy.py:79-108）。固定股票池为 AAPL、NVDA、MSFT、AVGO、ORCL、JNJ、ABBV、LLY、UNH、ABT、BRK-B、JPM、V、BAC、MA、AMZN、TSLA、HD、MCD、BKNG、WMT、COST、KO、PG、PM；SPY 为基准，BIL 日收益用于计算超额收益指标（config.yaml:2-29；strategy.py:252-269,303-326）。
+Data source: 通过 yfinance 下载 Yahoo Finance 日频收盘价，命中有效缓存时读取本地 CSV。固定股票池为 AAPL、NVDA、MSFT、AVGO、ORCL、JNJ、ABBV、LLY、UNH、ABT、BRK-B、JPM、V、BAC、MA、AMZN、TSLA、HD、MCD、BKNG、WMT、COST、KO、PG、PM；SPY 为基准，BIL 日收益用于计算超额收益指标。
 Data fetched: 2026-11-27T08:42:08+00:00
-Sample period: 请求价格区间为 2009-11-01 至 2024-12-31，记录的价格区间为 2009-11-02 至 2024-12-31。配置评估起点为 2015-01-01，实际评估区间为 2015-01-02 至 2024-12-31，之前的价格用于预热（config.yaml:30-34；README.md:14；logs/run_20261127_091613.log:3,21）。   data_range (from output): {'start': '2015-01-02', 'end': '2024-12-31'}
-IS/OOS split: IS 为评估起点至 2019-12-31（含），OOS 为此日之后至 2024-12-31 的交易日。默认组连续运行一次后按日期切分，OOS 继承期初持仓并继续滚动估计；五个变体仅运行 IS（config.yaml:30-37,46-51；strategy.py:185-209,277-278,313-343；README.md:14,19）。README 记载论文在策略编写前已公开该 OOS 时段的实证结果（README.md:21）。
-Costs and slippage: 默认每笔买入或卖出按成交金额扣 5 bps 成本及 5 bps 固定滑点，合计 10 bps；滑点通过比例费用建模。每次调仓先按当日收盘价计入旧仓收益，再对买卖双边金额之和（含从现金建仓）扣除费用，求得扣费后可投资金额。SPY 基准首次建仓使用相同费率。IS 高摩擦变体各扣 10 bps，合计 20 bps（config.yaml:44-51；strategy.py:38-40,218-246,314-317,335-343；README.md:15,19）。
-Signal lag: 在月末交易日收盘 t，以截至该收盘的 60 个月滚动月度收益生成股票目标权重。按配置在下一交易日 t+1 的收盘模拟成交；旧仓获得截至 t+1 收盘的价格变动，新仓自其后的收盘到收盘区间起计入价格收益（config.yaml:35-37；strategy.py:185-208,212-246；README.md:14-15）。
+Sample period: 请求价格区间为 2009-11-01 至 2024-12-31，记录的价格区间为 2009-11-02 至 2024-12-31。配置评估起点为 2015-01-01，实际评估区间为 2015-01-02 至 2024-12-31，之前的价格用于预热。 data_range (from output): {'start': '2015-01-02', 'end': '2024-12-31'}
+IS/OOS split: IS 为评估起点至 2019-12-31（含），OOS 为此日之后至 2024-12-31 的交易日。默认组连续运行一次后按日期切分，OOS 继承期初持仓并继续滚动估计；五个变体仅运行 IS。README 记载论文在策略编写前已公开该 OOS 时段的实证结果。
+Costs and slippage: 默认每笔买入或卖出按成交金额扣 5 bps 成本及 5 bps 固定滑点，合计 10 bps；滑点通过比例费用建模。每次调仓先按当日收盘价计入旧仓收益，再对买卖双边金额之和（含从现金建仓）扣除费用，求得扣费后可投资金额。SPY 基准首次建仓使用相同费率。IS 高摩擦变体各扣 10 bps，合计 20 bps。
+Signal lag: 在月末交易日收盘 t，以截至该收盘的 60 个月滚动月度收益生成股票目标权重。按配置在下一交易日 t+1 的收盘模拟成交；旧仓获得截至 t+1 收盘的价格变动，新仓自其后的收盘到收盘区间起计入价格收益。
 Price adjustment: yfinance auto_adjust=True adjusted-close total-return proxy
-Survivorship bias: 沿用 README 所述论文事后选定的 25 只股票，使用固定名单，缺少历史时点成分和退市股票，存在幸存者偏差与成分选择偏差。上市前缺值保留；每次仅纳入滚动窗口月收益完整的股票（config.yaml:2-27,37；strategy.py:187-207；README.md:9,13,21）。
+Survivorship bias: 沿用 README 所述论文事后选定的 25 只股票，使用固定名单，缺少历史时点成分和退市股票，存在幸存者偏差与成分选择偏差。上市前缺值保留；每次仅纳入滚动窗口月收益完整的股票。
 Parameter combinations tried: 6
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.21063817181840716, ann_vol=0.15072600590943344, sharpe=1.3441363891019988, sharpe_excess=1.2847807367720698, max_drawdown=-0.19471995339526282, total_return=1.5966473489993103, turnover=1.2210377879040515, n_trades=1371

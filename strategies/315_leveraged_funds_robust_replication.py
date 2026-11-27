@@ -2,22 +2,22 @@
 WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; non-author review: PASS; publication gate: Codex.
-Run (one command): python strategies/315_leveraged_funds_robust_replication.py   (free public data only; config embedded)
+Run (one command): python strategies/315_leveraged_funds_robust_replication.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 2b23c5bbf706aea933c0cba5f5805efb450ee206 on 2026-11-26 14:27 Europe/Oslo, exit 0, output sha256 64b60139e9006690eb9843d986fd57a7305f79cb098430491a426c3bcab282be
-Data source: 通过 yfinance 获取 Yahoo Finance 的日频 ETF 复权收盘价（QLD、QQQ、SPY、SSO、TQQQ、UPRO），并通过 FRED CSV 获取联邦基金有效利率 DFF。两类数据均优先读取对应的本地 CSV 缓存。（config.yaml:11-17；strategy.py:27-29；strategy.py:64-77；strategy.py:94-105；strategy.py:224-235；README.md:7；README.md:11；README.md:21）
+Data source: 通过 yfinance 获取 Yahoo Finance 的日频 ETF 复权收盘价（QLD、QQQ、SPY、SSO、TQQQ、UPRO），并通过 FRED CSV 获取联邦基金有效利率 DFF。两类数据均优先读取对应的本地 CSV 缓存。
 Data fetched: 2026-11-26 14:27 Europe/Oslo (run time)
-Sample period: 价格数据请求自 2011-01-01 至 2025-12-31，2011 年用于滚动预热。实际报告区间为 2012-01-03 至 2025-12-31。（config.yaml:3-9；strategy.py:64-74；strategy.py:214-217；strategy.py:239-246；strategy.py:278-291；README.md:19；logs/run_20261125_140620.log:1）   data_range (from output): 2012-01-03 to 2025-12-31
-IS/OOS split: 样本内 2012-01-01 至 2018-12-31，样本外 2019-01-01 至 2025-12-31。按日期切分同一次连续模拟的收益，样本外延续此前的持仓与信号历史。README 记载参数在首次回测前固定，两个区间均未用于调参。（config.yaml:4-9；strategy.py:239-260；strategy.py:271-275；README.md:19；logs/run_20261125_140620.log:2）
-Costs and slippage: 每条腿按净单向成交额收取 5 bp，计入入场、再平衡和出场。空头借券费按期初空头权重名义额以年化 30 bp 和实际日历天数/360 计提。主策略的合成复制收益扣除 (L−1) 倍的融资成本，利率为期初已知 DFF 加年化 100 bp，同样按实际日历天数/360 计提。现金及空头抵押品利息按零处理。未建模滑点或市场冲击。（config.yaml:25-29；strategy.py:127-137；strategy.py:157-179；strategy.py:235-237；strategy.py:254-260；README.md:11；README.md:15；README.md:25）
-Signal lag: 每周最后一个计划交易日收盘 t，用截至该收盘的价格计算分数。在下一交易日收盘 t+1 模拟执行符合阈值的最低分组合，若原组合仍在持有期内则跳过。执行后的目标权重参与 t+1 至 t+2 的收盘到收盘收益。目标持有期为五个收盘到收盘区间，期间每日收盘再平衡。（config.yaml:19-23；strategy.py:123-154；strategy.py:157-179；strategy.py:226-231；strategy.py:254-260；README.md:13）
-Price adjustment: yfinance 下载启用 auto_adjust=True，使用返回的 Close 计算收盘到收盘百分比收益。README 将该复权市场收盘价口径描述为计入分红与拆股影响。（strategy.py:64-78；strategy.py:233-235；README.md:7；README.md:25）
-Survivorship bias: 固定选择 SSO/SPY、UPRO/SPY、QLD/QQQ、TQQQ/QQQ 四组。价格校验要求各标的覆盖全部计划交易日。README 明示可能存在基金层面的存续和样本选择偏差，研究范围限于所选标的。（config.yaml:11-16；strategy.py:78-88；strategy.py:224-233；README.md:25）
+Sample period: 价格数据请求自 2011-01-01 至 2025-12-31，2011 年用于滚动预热。实际报告区间为 2012-01-03 至 2025-12-31。 data_range (from output): 2012-01-03 to 2025-12-31
+IS/OOS split: 样本内 2012-01-01 至 2018-12-31，样本外 2019-01-01 至 2025-12-31。按日期切分同一次连续模拟的收益，样本外延续此前的持仓与信号历史。README 记载参数在首次回测前固定，两个区间均未用于调参。
+Costs and slippage: 每条腿按净单向成交额收取 5 bp，计入入场、再平衡和出场。空头借券费按期初空头权重名义额以年化 30 bp 和实际日历天数/360 计提。主策略的合成复制收益扣除 (L−1) 倍的融资成本，利率为期初已知 DFF 加年化 100 bp，同样按实际日历天数/360 计提。现金及空头抵押品利息按零处理。未建模滑点或市场冲击。
+Signal lag: 每周最后一个计划交易日收盘 t，用截至该收盘的价格计算分数。在下一交易日收盘 t+1 模拟执行符合阈值的最低分组合，若原组合仍在持有期内则跳过。执行后的目标权重参与 t+1 至 t+2 的收盘到收盘收益。目标持有期为五个收盘到收盘区间，期间每日收盘再平衡。
+Price adjustment: yfinance 下载启用 auto_adjust=True，使用返回的 Close 计算收盘到收盘百分比收益。README 将该复权市场收盘价口径描述为计入分红与拆股影响。
+Survivorship bias: 固定选择 SSO/SPY、UPRO/SPY、QLD/QQQ、TQQQ/QQQ 四组。价格校验要求各标的覆盖全部计划交易日。README 明示可能存在基金层面的存续和样本选择偏差，研究范围限于所选标的。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=-0.007517604706889669, ann_vol=0.002664532392787293, sharpe=-2.830643529413659, max_drawdown=-0.05133756758329011, total_return=-0.05133756758329011, n_trades=46
     oos: cagr=-0.014820281734205132, ann_vol=0.0030741836235021612, sharpe=-4.855283405124163, max_drawdown=-0.09902826481609994, total_return=-0.09902826481609994, n_trades=81
     full: cagr=-0.011175684674659903, ann_vol=0.002885640123337853, sharpe=-3.893135170656959, max_drawdown=-0.14528196216173794, total_return=-0.14528196216173794, n_trades=127
-    benchmark  full: cagr=0.14892995799579678, ann_vol=0.16671619260685325, sharpe=0.9165176035149231, max_drawdown=-0.33717275321149764, total_return=5.95337529890467, n_trades=1
+    benchmark full: cagr=0.14892995799579678, ann_vol=0.16671619260685325, sharpe=0.9165176035149231, max_drawdown=-0.33717275321149764, total_return=5.95337529890467, n_trades=1
 """
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---

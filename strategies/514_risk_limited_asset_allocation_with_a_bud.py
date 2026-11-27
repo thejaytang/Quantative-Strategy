@@ -2,16 +2,16 @@
 WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/514_risk_limited_asset_allocation_with_a_bud.py   (free public data only; config embedded)
+Run (one command): python strategies/514_risk_limited_asset_allocation_with_a_bud.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit c0a8f76240a0431b019ab49c34040a95a765860a on 2026-11-27 10:04 Europe/Oslo, exit 0, output sha256 24709d43ebe800eb76dcc753d8db0eb9cfdd849729609cc8118148aa7b5c361e
-Data source: yfinance 美元 ETF 日收盘价。风险资产为 SPY、QQQ、EFA、TLT、GLD、VNQ，BIL 为现金替代，SPY 同时用作买入持有基准（config.yaml:2-4，README.md:19，strategy.py:31-63、225-242、263-265）。运行日志记录的数据抓取时间为 2026-11-27T08:00:19+00:00（logs/run_20261127_090917.log:1）。
+Data source: yfinance 美元 ETF 日收盘价。风险资产为 SPY、QQQ、EFA、TLT、GLD、VNQ，BIL 为现金替代，SPY 同时用作买入持有基准。运行日志记录的数据抓取时间为 2026-11-27T08:00:19+00:00。
 Data fetched: 2026-11-27T09:04:19+00:00
-Sample period: 价格覆盖 2007-10-01 至 2025-12-31，2007-10-01 起的数据用于预热。回测收益区间为 2009-01-02 至 2025-12-31，含首尾交易日（config.yaml:6-10，README.md:21，strategy.py:65-68、232-242，logs/run_20261127_090917.log:16）。   data_range (from output): {'start': '2009-01-02', 'end': '2025-12-31'}
-IS/OOS split: 样本内（IS）为 2009-01-02 至 2017-12-29；样本外（OOS）为 2018-01-02 至 2025-12-31，均含首尾交易日。两段从同一次默认参数模拟的连续持仓和收益路径切分。OOS 为历史留出期，其中大部分日期早于论文发表。五组稳健性对照仅运行至 IS 截止日（config.yaml:8-10、24-34，README.md:21、27，strategy.py:217-222、249-265）。
-Costs and slippage: 默认每笔买卖按成交额计 5 bps 成本和 5 bps 固定滑点，两项合计 10 bps，买卖两边及 BIL 均计入。调仓时以费后资产价值确定目标持仓金额，按其与成交前持仓金额的绝对差之和计算扣费，并从净值扣除；滑点以固定费率建模。样本内双倍成本对照将成本和滑点各提高至 10 bps（config.yaml:19-22、33-34，README.md:23，strategy.py:159-191、249-257）。
-Signal lag: 月末最后一个交易日收盘 t 生成信号，默认在下一交易日收盘 t+1 模拟成交。t 至 t+1 的收盘到收盘收益按原持仓计入，随后扣费并更新权重。SPY 基准在回测首日收盘按预先设定的目标从 BIL 转为 SPY（config.yaml:19-20，README.md:22，strategy.py:129-155、178-191、263-265）。
+Sample period: 价格覆盖 2007-10-01 至 2025-12-31，2007-10-01 起的数据用于预热。回测收益区间为 2009-01-02 至 2025-12-31，含首尾交易日。 data_range (from output): {'start': '2009-01-02', 'end': '2025-12-31'}
+IS/OOS split: 样本内（IS）为 2009-01-02 至 2017-12-29；样本外（OOS）为 2018-01-02 至 2025-12-31，均含首尾交易日。两段从同一次默认参数模拟的连续持仓和收益路径切分。OOS 为历史留出期，其中大部分日期早于论文发表。五组稳健性对照仅运行至 IS 截止日。
+Costs and slippage: 默认每笔买卖按成交额计 5 bps 成本和 5 bps 固定滑点，两项合计 10 bps，买卖两边及 BIL 均计入。调仓时以费后资产价值确定目标持仓金额，按其与成交前持仓金额的绝对差之和计算扣费，并从净值扣除；滑点以固定费率建模。样本内双倍成本对照将成本和滑点各提高至 10 bps。
+Signal lag: 月末最后一个交易日收盘 t 生成信号，默认在下一交易日收盘 t+1 模拟成交。t 至 t+1 的收盘到收盘收益按原持仓计入，随后扣费并更新权重。SPY 基准在回测首日收盘按预先设定的目标从 BIL 转为 SPY。
 Price adjustment: yfinance auto_adjust=True adjusted close, total-return basis
-Survivorship bias: 固定资产池选自研究时仍存续且具有长历史的 ETF，README 明示存在事后选择与存续偏差。加载器按配置读取同一组标的，并在发现任一标的缺价或价格无效时停止（README.md:29，config.yaml:2-4，strategy.py:65-75、225-242）。
+Survivorship bias: 固定资产池选自研究时仍存续且具有长历史的 ETF，README 明示存在事后选择与存续偏差。加载器按配置读取同一组标的，并在发现任一标的缺价或价格无效时停止。
 Parameter combinations tried: 6
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.05815685244260593, ann_vol=0.07720268842020143, sharpe=0.770900074161784, sharpe_excess=0.7616039971689724, max_drawdown=-0.12346042848999783, total_return=0.6621039279319347, turnover=3.344732880658356, n_trades=295

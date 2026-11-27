@@ -2,16 +2,16 @@
 WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/188_opex_week.py   (free public data only; config embedded)
+Run (one command): python strategies/188_opex_week.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 92e75bea82090bd8b6723b610a02dabec59e659b on 2026-11-27 07:29 Europe/Oslo, exit 0, output sha256 fa543a3c5385d2a3f53bb4bc745651c3b872589d1342b792dabbf43d47155c13
-Data source: Yahoo Finance 免费公开日线，经 yfinance 获取 SPY（权益 ETF）和 BIL（现金代理 ETF）的复权开盘价及收盘价。优先读取本地 CSV 快照，缓存缺失或校验失败时请求 Yahoo Finance。（config.yaml:4-6，strategy.py:85-107，README.md:11、20）
+Data source: Yahoo Finance 免费公开日线，经 yfinance 获取 SPY（权益 ETF）和 BIL（现金代理 ETF）的复权开盘价及收盘价。优先读取本地 CSV 快照，缓存缺失或校验失败时请求 Yahoo Finance。
 Data fetched: 2026-11-27
-Sample period: 配置覆盖 2008-01-01 至 2026-10-31，含起止日期。指定运行的实际交易日覆盖 2008-01-02 至 2026-10-30。（config.yaml:8-14，strategy.py:253-255、279-281，logs/codex_fix_d2_run_20261126_180739.log:1）   data_range (from output): 2008-01-02 to 2026-10-30
-IS/OOS split: 按时间划分，样本内 2008-01-01 至 2017-12-31，样本外 2018-01-01 至 2026-10-31，均含起止日期。组合全程模拟一次，再切片报告，跨界持仓连续。样本外区间与原文历史覆盖期重叠。（config.yaml:8-14，strategy.py:253-276，README.md:21，logs/codex_fix_d2_run_20261126_180739.log:6）
-Costs and slippage: 每条 ETF 买卖腿计固定费用 1 bp 和固定滑点 1 bp，合计 2 bps。日增长因子乘以 (1 - 0.0002)^当日成交腿数。每次换仓计两腿，初始直接买入计一腿，SPY 买入持有基准仅计初始一腿。配对周收益为毛收益。滑点模型为固定基点扣减，未模拟随规模、流动性或到期日变化的滑点。（config.yaml:19-22，strategy.py:150-157、244-247、304-307，README.md:13、18、32，logs/codex_fix_d2_run_20261126_180739.log:1）
-Signal lag: 信号由交易日历预排，最迟于前一交易日 t 收盘确定。到期周首个交易日开盘由 BIL 换入 SPY，到期周最后一个交易日收盘换回 BIL。对每次切换而言，成交分别采用 t+1 交易日的开盘价或收盘价。（strategy.py:52-67、127-148，README.md:12）
+Sample period: 配置覆盖 2008-01-01 至 2026-10-31，含起止日期。指定运行的实际交易日覆盖 2008-01-02 至 2026-10-30。 data_range (from output): 2008-01-02 to 2026-10-30
+IS/OOS split: 按时间划分，样本内 2008-01-01 至 2017-12-31，样本外 2018-01-01 至 2026-10-31，均含起止日期。组合全程模拟一次，再切片报告，跨界持仓连续。样本外区间与原文历史覆盖期重叠。
+Costs and slippage: 每条 ETF 买卖腿计固定费用 1 bp 和固定滑点 1 bp，合计 2 bps。日增长因子乘以 (1 - 0.0002)^当日成交腿数。每次换仓计两腿，初始直接买入计一腿，SPY 买入持有基准仅计初始一腿。配对周收益为毛收益。滑点模型为固定基点扣减，未模拟随规模、流动性或到期日变化的滑点。
+Signal lag: 信号由交易日历预排，最迟于前一交易日 t 收盘确定。到期周首个交易日开盘由 BIL 换入 SPY，到期周最后一个交易日收盘换回 BIL。对每次切换而言，成交分别采用 t+1 交易日的开盘价或收盘价。
 Price adjustment: Yahoo Finance auto_adjust=True (split- and distribution-adjusted Open and Close)
-Survivorship bias: 固定使用样本期内已上市的 SPY 和 BIL，无个股成分表或以现今指数成分股回填历史。两只 ETF 为事后选定的存续基金，样本起点受 BIL 上市时间限制。（config.yaml:4-6，strategy.py:259-263，README.md:21、33）
+Survivorship bias: 固定使用样本期内已上市的 SPY 和 BIL，无个股成分表或以现今指数成分股回填历史。两只 ETF 为事后选定的存续基金，样本起点受 BIL 上市时间限制。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.015636341477718085, ann_vol=0.09406205509400564, sharpe=0.2123662107619181, sharpe_excess=0.18779511246727484, max_drawdown=-0.24411796724775647, total_return=0.1676934548790161, turnover=48.13820492454329, n_trades=481

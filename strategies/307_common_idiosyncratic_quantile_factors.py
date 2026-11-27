@@ -1,3 +1,23 @@
+"""307_common_idiosyncratic_quantile_factors
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/307_common_idiosyncratic_quantile_factors.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit dfc503a96cfc21dd90d6de1640b6ece149e0083f on 2026-11-27 06:54 Europe/Oslo, exit 0, output sha256 ac27d8c5afa64cadb4ad64a8980da76ca2bd7beae2e52607f41aac875525f04a
+Data source: Yahoo Finance via yfinance, using daily Open and Close prices. The 24 US equities are AAPL, MSFT, GOOGL, AMZN, NVDA, CSCO, ORCL, IBM, JPM, BAC, GS, WFC, JNJ, PFE, MRK, UNH, XOM, CVX, COP, SLB, PG, KO, PEP, and WMT. The factor ETFs are SPY, IWM, IWD, and IWF. The factor return series are SPY, IWM minus SPY, and IWD minus IWF.
+Data fetched: 2026-11-27 06:54 Europe/Oslo (run time)
+Sample period: Requested price history including warm-up: 2005-01-01 through 2025-12-31. The run reports observed price history from 2005-01-03 through 2025-12-31 and a backtest from 2008-01-02 through 2025-12-31.   data_range (from output): 2008-01-02 to 2025-12-31
+IS/OOS split: IS is 2008-01-01 through 2017-12-31. OOS is 2018-01-01 through 2025-12-31. Both reporting intervals are inclusive, and metrics are calculated by slicing daily returns from a single continuous simulation per portfolio, with holdings carried across the split. The README describes a chronological holdout and states that neither interval was used for tuning.
+Costs and slippage: The simulator charges 10 bps one way on the sum of absolute changes in position notional at each rebalance, and target positions are sized on equity after that charge. Short borrow costs 50 bps annually, divided by 252 sessions and charged each session on absolute short exposure after any opening rebalance. Slippage is not separately modelled. Fills use adjusted opening prices, and spread and market impact are omitted.
+Signal lag: At the last trading session close of each month, formation uses returns through that close. Both signal portfolios rebalance at the next trading session’s open, on the first observed session of the new month. Old positions earn the overnight move to that open, and the new positions earn the open-to-close move. The SPY buy-and-hold benchmark enters at the first backtest open on a preset target.
+Price adjustment: The downloader sets yfinance auto_adjust=True for Open and Close, includes the requested end date by passing the next calendar day to yfinance, and stores the adjusted panel in a CSV. Signals use adjusted close-to-close returns. The simulation values overnight and intraday moves with adjusted opens and closes. A fresh download may produce a different adjusted price snapshot.
+Survivorship bias: The fixed US24 stock list was selected retrospectively from surviving large-cap names and introduces survivorship bias. It lacks historical membership changes and delisting returns. Eligibility requires complete returns within each formation window.
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.0340466377345372, ann_vol=0.10340599871805388, sharpe=0.3752674421110719, max_drawdown=-0.18681139865732566, total_return=0.3972878102582178, turnover=67.30612428033957, n_trades=1792
+    oos: cagr=-0.031020069366245684, ann_vol=0.09341113414494928, sharpe=-0.29061622210257, max_drawdown=-0.2912805791650085, total_return=-0.2223399500134613, turnover=57.498882148389654, n_trades=1455
+    full: cagr=0.004632679142801965, ann_vol=0.09910332706579528, sharpe=0.09606686676127542, max_drawdown=-0.3705404867132067, total_return=0.0866149083709844, turnover=124.80500642872921, n_trades=3247
+    benchmark  full: cagr=0.10969713599992947, ann_vol=0.19952279396556535, sharpe=0.621601012929016, max_drawdown=-0.5244680050352296, total_return=5.492690388361079, turnover=0.9990009990009991, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

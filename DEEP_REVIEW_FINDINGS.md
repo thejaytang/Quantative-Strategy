@@ -2,7 +2,7 @@
 
 Already-published strategies are not removed from git history. If a later deep review finds a real problem (look-ahead, wrong data, or wrong numbers), the file is kept as last published on origin/main and listed here in a new commit. Fixes, if any, also land in a new commit.
 
-Generated 2026-11-27 21:55 Europe/Oslo.
+Generated 2026-11-27 21:57 Europe/Oslo.
 
 | File | Latest self-review | Category | Stage note |
 |---|---|---|---|
@@ -34,7 +34,7 @@ Generated 2026-11-27 21:55 Europe/Oslo.
 | strategies/459_entropic_value_at_risk_parity_for_temper.py | INVALID | 固定资产池存在幸存者偏差和事后选择偏差; 固定成本和收盘结算限制了结果的执行含义 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 | strategies/497_interpretable_allocation_and_model_predi.py | INVALID | 固定研究池存在幸存者偏差 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 | strategies/442_mitigating_return_drag_and_regime_whipsa.py | INVALID | defect listed in self-review; not a published fix | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
-| strategies/022_sector_residual_statarb.py | INVALID | 成交和资金模型有简化 | kept_from_origin: 完整性不合格：lag_ok,reads_local_files_other_than_config_and_cache |
+| strategies/022_sector_residual_statarb.py | INVALID | 成交和资金模型有简化 | kept_from_origin: 完整性不合格：lag_ok,reads_local_files_other_than_config_and_cache; official fix file sha256 3c04b7e30cca112cdaaef94ec1a73d25a5153498421873cd46754886365a96f8. META lag_ok is True; the snapshot still cannot prove historical first-publication lag or revision vintages for close and distribution fields (known limitation). reads_local is the Path(__file__) self-hash at official line 410. Stays INVALID pending Gatekeeper spot-check. |
 | strategies/465_semivariance_and_semivolatility_in_portf.py | INVALID | 成交和现金取决于简化假设 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 | strategies/113_kalman_garch_pairs.py | INVALID | 固定存续配对限制结果的外推; 成交与资金约束为简化模型 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 | strategies/315_leveraged_funds_robust_replication.py | INVALID | 事后选池限制结论的适用范围 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |

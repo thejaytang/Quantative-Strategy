@@ -2,7 +2,7 @@
 
 Already-published strategies are not removed from git history. If a later deep review finds a real problem (look-ahead, wrong data, or wrong numbers), the file is kept as last published on origin/main and listed here in a new commit. Fixes, if any, also land in a new commit.
 
-Generated 2026-11-27 10:50 Europe/Oslo.
+Generated 2026-11-27 10:52 Europe/Oslo.
 
 | File | Latest self-review | Category | Stage note |
 |---|---|---|---|

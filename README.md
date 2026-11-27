@@ -4,7 +4,7 @@
 
 每个策略一个文件：`strategies/<编号>_<名称>.py`，一条命令运行：`python strategies/<文件>.py`（依赖见 requirements.txt）。文件头写明数据源与抓取时间、样本期、IS/OOS 划分、成本与滑点、信号滞后、复权口径、幸存者偏差说明、尝试的参数组合数，以及在记录的 commit 上实际运行得到的关键数字（backtest reproduced）。收录条件：真实运行、确有交易、无同收盘成交前视、Codex 自审 PASS（进入本仓库前的审查为作者自审，不是独立第三方审查）、单文件复跑与审查时结果一致。
 
-本表由文件实际内容生成（2026-11-27 11:54 Europe/Oslo），本表由文件实际内容生成（2026-11-27 11:54 Europe/Oslo），共 50 个。
+本表由文件实际内容生成（2026-11-27 11:54 Europe/Oslo），本表由文件实际内容生成（2026-11-27 11:54 Europe/Oslo），共 52 个。
 。
 
 | 文件 | 作者 | 代码 commit | 全样本 Sharpe | 全样本 CAGR |
@@ -52,12 +52,14 @@
 | strategies/350_continuous_timing_growth_defensive.py | Codex | 9102661980 | 0.9164034821773692 | 0.1728115110163706 |
 | strategies/382_statistical_arbitrage_in_polish_equities.py | Codex | ea97bbcbc9 | 0.500628613686733 | 0.023135888068235744 |
 | strategies/438_the_mathematics_of_heuristic_portfolio_o.py | Codex | f9ce9ed5a4 | 0.573210240682426 | 0.0343462522184903 |
+| strategies/448_continuous_cash_overlay_filters_for_a_st.py | Codex | 6df04a4d89 | 1.1328022628669068 | 0.18558698378061722 |
 | strategies/460_understanding_the_long_only_minimum_vari.py | Codex | c71364ad99 | 0.8044119346668672 | 0.10067372562894272 |
 | strategies/463_simple_dynamic_stock_bond_gold_portfolio.py | Codex | f9ce9ed5a4 | 0.9859305218392249 | 0.0686041912862605 |
 | strategies/468_cleaning_correlation_matrices_with_exter.py | Codex | c71364ad99 | 0.9637880055335821 | 0.02066182974776254 |
 | strategies/469_two_sides_of_schur_damping_high_dimensio.py | Codex | c71364ad99 | 0.9585323162160332 | 0.03502457854325858 |
 | strategies/478_portfolio_allocation_under_heterogeneous.py | Codex | e0984d15ab | 0.9428916934150752 | 0.10526210296784755 |
 | strategies/497_interpretable_allocation_and_model_predi.py | Codex | e0984d15ab | 0.7229355302682273 | 0.10847871566869949 |
+| strategies/512_nested_clustered_optimization_is_one_end.py | Codex | c0a8f76240 | 0.8091637086121385 | 0.10669591931434075 |
 | strategies/560_drawdown_risk_beyond_brownian_motion_a_m.py | Codex | dabba95798 | 0.6719090607841077 | 0.08084054202667357 |
 
 ## 已收录后的深审发现

@@ -1,23 +1,3 @@
-"""350_continuous_timing_growth_defensive
-研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
-Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/350_continuous_timing_growth_defensive.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit 9102661980b3a465a33199af26a9f4e7a35fe278 on 2026-11-27 08:03 Europe/Oslo, exit 0, output sha256 004a0a3bd43b53a79b4926cc9b3305b49cd7e349ffd6eead70dca70b60639569
-Data source: Yahoo Finance via yfinance daily Open and Close for growth ETFs QQQ, XLK, VGT, SPYG, VUG; defensive ETFs SCHD, VYM, VTV, FDVV, COWZ; SPY (market), BIL (risk-free return proxy) and ^VIX (volatility index). FRED CSV supplies DGS10 (10-year U.S. Treasury constant-maturity yield). See config.yaml:3-9, strategy.py:45-72, strategy.py:197-219, strategy.py:246-248 and README.md:16-17.
-Data fetched: 2026-11-27T07:03:23+00:00
-Sample period: Feature history requested from 2013-01-02. The logged return sample is 2017-10-02 through 2026-05-15, inclusive. See config.yaml:11-15, strategy.py:221-227 and logs/run_20261127_064429.log:12.   data_range (from output): {'start': '2017-10-02', 'end': '2026-05-15', 'is_end': '2018-06-27', 'oos_start': '2018-06-28'}
-IS/OOS split: IS is 2017-10-02 through 2018-06-27. OOS is 2018-06-28 through 2026-05-15. Both periods slice one continuous simulation using fixed parameters. The README reports that the OOS dates overlap the author's research period. See config.yaml:11-15, strategy.py:227-244, strategy.py:251-256, README.md:12, README.md:18 and logs/run_20261127_064429.log:12.
-Costs and slippage: 10 bps fees plus 2 bps modeled slippage per dollar bought or sold. Both are combined as a 12 bps charge on gross traded notional at each simulated open, including initial entry, for both the strategy and the 50/50 benchmark. Slippage is a fixed charge with fills valued at the adjusted open. See config.yaml:36-37, strategy.py:128-165, strategy.py:239-244 and README.md:23.
-Signal lag: A target computed using ETF closes at session t is shifted one SPY trading session and filled at the next session's open. Existing holdings earn the overnight move and the new holdings earn the open-to-close move. DGS10 and VIX inputs each have an additional one-session observation-date lag before entering the signal. See config.yaml:32-35, strategy.py:90-99, strategy.py:143-163 and strategy.py:221-243.
-Price adjustment: yfinance auto_adjust total-return ETF opens and closes, ^VIX index level
-Survivorship bias: The fixed ETF baskets use the paper's retrospectively selected funds and are subject to ETF survivorship and retrospective selection bias. Signal basket returns require all constituents, and simulation requires finite execution-window price ratios. See config.yaml:3-5, strategy.py:97-100, strategy.py:143-148 and README.md:19.
-Parameter combinations tried: 1
-Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=0.15611320293522302, ann_vol=0.1451317451503988, sharpe=1.072384518989781, sharpe_excess=0.987847118238217, max_drawdown=-0.09966501997399735, total_return=0.11301307548566042, turnover=2.0593394751715923, n_trades=1860
-    oos: cagr=0.17439168006999095, ann_vol=0.19879936750171678, sharpe=0.9085087180653241, sharpe_excess=0.7805394584948584, max_drawdown=-0.3330041651199921, total_return=2.538404522770743, turnover=10.392369901945768, n_trades=19810
-    full: cagr=0.1728115110163706, ann_vol=0.1947475938719061, sharpe=0.9164034821773692, sharpe_excess=0.7915389944808009, max_drawdown=-0.33300416511999154, total_return=2.938290500201419, turnover=12.45170937711736, n_trades=21670
-    benchmark  full: cagr=0.16838845240201517, ann_vol=0.19575366441802036, sharpe=0.8934057139099908, sharpe_excess=0.7691961350075931, max_drawdown=-0.3356992007371926, total_return=2.812385079921319, turnover=9.680992430615245, n_trades=21670
-"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

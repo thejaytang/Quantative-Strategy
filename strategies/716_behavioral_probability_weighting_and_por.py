@@ -1,3 +1,24 @@
+"""716_behavioral_probability_weighting_and_por
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Status: PENDING — not reviewed by Gatekeeper, not accepted
+Run (one command): python strategies/716_behavioral_probability_weighting_and_por.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 9532cd9f815cc2d43ceb143b2f1416acf34e9864 on 2026-11-27 20:02 Europe/Oslo, exit 0, output sha256 56df1bf57fe5e3add300dc092f1a86daf4d84d18cabac6946526a583bbd48a94
+Data source: Yahoo Finance via yfinance daily opens, closes, and distributions (dividends plus capital gains where supplied). The allocation universe is XLB, XLE, XLF, XLI, XLK, XLP, XLU, XLV, and XLY. DIA supplies the scenario-ranking returns and buy-and-hold benchmark. BIL daily total returns are used only to compute excess Sharpe.
+Data fetched: 2026-11-27T19:02:48.323481+00:00
+Sample period: Backtest: 2012-01-03 through 2025-12-31, inclusive. The daily data request starts on 2007-06-01 for warm-up. Each signal uses a 1,008-session rolling window.   data_range (from output): ['2012-01-03', '2025-12-31']
+IS/OOS split: IS: 2012-01-03 through 2017-12-29. OOS: 2018-01-02 through 2025-12-31. This is a retrospective chronological holdout. The default strategy carries its portfolio across the split and keeps updating its monthly targets from trailing data under the same settings. All six current robustness variants run only on IS.
+Costs and slippage: Default per-side charges are 2 bps of fees plus 3 bps of modeled fixed slippage, totaling 5 bps on the sum of absolute buy and sell notionals at each opening rebalance, including initial entry. The simulator deducts the charge from cash and sizes the target to fit the opening budget. Slippage is implemented as a cash charge at the quoted open. DIA pays the same rate on its initial buy. The IS cost stress test triples the combined rate to 15 bps per side.
+Signal lag: For the initial entry and each later first trading session of the month, the configured one-session lag takes the signal window through session t's close and fills at the next trading session's open, t+1. The code requires at least one session of lag.
+Price adjustment: yfinance auto_adjust=False split-adjusted Open/Close; ex-date distributions recognized at the close for prior positions
+Survivorship bias: The README identifies the universe as the nine original Select Sector SPDR ETFs, launched before warm-up and held fixed across the study. This avoids retrospectively applying today's DJIA membership. Issuer and US large-cap selection bias remain. Later-launched and liquidated funds fall outside the universe, and sector reclassifications can change exposures.
+Parameter combinations tried: 14
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.13890133657484505, ann_vol=0.10341548530156001, sharpe=1.309724115539917, sharpe_excess=1.3009199350230785, max_drawdown=-0.09306436276433427, total_return=1.1789344339611438, turnover=1.17706715548025, n_trades=304
+    oos: cagr=0.08884425610830538, ann_vol=0.16066454046217754, sharpe=0.610413385732682, sharpe_excess=0.45924349847232443, max_drawdown=-0.30755373260180774, total_return=0.9723894369770669, turnover=1.365961121285018, n_trades=450
+    full: cagr=0.11002817001299015, ann_vol=0.13902678072496163, sharpe=0.820660243764079, sharpe_excess=0.7182258813623128, max_drawdown=-0.30755373260180785, total_return=3.2977072614106264, turnover=1.284983566057917, n_trades=754
+    benchmark DIA full: cagr=0.12516533293027332, ann_vol=0.1619929507686536, sharpe=0.8094705497110656, sharpe_excess=0.7214866056512331, max_drawdown=-0.3668604893220927, total_return=4.192815394705804, turnover=0.0715551315251465, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

@@ -1,3 +1,24 @@
+"""674_optimal_pair_trading_consumption_investm
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Status: PENDING — not reviewed by Gatekeeper, not accepted
+Run (one command): python strategies/674_optimal_pair_trading_consumption_investm.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 9532cd9f815cc2d43ceb143b2f1416acf34e9864 on 2026-11-27 20:00 Europe/Oslo, exit 0, output sha256 0de70502ebd399e46ef20ce92389b47a19c73c37ef4c54b2489845ecb97a60e1
+Data source: Free Yahoo Finance daily open and close prices and corporate actions via yfinance for USD equities XOM and CVX and the BIL cash-reference ETF. BIL is used to calculate reference returns. –3, –32, –109, –337,.
+Data fetched: 2026-11-27T19:00:22+00:00
+Sample period: Observed daily data including warm-up ran from 2008-01-02 through 2025-12-31. The evaluated backtest ran from 2009-07-01 through 2025-12-31, inclusive. –7,.   data_range (from output): 2009-07-01 to 2025-12-31
+IS/OOS split: IS covers 2009-07-01 through 2017-12-29. OOS covers 2018-01-02 through 2025-12-31. The cutoff is 2018-01-02. All six alternatives run only on truncated IS data. The default full simulation carries positions and cash into OOS and continues rolling estimation under the same settings. An exact comparison checks that its IS prefix matches the separate default IS run. –7, –290, –332, –355,.
+Costs and slippage: The default models slippage as a 3 bp cash charge and commissions as a 2 bp cash charge per leg per side, both on absolute fill notional at the opening mark. The combined 5 bp is debited from cash. Short borrow costs 100 bp annualized on the preceding close's short market value, prorated by elapsed calendar days divided by 365. Cash and collateral earn zero interest. The IS double_friction variant sets the respective rates to 6, 4 and 200 bp. –25, –37, –64, –248, –285,.
+Signal lag: On the five-session rebalance schedule, the signal uses a 252-session window ending at close t. The default one-session lag fills the resulting position change at the next common session's open. On non-rebalance sessions, an opening collateral shortfall can trigger liquidation at that open. –11, –285,.
+Price adjustment: yfinance split-adjusted OHLC, forward total return with ex-date open reinvestment
+Survivorship bias: The fixed XOM/CVX pair consists of two companies known and still surviving at the time of research. The README identifies survivorship and retrospective selection bias. The code uses the configured symbols throughout. –3, –95, –260,.
+Parameter combinations tried: 7
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=-0.0038212892286505484, ann_vol=0.015269735906584429, sharpe=-0.24310151959143206, sharpe_excess=-0.26942507105745034, max_drawdown=-0.03885349052217313, total_return=-0.03200463861223324, turnover=2.5224792648231995, n_trades=98
+    oos: cagr=-0.006098226004041196, ann_vol=0.01755277762522209, sharpe=-0.33969713892612474, sharpe_excess=-1.7102336295567189, max_drawdown=-0.06980753197059397, total_return=-0.04764155959307781, turnover=2.038637141506238, n_trades=92
+    full: cagr=-0.004924762584693987, ann_vol=0.016413373875197174, sharpe=-0.29257420718967114, sharpe_excess=-1.0097724690044594, max_drawdown=-0.09957800574969722, total_return=-0.0781214473076125, turnover=2.2881328028794594, n_trades=190
+    benchmark  full: cagr=0.08385614002515718, ann_vol=0.24748858554717043, sharpe=0.44965904626222336, sharpe_excess=0.40104933899936085, max_drawdown=-0.5731919748505115, total_return=2.7687683018463307, turnover=0.06066330996351535, n_trades=2
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

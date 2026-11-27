@@ -1,3 +1,24 @@
+"""721_conformal_predictive_portfolio_selection
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Status: PENDING — not reviewed by Gatekeeper, not accepted
+Run (one command): python strategies/721_conformal_predictive_portfolio_selection.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 9532cd9f815cc2d43ceb143b2f1416acf34e9864 on 2026-11-27 20:03 Europe/Oslo, exit 0, output sha256 bd840592ec39e1d1e90bd4f330cc2a1d8571f43feb1310cc4c52a5123806f546
+Data source: Yahoo Finance daily ETF opens, closes and corporate actions via yfinance. The basket universe is SPY, EFA, EEM, IEF, TLT, LQD, GLD and VNQ. SPY is also the buy-and-hold benchmark. BIL is a risk-free proxy used in reporting. The run recorded a snapshot fetch time of 2026-11-27T18:23:20+00:00.
+Data fetched: 2026-11-27T19:03:22+00:00
+Sample period: The requested price history starts on 2008-01-02 for warm-up. The configured backtest starts on 2014-01-01. The recorded simulation runs from the first fill on 2014-01-03 through 2025-12-31 inclusive.   data_range (from output): {'start': '2014-01-03', 'end': '2025-12-31'}
+IS/OOS split: IS covers 2014-01-03 through 2019-12-31. OOS covers observed sessions on and after the 2020-01-01 cutoff through 2025-12-31. The default run carries positions and cash across the cutoff and keeps rolling the fit and calibration under the same settings. The five robustness variants receive only pre-cutoff prices.
+Costs and slippage: The default models slippage as a fixed 5 bps cash charge plus a 5 bps fee, for 10 bps of the sum of absolute buy and sell notionals at each rebalance. The sizing solver budgets for these charges and fills at the opening prices. The double_friction IS variant uses 10 bps for each charge, totaling 20 bps. The SPY benchmark pays the default friction on entry.
+Signal lag: The signal uses the close of the first observed trading session of each month. The default lag is one session, so the target is filled at the next observed session's open. A target is scheduled only if its fill row is within the sample.
+Price adjustment: yfinance split-normalized OHLC, forward ex-date open reinvestment
+Survivorship bias: The fixed ETF pool consists of surviving funds selected for the availability of complete history. The README identifies survivorship and universe-selection bias.
+Parameter combinations tried: 6
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.0845896387847973, ann_vol=0.0830316413117198, sharpe=1.0196195281839184, sharpe_excess=0.931916410623184, max_drawdown=-0.1352469093096088, total_return=0.6261959708946252, turnover=11.649621383463625, n_trades=293
+    oos: cagr=0.09641488956642585, ann_vol=0.14299398745077552, sharpe=0.7149163690225259, sharpe_excess=0.5319899550902181, max_drawdown=-0.24397005744446176, total_return=0.7346626427938119, turnover=14.341874008314509, n_trades=331
+    full: cagr=0.09048427538311232, ann_vol=0.11689436957965266, sharpe=0.7993695628297584, sharpe_excess=0.6565128431143387, max_drawdown=-0.24397005744446276, total_return=1.820901400572685, turnover=12.995301515473944, n_trades=624
+    benchmark: cagr=0.13521474551613943, ann_vol=0.17336969559936038, sharpe=0.818591530380703, sharpe_excess=0.7222612906232151, max_drawdown=-0.33722737548690873, total_return=3.564637967800002, turnover=0.08344323889567418, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

@@ -1,3 +1,24 @@
+"""649_dynamic_factor_models_with_forward_looki
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Status: PENDING — not reviewed by Gatekeeper, not accepted
+Run (one command): python strategies/649_dynamic_factor_models_with_forward_looki.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 9532cd9f815cc2d43ceb143b2f1416acf34e9864 on 2026-11-27 19:49 Europe/Oslo, exit 0, output sha256 ab79c5a554a1d06db991d5a398e3873a0eee89a12f788ba162d6e63441c91947
+Data source: Yahoo Finance via yfinance, daily bars. The portfolio uses SPY, DBC, LQD, VNQ and TLT opens and closes. BIL daily close returns are used for excess-return statistics. The factors are the 10-year Treasury yield index (^TNX) close and the 10-year minus 5-year spread (^TNX − ^FVX), computed from paired index closes.
+Data fetched: 2026-11-27T18:49:28.275828+00:00
+Sample period: The run reports 2010-01-04 through 2025-12-31 inclusive. The history request starts at 2005-01-01 for warmup. The ETF calendar starts at common close coverage.   data_range (from output): {'start': '2010-01-04', 'end': '2025-12-31'}
+IS/OOS split: IS trading sessions run from 2010-01-04 through 2017-12-29. OOS sessions run from 2018-01-02 through 2025-12-31. The configured cutoff is 2017-12-31, and results are sliced from one continuous portfolio simulation. OOS model estimates roll forward monthly with fixed model settings. The six robustness variants run through the IS cutoff.
+Costs and slippage: The default models 2 bps of fees and 3 bps of slippage per side, charged together as 5 bps of each buy or sell notional. The sizing solver reserves these costs. Sell proceeds are reduced and purchase cash outlay is increased by the combined charge. Slippage is represented by that cash charge while fills use the opening price.
+Signal lag: The signal uses ETF closes on the first trading session of each month. The target becomes eligible at the next ETF session’s open. The latest eligible paired Treasury index closes are dated on or before the preceding ETF session, with backward lookup limited to seven calendar days before that cutoff.
+Price adjustment: yfinance auto_adjust=True total-return ETF opens and closes; raw Treasury yield-index closes
+Survivorship bias: The five ETFs form a fixed universe and were listed before the evaluation start according to the README. The retrospective selection uses surviving ETFs and excludes delisted funds. Common close coverage determines the history start.
+Parameter combinations tried: 7
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.110251819131014, ann_vol=0.09570261740516442, sharpe=1.1409881522102114, sharpe_excess=1.1339783941161912, max_drawdown=-0.13729136871359815, total_return=1.30585086651754, turnover=4.8723778344627195, n_trades=336
+    oos: cagr=0.03713738334546712, ann_vol=0.12888756975088866, sharpe=0.34762636697604254, sharpe_excess=0.1591353938204793, max_drawdown=-0.3216039584104794, total_return=0.33775350191582776, turnover=4.349545353247394, n_trades=326
+    full: cagr=0.07309023582883323, ann_vol=0.113510162731495, sharpe=0.678495519282865, sharpe_excess=0.5689183854769118, max_drawdown=-0.32160395841047973, total_return=2.0846600715794823, turnover=4.611091522404066, n_trades=662
+    benchmark: cagr=0.06550049018230153, ann_vol=0.09396512066110572, sharpe=0.7223781228356871, sharpe_excess=0.5899568071936522, max_drawdown=-0.22328088684857883, total_return=1.7541256019560016, turnover=0.36724378426335663, n_trades=960
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

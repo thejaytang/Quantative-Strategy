@@ -1,3 +1,24 @@
+"""625_portfolio_choice_with_competing_precauti
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Status: PENDING — not reviewed by Gatekeeper, not accepted
+Run (one command): python strategies/625_portfolio_choice_with_competing_precauti.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 9532cd9f815cc2d43ceb143b2f1416acf34e9864 on 2026-11-27 19:49 Europe/Oslo, exit 0, output sha256 65987c559df7e11095df6b08dd5b55b915e865bf7314e9dd2ef1503a612daf13
+Data source: Yahoo Finance via yfinance daily ETF opens, closes and distributions for SPY (equity), SHY (defensive) and BIL (cash proxy), with local CSV caching. BIL total returns supply the wealth deflator and excess-return reference.
+Data fetched: 2026-11-27T18:49:18.697104+00:00
+Sample period: The requested data window is 2007-06-01 through 2025-12-31, with a 126-session covariance lookback and a configured strategy start of 2008-01-01. The reported strategy sessions span 2008-01-02 through 2025-12-31.   data_range (from output): {'start': '2008-01-02', 'end': '2025-12-31'}
+IS/OOS split: IS covers evaluation sessions before 2016-01-01 (2008–2015). OOS covers sessions on or after that boundary (2016–2025) and continues the same default simulation state. The five robustness variants use pre-split price histories only.
+Costs and slippage: The default models 2 bp of transaction cost and 3 bp of slippage as a combined 5 bp charge on each absolute buy or sell notional at the open. The charge is included in the affordability calculation and deducted from available opening wealth. The benchmark uses the same fill rule.
+Signal lag: At the first simulated session and the first common session of each subsequent month, the strategy uses the previous common session's closing state to set the target and fills at the current session's open. The configured lag is one session and the code requires a positive lag.
+Price adjustment: yfinance split-adjusted open/close; ex-date distributions reinvested at the open
+Survivorship bias: SPY, SHY and BIL are a fixed selection of funds still in existence at the time of the study. The README identifies retrospective fund selection and fund survivorship bias.
+Parameter combinations tried: 6
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.043075021342938724, ann_vol=0.07295384294013008, sharpe=0.6145896657056652, sharpe_excess=0.5802572592975607, max_drawdown=-0.1482834904532203, total_return=0.40104370331924577, turnover=0.30527855762070816, n_trades=192
+    oos: cagr=0.09140281717925136, ann_vol=0.11888428205630275, sharpe=0.7953475241385084, sharpe_excess=0.6250640012183474, max_drawdown=-0.22755353084849905, total_return=1.3930198344189506, turnover=0.3944674562198802, n_trades=240
+    full: cagr=0.06963077736153744, ann_vol=0.10106262472368412, sharpe=0.7167280197037584, sharpe_excess=0.5953211374998846, max_drawdown=-0.22755353084849927, total_return=2.3527253709306972, turnover=0.35478637194579504, n_trades=432
+    benchmark  full: cagr=0.07489034052367272, ann_vol=0.116082236692215, sharpe=0.6802968208247935, sharpe_excess=0.5735677807475208, max_drawdown=-0.3363985173535523, total_return=2.6617075508294548, turnover=0.2714722130035025, n_trades=432
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

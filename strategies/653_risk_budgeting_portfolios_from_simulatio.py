@@ -1,3 +1,24 @@
+"""653_risk_budgeting_portfolios_from_simulatio
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Status: PENDING — not reviewed by Gatekeeper, not accepted
+Run (one command): python strategies/653_risk_budgeting_portfolios_from_simulatio.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 9532cd9f815cc2d43ceb143b2f1416acf34e9864 on 2026-11-27 19:49 Europe/Oslo, exit 0, output sha256 0c0042897e415edb4b7b7e96a9fe50ef078c3c17527ca0256abd593429edfa6c
+Data source: Free Yahoo Finance daily open and close prices and corporate actions via yfinance for SPY, IWM, EFA, TLT, DBC and GLD. BIL daily total returns are used only for the excess Sharpe statistic.
+Data fetched: 2026-11-27T18:49:37+00:00
+Sample period: The data request starts on 2008-01-01. Observed prices span 2008-01-02 through 2025-12-31, and the backtest runs from 2011-01-03 through 2025-12-31. The earlier prices provide rolling warm-up history.   data_range (from output): {'price_start': '2008-01-02', 'start': '2011-01-03', 'is_end': '2018-12-31', 'oos_start': '2019-01-02', 'end': '2025-12-31'}
+IS/OOS split: IS runs from 2011-01-03 through 2018-12-31 inclusive. OOS runs from 2019-01-02 through 2025-12-31 inclusive. Fills are split chronologically. The fixed base configuration continues with the IS ending holdings, and the sensitivity cases run only in IS. The universe and cutoff were selected retrospectively.
+Costs and slippage: Each buy and sell incurs 5 bps transaction cost plus 5 bps fixed slippage, totaling 10 bps of its absolute opening-price notional. The simulator subtracts friction from sale proceeds and adds it to the cash paid for purchases. One IS sensitivity case doubles both components to 10 bps each.
+Signal lag: After the last trading session closes each month, the target uses daily total returns through that close. The simulated rebalance fills at the next trading session's observed open, a one-session lag.
+Price adjustment: Yahoo Finance split-adjusted OHLC (auto_adjust=False); ex-date cash distributions for total-return signals and receivables for performance
+Survivorship bias: The fixed universe was chosen retrospectively from long-history ETFs that were still active when selected. The README identifies selection and survivorship bias.
+Parameter combinations tried: 6
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.04485065496707952, ann_vol=0.07183439883939809, sharpe=0.6467439204668632, sharpe_excess=0.6089225957385598, max_drawdown=-0.14761924433989193, total_return=0.41948663029936895, turnover=1.5655701713120107, n_trades=576
+    oos: cagr=0.07546721745956719, ann_vol=0.10227256357337483, sharpe=0.7626540689221515, sharpe_excess=0.5152899959918554, max_drawdown=-0.22170355790156182, total_return=0.6621824571872712, turnover=1.3034183405933886, n_trades=504
+    full: cagr=0.05902621978667799, ann_vol=0.08735999810976222, sharpe=0.7002627948338837, sharpe_excess=0.5485943673556326, max_drawdown=-0.2217035579015636, total_return=1.3594457750954745, turnover=1.4432511834899602, n_trades=1080
+    benchmark  full: cagr=0.07215698670849569, ann_vol=0.10754736082247106, sharpe=0.7018026770407936, sharpe_excess=0.5783668269757616, max_drawdown=-0.23418133594453627, total_return=1.8373644083144876, turnover=0.39282191030896024, n_trades=1080
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

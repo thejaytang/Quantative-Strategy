@@ -1,3 +1,24 @@
+"""692_dynamic_cvar_portfolio_construction_with
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Status: PENDING — not reviewed by Gatekeeper, not accepted
+Run (one command): python strategies/692_dynamic_cvar_portfolio_construction_with.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 9532cd9f815cc2d43ceb143b2f1416acf34e9864 on 2026-11-27 20:00 Europe/Oslo, exit 0, output sha256 c02ed7da5353221918d9ba5277eb188d600dbe5b30713e76004b941e2677614a
+Data source: Yahoo Finance via yfinance daily ETF open and close prices, dividends, and capital gains distributions, with a local CSV cache. The strategy universe is XLB, XLE, XLF, XLI, XLK, XLP, XLU, XLV, and XLY. SPY is the benchmark, and BIL daily total returns are used only for excess Sharpe.
+Data fetched: 2026-11-27T19:01:00.479559+00:00
+Sample period: Data requested from 2007-10-01 through 2025-12-31 inclusive, with pre-backtest data used for warm-up. The configured backtest start is 2009-01-01. The logged backtest covers 2009-01-02 through 2025-12-31 on actual sessions.   data_range (from output): {'start': '2009-01-02', 'end': '2025-12-31'}
+IS/OOS split: IS is 2009-01-02 through 2017-12-29. OOS is 2018-01-02 through 2025-12-31. The code splits the continuous default and benchmark paths at the inclusive calendar cutoff of 2017-12-31 and carries positions across the boundary. Sensitivity variants run on data ending at the IS cutoff. The default OOS path uses the fixed configuration and refits PCA on rolling history available through each signal close.
+Costs and slippage: The default charges 2 bps commission and 3 bps modeled slippage, totaling 5 bps on each simulated buy or sell notional. At the open, the rebalance reserves and deducts this cost on the sum of absolute position-value changes. Slippage is a fixed cash charge. The IS higher-cost variant charges 6 bps commission and 9 bps slippage. The SPY benchmark pays default friction on entry.
+Signal lag: The monthly signal uses data through the last session close of the previous month. With a one-session lag, its target is executed at the next session's open, which is the first session of the new month.
+Price adjustment: yfinance split-adjusted Open/Close with cash distributions reinvested at the ex-date open
+Survivorship bias: The universe is fixed to the original nine 1998 Select Sector SPDR sector ETFs. The README identifies survivor and fund-family selection bias and explains that the strategy avoids backfilling today's stock constituent list.
+Parameter combinations tried: 12
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.1293195153241009, ann_vol=0.12247549443347648, sharpe=1.0545121872686372, sharpe_excess=1.0460344369213315, max_drawdown=-0.21713762503237266, total_return=1.9834772178073576, turnover=3.0374579663202055, n_trades=516
+    oos: cagr=0.09405689641294401, ann_vol=0.1566272180816258, sharpe=0.6524309050366298, sharpe_excess=0.497379843307092, max_drawdown=-0.30194606414667235, total_return=1.049012761049402, turnover=3.7939545157691974, n_trades=562
+    full: cagr=0.11259615378759813, ann_vol=0.13956752212948456, sharpe=0.8345136485930057, sharpe_excess=0.7491309340552179, max_drawdown=-0.30194606414667213, total_return=5.113182891587409, turnover=3.3932377981588218, n_trades=1078
+    benchmark  full: cagr=0.1471616273694496, ann_vol=0.17899525218648338, sharpe=0.8568882489056618, sharpe_excess=0.7903588282505031, max_drawdown=-0.33722737548691084, total_return=9.27366851276752, turnover=0.05890413072229086, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

@@ -1,3 +1,24 @@
+"""656_risk_budgeting_portfolios_from_simulatio
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Status: PENDING — not reviewed by Gatekeeper, not accepted
+Run (one command): python strategies/656_risk_budgeting_portfolios_from_simulatio.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 9532cd9f815cc2d43ceb143b2f1416acf34e9864 on 2026-11-27 19:49 Europe/Oslo, exit 0, output sha256 7ae973c948347ccdcc3a0626cdd2cf4059e9ec3c088470383f6ceffe6900f144
+Data source: Yahoo Finance via yfinance, daily ETF opens, closes and cash distributions for SPY, IWM, EFA, TLT, DBC and GLD. BIL is downloaded from the same source and used as the risk-free proxy for excess Sharpe. Inputs are cached under data_cache/.
+Data fetched: 2026-11-27T18:50:01+00:00
+Sample period: Market data including warm-up spans 2007-06-01 through 2025-12-31. The reported backtest spans 2010-01-04 through 2025-12-31. Dates are inclusive.   data_range (from output): {'start': '2010-01-04', 'end': '2025-12-31'}
+IS/OOS split: IS 2010-01-04 through 2018-12-31; OOS 2019-01-02 through 2025-12-31. The main backtest runs continuously across the split, carrying positions and cash forward. The main specification is fixed in config.yaml, and the five robustness variants run on the IS prefix only. OOS is a historical holdout.
+Costs and slippage: The main model applies 2 bps fees plus 3 bps modeled slippage per buy or sell leg, including initial entry. Both are charged on the opening trade notional as a combined cash-flow adjustment: buys consume 1.0005 times notional and sells realize 0.9995 times notional. The IS higher-friction variant uses 6 bps fees plus 9 bps slippage per leg.
+Signal lag: The signal uses returns through the last trading session's close each month. Configured lag is one trading session, so the target is sized and filled at the next session's open.
+Price adjustment: yfinance auto_adjust=False; Yahoo split-adjusted quotes with cash distributions reinvested at the ex-date open
+Survivorship bias: The fixed ETF universe was selected retrospectively. It excludes liquidated funds and historical alternatives, so the sample is subject to survivorship and selection bias.
+Parameter combinations tried: 6
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.05594533731014906, ann_vol=0.0734398611107552, sharpe=0.7780449969928676, sharpe_excess=0.7454790352761943, max_drawdown=-0.13589305197558388, total_return=0.6307886140854666, turnover=9.57942194333214, n_trades=648
+    oos: cagr=0.09575187598161317, ann_vol=0.10376190722688877, sharpe=0.9333114716032316, sharpe_excess=0.6894814854563328, max_drawdown=-0.2108229513048484, total_return=0.8938919901162627, turnover=6.550998728591479, n_trades=504
+    full: cagr=0.07317465845640303, ann_vol=0.08799393846110845, sharpe=0.8467003424327567, sharpe_excess=0.7057481441441805, max_drawdown=-0.21082295130484963, total_return=2.0885374937892327, turnover=16.13042067192362, n_trades=1152
+    benchmark  full: cagr=0.07821906782076371, ann_vol=0.1093658879538267, sharpe=0.7434988122290275, sharpe_excess=0.6297723632713742, max_drawdown=-0.23445675371182606, total_return=2.328693501166563, turnover=6.282764911810185, n_trades=1152
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

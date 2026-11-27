@@ -1,3 +1,24 @@
+"""659_market_adaptive_ratio_for_portfolio_mana
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Status: PENDING — not reviewed by Gatekeeper, not accepted
+Run (one command): python strategies/659_market_adaptive_ratio_for_portfolio_mana.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 9532cd9f815cc2d43ceb143b2f1416acf34e9864 on 2026-11-27 19:50 Europe/Oslo, exit 0, output sha256 e473fcd48971b33ac4d1f7c3748cd7dfb744e6926bc45d87722f448029ac8f92
+Data source: Public Yahoo Finance daily ETF opens, closes and distributions via yfinance. The portfolio universe is SPY, QQQ, IWM, TLT and IEF. SPY is the market proxy and BIL is the risk-free proxy. Distributions include dividends and capital gains when the latter field is returned. The recorded data fetch timestamp is 2026-11-27T17:58:32+00:00.
+Data fetched: 2026-11-27T18:50:23+00:00
+Sample period: Daily data from 2009-01-02 through 2025-12-31 inclusive, with warmup before the reported backtest of 2010-01-04 through 2025-12-31 inclusive.   data_range (from output): ['2010-01-04', '2025-12-31']
+IS/OOS split: IS is 2010-01-04 through 2014-12-31 inclusive. OOS is 2015-01-02 through 2025-12-31 inclusive. The default run carries positions and cash across the split. Target estimation continues rolling through OOS with fixed default hyperparameters. The six robustness variants run only on IS, and the code checks the default full run's IS rows against the standalone IS run for exact equality.
+Costs and slippage: Default commission is 2 bps and modeled slippage is 3 bps. Both are charged as a combined 5 bps on gross buy plus sell notional at the open, through the self-financing rebalance budget. Slippage is a fixed proportional cash charge. The IS doubled-cost variant uses 4 bps commission and 6 bps slippage.
+Signal lag: The strategy rebalances at the open of the first trading session of each month. With the default one-session lag, a target calculated using observations through close t is filled at the next trading session's open when that is the scheduled rebalance.
+Price adjustment: yfinance auto_adjust=False, Yahoo split-normalized open and close, total return with distributions reinvested at the ex-date open
+Survivorship bias: The universe is a fixed list of existing ETFs selected retrospectively. The README explicitly identifies fund survivorship and universe-selection bias. The loader requests this fixed universe and the configured proxies for the full date range.
+Parameter combinations tried: 7
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.10299392136135621, ann_vol=0.11254228107176235, sharpe=0.9275351807280455, sharpe_excess=0.9314437649100206, max_drawdown=-0.13038516667623412, total_return=0.6312770012395024, turnover=41.68624709185328, n_trades=144
+    oos: cagr=0.06446505455465945, ann_vol=0.1456389966874061, sharpe=0.5019877962539483, sharpe_excess=0.3765657703696137, max_drawdown=-0.313621378160992, total_return=0.9851782468098609, turnover=91.46217316493299, n_trades=270
+    full: cagr=0.07636325101519215, ann_vol=0.1361483752931868, sharpe=0.6088007816472565, sharpe_excess=0.5175998497332701, max_drawdown=-0.31362137816099334, total_return=2.238375617381844, turnover=133.14842025678627, n_trades=414
+    benchmark  full: cagr=0.10229472853804689, ann_vol=0.10935838685505662, sharpe=0.9455013227378561, sharpe_excess=0.8314337948397459, max_drawdown=-0.2727375168265743, total_return=3.736100429189607, turnover=5.734076260712848, n_trades=960
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

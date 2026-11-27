@@ -1,3 +1,24 @@
+"""675_randomized_signature_methods_in_optimal
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Status: PENDING — not reviewed by Gatekeeper, not accepted
+Run (one command): python strategies/675_randomized_signature_methods_in_optimal.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 9532cd9f815cc2d43ceb143b2f1416acf34e9864 on 2026-11-27 20:00 Europe/Oslo, exit 0, output sha256 a584488ae692b16880dbeb243268cad2dd8770169b174ba41a3d797e3b826c63
+Data source: Yahoo Finance via yfinance. Daily ETF open, close, dividends, stock splits and capital-gains distributions for SPY, QQQ, IWM, EFA, EEM, IEF, TLT, GLD and VNQ, plus BIL for the excess Sharpe calculation. The downloader substitutes zero if the capital-gains field is absent and fills missing values in that field with zero.
+Data fetched: 2026-11-27T19:00:27.497197+00:00
+Sample period: Requested data window 2008-01-02 through 2025-12-31 inclusive, with data before 2011-01-03 used for warm-up. The logged backtest runs from 2011-01-03 through 2025-12-31.   data_range (from output): ['2011-01-03', '2025-12-31']
+IS/OOS split: IS 2011-01-03 through 2018-12-31. OOS 2019-01-02 through 2025-12-31. The expanding-window scaler and Ridge fit use labels whose ending open is at or before the signal date and the IS cutoff. The fit freezes at the cutoff, while path features and covariance continue to update. Holdings carry across the split in one continuous backtest.
+Costs and slippage: Default 3 bps fee plus 2 bps modeled slippage per side. The opening trade solver deducts 5 bps times the sum of absolute buy and sell notionals from available equity. Slippage enters as a proportional cash charge with open-price valuation. The IS-only higher-friction variant uses 9 bps fee plus 6 bps slippage per side.
+Signal lag: The default target uses the last trading session of each month through its close and fills at the next session's open, which is the first trading session of the new month. The schedule requires at least one session of lag.
+Price adjustment: yfinance split-normalized OHLC, ex-date cash distributions reinvested at the open
+Survivorship bias: The backtest uses a fixed ETF list chosen retrospectively from surviving funds. The README explicitly identifies selection and survivorship bias.
+Parameter combinations tried: 7
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.06615780777633051, ann_vol=0.11457713316812666, sharpe=0.6167292002370182, sharpe_excess=0.5926668064477615, max_drawdown=-0.20034746361374567, total_return=0.6677475940063597, turnover=8.367222230032711, n_trades=680
+    oos: cagr=0.07552513484857726, ann_vol=0.15104036720846492, sharpe=0.5583175514116829, sharpe_excess=0.39093209107701826, max_drawdown=-0.32242915654991966, total_return=0.662807734396474, turnover=9.676799424979636, n_trades=621
+    full: cagr=0.07051836876057083, ann_vol=0.13282455369685375, sharpe=0.5800079387551403, sharpe_excess=0.48019663665379675, max_drawdown=-0.32242915654991966, total_return=1.7731435983349066, turnover=8.978265672001584, n_trades=1301
+    benchmark: cagr=0.08474114662565668, ann_vol=0.11718214299588675, sharpe=0.7529757031455931, sharpe_excess=0.6397375210075215, max_drawdown=-0.2613248439913919, total_return=2.378860402762118, turnover=0.37030555303687496, n_trades=1620
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

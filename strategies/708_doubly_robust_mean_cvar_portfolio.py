@@ -1,3 +1,24 @@
+"""708_doubly_robust_mean_cvar_portfolio
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Status: PENDING — not reviewed by Gatekeeper, not accepted
+Run (one command): python strategies/708_doubly_robust_mean_cvar_portfolio.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 9532cd9f815cc2d43ceb143b2f1416acf34e9864 on 2026-11-27 20:02 Europe/Oslo, exit 0, output sha256 9d37baf56115e298bb0b87ebe35a6f12c0426e0ede11056f1d2c915eb70c0df6
+Data source: Free Yahoo Finance daily ETF opens, closes, dividends and capital gains distributions where supplied, accessed through yfinance. Portfolio universe is SPY, XLK, XLF, AGG and GLD. BIL is the cash proxy used only for excess Sharpe.
+Data fetched: 2026-11-27T19:02:06+00:00
+Sample period: Daily price history begins 2007-07-02 for warm-up and runs through 2025-12-31. The backtest covers 2013-01-02 through 2025-12-31, inclusive.   data_range (from output): {'start': '2013-01-02', 'end': '2025-12-31', 'is_end': '2019-12-31'}
+IS/OOS split: IS is 2013-01-02 through 2019-12-31 and OOS is 2020-01-02 through 2025-12-31, inclusive. The default portfolio carries its holdings across the split and continues rolling estimation using only returns through each signal date. The four sensitivity variants run only in IS. The code compares the default IS targets before and after appending OOS sessions and raises an error if they differ.
+Costs and slippage: The base case and equal-weight benchmark charge 2 bps in fees and model 3 bps of slippage as a cash charge per side at each opening rebalance, including initial entry. Both rates apply to gross traded notional, the sum of absolute changes in opening positions, and the sizing calculation reserves cash for both charges. The doubled-friction IS variant uses 4 bps in fees and 6 bps in slippage.
+Signal lag: The signal uses the last trading session of the month through its close. The configured one-session lag fills at the next trading session's open, the first session of the new month.
+Price adjustment: yfinance split-adjusted Open/Close with causal ex-date distribution total return
+Survivorship bias: The fixed ETF universe uses the available history of the selected funds and is subject to hindsight selection and survivorship bias. The sample omits closed funds and does not account for selection effects from historical changes in ETF constituents.
+Parameter combinations tried: 5
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.0352576193306533, ann_vol=0.02846861058260056, sharpe=1.2314565413080794, sharpe_excess=1.0148768602283342, max_drawdown=-0.05225574620837581, total_return=0.2741472365575597, turnover=0.17855174559000414, n_trades=236
+    oos: cagr=0.022773209819203943, ann_vol=0.06528995166941494, sharpe=0.3776466430392369, sharpe_excess=-0.022904312114290972, max_drawdown=-0.1783986098325837, total_return=0.14424977249592508, turnover=0.09679855105348568, n_trades=240
+    full: cagr=0.029481460978416196, ann_vol=0.04900845590897391, sharpe=0.617468132700891, sharpe_excess=0.30436307877199764, max_drawdown=-0.1783986098325805, total_return=0.45794268555732165, turnover=0.1408502723909002, n_trades=476
+    benchmark: cagr=0.12033362282694493, ann_vol=0.1166240252755385, sharpe=1.0329162907033864, sharpe_excess=0.9013179023559883, max_drawdown=-0.23405595361896847, total_return=3.368585824890566, turnover=0.18479679485779596, n_trades=780
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

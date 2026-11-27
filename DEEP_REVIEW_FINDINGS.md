@@ -2,7 +2,7 @@
 
 Already-published strategies are not removed from git history. If a later deep review finds a real problem (look-ahead, wrong data, or wrong numbers), the file is kept as last published on origin/main and listed here in a new commit. Fixes, if any, also land in a new commit.
 
-Generated 2026-11-27 21:57 Europe/Oslo.
+Generated 2026-11-27 22:13 Europe/Oslo.
 
 | File | Latest self-review | Category | Stage note |
 |---|---|---|---|
@@ -27,7 +27,7 @@ Generated 2026-11-27 21:57 Europe/Oslo.
 | strategies/520_beyond_de_prado_and_cotton_hierarchical.py | INVALID | 成交模型依赖现金缓冲和固定摩擦 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 | strategies/395_signature_based_optimal_execution_for_st.py | INVALID | 事后选对与幸存者偏差; 成交成本与资金约束有明确的模拟边界 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 | strategies/450_a_declining_cvar_glidepath_framework_for.py | INVALID | 收盘成交与资金模型 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
-| strategies/551_squeezed_covariance_matrix_estimation_an.py | INVALID | defect listed in self-review; not a published fix | kept_from_origin: 完整性不合格：lag_ok |
+| strategies/551_squeezed_covariance_matrix_estimation_an.py | INVALID | 事后固定股票池（幸存者偏差）; 论文表 3 权重晚于样本终点 | kept_from_origin: 完整性不合格：lag_ok; official fix file sha256 eb5656af5b0fcc34e276f56d798dfa3f213d6d14b8439fa5c46776cdd74d2f43. META lag_ok is True; paper table 3 channel weights were published in December 2025, after the sample end, and the adjusted-close panel is a retrospective snapshot (known limitations). reads_local is the Path(__file__) self-hash at official line 383. Stays INVALID pending Gatekeeper spot-check. |
 | strategies/481_optimal_portfolio_construction_a_reinfor.py | INVALID | 固定现金缓冲与全额收盘成交假设限制执行稳健性 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 | strategies/500_dynamic_portfolio_optimization_under_cva.py | INVALID | defect listed in self-review; not a published fix | kept_from_origin: 完整性不合格：lag_ok |
 | strategies/541_entropy_regularization_under_no_shorting.py | INVALID | 历史行情与成交假设限制外推 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |

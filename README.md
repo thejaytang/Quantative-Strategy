@@ -110,7 +110,7 @@ Note on 354: Gatekeeper passed the look-ahead fix at a code-level spot-check, so
 | strategies/520_beyond_de_prado_and_cotton_hierarchical.py | INVALID | 成交模型依赖现金缓冲和固定摩擦 |
 | strategies/395_signature_based_optimal_execution_for_st.py | INVALID | 事后选对与幸存者偏差; 成交成本与资金约束有明确的模拟边界 |
 | strategies/450_a_declining_cvar_glidepath_framework_for.py | INVALID | 收盘成交与资金模型 |
-| strategies/551_squeezed_covariance_matrix_estimation_an.py | INVALID | defect listed in self-review; not a published fix |
+| strategies/551_squeezed_covariance_matrix_estimation_an.py | INVALID | 事后固定股票池（幸存者偏差）; 论文表 3 权重晚于样本终点 |
 | strategies/481_optimal_portfolio_construction_a_reinfor.py | INVALID | 固定现金缓冲与全额收盘成交假设限制执行稳健性 |
 | strategies/500_dynamic_portfolio_optimization_under_cva.py | INVALID | defect listed in self-review; not a published fix |
 | strategies/541_entropy_regularization_under_no_shorting.py | INVALID | 历史行情与成交假设限制外推 |

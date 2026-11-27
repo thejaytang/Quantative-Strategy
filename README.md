@@ -4,12 +4,12 @@
 
 每个策略一个文件：`strategies/<编号>_<名称>.py`，一条命令运行：`python strategies/<文件>.py`（依赖见 requirements.txt）。文件头写明数据源与抓取时间、样本期、IS/OOS 划分、成本与滑点、信号滞后、复权口径、幸存者偏差说明、尝试的参数组合数，以及在记录的 commit 上实际运行得到的关键数字（backtest reproduced）。收录条件：真实运行、确有交易、无同收盘成交前视、Codex 自审 PASS（进入本仓库前的审查为作者自审，不是独立第三方审查）、单文件复跑与审查时结果一致。
 
-本表由文件实际内容生成（2026-11-27 11:35 Europe/Oslo），本表由文件实际内容生成（2026-11-27 11:35 Europe/Oslo），共 47 个。
-。
+本表由文件实际内容生成（2026-11-27 11:43 Europe/Oslo），共 47 个。
 
 | 文件 | 作者 | 代码 commit | 全样本 Sharpe | 全样本 CAGR |
 |---|---|---|---|---|
-| strategies/101_correlated_stress_reversal.py | Codex | 10f8238200 | -0.4528647975895032 | -0.040200837249976584 |
+| strategies/100_etf_asset_momentum_corr_hedge.py | Codex | e45e81ae3a | 0.5880769053765496 | 0.07506872233162931 |
+| strategies/101_correlated_stress_reversal.py | Codex | a3beaa341e | -0.4872083163766433 | -0.036507843851181 |
 | strategies/102_alt_etf_short_term_reversal.py | Codex | 3140bbcffa | -4.850826308066646 | -0.1832096548612029 |
 | strategies/103_breaking_bad_trends.py | Codex | ed11995234 | 0.24156559048879273 | 0.011219751158929592 |
 | strategies/105_factor_momentum_style_etf.py | Codex | e45e81ae3a | 0.7670643508346912 | 0.11463689309321756 |
@@ -21,12 +21,12 @@
 | strategies/125_liquidity_risk_indicator_timing.py | Codex | ad594150a0 | 0.9392801869667401 | 0.092108548038075 |
 | strategies/126_hmm_regime_allocation.py | Codex | ad594150a0 | 0.9421612030950982 | 0.10710208722331305 |
 | strategies/129_ml_etf_trend_vs_oscillation.py | Codex | ad594150a0 | -0.1633159490129353 | -0.00856614180659876 |
-| strategies/130_ml_risk_budget_allocation.py | Codex | ad594150a0 | 0.8004610178300348 | 0.05922868384241897 |
 | strategies/148_decomposing_momentum.py | Codex | 2b23c5bbf7 | 0.8720364930091413 | 0.20916162811949102 |
 | strategies/157_skew_path_dependent_vol.py | Codex | 498f8135d2 | 0.697460500588218 | 0.09150872373465474 |
+| strategies/159_deep_momentum_market_trend.py | Codex | a3beaa341e | 1.7700362543892496 | 0.019467097925619292 |
 | strategies/165_retail_signal_failure.py | Codex | 2b23c5bbf7 | 0.43541324492441674 | 0.05075523692537032 |
 | strategies/167_bayesian_cointegration_lowvol.py | Codex | 2b23c5bbf7 | -0.19791642317160424 | -0.01419780064634768 |
-| strategies/179_crude_oil_news_sentiment.py | Codex | 10f8238200 | -0.2457468465858118 | -0.030724431650478 |
+| strategies/179_crude_oil_news_sentiment.py | Codex | a3beaa341e | -0.2485025872370806 | -0.03129360652689073 |
 | strategies/183_safe_asset_dollar_cycle.py | Codex | 2b23c5bbf7 | 0.1397995385765699 | 0.004613464128480738 |
 | strategies/185_gold_month_seasonality.py | Codex | 2b23c5bbf7 | 0.7807274675730697 | 0.062351172766873075 |
 | strategies/186_federal_holiday_effect.py | Codex | e0984d15ab | -0.2039764296266909 | 0.003356979677578531 |
@@ -34,7 +34,7 @@
 | strategies/191_shap_quantile_sector_allocation.py | Codex | 2b23c5bbf7 | 0.4696202287092069 | 0.05901278586658676 |
 | strategies/192_downside_upside_rv_forecast.py | Codex | 2b23c5bbf7 | 0.5860331533877041 | 0.04621676334252989 |
 | strategies/194_breaking_beta_defensive.py | Codex | 10f8238200 | 0.7668802709220355 | 0.10356713253459682 |
-| strategies/195_century_reversals_volatility.py | Codex | 10f8238200 | 0.26694943743596733 | 0.018967890521761177 |
+| strategies/195_century_reversals_volatility.py | Codex | a3beaa341e | 0.26694964225136564 | 0.018967908388844767 |
 | strategies/199_pca_stat_arb.py | Codex | 92e75bea82 | 0.2546514486659549 | 0.014364586479493235 |
 | strategies/303_timing_moving_average_distance.py | Codex | 14eecadd0b | 0.4586740593305042 | 0.07523509455182698 |
 | strategies/304_unintended_consequences_rebalancing.py | Codex | 2b23c5bbf7 | 0.8171238877819083 | 0.09014626117652913 |
@@ -53,7 +53,6 @@
 | strategies/382_statistical_arbitrage_in_polish_equities.py | Codex | ea97bbcbc9 | 0.500628613686733 | 0.023135888068235744 |
 | strategies/438_the_mathematics_of_heuristic_portfolio_o.py | Codex | f9ce9ed5a4 | 0.573210240682426 | 0.0343462522184903 |
 | strategies/463_simple_dynamic_stock_bond_gold_portfolio.py | Codex | f9ce9ed5a4 | 0.9859305218392249 | 0.0686041912862605 |
-| strategies/478_portfolio_allocation_under_heterogeneous.py | Codex | e0984d15ab | 0.9428916934150752 | 0.10526210296784755 |
 | strategies/497_interpretable_allocation_and_model_predi.py | Codex | e0984d15ab | 0.7229355302682273 | 0.10847871566869949 |
 | strategies/560_drawdown_risk_beyond_brownian_motion_a_m.py | Codex | dabba95798 | 0.6719090607841077 | 0.08084054202667357 |
 
@@ -109,10 +108,10 @@
 | strategies/538_mirror_descent_algorithms_for_risk_budge.py | FAIL | see review |
 | strategies/472_breaking_the_trend_how_to_avoid_cherry_p.py | FAIL | see review |
 | strategies/467_an_entropic_factor_model_for_robust_port.py | FAIL | 实际买入量依赖成交收盘价; 固定股票池存在幸存者与事后筛选偏差; 复权成交与资金约束是简化模型 |
+| strategies/478_portfolio_allocation_under_heterogeneous.py | PASS | look-ahead / same-close fill |
 | strategies/491_topological_risk_parity.py | FAIL | 成交数量依赖成交日收盘价 |
 | strategies/188_opex_week.py | FAIL | 周末收盘买入的实际份额由当日收盘价决定; 固定成本和日线成交假设限制执行结论 |
 | strategies/443_revisiting_equity_bond_diversification_u.py | FAIL | 最终买入量可由成交日收盘价决定; 动态配置缺少实际成交证据 |
-| strategies/159_deep_momentum_market_trend.py | FAIL | 开盘定量输入依赖成交日收盘 |
 | strategies/109_factor_etf_vol_matched.py | FAIL | see review |
 | strategies/490_noise_proofing_universal_portfolio_shrin.py | FAIL | 成交日收盘价决定实际买入量 |
 | strategies/456_an_entropic_factor_model_for_robust_port.py | FAIL | 成交数量使用执行日收盘价 |

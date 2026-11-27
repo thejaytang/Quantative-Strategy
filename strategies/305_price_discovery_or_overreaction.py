@@ -1,16 +1,16 @@
 """305_price_discovery_or_overreaction
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; non-author review: PASS; publication gate: Codex.
-Run (one command): python strategies/305_price_discovery_or_overreaction.py   (free public data only; config embedded)
+Run (one command): python strategies/305_price_discovery_or_overreaction.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 7f58470906099142d2404cd2e681f0aaa17db946 on 2026-11-26 16:09 Europe/Oslo, exit 0, output sha256 98bd1e81d99d62d49411b427fe2fc2edfc0ae8450be6c35a18851a114fc8e17c
-Data source: 免费 Yahoo Finance 日线，经 yfinance 下载并使用 data_cache/ 下的 CSV 缓存。使用美国上市 ETF 的开盘价和收盘价，标的为 EWJ、EWA、EWH、EWS、EWY，市场代理为 SPY（config.yaml:2-3，README.md:13，strategy.py:34-59、192-202）。
+Data source: 免费 Yahoo Finance 日线，经 yfinance 下载并使用 data_cache/ 下的 CSV 缓存。使用美国上市 ETF 的开盘价和收盘价，标的为 EWJ、EWA、EWH、EWS、EWY，市场代理为 SPY。
 Data fetched: 2026-11-26 16:09 Europe/Oslo (run time)
-Sample period: 配置请求区间为 2006-01-01 至 2026-10-31，2006 年数据用于预热。实际全期报告覆盖的美国交易日为 2007-01-03 至 2026-10-30（config.yaml:4-10，README.md:20，strategy.py:192-198、221-223，logs/run_20261125_133404.log:1）。   data_range (from output): 2007-01-03 to 2026-10-30
-IS/OOS split: 固定日期切分。IS 为 2007-01-01 至 2023-06-30，OOS 为 2023-07-01 至 2026-10-31。按模拟成交所在的美国交易日归属区间，OOS 首个交易日可使用上一交易日收盘信号。README 记载参数未按 IS 或 OOS 表现调优（config.yaml:5-10，strategy.py:102-106、175-184、200-214，README.md:20）。
-Costs and slippage: 每边 5 bps。策略和两个日内对照均按开仓及平仓各自的绝对成交名义金额扣费，平仓名义金额按该腿当日开盘至收盘收益调整。SPY 买入持有基准在各报告区间首日开盘买入、末日收盘卖出，首日总收益因子除以 1.0005，末日总收益因子乘以 0.9995。无单独的滑点模型，未模拟价格冲击或借券费（config.yaml:15，strategy.py:102-128、182、205-218，README.md:16、26，logs/run_20261125_133404.log:1）。
-Signal lag: 美国交易日 t 收盘后，使用 t 日开盘至收盘收益计算信号。触发时在下一美国交易日 t+1 开盘做多最低残差 ETF、做空最高残差 ETF，两腿各为组合净值的 50%，并在 t+1 收盘平仓。t 收盘至 t+1 开盘的价差仅用于事件诊断（README.md:5、14-16，strategy.py:79-110、200-209、226-238）。
-Price adjustment: yfinance 下载设定 auto_adjust=True，使用分红和拆分调整后的开盘价及收盘价。缓存读取同名的调整价 CSV，并校验日期和价格值（README.md:13，strategy.py:18-31、34-59、200-202）。
-Survivorship bias: 全期使用配置中的固定五只现存 ETF。代码没有按历史时点重建标的池或纳入退市 ETF 的机制，README 明示可能存在存续和选择偏差（config.yaml:2-3，strategy.py:169-174、192-202，README.md:13、26）。
+Sample period: 配置请求区间为 2006-01-01 至 2026-10-31，2006 年数据用于预热。实际全期报告覆盖的美国交易日为 2007-01-03 至 2026-10-30。 data_range (from output): 2007-01-03 to 2026-10-30
+IS/OOS split: 固定日期切分。IS 为 2007-01-01 至 2023-06-30，OOS 为 2023-07-01 至 2026-10-31。按模拟成交所在的美国交易日归属区间，OOS 首个交易日可使用上一交易日收盘信号。README 记载参数未按 IS 或 OOS 表现调优。
+Costs and slippage: 每边 5 bps。策略和两个日内对照均按开仓及平仓各自的绝对成交名义金额扣费，平仓名义金额按该腿当日开盘至收盘收益调整。SPY 买入持有基准在各报告区间首日开盘买入、末日收盘卖出，首日总收益因子除以 1.0005，末日总收益因子乘以 0.9995。无单独的滑点模型，未模拟价格冲击或借券费。
+Signal lag: 美国交易日 t 收盘后，使用 t 日开盘至收盘收益计算信号。触发时在下一美国交易日 t+1 开盘做多最低残差 ETF、做空最高残差 ETF，两腿各为组合净值的 50%，并在 t+1 收盘平仓。t 收盘至 t+1 开盘的价差仅用于事件诊断。
+Price adjustment: yfinance 下载设定 auto_adjust=True，使用分红和拆分调整后的开盘价及收盘价。缓存读取同名的调整价 CSV，并校验日期和价格值。
+Survivorship bias: 全期使用配置中的固定五只现存 ETF。代码没有按历史时点重建标的池或纳入退市 ETF 的机制，README 明示可能存在存续和选择偏差。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=-0.025575096525515928, ann_vol=0.023741910853540223, sharpe=-1.0792713267626215, max_drawdown=-0.3773801377047704, total_return=-0.3474465666428721, turnover=0.2278852751953832, n_trades=946

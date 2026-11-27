@@ -1,16 +1,16 @@
 """187_midterm_cycle
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/187_midterm_cycle.py   (free public data only; config embedded)
+Run (one command): python strategies/187_midterm_cycle.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 92e75bea82090bd8b6723b610a02dabec59e659b on 2026-11-27 07:29 Europe/Oslo, exit 0, output sha256 abafc7430b781b87f3708f935f52eaf97477661f9147ee4dc14b332e1d3e196d
-Data source: 免费的 Yahoo Finance 日频 ETF 历史行情，通过 yfinance 获取 SPY 和 BIL 的复权开盘价（config.yaml:4-6，README.md:20，strategy.py:36-53）。记录中的运行使用随附快照，数据获取时间为 2026-11-25T12:18:05+01:00（config.yaml:22-25，logs/codex_fix_d2_run_20261126_180740.log:3-4）。
+Data source: 免费的 Yahoo Finance 日频 ETF 历史行情，通过 yfinance 获取 SPY 和 BIL 的复权开盘价。记录中的运行使用随附快照，数据获取时间为 2026-11-25T12:18:05+01:00。
 Data fetched: 2026-11-27T07:29:07+01:00
-Sample period: 配置区间为 2008-01-01 至 2025-12-31（config.yaml:8-13）。实际持仓起始交易日为 2008-01-02 至 2025-12-31，最后估值为 2026-01-02 开盘（logs/codex_fix_d2_run_20261126_180740.log:1-2）。   data_range (from output): 2008-01-02 to 2025-12-31
-IS/OOS split: IS 为 2008-01-01 至 2015-12-31，OOS 为 2016-01-01 至 2025-12-31（config.yaml:8-13）。两段按持仓起始日从同一次连续模拟切出，使用同一固定规则。OOS 为回顾性留出区间，所引研究发表于 2026 年 5 月并覆盖该区间（strategy.py:185-205，README.md:16）。
-Costs and slippage: 每条买卖腿按成交额扣除 5 bps 交易费和 1 bp 固定滑点，合计 6 bps，包含 BIL 腿。从现金建仓扣买入腿成本，换仓扣买卖两腿成本。模拟以扣费后的目标持仓和开盘交易前漂移权重之差计算成交额。期末在开盘估值并保留持仓（config.yaml:18-20，strategy.py:65-84，strategy.py:175-177，README.md:14，logs/codex_fix_d2_run_20261126_180740.log:1-2）。
-Signal lag: 交易日 t 收盘时，仅按下一交易日所属日历年生成目标。下一交易日开盘执行，年份模 4 为 3 时持有 SPY，其余时间持有 BIL。该仓位对应当日开盘至再下一交易日开盘的收益（config.yaml:4-6，config.yaml:15-16，strategy.py:185-196，README.md:5，README.md:13）。
+Sample period: 配置区间为 2008-01-01 至 2025-12-31。实际持仓起始交易日为 2008-01-02 至 2025-12-31，最后估值为 2026-01-02 开盘。 data_range (from output): 2008-01-02 to 2025-12-31
+IS/OOS split: IS 为 2008-01-01 至 2015-12-31，OOS 为 2016-01-01 至 2025-12-31。两段按持仓起始日从同一次连续模拟切出，使用同一固定规则。OOS 为回顾性留出区间，所引研究发表于 2026 年 5 月并覆盖该区间。
+Costs and slippage: 每条买卖腿按成交额扣除 5 bps 交易费和 1 bp 固定滑点，合计 6 bps，包含 BIL 腿。从现金建仓扣买入腿成本，换仓扣买卖两腿成本。模拟以扣费后的目标持仓和开盘交易前漂移权重之差计算成交额。期末在开盘估值并保留持仓。
+Signal lag: 交易日 t 收盘时，仅按下一交易日所属日历年生成目标。下一交易日开盘执行，年份模 4 为 3 时持有 SPY，其余时间持有 BIL。该仓位对应当日开盘至再下一交易日开盘的收益。
 Price adjustment: yfinance auto_adjust=True, split- and distribution-adjusted opens
-Survivorship bias: 直接使用固定的 SPY 和 BIL ETF 历史行情，未用现有指数成分股回填历史。事后选择仍存续的 ETF，仍有产品选择偏差（config.yaml:4-6，strategy.py:39-48，README.md:30）。
+Survivorship bias: 直接使用固定的 SPY 和 BIL ETF 历史行情，未用现有指数成分股回填历史。事后选择仍存续的 ETF，仍有产品选择偏差。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.003935866386340914, ann_vol=0.09600191538910473, sharpe=0.08918020955787137, sharpe_excess=0.07083219401116359, max_drawdown=-0.20149909859278192, total_return=0.03194697413511616, turnover=6.995802518488906, n_trades=7

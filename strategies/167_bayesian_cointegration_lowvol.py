@@ -1,16 +1,16 @@
 """167_bayesian_cointegration_lowvol
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; non-author review: PASS; publication gate: Codex.
-Run (one command): python strategies/167_bayesian_cointegration_lowvol.py   (free public data only; config embedded)
+Run (one command): python strategies/167_bayesian_cointegration_lowvol.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 2b23c5bbf706aea933c0cba5f5805efb450ee206 on 2026-11-26 14:26 Europe/Oslo, exit 0, output sha256 26d4da732c7448dc553f90216271623856d3431aec866db7be6b9a8a7bc32736
-Data source: Yahoo Finance 日频复权收盘价，优先用 yfinance 下载，必要时直接向 Yahoo 公共 chart 端点取价（strategy.py:28-47,83-101）。股票池为 MSFT、AAPL、ORCL、IBM、JPM、BAC、GS、MS、XOM、CVX、COP、KO、PEP、PG、CL、WMT、COST、TGT、HD、LOW、JNJ、MRK、PFE、CAT、DE，基准为 SPY（config.yaml:5-31）。该次运行从 CSV 缓存读取 3,039 个交易日的数据（logs/run_20261125_114811.log:1）。
+Data source: Yahoo Finance 日频复权收盘价，优先用 yfinance 下载，必要时直接向 Yahoo 公共 chart 端点取价。股票池为 MSFT、AAPL、ORCL、IBM、JPM、BAC、GS、MS、XOM、CVX、COP、KO、PEP、PG、CL、WMT、COST、TGT、HD、LOW、JNJ、MRK、PFE、CAT、DE，基准为 SPY。该次运行从 CSV 缓存读取 3,039 个交易日的数据。
 Data fetched: 2026-11-26 14:26 Europe/Oslo (run time)
-Sample period: 配置数据范围为 2013-12-01 至 2025-12-31，结束日包含在内（config.yaml:2-4；strategy.py:57-58,68-69,85-86）。实际报告区间为 2016-02-01 至 2025-12-31（logs/run_20261125_114811.log:3,11）。报告起点之前的数据仅用于模型预热，信号窗口为 504 个交易日（README.md:21；config.yaml:39；strategy.py:176-186,279-284）。   data_range (from output): 2016-02-01 to 2025-12-31
-IS/OOS split: 样本内 2016-02-01 至 2024-07-31，样本外 2024-08-01 至 2025-12-31（config.yaml:32-37）。同一连续模拟在完成后按日期切分统计，持仓跨边界延续；样本外继续以截至信号日的滚动窗口重估（strategy.py:176-187,271-289；README.md:22）。README 记载参数预先固定，未按两段的回测表现调参（README.md:22-24）。
-Costs and slippage: 策略对买入和卖出按成交绝对金额收取 5 bps，在模拟成交时从现金扣除；借券费为年化 100 bps，按空头前收盘市值乘以两次收盘间实际日历天数除以 365，从现金扣除（config.yaml:49-51；strategy.py:190-212）。SPY 仅在首个报告交易日收盘买入时计 5 bps（README.md:13,24；strategy.py:223-228,280-283）。滑点未建模，模拟使用复权收盘价，未建模冲击或买卖价差变化（strategy.py:190-212；README.md:28）。
-Signal lag: 每月在报告区间内的首个交易日 t，用截至当日收盘的 504 个交易日价格生成目标，按 t 日收盘净值换算为目标复权股数，在下一交易日收盘模拟成交；原持仓承担至成交收盘的价格变动（config.yaml:39；strategy.py:168-186,199-219；README.md:11-13）。
-Price adjustment: 使用 Yahoo Finance 股息及拆股复权收盘价，yfinance 设 auto_adjust=False 后显式提取 Adj Close，备用端点取 adjclose；模型以窗口首日复权价归一，模拟以复权股数持仓并按复权收盘价成交和估值（README.md:11-13,28；strategy.py:42-47,83-88,137-142,190-219）。
-Survivorship bias: 固定列明的 25 只美国股票按长期历史和行情仍可取得而选定。README 明确记录事后选股及幸存者偏差，缺少历史成分、退市收益及逐日可借券信息（config.yaml:6-31；strategy.py:53-56,68-73,278-280；README.md:17,28）。
+Sample period: 配置数据范围为 2013-12-01 至 2025-12-31，结束日包含在内。实际报告区间为 2016-02-01 至 2025-12-31。报告起点之前的数据仅用于模型预热，信号窗口为 504 个交易日。 data_range (from output): 2016-02-01 to 2025-12-31
+IS/OOS split: 样本内 2016-02-01 至 2024-07-31，样本外 2024-08-01 至 2025-12-31。同一连续模拟在完成后按日期切分统计，持仓跨边界延续；样本外继续以截至信号日的滚动窗口重估。README 记载参数预先固定，未按两段的回测表现调参。
+Costs and slippage: 策略对买入和卖出按成交绝对金额收取 5 bps，在模拟成交时从现金扣除；借券费为年化 100 bps，按空头前收盘市值乘以两次收盘间实际日历天数除以 365，从现金扣除。SPY 仅在首个报告交易日收盘买入时计 5 bps。滑点未建模，模拟使用复权收盘价，未建模冲击或买卖价差变化。
+Signal lag: 每月在报告区间内的首个交易日 t，用截至当日收盘的 504 个交易日价格生成目标，按 t 日收盘净值换算为目标复权股数，在下一交易日收盘模拟成交；原持仓承担至成交收盘的价格变动。
+Price adjustment: 使用 Yahoo Finance 股息及拆股复权收盘价，yfinance 设 auto_adjust=False 后显式提取 Adj Close，备用端点取 adjclose；模型以窗口首日复权价归一，模拟以复权股数持仓并按复权收盘价成交和估值。
+Survivorship bias: 固定列明的 25 只美国股票按长期历史和行情仍可取得而选定。README 明确记录事后选股及幸存者偏差，缺少历史成分、退市收益及逐日可借券信息。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=-0.03201570788057151, ann_vol=0.06052577913027534, sharpe=-0.5073183954079026, max_drawdown=-0.3494570177227665, total_return=-0.2413370621300851, turnover=155.35778296994084, n_trades=1457

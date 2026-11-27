@@ -1,16 +1,16 @@
 """323_information_transmission_across_tail
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; non-author review: PASS; publication gate: Codex.
-Run (one command): python strategies/323_information_transmission_across_tail.py   (free public data only; config embedded)
+Run (one command): python strategies/323_information_transmission_across_tail.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 2585fac6f6b194ec028771df2a48e498092fc067 on 2026-11-27 11:14 Europe/Oslo, exit 0, output sha256 ad8fd84c64a5b48269c65e69cf5705c97bc06f17457ecc72ffddfe168c108ee0
-Data source: Yahoo Finance 公开历史行情网页的 USO、SPY、BIL 日线开盘价、收盘价及复权收盘价，以及 FRED 公开 CSV 的 OVXCLS 日度序列。优先读取同标的、同区间的本地 CSV 缓存（config.yaml:2-6，strategy.py:30-54，strategy.py:57-71，strategy.py:88-97，README.md:11）。
+Data source: Yahoo Finance 公开历史行情网页的 USO、SPY、BIL 日线开盘价、收盘价及复权收盘价，以及 FRED 公开 CSV 的 OVXCLS 日度序列。优先读取同标的、同区间的本地 CSV 缓存。
 Data fetched: 2026-11-27T11:14:36+01:00
-Sample period: 行情及预热请求区间为 2008-01-01 至 2026-11-20。日志记录的实际组合收益日期为 2014-01-02 至 2026-11-20（config.yaml:7-13，strategy.py:294-299，logs/run_20261125_142013.log:1，backtest_results.md:14）。   data_range (from output): 2014-01-02 to 2026-11-20
-IS/OOS split: 配置以日历日期划分，样本内为 2014-01-01 至 2019-12-31，样本外为 2020-01-01 至 2026-11-20，均含首尾。组合连续模拟后按日切片，样本外沿用同一规则滚动拟合。预测误差要求信号日和五日目标终点均在对应区间内（config.yaml:8-13，strategy.py:254-259，strategy.py:288-296，strategy.py:305-318，README.md:21-23）。
-Costs and slippage: 初始建仓及后续再平衡均按每腿买卖绝对成交金额单边收取 5 bps，从组合权益扣除，并按扣费后权益迭代求目标持仓。滑点和买卖价差均未单独建模（config.yaml:28，strategy.py:199-209，strategy.py:212-229，strategy.py:300-302，README.md:14，README.md:27）。
-Signal lag: 在新一周首个交易日之前最近一个交易日的收盘 t 计算周度信号，于下一交易日 t+1 开盘按目标权重再平衡。回测首日开盘使用截至该开盘日已有的有效目标。后续缺少有效周度信号时，持仓随价格变动（strategy.py:142-172，strategy.py:212-229，strategy.py:305-314，README.md:13-14）。
+Sample period: 行情及预热请求区间为 2008-01-01 至 2026-11-20。日志记录的实际组合收益日期为 2014-01-02 至 2026-11-20。 data_range (from output): 2014-01-02 to 2026-11-20
+IS/OOS split: 配置以日历日期划分，样本内为 2014-01-01 至 2019-12-31，样本外为 2020-01-01 至 2026-11-20，均含首尾。组合连续模拟后按日切片，样本外沿用同一规则滚动拟合。预测误差要求信号日和五日目标终点均在对应区间内。
+Costs and slippage: 初始建仓及后续再平衡均按每腿买卖绝对成交金额单边收取 5 bps，从组合权益扣除，并按扣费后权益迭代求目标持仓。滑点和买卖价差均未单独建模。
+Signal lag: 在新一周首个交易日之前最近一个交易日的收盘 t 计算周度信号，于下一交易日 t+1 开盘按目标权重再平衡。回测首日开盘使用截至该开盘日已有的有效目标。后续缺少有效周度信号时，持仓随价格变动。
 Price adjustment: Yahoo split-adjusted Open/Close for fills and valuation, Adj Close for signals, and separate cash distributions
-Survivorship bias: 固定使用 USO、SPY、BIL 三只长期存续 ETF。README 明确披露事后产品选择与存续偏差（config.yaml:2-5，strategy.py:88-103，README.md:27）。
+Survivorship bias: 固定使用 USO、SPY、BIL 三只长期存续 ETF。README 明确披露事后产品选择与存续偏差。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=-0.07886750537418874, ann_vol=0.3013243490506808, sharpe=-0.122253568179605, sharpe_excess=-0.14625415274861384, max_drawdown=-0.7153344760600222, total_return=-0.38875435690747295, turnover=29.82191740514346, n_trades=383

@@ -1,16 +1,16 @@
 """339_dancing_dynamic_rebalancing_mechanism
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; non-author review: PASS; publication gate: Codex.
-Run (one command): python strategies/339_dancing_dynamic_rebalancing_mechanism.py   (free public data only; config embedded)
+Run (one command): python strategies/339_dancing_dynamic_rebalancing_mechanism.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 3140bbcffa77faae04956fc55adbc5be3b33f896 on 2026-11-26 16:06 Europe/Oslo, exit 0, output sha256 a7d60070f5504489d925506bc42f5212b5ea656d603b30675309580225de918d
-Data source: 公开 Yahoo Finance 日线，经 yfinance 获取 SPY、QQQ、IWM、TLT、GLD、DBC 的开盘价与收盘价。若存在对应日期范围的 CSV 缓存则优先读取缓存（config.yaml:2，strategy.py:23-27、46-63，README.md:13）。
+Data source: 公开 Yahoo Finance 日线，经 yfinance 获取 SPY、QQQ、IWM、TLT、GLD、DBC 的开盘价与收盘价。若存在对应日期范围的 CSV 缓存则优先读取缓存。
 Data fetched: 2026-11-26 16:06 Europe/Oslo (run time)
-Sample period: 价格请求从 2008-10-01 开始，供波动率预热。配置的初始训练期为 2010-01-01 至 2014-12-31。评估原定截至 2026-11-25，程序按纽约时间 16:00 截断价格请求上限。本次日志记录的实际评估区间为 2015-01-02 至 2026-11-24（config.yaml:3-10、16-17，strategy.py:279-294，README.md:21-22，logs/run_20261125_151354.log:4、11）。   data_range (from output): 2015-01-02 to 2026-11-25
-IS/OOS split: 配置的 IS 为 2015-01-01 至 2019-12-31，OOS 为 2020-01-01 至 2026-11-25。日志中的实际交易日区间分别为 2015-01-02 至 2019-12-31、2020-01-02 至 2026-11-24。每年首次开盘前用截至上一交易日收盘的扩展窗口重新拟合，较早的 OOS 数据可进入后续年份的训练，持仓跨年及跨 IS/OOS 边界连续（config.yaml:5-10，strategy.py:184-210、236-245，README.md:22-23，logs/run_20261125_151354.log:2-4）。
-Costs and slippage: 每笔买入和卖出各按成交金额收取 5 bps，从组合净值扣除。首次建仓投入开盘现金的 1/(1+0.0005)，其余用于买入费用。再平衡按买卖金额绝对值之和计费，迭代求解扣费后恰好达到目标权重的持仓。开盘滑点未建模，成交采用调整后开盘价（config.yaml:11，strategy.py:91-100、124-151、288，README.md:16、28）。
-Signal lag: 交易日 t 收盘形成 Q 策略及漂移阈值信号，最早在下一交易日开盘成交。隔夜收益归原持仓，开盘至收盘收益归开盘操作后的持仓。月度基准按日历在月首交易日开盘调整。评估首日统一按预设等权目标从现金开盘建仓（strategy.py:91-100、124-151、184-210、304，README.md:16）。
-Price adjustment: yfinance 下载使用 auto_adjust=True，取拆股和分配调整后的开盘价及收盘价。分配再投资为调整价近似。数据商可能修订历史，代码未保存逐日当时可见的数据版本（strategy.py:23-27、46-75、91-100，README.md:13、28）。
-Survivorship bias: 使用固定的六只美国上市 ETF，缺失或无效的开收盘价会触发报错。未构建逐时点基金池，事后选择存续基金仍可能产生选择和存续偏差（config.yaml:2，strategy.py:23-43、294、304，README.md:9、28）。
+Sample period: 价格请求从 2008-10-01 开始，供波动率预热。配置的初始训练期为 2010-01-01 至 2014-12-31。评估原定截至 2026-11-25，程序按纽约时间 16:00 截断价格请求上限。本次日志记录的实际评估区间为 2015-01-02 至 2026-11-24。 data_range (from output): 2015-01-02 to 2026-11-25
+IS/OOS split: 配置的 IS 为 2015-01-01 至 2019-12-31，OOS 为 2020-01-01 至 2026-11-25。日志中的实际交易日区间分别为 2015-01-02 至 2019-12-31、2020-01-02 至 2026-11-24。每年首次开盘前用截至上一交易日收盘的扩展窗口重新拟合，较早的 OOS 数据可进入后续年份的训练，持仓跨年及跨 IS/OOS 边界连续。
+Costs and slippage: 每笔买入和卖出各按成交金额收取 5 bps，从组合净值扣除。首次建仓投入开盘现金的 1/(1+0.0005)，其余用于买入费用。再平衡按买卖金额绝对值之和计费，迭代求解扣费后恰好达到目标权重的持仓。开盘滑点未建模，成交采用调整后开盘价。
+Signal lag: 交易日 t 收盘形成 Q 策略及漂移阈值信号，最早在下一交易日开盘成交。隔夜收益归原持仓，开盘至收盘收益归开盘操作后的持仓。月度基准按日历在月首交易日开盘调整。评估首日统一按预设等权目标从现金开盘建仓。
+Price adjustment: yfinance 下载使用 auto_adjust=True，取拆股和分配调整后的开盘价及收盘价。分配再投资为调整价近似。数据商可能修订历史，代码未保存逐日当时可见的数据版本。
+Survivorship bias: 使用固定的六只美国上市 ETF，缺失或无效的开收盘价会触发报错。未构建逐时点基金池，事后选择存续基金仍可能产生选择和存续偏差。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.07705928285023757, ann_vol=0.08159287599564008, sharpe=0.9507409930607503, max_drawdown=-0.1318451090159828, total_return=0.4485789526218767, turnover=3.458191048759806, n_trades=335

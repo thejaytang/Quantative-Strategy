@@ -1,22 +1,22 @@
 """463_simple_dynamic_stock_bond_gold_portfolio
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/463_simple_dynamic_stock_bond_gold_portfolio.py   (free public data only; config embedded)
+Run (one command): python strategies/463_simple_dynamic_stock_bond_gold_portfolio.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit f9ce9ed5a416a517c7093ea09cd1b69a31dd3383 on 2026-11-27 11:05 Europe/Oslo, exit 0, output sha256 4df30a26f8eb6e3281903aff3e8b6112f4bf4e25421e584d1feec46696db50eb
-Data source: Yahoo Finance 免费日线，经 yfinance 获取 SPY、AGG、GLD 和现金代理 BIL 的调整后收盘价。此份行情的下载时间记录为 2026-11-27T07:04:34+00:00。（config.yaml:3-8，strategy.py:38-61、151-160，README.md:15，logs/run_20261127_080647.log:1）
+Data source: Yahoo Finance 免费日线，经 yfinance 获取 SPY、AGG、GLD 和现金代理 BIL 的调整后收盘价。此份行情的下载时间记录为 2026-11-27T07:04:34+00:00。
 Data fetched: 2026-11-27T10:05:20+00:00
-Sample period: 实际回测交易日为 2007-07-02 至 2025-12-31（含两端）。行情从 2007-06-01 起请求，结束日 2026-01-01 不含在内。回测配置起始日为 2007-07-01，此前行情用于波动率预热。（config.yaml:10-14，strategy.py:182-190、199-208，README.md:16，backtest_results.md:24，logs/run_20261127_080647.log:10）   data_range (from output): {'start': '2007-07-02', 'end': '2025-12-31'}
-IS/OOS split: 以 2018-01-01 为界。IS 为 2007-07-02 至 2017-12-29，OOS 为 2018-01-02 至 2025-12-31。两段从同一次连续模拟中切出，跨界时持仓与净值延续。README 记载参数取自论文，OOS 区间与论文样本重叠。（config.yaml:10-14，strategy.py:139-147、199-203，README.md:16、19）
-Costs and slippage: 每笔 ETF 买入或卖出按成交金额扣除 2.5 bps 交易成本和 1.0 bps 固定滑点，合计 3.5 bps。滑点作为固定费率从净值扣减，模拟按扣费后的净值确定目标成交额。策略与基准均对首日建仓和后续交易收费，适用于 BIL 的买卖。（config.yaml:21-23，strategy.py:80-94、97-115、176-180、191-201，README.md:17-18）
-Signal lag: 月末最后一个交易日收盘 t 形成信号，默认在下一交易日 t+1 收盘成交。模拟先用原持仓计入 t 至 t+1 的收盘收益，再扣除调仓成本并更换权重。首日从美元现金建仓，动态策略使用前一交易日的信号。固定权重基准首日建仓，之后在年末收盘后的下一交易日收盘调仓。（config.yaml:16-19，strategy.py:73-77、97-115、182-201，README.md:17）
+Sample period: 实际回测交易日为 2007-07-02 至 2025-12-31（含两端）。行情从 2007-06-01 起请求，结束日 2026-01-01 不含在内。回测配置起始日为 2007-07-01，此前行情用于波动率预热。 data_range (from output): {'start': '2007-07-02', 'end': '2025-12-31'}
+IS/OOS split: 以 2018-01-01 为界。IS 为 2007-07-02 至 2017-12-29，OOS 为 2018-01-02 至 2025-12-31。两段从同一次连续模拟中切出，跨界时持仓与净值延续。README 记载参数取自论文，OOS 区间与论文样本重叠。
+Costs and slippage: 每笔 ETF 买入或卖出按成交金额扣除 2.5 bps 交易成本和 1.0 bps 固定滑点，合计 3.5 bps。滑点作为固定费率从净值扣减，模拟按扣费后的净值确定目标成交额。策略与基准均对首日建仓和后续交易收费，适用于 BIL 的买卖。
+Signal lag: 月末最后一个交易日收盘 t 形成信号，默认在下一交易日 t+1 收盘成交。模拟先用原持仓计入 t 至 t+1 的收盘收益，再扣除调仓成本并更换权重。首日从美元现金建仓，动态策略使用前一交易日的信号。固定权重基准首日建仓，之后在年末收盘后的下一交易日收盘调仓。
 Price adjustment: yfinance auto_adjust total-return
-Survivorship bias: README 记载此固定标的组为论文事后指定且仍存续的美国上市基金。样本使用各基金上市后的自身历史报价，未纳入已清算基金或其他代理标的，存在基金选择与样本依赖。（config.yaml:3-8，strategy.py:151-160、182-183，README.md:11、24）
+Survivorship bias: README 记载此固定标的组为论文事后指定且仍存续的美国上市基金。样本使用各基金上市后的自身历史报价，未纳入已清算基金或其他代理标的，存在基金选择与样本依赖。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.0552331533337016, ann_vol=0.06610983120096171, sharpe=0.846376901959985, sharpe_excess=0.7757682804133489, max_drawdown=-0.15683277534309747, total_return=0.7581901208949209, turnover=1.5059897724303946, n_trades=464
     oos: cagr=0.08644897444083921, ann_vol=0.07433428864655187, sharpe=1.15277928105928, sharpe_excess=0.8264895445220816, max_drawdown=-0.12138195996626233, total_return=0.9380286970022704, turnover=1.4537219150002894, n_trades=360
     full: cagr=0.0686041912862605, ann_vol=0.06977956015141469, sharpe=0.9859305218392249, sharpe_excess=0.7979768426407048, max_drawdown=-0.15683277534309747, total_return=2.407422909080265, turnover=1.4834144585790325, n_trades=824
-    benchmark  full: cagr=0.08431981471448924, ann_vol=0.09910772847920915, sharpe=0.8665159888926156, sharpe_excess=0.7328919032756316, max_drawdown=-0.2592594322359286, total_return=3.4624638377120416, turnover=0.06354271636424255, n_trades=57
+    benchmark full: cagr=0.08431981471448924, ann_vol=0.09910772847920915, sharpe=0.8665159888926156, sharpe_excess=0.7328919032756316, max_drawdown=-0.2592594322359286, total_return=3.4624638377120416, turnover=0.06354271636424255, n_trades=57
 """
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---

@@ -8,16 +8,16 @@
 
 | 文件 | 作者 | 代码 commit | 全样本 Sharpe | 全样本 CAGR |
 |---|---|---|---|---|
-| strategies/455_hierarchical_risk_parity_for_portfolio_a.py | Codex | 53c18ef949 | 0.2532758965967812 | 0.03190367937229377 |
-| strategies/457_cleaning_correlation_matrices_with_exter.py | Codex | 53c18ef949 | 0.9099804294178019 | 0.02626625197582988 |
-| strategies/472_breaking_the_trend_how_to_avoid_cherry_p.py | Codex | 53c18ef949 | 0.8201330820111685 | 0.041696972443205915 |
-| strategies/480_topological_risk_parity.py | Codex | 53c18ef949 | 0.8096456184236979 | 0.1422272655500738 |
-| strategies/535_shrinkage_estimators_for_mean_and_covari.py | Codex | 53c18ef949 | 0.7532235360314379 | 0.09410925172362994 |
-| strategies/543_robust_enhanced_index_tracking_portfolio.py | Codex | 53c18ef949 | 1.2684722896075313 | 0.23921717138071275 |
-| strategies/544_special_markowitz_thermodynamic_formalis.py | Codex | 53c18ef949 | 0.7640949549265407 | 0.12152355343581064 |
-| strategies/546_generalizing_markowitz_portfolio_optimiz.py | Codex | 53c18ef949 | 0.811312747963317 | 0.15251236082315556 |
-| strategies/547_generalizing_markowitz_portfolio_optimiz.py | Codex | 53c18ef949 | 0.8075845206820491 | 0.1406026002094094 |
-| strategies/548_entropic_value_at_risk_portfolio_optimiz.py | Codex | 53c18ef949 | 0.6055541875243194 | 0.07710158123968727 |
+| strategies/455_hierarchical_risk_parity_for_portfolio_a.py | Codex | fc4032f1dc | 0.25327656512931895 | 0.03190383664914931 |
+| strategies/457_cleaning_correlation_matrices_with_exter.py | Codex | fc4032f1dc | 0.9099819827776527 | 0.02626628471672099 |
+| strategies/472_breaking_the_trend_how_to_avoid_cherry_p.py | Codex | fc4032f1dc | 0.8201357043332782 | 0.0416970442905884 |
+| strategies/480_topological_risk_parity.py | Codex | fc4032f1dc | 0.8096455143944183 | 0.142227290925115 |
+| strategies/535_shrinkage_estimators_for_mean_and_covari.py | Codex | fc4032f1dc | 0.7532230751823523 | 0.09410913670840992 |
+| strategies/543_robust_enhanced_index_tracking_portfolio.py | Codex | fc4032f1dc | 1.2684719847129582 | 0.23921713918638687 |
+| strategies/544_special_markowitz_thermodynamic_formalis.py | Codex | fc4032f1dc | 0.7640949051797069 | 0.12152354741167992 |
+| strategies/546_generalizing_markowitz_portfolio_optimiz.py | Codex | fc4032f1dc | 0.8113127385091321 | 0.15251232621073885 |
+| strategies/547_generalizing_markowitz_portfolio_optimiz.py | Codex | fc4032f1dc | 0.8075847136548383 | 0.14060266781900777 |
+| strategies/548_entropic_value_at_risk_portfolio_optimiz.py | Codex | fc4032f1dc | 0.6055526110249723 | 0.07710121425323506 |
 | strategies/100_etf_asset_momentum_corr_hedge.py | Codex | c71364ad99 | 0.590749534227566 | 0.07218221248997536 |
 | strategies/101_correlated_stress_reversal.py | Codex | 10f8238200 | -0.4528647975895032 | -0.040200837249976584 |
 | strategies/102_alt_etf_short_term_reversal.py | Codex | 3140bbcffa | -4.850826308066646 | -0.1832096548612029 |

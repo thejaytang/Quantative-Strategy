@@ -1,22 +1,22 @@
 """328_are_investors_really_moonstruck
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; non-author review: PASS; publication gate: Codex.
-Run (one command): python strategies/328_are_investors_really_moonstruck.py   (free public data only; config embedded)
+Run (one command): python strategies/328_are_investors_really_moonstruck.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit b9dcd3d64e5973b6eae2ce2f8a86efeffe63a9df on 2026-11-26 15:35 Europe/Oslo, exit 0, output sha256 81f30ea0751a4478497e5c2694910278bda0ec6c8463232ee02cce7755f6443a
-Data source: Yahoo Finance 的日开盘价和收盘价，经 yfinance 获取或从本地行情缓存读取。股票 ETF 为 SPY、EFA、EEM，防御 ETF 为 BIL，基准为 SPY（config.yaml:3–6，README.md:13，strategy.py:129–155、314–319）。新月和满月的 UTC 时刻用代码中的 Meeus 公式计算（strategy.py:40–43、83–119、320–321）。
+Data source: Yahoo Finance 的日开盘价和收盘价，经 yfinance 获取或从本地行情缓存读取。股票 ETF 为 SPY、EFA、EEM，防御 ETF 为 BIL，基准为 SPY。新月和满月的 UTC 时刻用代码中的 Meeus 公式计算。
 Data fetched: 2026-11-26 15:35 Europe/Oslo (run time)
-Sample period: 配置覆盖 2008-01-01 至 2026-11-24，含两个端点（config.yaml:7–12，strategy.py:296–309）。日志记录的实际交易日范围为 2008-01-02 至 2026-11-24（logs/run_20261125_144038.log:1）。   data_range (from output): 2008-01-02 to 2026-11-24
-IS/OOS split: 样本内 2008-01-01 至 2019-12-31，样本外 2020-01-01 至 2026-11-24，端点均包含（config.yaml:7–12，strategy.py:296–310）。持仓跨分界连续计算，再按日期分段报告（strategy.py:263–268、328–330，README.md:16）。README 记载两个区间均未调参，参考论文已研究部分样本外年份（README.md:21）。
-Costs and slippage: 买卖各按成交额收取 5 bps，首次建仓收买入费，切换配置时由开盘净值同时支付卖出费和买入费，未切换时不交易（config.yaml:14，strategy.py:209–232、301–302，README.md:16）。滑点未单独建模，成交按开盘价模拟，README 将固定费用视为点差和滑点的近似（strategy.py:209–228，README.md:23）。
-Signal lag: 月相日历信号可预先计算，并按前一计划交易日收盘已知处理。信号在计划交易日索引上后移一位，再映射到实际交易日，按对应开盘价模拟换仓。计划窗口保留临时休市日，实际成交仅发生在开市日（strategy.py:34–37、118–126、209–228、306–309、320–328，README.md:14–15）。
-Price adjustment: 下载显式使用 `auto_adjust=True`，模拟使用复权后的 `Open` 和 `Close`。有效缓存直接复用相同字段，代码校验日期、列及价格值，未独立重算复权（strategy.py:129–163，README.md:13）。
-Survivorship bias: ETF 的历史行情反映基金随指数调整的持仓，模拟没有用当今指数成分股回填历史。标的固定为目前仍存续的四只 ETF，仍有标的选择偏差（config.yaml:3–6，strategy.py:314–319，README.md:23）。
+Sample period: 配置覆盖 2008-01-01 至 2026-11-24，含两个端点。日志记录的实际交易日范围为 2008-01-02 至 2026-11-24。 data_range (from output): 2008-01-02 to 2026-11-24
+IS/OOS split: 样本内 2008-01-01 至 2019-12-31，样本外 2020-01-01 至 2026-11-24，端点均包含。持仓跨分界连续计算，再按日期分段报告。README 记载两个区间均未调参，参考论文已研究部分样本外年份。
+Costs and slippage: 买卖各按成交额收取 5 bps，首次建仓收买入费，切换配置时由开盘净值同时支付卖出费和买入费，未切换时不交易。滑点未单独建模，成交按开盘价模拟，README 将固定费用视为点差和滑点的近似。
+Signal lag: 月相日历信号可预先计算，并按前一计划交易日收盘已知处理。信号在计划交易日索引上后移一位，再映射到实际交易日，按对应开盘价模拟换仓。计划窗口保留临时休市日，实际成交仅发生在开市日。
+Price adjustment: 下载显式使用 `auto_adjust=True`，模拟使用复权后的 `Open` 和 `Close`。有效缓存直接复用相同字段，代码校验日期、列及价格值，未独立重算复权。
+Survivorship bias: ETF 的历史行情反映基金随指数调整的持仓，模拟没有用当今指数成分股回填历史。标的固定为目前仍存续的四只 ETF，仍有标的选择偏差。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.01571143093041072, ann_vol=0.11170074776271348, sharpe=0.1948883480695728, max_drawdown=-0.2071171136072949, total_return=0.2054896379416622, turnover=596.7016491754124, n_trades=299
     oos: cagr=-0.009367582417288967, ann_vol=0.09017503295375442, sharpe=-0.05947096566098231, max_drawdown=-0.1955069887344505, total_return=-0.06270920177955341, turnover=339.8300849575213, n_trades=170
     full: cagr=0.006493183456579565, ann_vol=0.10436002390081434, sharpe=0.11378870437459518, max_drawdown=-0.2728503578998869, total_return=0.1298943449928207, turnover=936.5317341329336, n_trades=469
-    benchmark  full: cagr=0.10779183277232152, ann_vol=0.19761401047590313, sharpe=0.6169873246863916, max_drawdown=-0.5242305002338081, total_return=5.900540652386718, turnover=0.9995002498750625, n_trades=1
+    benchmark full: cagr=0.10779183277232152, ann_vol=0.19761401047590313, sharpe=0.6169873246863916, max_drawdown=-0.5242305002338081, total_return=5.900540652386718, turnover=0.9995002498750625, n_trades=1
 """
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---

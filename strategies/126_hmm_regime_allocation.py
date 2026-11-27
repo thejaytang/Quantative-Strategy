@@ -1,22 +1,22 @@
 """126_hmm_regime_allocation
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; non-author review: PASS; publication gate: Codex.
-Run (one command): python strategies/126_hmm_regime_allocation.py   (free public data only; config embedded)
+Run (one command): python strategies/126_hmm_regime_allocation.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit ad594150a0142009ae8f6ffab0995de08b2f8304 on 2026-11-26 13:49 Europe/Oslo, exit 0, output sha256 0a0e9fe28414b358d82f962c2469bb10cfa56cab2e38950616107e9cf162730c
-Data source: Yahoo Finance 日度 ETF 开盘价和收盘价，经 yfinance 下载或从本地 CSV 缓存读取。标的为 SPY、TLT、GLD，信号特征仅使用 SPY 收盘价。config.yaml:2-3；strategy.py:18-44；strategy.py:133-137；README.md:15
+Data source: Yahoo Finance 日度 ETF 开盘价和收盘价，经 yfinance 下载或从本地 CSV 缓存读取。标的为 SPY、TLT、GLD，信号特征仅使用 SPY 收盘价。
 Data fetched: 2026-11-26 13:49 Europe/Oslo (run time)
-Sample period: 数据请求区间为 2005-01-03 至 2025-12-31，含首尾日期。样本内开始前的数据用于预热和早期训练。日志记录的回测区间为 2010-01-04 至 2025-12-31。config.yaml:4-12；strategy.py:27-33；strategy.py:267-277；README.md:15；backtest_results.md:14；logs/run_20261125_102711.log:1   data_range (from output): 2010-01-04 to 2025-12-31
-IS/OOS split: 配置的样本内区间为 2010-01-01 至 2019-12-31，样本外为 2020-01-01 至 2025-12-31，区间均含首尾日期，按实际交易日切片。样本内按半年重估。样本外周度决策使用截至样本内最后一个交易日的最终拟合，固定特征缩放、HMM 参数和状态配置，仅继续用新观测更新过滤概率。两段指标取自同一条连续模拟路径。config.yaml:6-12；config.yaml:17-22；strategy.py:145-178；strategy.py:267-283；README.md:15-16
-Costs and slippage: 每买入或卖出一美元收取 5 bps。开盘再平衡按各 ETF 买卖金额的绝对值求和计费，费用从组合净值扣除，包括首次建仓，等权基准沿用相同费率和再平衡时点。未单独建模滑点、开盘冲击、流动性或税费，模拟以复权开盘价成交。config.yaml:14；strategy.py:182-215；strategy.py:258-260；strategy.py:272-274；README.md:17-18；README.md:22
-Signal lag: 每周以周五为周界，在下一周首个实际交易日开盘调仓，信号使用该开盘前一交易日的收盘信息。初次建仓在回测首个交易日开盘，使用前一交易日的收盘信号。已有持仓先计入上一收盘至该开盘的变动，再执行调仓。strategy.py:133-151；strategy.py:172-178；strategy.py:190-213；README.md:17
-Price adjustment: 下载设置 auto_adjust=True，策略读取 Yahoo Finance 复权开盘价和收盘价，缓存文件存在时直接使用其中的 Open 和 Close。以复权收盘价构造信号，并以复权开盘价模拟成交。strategy.py:18-44；strategy.py:133-144；strategy.py:182-215；README.md:15
-Survivorship bias: SPY、TLT、GLD 为事后选定的固定 ETF 组合，存在资产选择偏差。回测未使用现今指数成分股名单。config.yaml:2-3；strategy.py:262-267；README.md:22
+Sample period: 数据请求区间为 2005-01-03 至 2025-12-31，含首尾日期。样本内开始前的数据用于预热和早期训练。日志记录的回测区间为 2010-01-04 至 2025-12-31。；backtest_results.md:14； data_range (from output): 2010-01-04 to 2025-12-31
+IS/OOS split: 配置的样本内区间为 2010-01-01 至 2019-12-31，样本外为 2020-01-01 至 2025-12-31，区间均含首尾日期，按实际交易日切片。样本内按半年重估。样本外周度决策使用截至样本内最后一个交易日的最终拟合，固定特征缩放、HMM 参数和状态配置，仅继续用新观测更新过滤概率。两段指标取自同一条连续模拟路径。
+Costs and slippage: 每买入或卖出一美元收取 5 bps。开盘再平衡按各 ETF 买卖金额的绝对值求和计费，费用从组合净值扣除，包括首次建仓，等权基准沿用相同费率和再平衡时点。未单独建模滑点、开盘冲击、流动性或税费，模拟以复权开盘价成交。
+Signal lag: 每周以周五为周界，在下一周首个实际交易日开盘调仓，信号使用该开盘前一交易日的收盘信息。初次建仓在回测首个交易日开盘，使用前一交易日的收盘信号。已有持仓先计入上一收盘至该开盘的变动，再执行调仓。
+Price adjustment: 下载设置 auto_adjust=True，策略读取 Yahoo Finance 复权开盘价和收盘价，缓存文件存在时直接使用其中的 Open 和 Close。以复权收盘价构造信号，并以复权开盘价模拟成交。
+Survivorship bias: SPY、TLT、GLD 为事后选定的固定 ETF 组合，存在资产选择偏差。回测未使用现今指数成分股名单。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.09860539725931905, ann_vol=0.0886344559585291, sharpe=1.1055567438178378, max_drawdown=-0.15857439079577373, total_return=1.5572253538998706, turnover=19.736329382205927, n_trades=1566
     oos: cagr=0.12142479713736187, ann_vol=0.14906167437844522, sharpe=0.8435612031872329, max_drawdown=-0.2425922141280834, total_return=0.9853218754033275, turnover=16.156861073693214, n_trades=939
     full: cagr=0.10710208722331305, ann_vol=0.11504465245747789, sharpe=0.9421612030950982, max_drawdown=-0.24259221412808296, total_return=4.076915435433465, turnover=35.89319045589914, n_trades=2505
-    benchmark  full: cagr=0.09052152484681719, ann_vol=0.09134339992193448, sharpe=0.9945308426569265, max_drawdown=-0.22882857783662758, total_return=2.989818471752803, turnover=11.276953889678538, n_trades=2505
+    benchmark full: cagr=0.09052152484681719, ann_vol=0.09134339992193448, sharpe=0.9945308426569265, max_drawdown=-0.22882857783662758, total_return=2.989818471752803, turnover=11.276953889678538, n_trades=2505
 """
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---

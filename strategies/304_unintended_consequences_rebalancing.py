@@ -1,16 +1,16 @@
 """304_unintended_consequences_rebalancing
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; non-author review: PASS; publication gate: Codex.
-Run (one command): python strategies/304_unintended_consequences_rebalancing.py   (free public data only; config embedded)
+Run (one command): python strategies/304_unintended_consequences_rebalancing.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 2b23c5bbf706aea933c0cba5f5805efb450ee206 on 2026-11-26 14:27 Europe/Oslo, exit 0, output sha256 8167cfeb0dc91155e2f0fdf054f20ebfd863fbeb0a3abf02c599e494f8786bc8
-Data source: Yahoo Finance 公开 ETF 日频开盘价和收盘价，经 yfinance 下载或从 `data_cache/` 缓存读取。股票为 SPY，债券为 IEF（config.yaml:3-5；strategy.py:45-59、179、199；README.md:23）。
+Data source: Yahoo Finance 公开 ETF 日频开盘价和收盘价，经 yfinance 下载或从 `data_cache/` 缓存读取。股票为 SPY，债券为 IEF。
 Data fetched: 2026-11-26 14:27 Europe/Oslo (run time)
-Sample period: 行情请求区间为 2006-10-01 至 2026-10-30，2006 年 10 月起用于预热。该次运行使用的开盘估值区间为 2007-01-03 至 2026-10-30，首个收益日期为 2007-01-04（config.yaml:15-21；strategy.py:185-187、199、213-223；README.md:21；logs/run_20261125_133402.log:1-3）。   data_range (from output): 2007-01-03 to 2026-10-30
-IS/OOS split: 配置样本内为 2007-01-01 至 2025-03-31，样本外为 2025-04-01 至 2026-10-30。实际样本内收益自 2007-01-04 开始。收益按区间结束的开盘日归属，首个样本外区间从 2025-03-31 开盘持有至 2025-04-01 开盘，组合状态跨边界延续。README 将样本外描述为固定规则的历史留出检验，并记载两段均未调参（config.yaml:16-21；strategy.py:114-126、213-225；README.md:21；logs/run_20261125_133402.log:1-3）。
-Costs and slippage: 三条组合均在每次开盘按买入金额和卖出金额各收取 2 bps，涵盖首次从现金建仓及后续按漂移后权重调仓。换手率为买卖金额之和除以成交前净值，目标权重以扣费后净值为基准，净增长因子为开盘至开盘的毛增长因子乘以 (1 − 费率 × 换手率)。未建模滑点，成交以复权开盘价模拟（config.yaml:12；strategy.py:114-127、183、213-224；README.md:17、32）。
-Signal lag: 阈值策略和单日反转基准在交易日 t 收盘后根据截至当日的收盘收益生成信号，并按 t 日做月界过滤。目标权重向后移一个交易日，在 t+1 开盘成交并持有至 t+2 开盘。恒定权重基准在各期起始开盘使用固定目标（strategy.py:199-223；README.md:13-16）。
-Price adjustment: 下载使用 `auto_adjust=True`。缓存文件名以 `yahoo_adjusted_` 开头，缓存路径保留同一组开盘价和收盘价列。信号使用复权收盘收益，成交估值使用复权开盘价。README 记载 ETF 收益包含分配和产品费用的影响，并提示供应商可能修订复权行情（strategy.py:45-59、70-79、199-219；README.md:9、32）。
-Survivorship bias: 固定使用 SPY 和 IEF 两只历史 ETF，无个股成分股回填。事后选择现存 ETF 仍有产品选择偏差（config.yaml:3-5；strategy.py:179、199；README.md:34）。
+Sample period: 行情请求区间为 2006-10-01 至 2026-10-30，2006 年 10 月起用于预热。该次运行使用的开盘估值区间为 2007-01-03 至 2026-10-30，首个收益日期为 2007-01-04。 data_range (from output): 2007-01-03 to 2026-10-30
+IS/OOS split: 配置样本内为 2007-01-01 至 2025-03-31，样本外为 2025-04-01 至 2026-10-30。实际样本内收益自 2007-01-04 开始。收益按区间结束的开盘日归属，首个样本外区间从 2025-03-31 开盘持有至 2025-04-01 开盘，组合状态跨边界延续。README 将样本外描述为固定规则的历史留出检验，并记载两段均未调参。
+Costs and slippage: 三条组合均在每次开盘按买入金额和卖出金额各收取 2 bps，涵盖首次从现金建仓及后续按漂移后权重调仓。换手率为买卖金额之和除以成交前净值，目标权重以扣费后净值为基准，净增长因子为开盘至开盘的毛增长因子乘以 (1 − 费率 × 换手率)。未建模滑点，成交以复权开盘价模拟。
+Signal lag: 阈值策略和单日反转基准在交易日 t 收盘后根据截至当日的收盘收益生成信号，并按 t 日做月界过滤。目标权重向后移一个交易日，在 t+1 开盘成交并持有至 t+2 开盘。恒定权重基准在各期起始开盘使用固定目标。
+Price adjustment: 下载使用 `auto_adjust=True`。缓存文件名以 `yahoo_adjusted_` 开头，缓存路径保留同一组开盘价和收盘价列。信号使用复权收盘收益，成交估值使用复权开盘价。README 记载 ETF 收益包含分配和产品费用的影响，并提示供应商可能修订复权行情。
+Survivorship bias: 固定使用 SPY 和 IEF 两只历史 ETF，无个股成分股回填。事后选择现存 ETF 仍有产品选择偏差。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.08504310807922866, ann_vol=0.11354916586810568, sharpe=0.7757690140581055, max_drawdown=-0.24235691337852994, total_return=3.4208012606708316, turnover=207.02584815266658

@@ -1,16 +1,16 @@
 """560_drawdown_risk_beyond_brownian_motion_a_m
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/560_drawdown_risk_beyond_brownian_motion_a_m.py   (free public data only; config embedded)
+Run (one command): python strategies/560_drawdown_risk_beyond_brownian_motion_a_m.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit dabba95798e4528edd13ca4f5df08c862a0dbb62 on 2026-11-27 11:02 Europe/Oslo, exit 0, output sha256 71ba1efb16a4f797cb6e3554ebd61bf52ccc10f4c8653ae72dbead27fde4307c
-Data source: Yahoo Finance 公开 ETF 日线，通过 yfinance 获取 SPY 和 BIL 的开盘价及收盘价。SPY 是风险资产及买入持有基准，BIL 是防御资产。读取时优先使用对应日期范围的本地 CSV 缓存（config.yaml:2-5，strategy.py:63-83，strategy.py:268-273，README.md:20）。
+Data source: Yahoo Finance 公开 ETF 日线，通过 yfinance 获取 SPY 和 BIL 的开盘价及收盘价。SPY 是风险资产及买入持有基准，BIL 是防御资产。读取时优先使用对应日期范围的本地 CSV 缓存。
 Data fetched: 2026-11-27T10:02:47+00:00
-Sample period: 价格请求区间为 2007-06-01 至 2025-12-31，2008-09-02 之前的数据用于信号预热。日志记录的回测首末交易日为 2008-09-02 至 2025-12-31（config.yaml:6-9，README.md:21，strategy.py:72-75，strategy.py:256，logs/run_20261127_101445.log:17）。   data_range (from output): {'start': '2008-09-02', 'end': '2025-12-31'}
-IS/OOS split: 事后按交易日划分。样本内为 2008-09-02 至 2016-12-31，样本外为 2017-01-01 至 2025-12-31。默认配置连续模拟一次再切分指标，样本外承接样本内仓位和信号状态。六组稳健性变体只使用样本内数据（config.yaml:7-9，strategy.py:214-219，strategy.py:260-273，README.md:21，README.md:28-30）。
-Costs and slippage: 默认每个 ETF 买入或卖出按成交额计 1 bp 成本及 2 bps 滑点。滑点以固定比例计入开盘交易费用，合计每腿 3 bps。初始建仓和 SPY 买入持有基准各计一笔买入费用，切换时卖出和买入分别计费，期末按收盘价估值。高摩擦变体的成本和滑点各为 5 bps，合计每腿 10 bps（config.yaml:12-13，config.yaml:31-32，strategy.py:158-186，strategy.py:252-265，strategy.py:268-273，README.md:23）。
-Signal lag: 预热后，每周首个交易日 t 收盘，以截至该收盘的 SPY 数据计算信号。默认延迟一个交易日，在下一交易日开盘建仓或切换，目标持续至下一次生效。调仓日隔夜收益归旧仓，开盘至收盘收益归新仓（config.yaml:11，strategy.py:132-155，strategy.py:168-183，strategy.py:238-241，README.md:22）。
+Sample period: 价格请求区间为 2007-06-01 至 2025-12-31，2008-09-02 之前的数据用于信号预热。日志记录的回测首末交易日为 2008-09-02 至 2025-12-31。 data_range (from output): {'start': '2008-09-02', 'end': '2025-12-31'}
+IS/OOS split: 事后按交易日划分。样本内为 2008-09-02 至 2016-12-31，样本外为 2017-01-01 至 2025-12-31。默认配置连续模拟一次再切分指标，样本外承接样本内仓位和信号状态。六组稳健性变体只使用样本内数据。
+Costs and slippage: 默认每个 ETF 买入或卖出按成交额计 1 bp 成本及 2 bps 滑点。滑点以固定比例计入开盘交易费用，合计每腿 3 bps。初始建仓和 SPY 买入持有基准各计一笔买入费用，切换时卖出和买入分别计费，期末按收盘价估值。高摩擦变体的成本和滑点各为 5 bps，合计每腿 10 bps。
+Signal lag: 预热后，每周首个交易日 t 收盘，以截至该收盘的 SPY 数据计算信号。默认延迟一个交易日，在下一交易日开盘建仓或切换，目标持续至下一次生效。调仓日隔夜收益归旧仓，开盘至收盘收益归新仓。
 Price adjustment: yfinance auto_adjust=True total-return adjusted Open and Close
-Survivorship bias: 资产池事后固定为两只仍存续的 ETF（SPY、BIL）。README 明确指出基金选择与存续偏差，以及对其他市场和已清盘基金的外推限制（config.yaml:2-5，strategy.py:230-232，README.md:24）。
+Survivorship bias: 资产池事后固定为两只仍存续的 ETF（SPY、BIL）。README 明确指出基金选择与存续偏差，以及对其他市场和已清盘基金的外推限制。
 Parameter combinations tried: 7
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.047885192772014085, ann_vol=0.1291655267570118, sharpe=0.42697345003916926, sharpe_excess=0.42492814821190505, max_drawdown=-0.31707394607935147, total_return=0.4763871382414129, turnover=66.97990602819155, n_trades=67

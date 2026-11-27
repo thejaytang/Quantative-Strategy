@@ -1,11 +1,11 @@
 """472_breaking_the_trend_how_to_avoid_cherry_p
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/472_breaking_the_trend_how_to_avoid_cherry_p.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit 53c18ef949f91367c58358829370e449e492628c on 2026-11-27 18:41 Europe/Oslo, exit 0, output sha256 15b1aea614825fc494a1945f8b2b5e4014bbb1dd5fda520086e6c7a1dce1afbf
+Run (one command): python strategies/472_breaking_the_trend_how_to_avoid_cherry_p.py (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit fc4032f1dc84592dc32f39915df656911d60b83b on 2026-11-27 18:52 Europe/Oslo, exit 0, output sha256 38366e79a66787d43ba2bd65f99a90d73ef2c3522f83a4308b31e791707ca9db
 Data source: Free Yahoo Finance daily prices via yfinance for SPY, EFA, IEF, TLT, GLD, DBC, UUP and FXE, with BIL as the cash-return proxy. The run reports a data snapshot fetched at 2026-11-27T07:06:46+00:00.
-Data fetched: 2026-11-27T17:41:14+00:00
-Sample period: Requested price window 2008-01-01 through 2026-10-31, inclusive. The 2008–2011 history is used for indicator warm-up. Actual backtest sessions run from 2012-01-03 through 2026-10-30.   data_range (from output): {'start': '2012-01-03', 'end': '2026-10-30'}
+Data fetched: 2026-11-27T17:52:39+00:00
+Sample period: Requested price window 2008-01-01 through 2026-10-31, inclusive. The 2008–2011 history is used for indicator warm-up. Actual backtest sessions run from 2012-01-03 through 2026-10-30. data_range (from output): {'start': '2012-01-03', 'end': '2026-10-30'}
 IS/OOS split: Retrospective chronological split. IS is 2012-01-03 through 2023-12-29, using dates on or before 2023-12-31. OOS is 2024-01-02 through 2026-10-30, using dates after 2023-12-31. Strategy and benchmark holdings carry across the split. A separate retrospective OOS_POST_PUBLICATION run starts from cash and uses the first eligible signal at the 2025-04-16 close after the configured 2025-04-15 paper publication date. Its first fill is at the 2025-04-17 close and it ends on 2026-10-30. The historical parameter lock date is undocumented.
 Costs and slippage: 1 bp transaction cost plus 2 bps fixed slippage per side for the strategy and benchmark. The simulator deducts a combined cash charge of 0.0003 times the sum of absolute share changes valued at the fill-day close. The fixed slippage is modeled through this charge.
 Signal lag: A target computed from session t's close sets the quantities for a simulated fill at the next U.S. market session's close. Old positions earn the price move through that fill close.
@@ -13,10 +13,10 @@ Price adjustment: yfinance auto_adjust=True total-return adjusted close
 Survivorship bias: The eight ETFs were fixed retrospectively from surviving funds with long available histories. The strategy and benchmark are exposed to survivorship and asset-selection bias. Historical candidate lists, inclusion and replacement rules, and suspension or delisting settlement paths are undocumented.
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=0.03166483616303939, ann_vol=0.04930766962259695, sharpe=0.6569490977535223, sharpe_excess=0.474916849464706, max_drawdown=-0.08305367075373415, total_return=0.4525837734573914, turnover=4.494150092817482, n_trades=24144
-    oos: cagr=0.0853780249641305, ann_vol=0.05956573090371088, sharpe=1.4054404850830453, sharpe_excess=0.6855217013660234, max_drawdown=-0.04431527273879954, total_return=0.2600544687255171, turnover=4.658164866156845, n_trades=5688
-    full: cagr=0.041696972443205915, ann_vol=0.05142867446284436, sharpe=0.8201330820111685, sharpe_excess=0.520018172767958, max_drawdown=-0.08305367075373415, total_return=0.8303346749431584, turnover=4.525422418868511, n_trades=29832
-    benchmark: cagr=0.057916028528289365, ann_vol=0.071579920707852, sharpe=0.8224416517539389, sharpe_excess=0.6066522874581521, max_drawdown=-0.1587794369645582, total_return=1.300485505808242, turnover=0.061423762172517486, n_trades=8
+    is: cagr=0.0316649912126008, ann_vol=0.04930757588408778, sharpe=0.6569533016492229, sharpe_excess=0.47491981099043895, max_drawdown=-0.08305412282487745, total_return=0.4525863879785166, turnover=4.494124547284159, n_trades=24144
+    oos: cagr=0.08537772517626663, ann_vol=0.05956567330715661, sharpe=1.405437147290199, sharpe_excess=0.6855210636592783, max_drawdown=-0.04431545300097417, total_return=0.26005348677117923, turnover=4.658155491013214, n_trades=5688
+    full: cagr=0.0416970442905884, ann_vol=0.05142858876572997, sharpe=0.8201357043332782, sharpe_excess=0.5200202722082524, max_drawdown=-0.08305412282487745, total_return=0.8303365430086806, turnover=4.525399956506835, n_trades=29832
+    benchmark: cagr=0.05791603302405557, ann_vol=0.07157991656392913, sharpe=0.8224417542916962, sharpe_excess=0.6066534795701273, max_drawdown=-0.15877935338861693, total_return=1.300485650473374, turnover=0.061423758612962835, n_trades=8
 """
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---

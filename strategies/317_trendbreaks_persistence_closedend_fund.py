@@ -1,22 +1,22 @@
 """317_trendbreaks_persistence_closedend_fund
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; non-author review: PASS; publication gate: Codex.
-Run (one command): python strategies/317_trendbreaks_persistence_closedend_fund.py   (free public data only; config embedded)
+Run (one command): python strategies/317_trendbreaks_persistence_closedend_fund.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 2b23c5bbf706aea933c0cba5f5805efb450ee206 on 2026-11-26 14:27 Europe/Oslo, exit 0, output sha256 8df508fdf6ae64860cd43279280410e56cd96679c2f9dbc07d599cd97361cfaa
-Data source: Yahoo Finance 日度复权开盘价和收盘价，通过 yfinance 下载或读取 data_cache/ 中的对应 CSV。黄金配对 PHYS/GLD，白银配对 PSLV/SLV。信号以信托与对冲腿收盘价的对数差为折溢价代理（config.yaml:3–5，strategy.py:15–19、34–48、215–220，README.md:9）。
+Data source: Yahoo Finance 日度复权开盘价和收盘价，通过 yfinance 下载或读取 data_cache/ 中的对应 CSV。黄金配对 PHYS/GLD，白银配对 PSLV/SLV。信号以信托与对冲腿收盘价的对数差为折溢价代理。
 Data fetched: 2026-11-26 14:27 Europe/Oslo (run time)
-Sample period: 配置自 2010-11-01 载入行情用于预热，实际评估覆盖 2012-01-03 至 2025-12-31（config.yaml:7–13，README.md:19，strategy.py:215–223，logs/run_20261125_141106.log:1）。   data_range (from output): 2012-01-03 to 2025-12-31
-IS/OOS split: 配置的样本内区间为 2012-01-01 至 2020-12-31，样本外区间为 2021-01-01 至 2025-12-31。每个模型连续模拟，再按日期切分汇总，样本外承接此前的持仓与滚动估计（config.yaml:8–13，strategy.py:79–83、215–233，README.md:19，logs/run_20261125_141106.log:2）。
-Costs and slippage: 每次开仓或平仓按两腿各自开盘成交名义金额的绝对值单边扣费 5 bps。空头借券费年化 100 bps，以前一交易日收盘空头市值乘以经过的日历天数并按 365 天折算。现金利息为零。滑点未建模，模拟成交直接使用开盘价（config.yaml:25–26，strategy.py:124–130、139–158，README.md:15、25）。
-Signal lag: 以交易日 t 的收盘价计算价差信号，在下一条交易日行情的开盘价模拟开仓或平仓。每周首个交易日的模型仅用此前 252 个交易日拟合，并冻结至下一周（config.yaml:16，strategy.py:75–84、98–117、120–125、139–153、218–220，README.md:13–15）。
-Price adjustment: yfinance 下载使用 auto_adjust=True。信号与收盘估值使用复权 Close，模拟成交使用复权 Open。缓存读取校验日期覆盖与价格有效性，代码未保存或检查逐日可得的历史行情版本。Yahoo Finance 行情可能事后修订（strategy.py:15–35、41–54、124–125、139–153、218–220，README.md:26）。
-Survivorship bias: 固定选取 PHYS、GLD、PSLV、SLV 四只已知且仍在交易的产品，存在事后选样与存续偏差（config.yaml:3–5，strategy.py:206–215，README.md:26）。
+Sample period: 配置自 2010-11-01 载入行情用于预热，实际评估覆盖 2012-01-03 至 2025-12-31。 data_range (from output): 2012-01-03 to 2025-12-31
+IS/OOS split: 配置的样本内区间为 2012-01-01 至 2020-12-31，样本外区间为 2021-01-01 至 2025-12-31。每个模型连续模拟，再按日期切分汇总，样本外承接此前的持仓与滚动估计。
+Costs and slippage: 每次开仓或平仓按两腿各自开盘成交名义金额的绝对值单边扣费 5 bps。空头借券费年化 100 bps，以前一交易日收盘空头市值乘以经过的日历天数并按 365 天折算。现金利息为零。滑点未建模，模拟成交直接使用开盘价。
+Signal lag: 以交易日 t 的收盘价计算价差信号，在下一条交易日行情的开盘价模拟开仓或平仓。每周首个交易日的模型仅用此前 252 个交易日拟合，并冻结至下一周。
+Price adjustment: yfinance 下载使用 auto_adjust=True。信号与收盘估值使用复权 Close，模拟成交使用复权 Open。缓存读取校验日期覆盖与价格有效性，代码未保存或检查逐日可得的历史行情版本。Yahoo Finance 行情可能事后修订。
+Survivorship bias: 固定选取 PHYS、GLD、PSLV、SLV 四只已知且仍在交易的产品，存在事后选样与存续偏差。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.0020896702731789674, ann_vol=0.01807661776760463, sharpe=0.12447523154581192, max_drawdown=-0.04448631725808394, total_return=0.018939681296779698, turnover=158.74847504193872, n_trades=159
     oos: cagr=-0.004769829604433062, ann_vol=0.01105788860560359, sharpe=-0.42685345107926603, max_drawdown=-0.03851360989180952, total_return=-0.023530088582204067, turnover=91.61421621621199, n_trades=91
     full: cagr=-0.0003613816756397048, ann_vol=0.015932552379675585, sharpe=-0.014750860045009091, max_drawdown=-0.04448631725808394, total_return=-0.005036059664056292, turnover=250.3626912581507, n_trades=250
-    benchmark  full: cagr=0.005885128741276668, ann_vol=0.016069055611258157, sharpe=0.3731583296457939, max_drawdown=-0.02058297679105414, total_return=0.0854167605532914, turnover=161.43282636745852, n_trades=161
+    benchmark full: cagr=0.005885128741276668, ann_vol=0.016069055611258157, sharpe=0.3731583296457939, max_drawdown=-0.02058297679105414, total_return=0.0854167605532914, turnover=161.43282636745852, n_trades=161
 """
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---

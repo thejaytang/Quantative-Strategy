@@ -1,16 +1,16 @@
 """314_statistical_proxy_based_meanreverting
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; non-author review: PASS; publication gate: Codex.
-Run (one command): python strategies/314_statistical_proxy_based_meanreverting.py   (free public data only; config embedded)
+Run (one command): python strategies/314_statistical_proxy_based_meanreverting.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 2b23c5bbf706aea933c0cba5f5805efb450ee206 on 2026-11-26 14:27 Europe/Oslo, exit 0, output sha256 7c0ac94f5c4a99cfa2412eff541cbe1eff79da0b3d7b66e31953157c47905ec2
-Data source: Yahoo Finance 免费日线，经 yfinance 获取复权开盘价和收盘价，优先读取本地 CSV 缓存。策略使用 XLB、XLE、XLF、XLI、XLK、XLP、XLU、XLV、XLY，买入持有基准使用 SPY。见 config.yaml:2-3、strategy.py:19-23、strategy.py:41-59、strategy.py:265-274、strategy.py:292-295、README.md:7。
+Data source: Yahoo Finance 免费日线，经 yfinance 获取复权开盘价和收盘价，优先读取本地 CSV 缓存。策略使用 XLB、XLE、XLF、XLI、XLK、XLP、XLU、XLV、XLY，买入持有基准使用 SPY。见。
 Data fetched: 2026-11-26 14:27 Europe/Oslo (run time)
-Sample period: 数据请求区间为 2014-12-01 至 2025-12-31，含预热。运行日志记录的回测交易日区间为 2016-01-04 至 2025-12-31。见 config.yaml:4-10、strategy.py:48-52、strategy.py:260-271、strategy.py:275、strategy.py:283、strategy.py:296、README.md:23、logs/run_20261125_140236.log:1。   data_range (from output): 2016-01-04 to 2025-12-31
-IS/OOS split: 配置的样本内为 2016-01-01 至 2020-12-31，样本外为 2021-01-01 至 2025-12-31。回测连续运行，按交易日切分每日净值收益，若有跨界持仓则延续到样本外。样本外沿用固定参数，每季按截至该季选篮日收盘的 252 个交易日收益重新选篮。见 config.yaml:5-16、strategy.py:95-107、strategy.py:215-222、strategy.py:252-264、strategy.py:274-290、README.md:23。
-Costs and slippage: 每次在开盘调仓时，按各腿绝对成交名义金额之和收取 5 bps，从现金扣除，覆盖价差开仓、平仓及 SPY 初次买入。成交使用复权开盘价，未单独建模滑点、冲击成本、借券费或融资成本。见 config.yaml:17、strategy.py:168-193、strategy.py:281-295、README.md:21、README.md:31。
-Signal lag: 交易日 t 收盘后以当日及此前的收盘收益计算价差信号。开仓、平仓和季度重选触发的平仓写入下一交易日 t+1 的目标，以该日开盘价模拟成交。SPY 基准按预设目标在回测首个交易日开盘买入。见 strategy.py:95-107、strategy.py:136-165、strategy.py:173-185、strategy.py:270-289、strategy.py:292-295、README.md:11、README.md:17。
-Price adjustment: 下载设定 auto_adjust=True，使用复权 Open 和 Close，缓存命中时读取对应列。模拟按复权开盘价成交，按复权收盘价计算收益及估值。文档将该口径描述为近似反映分红和拆分。见 strategy.py:19-23、strategy.py:41-59、strategy.py:173-193、strategy.py:270-274、README.md:31。
-Survivorship bias: 使用固定的九只行业 ETF。README 指出，该做法避开了用当前股票成分股回溯的成分股幸存者偏差，但选取存续至今且历史较长的基金仍有选择偏差，底层行业划分也可能变化。见 config.yaml:2、strategy.py:265-274、README.md:30。
+Sample period: 数据请求区间为 2014-12-01 至 2025-12-31，含预热。运行日志记录的回测交易日区间为 2016-01-04 至 2025-12-31。见。 data_range (from output): 2016-01-04 to 2025-12-31
+IS/OOS split: 配置的样本内为 2016-01-01 至 2020-12-31，样本外为 2021-01-01 至 2025-12-31。回测连续运行，按交易日切分每日净值收益，若有跨界持仓则延续到样本外。样本外沿用固定参数，每季按截至该季选篮日收盘的 252 个交易日收益重新选篮。见。
+Costs and slippage: 每次在开盘调仓时，按各腿绝对成交名义金额之和收取 5 bps，从现金扣除，覆盖价差开仓、平仓及 SPY 初次买入。成交使用复权开盘价，未单独建模滑点、冲击成本、借券费或融资成本。见。
+Signal lag: 交易日 t 收盘后以当日及此前的收盘收益计算价差信号。开仓、平仓和季度重选触发的平仓写入下一交易日 t+1 的目标，以该日开盘价模拟成交。SPY 基准按预设目标在回测首个交易日开盘买入。见。
+Price adjustment: 下载设定 auto_adjust=True，使用复权 Open 和 Close，缓存命中时读取对应列。模拟按复权开盘价成交，按复权收盘价计算收益及估值。文档将该口径描述为近似反映分红和拆分。见。
+Survivorship bias: 使用固定的九只行业 ETF。README 指出，该做法避开了用当前股票成分股回溯的成分股幸存者偏差，但选取存续至今且历史较长的基金仍有选择偏差，底层行业划分也可能变化。见。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=-0.03259503397441832, ann_vol=0.0463012572157622, sharpe=-0.6925384382230686, max_drawdown=-0.21249737152332215, total_return=-0.1525800731855973, turnover=142.54367418474902, n_trades=71

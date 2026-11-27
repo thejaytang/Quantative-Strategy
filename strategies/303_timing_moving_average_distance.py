@@ -1,22 +1,22 @@
 """303_timing_moving_average_distance
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; non-author review: PASS; publication gate: Codex.
-Run (one command): python strategies/303_timing_moving_average_distance.py   (free public data only; config embedded)
+Run (one command): python strategies/303_timing_moving_average_distance.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 14eecadd0b176b2fbb95eb0893f41d9c752319be on 2026-11-26 16:07 Europe/Oslo, exit 0, output sha256 ace41b135343f5565a4016e0142a144e72dc0f6d583b94a31bc730eb0e3fb447
-Data source: Yahoo Finance 美国上市国家股票 ETF 日频复权 Open/Close，由 yfinance 获取或从 CSV 缓存读取。标的为 EWC、EWA、EWG、EWJ、EWU、EWL、EWS、EWT、EWY、EWP（config.yaml:2；strategy.py:20-30、34-54；README.md:11-15）。
+Data source: Yahoo Finance 美国上市国家股票 ETF 日频复权 Open/Close，由 yfinance 获取或从 CSV 缓存读取。标的为 EWC、EWA、EWG、EWJ、EWU、EWL、EWS、EWT、EWY、EWP。
 Data fetched: 2026-11-26 16:07 Europe/Oslo (run time)
-Sample period: 行情请求窗口为 2008-09-01 至 2026-11-24，含配置首尾日期，2008-09-01 起的样本前数据供信号预热（config.yaml:3-9；strategy.py:45-51、175-179、190-196）。运行日志记录的完整评估区间为 2010-01-04 至 2026-11-24（logs/run_20261125_132843.log:4、15）。   data_range (from output): 2010-01-04 to 2026-11-24
-IS/OOS split: 回溯性时间切分，配置边界含首尾。IS 配置为 2010-01-01 至 2020-12-31，实际交易日为 2010-01-04 至 2020-12-31。OOS 配置为 2021-01-01 至 2026-11-24，实际交易日为 2021-01-04 至 2026-11-24。每个组合先连续模拟，再按区间统计，切分时持仓延续（config.yaml:4-9；README.md:19-23；strategy.py:190-209；logs/run_20261125_132843.log:2-3）。
-Costs and slippage: 单边 5 bps，按每次调仓中实际买入和卖出的金额分别收费，首次建仓也计费。程序按调仓前开盘净值求解扣费后的目标敞口，并以当日复权开盘价计算份额。未建模滑点、买卖价差或市场冲击（config.yaml:15；strategy.py:107-132、180、205；README.md:18、27）。
-Signal lag: 在月末最后一个美国交易日 t 收盘后用复权收盘价计算 SMA(21) / SMA(252) − 1。调仓日期设为下一美国交易日，即下月首个交易日，并按该日复权开盘价模拟成交（config.yaml:10-11；strategy.py:79-87、94-104、107-132、190-205；README.md:5）。
-Price adjustment: 下载设置为 auto_adjust=True。信号、模拟开盘成交和收盘估值使用经分红及拆股复权的价格，缓存也保存复权 Open/Close（strategy.py:20-30、34-54、62-70、190-205；README.md:11）。
-Survivorship bias: 全期采用同一份固定的十只 ETF 名单。README 明示事后选择和基金幸存者偏差，名单遗漏已关闭或历史上无法交易的国家基金（config.yaml:2；strategy.py:173-174、190-205；README.md:27）。
+Sample period: 行情请求窗口为 2008-09-01 至 2026-11-24，含配置首尾日期，2008-09-01 起的样本前数据供信号预热。运行日志记录的完整评估区间为 2010-01-04 至 2026-11-24。 data_range (from output): 2010-01-04 to 2026-11-24
+IS/OOS split: 回溯性时间切分，配置边界含首尾。IS 配置为 2010-01-01 至 2020-12-31，实际交易日为 2010-01-04 至 2020-12-31。OOS 配置为 2021-01-01 至 2026-11-24，实际交易日为 2021-01-04 至 2026-11-24。每个组合先连续模拟，再按区间统计，切分时持仓延续。
+Costs and slippage: 单边 5 bps，按每次调仓中实际买入和卖出的金额分别收费，首次建仓也计费。程序按调仓前开盘净值求解扣费后的目标敞口，并以当日复权开盘价计算份额。未建模滑点、买卖价差或市场冲击。
+Signal lag: 在月末最后一个美国交易日 t 收盘后用复权收盘价计算 SMA(21) / SMA(252) − 1。调仓日期设为下一美国交易日，即下月首个交易日，并按该日复权开盘价模拟成交。
+Price adjustment: 下载设置为 auto_adjust=True。信号、模拟开盘成交和收盘估值使用经分红及拆股复权的价格，缓存也保存复权 Open/Close。
+Survivorship bias: 全期采用同一份固定的十只 ETF 名单。README 明示事后选择和基金幸存者偏差，名单遗漏已关闭或历史上无法交易的国家基金。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.04992823849750483, ann_vol=0.19117691965491587, sharpe=0.35113577246911415, max_drawdown=-0.37284288143139577, total_return=0.7080629853685956, turnover=57.773880777562965
     oos: cagr=0.12419870597226934, ann_vol=0.22492898969604105, sharpe=0.6332078579952047, max_drawdown=-0.3307587013381883, total_return=0.9897750473865801, turnover=32.285581585509604
     full: cagr=0.07523509455182698, ann_vol=0.2035609037431013, sharpe=0.4586740593305042, max_drawdown=-0.37284288143139577, total_return=2.398661107651058, turnover=90.05946236307257
-    benchmark  full: cagr=0.07406300672671828, ann_vol=0.18277077222062593, sharpe=0.48279662055362915, max_drawdown=-0.36786514995096764, total_return=2.33671676438943, turnover=5.6596652925964595
+    benchmark full: cagr=0.07406300672671828, ann_vol=0.18277077222062593, sharpe=0.48279662055362915, max_drawdown=-0.36786514995096764, total_return=2.33671676438943, turnover=5.6596652925964595
 """
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---

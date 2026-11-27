@@ -1,16 +1,16 @@
 """438_the_mathematics_of_heuristic_portfolio_o
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/438_the_mathematics_of_heuristic_portfolio_o.py   (free public data only; config embedded)
+Run (one command): python strategies/438_the_mathematics_of_heuristic_portfolio_o.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit f9ce9ed5a416a517c7093ea09cd1b69a31dd3383 on 2026-11-27 11:05 Europe/Oslo, exit 0, output sha256 2ba01dcf00d4fea7984e1f1f15e1812dab56573f5563dae7b34b2d969225fbc9
-Data source: Yahoo Finance 日线，经 yfinance 获取。配置资产为 SPY、EFA、EEM、IEF、TLT、GLD、VNQ、DBC。BIL 日收益用作现金代理及超额收益参照，配置权重信号只使用资产池收益。已有价格缓存时读取 data_cache/prices_<缓存键>.csv。config.yaml:2-3，strategy.py:59-81，strategy.py:202-205，strategy.py:227-234，README.md:13
+Data source: Yahoo Finance 日线，经 yfinance 获取。配置资产为 SPY、EFA、EEM、IEF、TLT、GLD、VNQ、DBC。BIL 日收益用作现金代理及超额收益参照，配置权重信号只使用资产池收益。已有价格缓存时读取 data_cache/prices_<缓存键>.csv。
 Data fetched: 2026-11-27T10:05:19+00:00
-Sample period: 回测覆盖实际交易日 2011-01-03 至 2025-12-31。价格请求从 2009-12-01 开始，样本前数据用于建立首个 252 个交易日的估计窗口。config.yaml:5-10，README.md:15，logs/run_20261127_073114.log:16   data_range (from output): {'start': '2011-01-03', 'end': '2025-12-31'}
-IS/OOS split: 按日期切分。样本内 2011-01-03 至 2020-12-31，样本外 2021-01-04 至 2025-12-31，均含首尾交易日。每个规则连续模拟一次，再分段汇报，跨界延续持仓。README.md:15-16 记录两段数据均早于论文发表，且未按两段表现修改规则。config.yaml:6-8，strategy.py:228-248
-Costs and slippage: 每次调仓（含首次建仓）对资产池 ETF 买卖两侧分别按实际成交名义额收取 2 bps 交易成本和 3 bps 固定滑点，合计每侧 5 bps。代码以成交前净值为基准求解扣费后的净值比例和买卖名义额之和，在成交日一次性扣减净值。config.yaml:13-14，strategy.py:179-199，strategy.py:241-243，README.md:21
-Signal lag: 月末交易日 t 收盘后，使用截至 t 的 252 个日收益率计算目标，默认在下一交易日 t+1 收盘成交。t 至 t+1 的收益按旧持仓（首次建仓前按 BIL 现金代理）计算，成交费用在 t+1 扣除，新权重适用于 t+1 至 t+2 的收盘到收盘收益。首笔在样本首个交易日收盘执行，使用前一交易日信号。config.yaml:10-12，strategy.py:153-175，strategy.py:179-199，strategy.py:232-243，README.md:20
+Sample period: 回测覆盖实际交易日 2011-01-03 至 2025-12-31。价格请求从 2009-12-01 开始，样本前数据用于建立首个 252 个交易日的估计窗口。 data_range (from output): {'start': '2011-01-03', 'end': '2025-12-31'}
+IS/OOS split: 按日期切分。样本内 2011-01-03 至 2020-12-31，样本外 2021-01-04 至 2025-12-31，均含首尾交易日。每个规则连续模拟一次，再分段汇报，跨界延续持仓。 记录两段数据均早于论文发表，且未按两段表现修改规则。
+Costs and slippage: 每次调仓（含首次建仓）对资产池 ETF 买卖两侧分别按实际成交名义额收取 2 bps 交易成本和 3 bps 固定滑点，合计每侧 5 bps。代码以成交前净值为基准求解扣费后的净值比例和买卖名义额之和，在成交日一次性扣减净值。
+Signal lag: 月末交易日 t 收盘后，使用截至 t 的 252 个日收益率计算目标，默认在下一交易日 t+1 收盘成交。t 至 t+1 的收益按旧持仓（首次建仓前按 BIL 现金代理）计算，成交费用在 t+1 扣除，新权重适用于 t+1 至 t+2 的收盘到收盘收益。首笔在样本首个交易日收盘执行，使用前一交易日信号。
 Price adjustment: yfinance auto_adjust=True daily Close, total-return basis
-Survivorship bias: 固定资产池采用事后仍存续且有充分历史的 ETF，选择可能受存续偏差影响。代码全期使用同一组配置标的并要求对齐价格有效。config.yaml:2-3，strategy.py:45-60，strategy.py:81-83，README.md:26
+Survivorship bias: 固定资产池采用事后仍存续且有充分历史的 ETF，选择可能受存续偏差影响。代码全期使用同一组配置标的并要求对齐价格有效。
 Parameter combinations tried: 4
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.03961247517554778, ann_vol=0.05451289825335733, sharpe=0.7409451424279068, sharpe_excess=0.6570701040752317, max_drawdown=-0.1136804682692879, total_return=0.4748280330108361, turnover=0.8513049384971214, n_trades=960

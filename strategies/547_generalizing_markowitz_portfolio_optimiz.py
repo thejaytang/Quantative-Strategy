@@ -1,11 +1,11 @@
 """547_generalizing_markowitz_portfolio_optimiz
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/547_generalizing_markowitz_portfolio_optimiz.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit 53c18ef949f91367c58358829370e449e492628c on 2026-11-27 18:41 Europe/Oslo, exit 0, output sha256 6edfdb1a2dfa4a8709d81ae3f7963f24cb2f867a31458db52e383a0f09acdd30
+Run (one command): python strategies/547_generalizing_markowitz_portfolio_optimiz.py (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit fc4032f1dc84592dc32f39915df656911d60b83b on 2026-11-27 18:52 Europe/Oslo, exit 0, output sha256 04515b57d78736fc298f8cf511394383f471dec90d2e6968edbca6c70858813e
 Data source: Free Yahoo Finance daily adjusted ETF closes via yfinance or the corresponding local CSV cache. XLK, XLF, XLE and XLV are the portfolio universe. BIL daily total returns are used only as the cash proxy for ex-post excess-return metrics.
-Data fetched: 2026-11-27T17:41:34+00:00
-Sample period: Backtest sessions 2010-01-04 through 2025-12-31 inclusive. Price history is requested from 2008-01-01, with 2008-01-02 documented as the first price session and pre-backtest history used for estimation.   data_range (from output): {'start': '2010-01-04', 'end': '2025-12-31'}
+Data fetched: 2026-11-27T17:52:44+00:00
+Sample period: Backtest sessions 2010-01-04 through 2025-12-31 inclusive. Price history is requested from 2008-01-01, with 2008-01-02 documented as the first price session and pre-backtest history used for estimation. data_range (from output): {'start': '2010-01-04', 'end': '2025-12-31'}
 IS/OOS split: IS 2010-01-04 through 2017-12-29, OOS 2018-01-02 through 2025-12-31, all endpoints inclusive. The retrospective time split slices a single continuous simulation, carrying portfolio state and rolling estimation into OOS. The README records no contemporaneous strategy freeze.
 Costs and slippage: Base costs are 2 bps and slippage is modeled as a flat 3 bps. The simulation deducts 5 bps in cash on the sum of buy and sell notionals at the fill close, including initial entry. The same rate is used to estimate proceeds and purchase costs at sizing. The IS friction stress case uses 4 bps cost and 6 bps slippage.
 Signal lag: The first backtest session and subsequent first sessions of each month are signal dates. A target computed using data through close t is sized at close t and filled at close t+1 under the default one-session lag. With a larger lag L, quantities are fixed at close t+L-1 and filled at close t+L.
@@ -13,10 +13,10 @@ Price adjustment: yfinance auto_adjust=True, dividend- and split-adjusted total-
 Survivorship bias: The strategy retrospectively uses a fixed list of four surviving sector ETFs. The README documents missing historical candidate lists, exited funds and liquidation returns, and identifies survivorship and hindsight selection bias. The equal-weight benchmark uses the same universe.
 Parameter combinations tried: 6
 Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=0.12280461278124877, ann_vol=0.15268682014835686, sharpe=0.8353633822874356, sharpe_excess=0.8313836431051645, max_drawdown=-0.24404469446690324, total_return=1.5225201606964762, turnover=2.6449441353067034, n_trades=226
-    oos: cagr=0.15870083318051598, ann_vol=0.21072838935476645, sharpe=0.8049591023854212, sharpe_excess=0.6895260835289794, max_drawdown=-0.2972566524456701, total_return=2.239673786060522, turnover=2.6865985191648187, n_trades=229
-    full: cagr=0.1406026002094094, ann_vol=0.18397814231634374, sharpe=0.8075845206820491, sharpe_excess=0.7399372254838601, max_drawdown=-0.2972566524456699, total_return=7.172142439417515, turnover=2.6657609757487184, n_trades=455
-    benchmark: cagr=0.1231036802652059, ann_vol=0.1753262111071283, sharpe=0.7503311578817682, sharpe_excess=0.6793855656798914, max_drawdown=-0.38074597587003134, total_return=5.384354235542732, turnover=0.3402236514414474, n_trades=768
+    is: cagr=0.12280456446085264, ann_vol=0.1526869762622492, sharpe=0.8353624020451758, sharpe_excess=0.831382931691637, max_drawdown=-0.24404493014279438, total_return=1.522519293526742, turnover=2.644939697055476, n_trades=226
+    oos: cagr=0.15870102052838742, ann_vol=0.21072834136207902, sharpe=0.8049600008910036, sharpe_excess=0.6895274921207587, max_drawdown=-0.29725657360428337, total_return=2.239677966197377, turnover=2.6865962994408, n_trades=229
+    full: cagr=0.14060266781900777, ann_vol=0.1839781796870461, sharpe=0.8075847136548383, sharpe_excess=0.7399378217959247, max_drawdown=-0.2972565736042835, total_return=7.172150174546328, turnover=2.665757646209772, n_trades=455
+    benchmark: cagr=0.12310368274936434, ann_vol=0.17532622176609305, sharpe=0.750331133890342, sharpe_excess=0.6793858974410325, max_drawdown=-0.3807457890061966, total_return=5.384354461036144, turnover=0.3402236293619089, n_trades=768
 """
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---

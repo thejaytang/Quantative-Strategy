@@ -1,22 +1,22 @@
 """148_decomposing_momentum
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; non-author review: PASS; publication gate: Codex.
-Run (one command): python strategies/148_decomposing_momentum.py   (free public data only; config embedded)
+Run (one command): python strategies/148_decomposing_momentum.py (free public data only; config embedded)
 Backtest reproduced: run of this file's code at commit 2b23c5bbf706aea933c0cba5f5805efb450ee206 on 2026-11-26 14:26 Europe/Oslo, exit 0, output sha256 a5b5ff3d6bc62b8f1e6e785aa48a7a96dc6b0319b998810ba876d538b06e8618
-Data source: Yahoo Finance 免费日线，经 yfinance 读取复权开盘价和收盘价，优先使用同一请求的本地缓存（README.md:11，strategy.py:21-42，strategy.py:55-59）。固定 US24 股票池为 AAPL、MSFT、AMZN、GOOGL、META、NVDA、JPM、BAC、GS、MS、XOM、CVX、COP、SLB、WMT、COST、PG、KO、PEP、JNJ、PFE、MRK、HD、LOW，基准为 SPY，现金替代为 BIL（config.yaml:2-4，strategy.py:207-209）。
+Data source: Yahoo Finance 免费日线，经 yfinance 读取复权开盘价和收盘价，优先使用同一请求的本地缓存。固定 US24 股票池为 AAPL、MSFT、AMZN、GOOGL、META、NVDA、JPM、BAC、GS、MS、XOM、CVX、COP、SLB、WMT、COST、PG、KO、PEP、JNJ、PFE、MRK、HD、LOW，基准为 SPY，现金替代为 BIL。
 Data fetched: 2026-11-26 14:26 Europe/Oslo (run time)
-Sample period: 请求的数据区间为 2005-12-01 至 2025-12-31，2005-12-01 起为预热数据（config.yaml:5-11，strategy.py:31-32，strategy.py:55，strategy.py:207-215，README.md:19）。日志中的实际评估区间为 2007-01-03 至 2025-12-31（strategy.py:232，logs/run_20261125_112204.log:1）。   data_range (from output): 2007-01-03 to 2025-12-31
-IS/OOS split: 固定日历切分，样本内 2007-01-01 至 2016-12-31，样本外 2017-01-01 至 2025-12-31（config.yaml:6-11）。各组合连续模拟，样本外承接已有持仓，按日期切分日收益后计算指标。README 记载日期预先固定，未拟合参数或依据样本外结果筛选（strategy.py:214-227，README.md:19）。
-Costs and slippage: 基准费率为每个买入或卖出方向按成交金额收取 5 bps，另测 0 和 15 bps（config.yaml:16-18，strategy.py:202-205）。按开盘价计算调仓前净值和各标的净买卖金额，从组合资金扣费，SPY 初始买入也计费。成交使用复权开盘价，未单独建模滑点、买卖价差或市场冲击（strategy.py:97-102，strategy.py:119-139，strategy.py:220-225，README.md:15，README.md:21，README.md:23）。
-Signal lag: 月末交易日 t 收盘后生成目标。股票排序使用截至 t 往前第 21 个交易日的 231 个复权收盘价。合格股票不足时，以 t 日 BIL 收盘价是否存在决定配置 BIL 或现金。目标最早在下一交易日开盘成交。现有持仓或目标资产缺开盘价时整篮子顺延，直至开盘价齐备或被下一月目标替换（config.yaml:12-15，strategy.py:69-94，strategy.py:100-102，strategy.py:106-141，README.md:13-14）。
-Price adjustment: 下载设置为 auto_adjust=True，复权 Close 用于形成期排名和日终估值，复权 Open 用于模拟成交。收盘价缺失时估值取当日开盘价，再缺失则沿用最近可用估值（strategy.py:21-37，strategy.py:55-59，strategy.py:69-88，strategy.py:97-103，strategy.py:119-144，README.md:14）。
-Survivorship bias: 固定 US24 由事后已知的存续股票组成，有幸存者偏差及股票池选择偏差，时间上的样本外切分无法消除。形成窗口还要求股票的收盘报价齐全（config.yaml:2，strategy.py:73-85，README.md:23）。
+Sample period: 请求的数据区间为 2005-12-01 至 2025-12-31，2005-12-01 起为预热数据。日志中的实际评估区间为 2007-01-03 至 2025-12-31。 data_range (from output): 2007-01-03 to 2025-12-31
+IS/OOS split: 固定日历切分，样本内 2007-01-01 至 2016-12-31，样本外 2017-01-01 至 2025-12-31。各组合连续模拟，样本外承接已有持仓，按日期切分日收益后计算指标。README 记载日期预先固定，未拟合参数或依据样本外结果筛选。
+Costs and slippage: 基准费率为每个买入或卖出方向按成交金额收取 5 bps，另测 0 和 15 bps。按开盘价计算调仓前净值和各标的净买卖金额，从组合资金扣费，SPY 初始买入也计费。成交使用复权开盘价，未单独建模滑点、买卖价差或市场冲击。
+Signal lag: 月末交易日 t 收盘后生成目标。股票排序使用截至 t 往前第 21 个交易日的 231 个复权收盘价。合格股票不足时，以 t 日 BIL 收盘价是否存在决定配置 BIL 或现金。目标最早在下一交易日开盘成交。现有持仓或目标资产缺开盘价时整篮子顺延，直至开盘价齐备或被下一月目标替换。
+Price adjustment: 下载设置为 auto_adjust=True，复权 Close 用于形成期排名和日终估值，复权 Open 用于模拟成交。收盘价缺失时估值取当日开盘价，再缺失则沿用最近可用估值。
+Survivorship bias: 固定 US24 由事后已知的存续股票组成，有幸存者偏差及股票池选择偏差，时间上的样本外切分无法消除。形成窗口还要求股票的收盘报价齐全。
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
     is: cagr=0.1415516409645261, ann_vol=0.2560315509766984, sharpe=0.6451512424879071, max_drawdown=-0.6215985005743061, total_return=2.7540436042754752, turnover=57.130399335021416, n_trades=875
     oos: cagr=0.28914342239072655, ann_vol=0.2543400123344971, sharpe=1.1263023796500553, max_drawdown=-0.31591396161312346, total_return=8.774283096333589, turnover=43.28566725478996, n_trades=766
     full: cagr=0.20916162811949102, ann_vol=0.25523430287511967, sharpe=0.8720364930091413, max_drawdown=-0.6215985005743061, total_return=35.69308494416898, turnover=100.41606658981138, n_trades=1641
-    benchmark  full: cagr=0.10646986469321074, ann_vol=0.1975891865355508, sharpe=0.6110029502087301, max_drawdown=-0.551894372777572, total_return=5.814865764647665, turnover=0.9995002498750625, n_trades=1
+    benchmark full: cagr=0.10646986469321074, ann_vol=0.1975891865355508, sharpe=0.6110029502087301, max_drawdown=-0.551894372777572, total_return=5.814865764647665, turnover=0.9995002498750625, n_trades=1
 """
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---

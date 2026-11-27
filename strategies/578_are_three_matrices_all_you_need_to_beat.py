@@ -1,3 +1,23 @@
+"""578_are_three_matrices_all_you_need_to_beat
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/578_are_three_matrices_all_you_need_to_beat.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 25a9179813de3addbbaee65a8c08579eb6e27d08 on 2026-11-27 19:08 Europe/Oslo, exit 0, output sha256 6dc13c97b5ae2ada9f9f740eaa5e3b8f2b8415f243f200561bc3144d11d0aba9
+Data source: Public Yahoo Finance daily ETF quotes and corporate actions via yfinance. The fixed sector universe is XLB, XLE, XLF, XLI, XLK, XLP, XLU, XLV and XLY. SPY is the benchmark and market-regime input. BIL is the defensive allocation and excess-return reference.
+Data fetched: 2026-11-27T18:08:37+00:00
+Sample period: The configured data request starts on 2008-01-01 for warm-up. The reported backtest runs from 2013-01-02 through 2026-07-31, inclusive.   data_range (from output): {'start': '2013-01-02', 'end': '2026-07-31'}
+IS/OOS split: IS is 2013-01-02 through 2021-12-31. OOS is 2022-01-03 through 2026-07-31. The official default simulation carries positions across the split, with transition estimates updated monthly using the trailing 36 completed transitions. The five sensitivity variants run only on IS. The script checks exact equality of the default IS-only run and the IS slice of the full default run.
+Costs and slippage: The default models 3 bps commission and 2 bps flat slippage on the absolute opening notional of each buy and sell. Both charges are reserved during sizing and deducted from cash at the combined 5 bps rate. Fill prices use the quoted open. The IS cost sensitivity uses 6 bps commission and 4 bps slippage. The SPY opening purchase uses the default charge.
+Signal lag: The strategy forms its signal from data through month-end close t and fills at the next observed trading session’s open under the configured one-session lag. The session index identifies month boundaries. The SPY benchmark is a fixed buy-and-hold allocation entered at the first backtest open.
+Price adjustment: Yahoo Finance split-basis OHLC and ex-date distribution adjustment
+Survivorship bias: The universe is a fixed set of nine Select Sector SPDR funds launched before the backtest. The design assumes continued availability of those funds, omits later sector funds, and uses a historical vendor snapshot subject to revision. The strategy does not construct a historical stock-constituent universe.
+Parameter combinations tried: 6
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.1197949815894499, ann_vol=0.12831036949526273, sharpe=0.9463502998103694, sharpe_excess=0.9071360770866078, max_drawdown=-0.18476042058531994, total_return=1.767270781469319, turnover=7.101604882117022, n_trades=559
+    oos: cagr=0.08290415814269325, ann_vol=0.1103605575146084, sharpe=0.7769995104336773, sharpe_excess=0.43063161268333255, max_drawdown=-0.11143703991805909, total_return=0.4373970983154216, turnover=6.871016069633281, n_trades=297
+    full: cagr=0.10725547565748572, ann_vol=0.12255826984325069, sharpe=0.8929092810701442, sharpe_excess=0.7607125003781847, max_drawdown=-0.18476042058531994, total_return=2.9776669915370184, turnover=7.024089228608577, n_trades=856
+    benchmark SPY full: cagr=0.14784703703007773, ann_vol=0.16803398917727722, sharpe=0.9050371167314135, sharpe_excess=0.8083830606821156, max_drawdown=-0.33717263923504326, total_return=5.479231407733765, turnover=0.07375521609619762, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

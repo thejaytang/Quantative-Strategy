@@ -1,3 +1,23 @@
+"""582_the_geometry_of_higher_order_modern_port
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/582_the_geometry_of_higher_order_modern_port.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 25a9179813de3addbbaee65a8c08579eb6e27d08 on 2026-11-27 19:08 Europe/Oslo, exit 0, output sha256 979dca4c41538dcc148be4c68a02e46a75cc19e351f0c171fc998f4ab0526889
+Data source: Free Yahoo Finance daily ETF opens, closes and corporate actions via yfinance for SPY, QQQ, IWM, EFA, IEF, TLT and GLD. BIL comes from the same feed and serves only as an ex-post cash benchmark.
+Data fetched: 2026-11-27T18:08:48.730412+00:00
+Sample period: Backtest sessions run from 2009-01-02 through 2025-12-31, with the first simulated fill on 2009-01-02. The data request starts on 2007-07-01 to supply signal warm-up history.   data_range (from output): 2009-01-02 to 2025-12-31
+IS/OOS split: IS is 2009-01-02 through 2018-12-31. OOS is 2019-01-02 through 2025-12-31. The configured default runs continuously through the retrospective split, carrying positions, cash and receivables and re-estimating targets from rolling history. The five robustness variants run only through the IS cutoff.
+Costs and slippage: Each buy and sell incurs 5 bps transaction cost plus 3 bps modeled slippage on its opening-price trade notional. The combined 8 bps applies to the sum of absolute trade notionals and is deducted from cash. The solver includes the charge when sizing the batch, and simulated fills use the opening prices.
+Signal lag: After the last trading session of each quarter closes, the default model computes target weights using the trailing 252 daily returns through that close. The target is sized and filled at the next trading session's open.
+Price adjustment: Yahoo split-adjusted Open/Close; ex-date cash added for signal returns and accrued separately for portfolio valuation
+Survivorship bias: The ETF universe was fixed at the research date. All selected ETFs had data before the backtest began and continued to exist. Historical candidate lists and exited funds were excluded, leaving survivorship and retrospective selection bias.
+Parameter combinations tried: 6
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.05738545128141248, ann_vol=0.08560680887226037, sharpe=0.6947156609030024, sharpe_excess=0.6661934057872119, max_drawdown=-0.13316316884458124, total_return=0.7456157424796652, turnover=2.499912214519875, n_trades=191
+    oos: cagr=0.0921041982407973, ann_vol=0.1066504263908576, sharpe=0.8796799205899042, sharpe_excess=0.6429203814476173, max_drawdown=-0.24314082339169862, total_return=0.8502958297087548, turnover=1.8931063179496677, n_trades=122
+    full: cagr=0.0715399821062821, ann_vol=0.09482949578412338, sharpe=0.776226091933369, sharpe_excess=0.6515733511718139, max_drawdown=-0.24314082339169918, total_return=2.2299055285840486, turnover=2.250151134547105, n_trades=313
+    benchmark: cagr=0.10353942791606818, ann_vol=0.10805600235810019, sharpe=0.9660060119500856, sharpe_excess=0.855733315214343, max_drawdown=-0.2507735721575748, total_return=4.3215136691437, turnover=0.25570096753174015, n_trades=476
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

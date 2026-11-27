@@ -1,3 +1,23 @@
+"""586_bayesian_portfolio_optimization_by_predi
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/586_bayesian_portfolio_optimization_by_predi.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 25a9179813de3addbbaee65a8c08579eb6e27d08 on 2026-11-27 19:09 Europe/Oslo, exit 0, output sha256 d75a868f83df2b08ccf9667e2748e37a931b10d59e9cc0381e448c95ae2b8d17
+Data source: 通过 yfinance 读取 Yahoo Finance 日频开盘价、收盘价和公司行动数据。组合 ETF 为 SPY、EFA、EEM、VNQ、TLT、IEF、GLD、DBC。BIL 的日总收益只用于超额 Sharpe 的计算。行情优先从 gzip 缓存读取，本次日志记录的数据抓取时间为 2026-11-27T17:20:28+00:00。
+Data fetched: 2026-11-27T18:09:06+00:00
+Sample period: 配置的日线请求范围为 2008-01-01 至 2025-12-31，按可得交易日取样。2008–2013 年用于建模历史和滤波预热。配置评估起点为 2014-01-01，日志中的实际评估区间为 2014-01-02 至 2025-12-31。   data_range (from output): {'start': '2014-01-02', 'end': '2025-12-31'}
+IS/OOS split: IS 从 2014-01-02 起至 2018-12-31（含），OOS 取 2018-12-31 之后至 2025-12-31 的交易日。两段来自同一次连续模拟，按日期分开统计。稳健性试验在 IS 截断行情上运行。完整运行使用固定默认超参数，滤波仍随已实现的月收益更新。代码检查默认仅 IS 运行与完整运行的 IS 部分逐项一致，日志记载检查通过。
+Costs and slippage: 默认每笔模拟买入和卖出均按各自成交名义额收取 5 bp 成本与 5 bp 滑点，合计 10 bp。滑点建模为现金扣减，与手续费一起纳入开盘预算求解。成交价使用构造的开盘价，未另行移动成交价。仅 IS 的高摩擦情形将成本设为 20 bp、滑点设为 15 bp。
+Signal lag: 以月末最后一个交易日 t 的总收益收盘价及此前数据计算目标权重，默认在 t 后第 1 个交易日的开盘模拟成交。首个记录的信号为 2013-12-31，成交为 2014-01-02。
+Price adjustment: Yahoo split-normalized OHLC plus forward ex-date open distribution reinvestment
+Survivorship bias: 固定 ETF 篮子为回顾性选定的资产类别代理，README 记载这些基金在样本起点已存在，样本排除了已退市或清盘的基金，存在选择和存续偏差。
+Parameter combinations tried: 4
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.03815734270311277, ann_vol=0.09195448730916149, sharpe=0.4533520763451264, sharpe_excess=0.40243730013911544, max_drawdown=-0.18758151247249755, total_return=0.20555444068513928, turnover=6.2433988460655465, n_trades=239
+    oos: cagr=0.09459574251893899, ann_vol=0.12207840886765807, sharpe=0.8017779263530026, sharpe_excess=0.5948019309607145, max_drawdown=-0.1976285856607859, total_return=0.8799799032655691, turnover=8.23677630817337, n_trades=374
+    full: cagr=0.07070674759057449, ann_vol=0.11052131256273057, sharpe=0.6736901906731259, sharpe_excess=0.5227376562468731, max_drawdown=-0.1976285856607859, total_return=1.2664181207806253, turnover=7.405872117539958, n_trades=613
+    benchmark: cagr=0.06298700312977568, ann_vol=0.097510452799203, sharpe=0.6753901380395615, sharpe_excess=0.5042564720034456, max_drawdown=-0.2067732068661342, total_return=1.0782789392986145, turnover=0.3899901517134429, n_trades=1152
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

@@ -1,3 +1,23 @@
+"""590_deeparies_adaptive_rebalancing_interval
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/590_deeparies_adaptive_rebalancing_interval.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 25a9179813de3addbbaee65a8c08579eb6e27d08 on 2026-11-27 19:09 Europe/Oslo, exit 0, output sha256 2d08302e1d795e5d6b311e19b0f93a83fbba12d4f8e3bf86ff145f28f33075a8
+Data source: Free Yahoo Finance ETF daily open/close prices and corporate actions via yfinance. Strategy universe: SPY, QQQ, IWM, EFA, EEM, IEF, GLD. SPY is also the buy-and-hold benchmark. BIL daily total returns are used as the risk-free proxy for excess-return metrics only. The run log records the cache download timestamp as 2026-11-27T17:22:13+00:00.
+Data fetched: 2026-11-27T18:09:19+00:00
+Sample period: Price history requested from 2008-01-01 through 2025-12-31 inclusive, with 2008 used for warm-up. The configured report start is 2009-01-01 and the realized report spans trading sessions from 2009-01-02 through 2025-12-31 inclusive.   data_range (from output): ['2009-01-02', '2025-12-31']
+IS/OOS split: Yes. The retrospective chronological split is IS 2009-01-02 through 2020-12-31 and OOS 2021-01-04 through 2025-12-31. Robustness variants run on the IS slice only. The full default simulation carries positions, cash and pending signal state across the split. Its IS rows must match a separate IS-only replay exactly.
+Costs and slippage: 2 bps transaction cost plus 3 bps modeled slippage, for 5 bps per side on each dollar of gross buy and sell notional. The open rebalance deducts both as a proportional cash charge and sizes purchases within the post-friction budget. The benchmark pays the same combined rate on its first opening purchase.
+Signal lag: Targets and the rebalance decision use information through close t. A scheduled rebalance fills at the next trading session's open with the configured one-session lag. The initial entry uses the prior session's target.
+Price adjustment: yfinance auto_adjust=False, split-normalized OHLC with ex-date distributions reinvested at close (total-return proxy)
+Survivorship bias: The asset universe is a fixed list of ETFs selected with knowledge of which funds survived, as disclosed in the README. This introduces asset-selection and survivorship bias. Historical fund returns reflect constituents through the ETF itself.
+Parameter combinations tried: 7
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.08087902135123692, ann_vol=0.0654040548088224, sharpe=1.2220250007634437, sharpe_excess=1.1579096604518724, max_drawdown=-0.10943133691610096, total_return=1.5405219109863268, turnover=2.023549797934384, n_trades=5250
+    oos: cagr=0.0588879390266035, ann_vol=0.09508725654034632, sharpe=0.6492878717262837, sharpe_excess=0.3274389935757925, max_drawdown=-0.21657204056609902, total_return=0.32971005408149257, turnover=1.9824310572049502, n_trades=2457
+    full: cagr=0.07437773723343688, ann_vol=0.07532842396132643, sharpe=0.9901668843452893, sharpe_excess=0.8323048157882889, max_drawdown=-0.2165720405660988, total_return=2.3781575276528297, turnover=2.0114815052273123, n_trades=7707
+    benchmark SPY full: cagr=0.14724513031882114, ann_vol=0.1789858565713259, sharpe=0.857330477741663, sharpe_excess=0.7907961481293594, max_drawdown=-0.33699813656214483, total_return=9.286365255697001, turnover=0.05890413072229087, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

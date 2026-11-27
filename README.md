@@ -152,3 +152,28 @@
 | strategies/522_asset_allocation_using_a_markov_process.py | INVALID | 收盘执行依赖固定滑点和现金缓冲 |
 | strategies/479_noise_proofing_universal_portfolio_shrin.py | INVALID | 基金池存在事后选择和幸存者偏差; 模拟成交依赖复权日线和固定摩擦 |
 | strategies/156_cta_replication_trend_factors.py | INVALID | 固定 ETF 池缺少退市替换规则，存在事后存续筛选偏差 |
+
+## 待审新策略 / pending review (new)
+
+These strategies are new research drafts. They have **not** been reviewed by Gatekeeper and are **not** in the accepted table. They must not be treated as passing. Any look-ahead remains INVALID with no metrics here.
+
+| 文件 | 作者 | 说明 |
+|---|---|---|
+| strategies/574_objective_and_subjective_entropy_measure.py | Codex | not reviewed (pending) |
+| strategies/577_objective_and_subjective_entropy_measure.py | Codex | not reviewed (pending) |
+| strategies/578_are_three_matrices_all_you_need_to_beat.py | Codex | not reviewed (pending) |
+| strategies/579_are_three_matrices_all_you_need_to_beat.py | Codex | not reviewed (pending) |
+| strategies/580_anticipatory_portfolio_optimization.py | Codex | not reviewed (pending) |
+| strategies/581_asymmetric_nonlinear_return_extrapolatio.py | Codex | not reviewed (pending) |
+| strategies/582_the_geometry_of_higher_order_modern_port.py | Codex | not reviewed (pending) |
+| strategies/583_anticipatory_portfolio_optimization.py | Codex | not reviewed (pending) |
+| strategies/584_asymmetric_nonlinear_return_extrapolatio.py | Codex | not reviewed (pending) |
+| strategies/585_the_geometry_of_higher_order_modern_port.py | Codex | not reviewed (pending) |
+| strategies/586_bayesian_portfolio_optimization_by_predi.py | Codex | not reviewed (pending) |
+| strategies/587_bayesian_portfolio_optimization_by_predi.py | Codex | not reviewed (pending) |
+| strategies/588_signed_network_models_for_portfolio_opti.py | Codex | not reviewed (pending) |
+| strategies/589_conformal_kelly_when_marginal_coverage_t.py | Codex | not reviewed (pending) |
+| strategies/590_deeparies_adaptive_rebalancing_interval.py | Codex | not reviewed (pending) |
+| strategies/609_regime_adaptive_continual_learning_for_p.py | Codex | not reviewed (pending) |
+| strategies/617_path_portfolio_optimization_defect_lift.py | Codex | not reviewed (pending) |
+| strategies/623_dynamic_causal_portfolio_choice_hedging.py | Codex | not reviewed (pending) |

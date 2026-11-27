@@ -1,3 +1,23 @@
+"""579_are_three_matrices_all_you_need_to_beat
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/579_are_three_matrices_all_you_need_to_beat.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 25a9179813de3addbbaee65a8c08579eb6e27d08 on 2026-11-27 19:08 Europe/Oslo, exit 0, output sha256 0944e8cf36101d468a88600344f0cc598b1f94376cb5271a00160b07324089ac
+Data source: Daily ETF opens and closes come from Yahoo Finance via free yfinance data. The sector ETFs are XLB, XLC, XLE, XLF, XLI, XLK, XLP, XLRE, XLU, XLV and XLY. SPY is the benchmark and market-regime input. BIL is the defensive ETF and its returns are the excess-Sharpe reference.
+Data fetched: 2026-11-27T18:08:39+00:00
+Sample period: The daily price panel spans 2018-07-02 through 2026-07-31. Prices before evaluation provide warm-up history. Evaluation covers 2020-03-02 through 2026-07-31, with 2020-03-01 as the configured start cutoff.   data_range (from output): {'start': '2020-03-02', 'end': '2026-07-31'}
+IS/OOS split: IS runs from 2020-03-02 through 2024-12-31 inclusive. OOS runs from the first trading session of 2025 through 2026-07-31 inclusive. Both periods are slices of one continuous simulation, with holdings carried into OOS. The configuration is fixed across the split and transition estimates update on a rolling basis.
+Costs and slippage: The official run applies 3 bps of trading cost and 2 bps of modeled slippage to absolute traded notional on each buy or sell. The combined 5 bps is included in the rebalance budget and charged to cash, with fills priced at the adjusted open. The SPY benchmark pays the same rate at its initial purchase.
+Signal lag: Targets use data through the close of the last trading session of the preceding month. The configured lag is one trading session, so the target is executed at the open of the first session of the following month. The model assumes the completed prior daily bar is available by that open.
+Price adjustment: yfinance auto_adjust=True total-return adjusted Open and Close
+Survivorship bias: The backtest uses the fixed list of 11 sector ETFs that the README identifies as the 2018 Select Sector SPDR lineup. The loader requires valid historical prices for all configured tickers. The analysis uses fund-level histories from one issuer's sector lineup, with sector classification changes and vendor revisions identified as limitations.
+Parameter combinations tried: 4
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.1630467090550929, ann_vol=0.14007917531052247, sharpe=1.1487198515339958, sharpe_excess=0.9815799099465281, max_drawdown=-0.12024980021196263, total_return=1.0751663875232578, turnover=6.501835401230872, n_trades=303
+    oos: cagr=0.06373456894440621, ann_vol=0.10956326183330932, sharpe=0.618731754032743, sharpe_excess=0.2614059320303455, max_drawdown=-0.07887878980029084, total_return=0.10169173339753024, turnover=8.090195501982274, n_trades=105
+    full: cagr=0.13790092693251776, ann_vol=0.1332455845555412, sharpe=1.0364895207973934, sharpe_excess=0.8316098309966098, max_drawdown=-0.12024980021196263, total_return=1.2861936545587977, turnover=6.890801451941848, n_trades=408
+    benchmark: cagr=0.17100603993576824, ann_vol=0.20226121835188282, sharpe=0.8820731278453565, sharpe_excess=0.7469449439556873, max_drawdown=-0.2831904906931897, total_return=1.746836924734799, turnover=0.15615254988733038, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

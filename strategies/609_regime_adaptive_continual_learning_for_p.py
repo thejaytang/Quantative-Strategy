@@ -1,3 +1,23 @@
+"""609_regime_adaptive_continual_learning_for_p
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/609_regime_adaptive_continual_learning_for_p.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 25a9179813de3addbbaee65a8c08579eb6e27d08 on 2026-11-27 19:09 Europe/Oslo, exit 0, output sha256 e06a6a8d551b81af4df8e30f473c99cc476550adb34e86b23d80f02d04e80cb6
+Data source: Yahoo Finance 免费 ETF 日线，由 yfinance 获取 SPY、TLT、GLD、BIL 的开盘和收盘价。宏观数据来自免费 FRED 和 ALFRED 历史版本 CSV，序列为 DGS10、DGS2、DGS5、DFII5，用于构造 10 年减 2 年期限利差和 5 年名义减实际收益率之差。
+Data fetched: 2026-11-27T18:10:23+00:00
+Sample period: 行情请求自 2007-06-01 起用于预热，报告的回测区间为 2013-01-02 至 2025-04-29。   data_range (from output): {'start': '2013-01-02', 'end': '2025-04-29'}
+IS/OOS split: IS 为 2013-01-02 至 2020-04-30，OOS 为 2020-05-01 至 2025-04-29。默认规格全期连续模拟，跨界保留持仓并继续更新状态先验和收益矩。五个稳健性变体仅运行至 IS 末日。
+Costs and slippage: 默认每笔买卖单边手续费 5 bps、滑点 5 bps，均按净买卖成交额计提，合计为成交额的 10 bps，含初次建仓。滑点以固定比例从资金扣减，成交金额以开盘价计算。调仓按调仓前开盘组合价值和总买卖额求解扣费后的目标敞口。higher_cost 变体将手续费和滑点各调至 10 bps。
+Signal lag: 月末最后一个有行情的交易日 t 收盘以当日特征生成目标权重，默认于下一个交易日开盘调仓。原持仓先承担前收盘至成交日开盘的变动，调仓后的持仓随后承担成交日开盘至收盘的变动。
+Price adjustment: yfinance auto_adjust total-return open and close
+Survivorship bias: 固定使用现今存续的 SPY、TLT、GLD、BIL，存在事后资产选择和基金幸存者偏差。未用当前指数成分股名单回溯选股。
+Parameter combinations tried: 6
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.07826408575880062, ann_vol=0.09202456652466456, sharpe=0.8650068222783381, sharpe_excess=0.7958717334808668, max_drawdown=-0.14305075381829147, total_return=0.736180109721521, turnover=30.335969669787033, n_trades=294
+    oos: cagr=0.11061583189581525, ann_vol=0.11684719526290752, sharpe=0.956528180221364, sharpe_excess=0.7420689389277382, max_drawdown=-0.18367408868265467, total_return=0.6862239581252929, turnover=21.959847724906968, n_trades=189
+    full: cagr=0.09124621658030296, ann_vol=0.10278505717321412, sharpe=0.9011409249949658, sharpe_excess=0.7656322958193631, max_drawdown=-0.18367408868265478, total_return=1.9275884966330104, turnover=52.295817394694, n_trades=483
+    benchmark  full: cagr=0.05528653362578728, ann_vol=0.06960126239629086, sharpe=0.808035837865999, sharpe_excess=0.6077841341547617, max_drawdown=-0.1757578642609996, total_return=0.9386212509768312, turnover=4.366809818858483, n_trades=592
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

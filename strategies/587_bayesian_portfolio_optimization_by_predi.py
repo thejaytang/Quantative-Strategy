@@ -1,3 +1,23 @@
+"""587_bayesian_portfolio_optimization_by_predi
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/587_bayesian_portfolio_optimization_by_predi.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 25a9179813de3addbbaee65a8c08579eb6e27d08 on 2026-11-27 19:09 Europe/Oslo, exit 0, output sha256 963389b55076fa97adbacb3222efb9656a83be23913436dbe6d093fcbf227e25
+Data source: Free Yahoo Finance daily data via yfinance for SPY, TLT, GLD and VNQ, plus BIL as the risk-free proxy. Inputs are open, close, dividends, capital-gains distributions and stock splits. BIL total returns are used for ex-post excess-return reporting.
+Data fetched: 2026-11-27T18:09:08+00:00
+Sample period: The reported backtest runs from 2013-01-02 through 2025-12-31, inclusive, with the first fill on 2013-01-02. The data request starts on 2007-12-01 for warm-up, and the first complete return month is January 2008.   data_range (from output): 2013-01-02 to 2025-12-31
+IS/OOS split: IS runs from 2013-01-02 through 2018-12-31. OOS runs from 2019-01-02 through 2025-12-31. The default configuration continues through OOS with sequential monthly updates. Robustness variants use only data through the IS cutoff, and the independently truncated default IS run is checked against the full run's IS prefix.
+Costs and slippage: The default simulation models 5 bps commission and 5 bps slippage on every buy and sell. Slippage raises the buy price and lowers the sell price relative to the fill-day open. Commission is applied to the resulting slipped trade notional. The same execution settings apply to the equal-weight benchmark. The IS higher-friction case uses 20 bps commission and 15 bps slippage per side.
+Signal lag: Target weights are set using data through the close of the month's last trading session. The configured lag is one trading session, with simulated execution at the next session's open.
+Price adjustment: yfinance split-adjusted Open/Close; ex-date cash distributions in total-return signals and BIL; simulation accrues distributions separately
+Survivorship bias: The four ETF symbols are fixed. The README says the basket was chosen from funds still in existence at research time and identifies potential survivorship and hindsight selection bias.
+Parameter combinations tried: 4
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.07104579924244314, ann_vol=0.0719077292270545, sharpe=0.9906136708668212, sharpe_excess=0.9381666367582662, max_drawdown=-0.08336242297314633, total_return=0.5087305397417805, turnover=4.865996024808419, n_trades=229
+    oos: cagr=0.12771652590952032, ann_vol=0.11097896265603285, sharpe=1.1387966648301768, sharpe_excess=0.9113688250014528, max_drawdown=-0.2615513056274087, total_return=1.3151068651516695, turnover=7.684400703600817, n_trades=258
+    full: cagr=0.10118415343264786, ann_vol=0.09495833572719736, sharpe=1.0627376100597858, sharpe_excess=0.9015227238702525, max_drawdown=-0.2615513056274069, total_return=2.492872430220197, turnover=12.550396728409236, n_trades=487
+    benchmark: cagr=0.07581908178895036, ann_vol=0.1027553181417642, sharpe=0.762801889276034, sharpe_excess=0.6135508480300421, max_drawdown=-0.2509648012812208, total_return=1.5813949963332226, turnover=4.926850593737727, n_trades=624
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

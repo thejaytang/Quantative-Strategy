@@ -1,3 +1,23 @@
+"""583_anticipatory_portfolio_optimization
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/583_anticipatory_portfolio_optimization.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 25a9179813de3addbbaee65a8c08579eb6e27d08 on 2026-11-27 19:08 Europe/Oslo, exit 0, output sha256 3c2e8f5415bebde7dde34f78199282b2f8732a7719e29f8ae69fce53874f680b
+Data source: yfinance public daily Open and Close bars for nine U.S. sector ETFs (XLB, XLE, XLF, XLI, XLK, XLP, XLU, XLV, XLY) and the Treasury-bill ETF BIL. BIL close-to-close returns are used only for ex-post excess Sharpe.
+Data fetched: 2026-11-27T18:08:54+00:00
+Sample period: Requested daily data from 2007-07-01 through 2025-12-31, with pre-2014 history used for warm-up. The configured backtest starts on 2014-01-01 and the logged evaluation sessions span 2014-01-02 through 2025-12-31.   data_range (from output): ['2014-01-02', '2025-12-31']
+IS/OOS split: Chronological split. IS is 2014–2019 through 2019-12-31 inclusive. OOS consists of sessions after that cutoff through 2025-12-31. Sensitivity runs receive data through the IS cutoff. The default strategy runs continuously through the split, carries its holdings forward, and updates its rolling estimates with completed observations under the same parameter rules.
+Costs and slippage: Every simulated purchase and sale incurs 2 bps in fees and 3 bps in modeled slippage. The combined 5 bps is charged to cash on the sum of absolute opening trade notionals, with the charge included in the self-financing sizing calculation. Slippage is implemented as a cash charge at the recorded opening price. The 20 bps impact coefficient and 80 bps turnover coefficient enter the optimizer only. One IS sensitivity run doubles the combined fee and slippage charge to 10 bps.
+Signal lag: The signal uses the prior month’s last trading session close. With lag_sessions=1, it fills at the next trading session’s open, the first session of the new month. The configured lag counts trading sessions from the signal close and still fills at the selected session’s open.
+Price adjustment: yfinance auto_adjust=True, total-return adjusted Open and Close
+Survivorship bias: The universe is the fixed nine-fund sector ETF list in config. The README attributes the complete list to a 2013 prospectus that predates the 2014 backtest start. Its single-family coverage excludes a broader universe with delisted or later-launched funds, so market-wide survivorship bias is unassessed.
+Parameter combinations tried: 7
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.1443546639441553, ann_vol=0.12775305097413084, sharpe=1.119663741992008, sharpe_excess=1.0626669056565219, max_drawdown=-0.20255898833947472, total_return=1.2433606448649637, turnover=9.418649331611027, n_trades=499
+    oos: cagr=0.10135117541371752, ann_vol=0.21353802212060685, sharpe=0.5591461038311495, sharpe_excess=0.43660799830796987, max_drawdown=-0.3806307480632002, total_return=0.7819250314332107, turnover=8.971427016993793, n_trades=494
+    full: cagr=0.12266127833614116, ann_vol=0.1758984171844894, sharpe=0.7460416170768135, sharpe_excess=0.6510258737254768, max_drawdown=-0.3806307480632005, total_return=2.9975004876170144, turnover=9.195186359297315, n_trades=993
+    benchmark: cagr=0.11896260587854424, ann_vol=0.16931920627784508, sharpe=0.7488770250021367, sharpe_excess=0.650180300707796, max_drawdown=-0.33147167560738156, total_return=2.842594915210742, turnover=1.2036449902010202, n_trades=839
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

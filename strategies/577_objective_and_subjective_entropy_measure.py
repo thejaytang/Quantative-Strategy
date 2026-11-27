@@ -1,3 +1,23 @@
+"""577_objective_and_subjective_entropy_measure
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/577_objective_and_subjective_entropy_measure.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 25a9179813de3addbbaee65a8c08579eb6e27d08 on 2026-11-27 19:08 Europe/Oslo, exit 0, output sha256 b8e126d8c6d6d873aef348c1d1ede2adbd3debc02472460bdc1125a29555f444
+Data source: 免费 Yahoo Finance 日线，经 yfinance 读取 ETF 开盘价、收盘价与现金分配（含可取得的资本利得分配）。投资池为 SPY、EFA、TLT、GLD、BIL，SPY 为基准，BIL 为无风险利率代理。。
+Data fetched: 2026-11-27T18:08:34+00:00
+Sample period: 正式回测为 2010-01-05 开盘至 2026-11-20 收盘，请求的预热行情起始日为 2008-01-01。。   data_range (from output): {'start': '2010-01-05', 'end': '2026-11-20'}
+IS/OOS split: 样本内为 2010-01-05 至 2019-12-31（含），样本外为 2020-01-02 至 2026-11-20（含），延续样本内组合并按固定规则滚动估计历史情景。六个稳健性变体仅在样本内运行。。
+Costs and slippage: 默认每笔买入或卖出按成交金额扣除 5 bp 交易成本和 5 bp 滑点，合计每边 10 bp。卖出收入按合计费率扣减，买入预算包含同一费率。滑点以固定金额比例计入摩擦，模拟成交以开盘价估值。SPY 基准仅在样本首日开盘建仓时支付单边摩擦。样本内高摩擦变体将成本和滑点分别提高至 10 bp。。
+Signal lag: 首个信号在样本首日的前一个交易日收盘计算，此后在每月首个交易日收盘计算信号。有调仓目标时，默认在下一交易日开盘模拟成交。。
+Price adjustment: yfinance auto_adjust=False, Yahoo split-normalized OHLC, explicit ex-date distribution-adjusted total-return factors
+Survivorship bias: 五只 ETF 构成固定投资池。README 记载它们在样本开始前均已上市，并指出事后选池与基金存续偏差仍存在。。
+Parameter combinations tried: 7
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=-0.020075729726221736, ann_vol=0.14752276478350937, sharpe=-0.06352790402281965, sharpe_excess=-0.09183973347318408, max_drawdown=-0.3492861222747343, total_return=-0.18322978206409868, turnover=9.208943084512681, n_trades=96
+    oos: cagr=0.07629678668371342, ann_vol=0.1994179320361, sharpe=0.4692486693713974, sharpe_excess=0.33179290373375275, max_drawdown=-0.3371726392350435, total_return=0.6575607068468905, turnover=4.494458655886624, n_trades=38
+    full: cagr=0.018138355101265713, ann_vol=0.1706108250633046, sharpe=0.19115041093594007, sharpe_excess=0.11114636419513828, max_drawdown=-0.5238046306758826, total_return=0.35384621977332764, turnover=7.286294855084773, n_trades=134
+    benchmark: cagr=0.13275772350884285, ann_vol=0.17086858042671293, sharpe=0.8153675763553129, sharpe_excess=0.7351102038016347, max_drawdown=-0.3371726392350436, total_return=7.172987847438208, turnover=0.059276725158524085, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

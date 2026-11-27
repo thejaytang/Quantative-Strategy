@@ -1,3 +1,23 @@
+"""588_signed_network_models_for_portfolio_opti
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/588_signed_network_models_for_portfolio_opti.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 25a9179813de3addbbaee65a8c08579eb6e27d08 on 2026-11-27 19:09 Europe/Oslo, exit 0, output sha256 0759f6c559a590db0b8a4edc1cc09394d2c5980e67306eeb3710deaddac4aca6
+Data source: Yahoo Finance 免费 ETF 日线及公司行动，由 yfinance 下载，或读取同一数据源的本地缓存。资产池为 XLB、XLE、XLF、XLI、XLK、XLP、XLU、XLV、XLY，SPY 为买入持有基准，BIL 总收益用于计算超额夏普比率。
+Data fetched: 2026-11-27T18:09:12+00:00
+Sample period: 实际回测区间为 2009-01-02 至 2025-12-31（含首尾）。行情请求从 2007-07-01 开始，回测前行情用于信号窗口预热。   data_range (from output): {'start': '2009-01-02', 'end': '2025-12-31'}
+IS/OOS split: 按 2017-01-01 做历史时间切分。IS 为 2009–2016 年，OOS 为 2017–2025 年。正式策略跨分界日延续同一组合路径，年度窗口可向前引用分界日前数据。六组预设稳健性情景只使用 IS 行情。
+Costs and slippage: 基准设定每边成本 5 bps、滑点 5 bps，合计按每笔买卖成交额计 10 bps。滑点按固定基点计入摩擦，卖出净收入乘 1−摩擦，买入总支出乘 1+摩擦，并按扣费后可用现金同比缩减买入。样本内双倍摩擦情景为每边合计 20 bps。
+Signal lag: 在每年最后一个交易日收盘后，以截至该收盘（含当日）的收益窗口计算目标权重。配置滞后 1 个交易日，按次年首个交易日开盘成交。
+Price adjustment: yfinance split-adjusted Open/Close; ex-date total-return from prior close less distributions
+Survivorship bias: 固定使用文档所述的 1998 年首批九只 Select Sector SPDR，名单早于回测起点。行业 ETF 的成分和分类曾调整，后续成立的行业 ETF 未纳入，样本依赖 Yahoo 的历史覆盖。
+Parameter combinations tried: 7
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.13444481121961038, ann_vol=0.15546037456600706, sharpe=0.8894827465956923, sharpe_excess=0.8882801451284964, max_drawdown=-0.19966111486529514, total_return=1.7405150776202225, turnover=1.561541167031756, n_trades=29
+    oos: cagr=0.10125861435649264, ann_vol=0.17141510110787184, sharpe=0.6486570042858399, sharpe_excess=0.5181620726273266, max_drawdown=-0.34614144507924327, total_return=1.3768758755913595, turnover=1.467366831002098, n_trades=52
+    full: cagr=0.11676663502967255, ann_vol=0.16407701391446516, sharpe=0.7554311485470768, sharpe_excess=0.6829151665794266, max_drawdown=-0.34614144507924316, total_return=5.513864174689868, turnover=1.5117230313677976, n_trades=81
+    benchmark: cagr=0.14715159209297157, ann_vol=0.17899107555847, sharpe=0.856855238570891, sharpe_excess=0.7903102734646046, max_drawdown=-0.33717263923504426, total_return=9.272143627732245, turnover=0.058874708079572444, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

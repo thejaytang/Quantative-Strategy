@@ -1,3 +1,23 @@
+"""584_asymmetric_nonlinear_return_extrapolatio
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/584_asymmetric_nonlinear_return_extrapolatio.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 25a9179813de3addbbaee65a8c08579eb6e27d08 on 2026-11-27 19:08 Europe/Oslo, exit 0, output sha256 a1798b2e943ddba9e302aa1c0faa9a5185ad5f5208c69a0a4b96eafe6deb081d
+Data source: Yahoo Finance daily ETF prices and corporate actions via yfinance. SPY and IEF are the portfolio assets. BIL is the excess-Sharpe reference. The logged data fetch timestamp is 2026-11-27T17:20:12+00:00.
+Data fetched: 2026-11-27T18:09:00+00:00
+Sample period: The recorded backtest covers trading sessions from 2008-01-02 through 2025-12-31 inclusive. The configured history request starts on 2006-01-01 for warmup, and the configured sample window is 2008-01-01 through 2025-12-31.   data_range (from output): {'start': '2008-01-02', 'end': '2025-12-31', 'is_end': '2017-12-29', 'oos_start': '2018-01-02'}
+IS/OOS split: IS is 2008-01-02 through 2017-12-29 and OOS is 2018-01-02 through 2025-12-31, with a configured cutoff of 2018-01-01. The default strategy runs continuously across the boundary, carrying positions and rolling history into OOS. Default parameters are fixed in config and the eight robustness variants run on IS only.
+Costs and slippage: Slippage is modelled as a fixed 3 bps surcharge alongside 2 bps of costs. The simulator charges 5 bps of absolute traded notional on each buy or sell in the open rebalance's cash accounting and reserves the charge when solving target notionals. The IS stress variant doubles the combined charge to 10 bps. Market impact and taxes are omitted.
+Signal lag: Signals are computed from daily closes. At the default one-session lag, the signal from the final trading session of each month sets the rebalance at the first trading session's open of the following month. The simulator retains existing positions on other sessions.
+Price adjustment: yfinance split-normalized OHLC with forward ex-date dividend/capital-gain total returns
+Survivorship bias: SPY and IEF form a fixed ETF universe and both had pre-sample prices. The README discloses hindsight selection of liquid ETFs that remained in existence, with residual instrument-selection and survivorship bias.
+Parameter combinations tried: 9
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.11466168306638291, ann_vol=0.11836586540518544, sharpe=0.9765080051279798, sharpe_excess=0.9576824583244605, max_drawdown=-0.18890382979305143, total_return=1.95839780811664, turnover=3.3073195719148933, n_trades=65
+    oos: cagr=0.09255905218761895, ann_vol=0.12195880164174289, sharpe=0.7871176113353515, sharpe_excess=0.5883981336672843, max_drawdown=-0.22961696890971806, total_return=1.0267331037422407, turnover=4.818306781464229, n_trades=70
+    full: cagr=0.10479284868683147, ann_vol=0.11996273899710058, sharpe=0.8910019303691099, sharpe_excess=0.7909902406484756, max_drawdown=-0.22961696890971528, total_return=4.995882771748526, turnover=3.978239262443424, n_trades=135
+    benchmark  full: cagr=0.08166394318976833, ann_vol=0.11187994491212537, sharpe=0.7576976493665273, sharpe_excess=0.6466653982854295, max_drawdown=-0.31773455508351034, total_return=3.0993532391909406, turnover=0.2863843496986784, n_trades=432
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

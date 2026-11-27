@@ -1,3 +1,23 @@
+"""623_dynamic_causal_portfolio_choice_hedging
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/623_dynamic_causal_portfolio_choice_hedging.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 25a9179813de3addbbaee65a8c08579eb6e27d08 on 2026-11-27 19:10 Europe/Oslo, exit 0, output sha256 1624565b1ee6e1745599c71ee819dbf757356e5e58d20feca9cfae938f11ad03
+Data source: Yahoo Finance public daily ETF open and close prices and corporate actions via yfinance, using date-keyed CSV caches. Allocated ETFs: SPY, EFA, TLT, GLD, DBC, VNQ. Cash proxy: BIL. Driver return spreads: IEF–SHY, TIP–IEF, HYG–IEF, UUP–BIL. The FRED reference in the README explains data vintages; the configured inputs are entirely ETF data.
+Data fetched: 2026-11-27T18:10:36.840402+00:00
+Sample period: 2011-01-03 through 2025-12-31, inclusive, as reported for the simulated sessions. The requested warm-up begins 2009-01-01.   data_range (from output): {'start': '2011-01-03', 'end': '2025-12-31'}
+IS/OOS split: IS 2011-01-03 through 2018-12-31; OOS 2019-01-02 through 2025-12-31. This is a retrospective reporting split of one continuous default simulation. Positions carry over at the boundary and fixed hyperparameters are used with rolling estimates. The six robustness variants run on inputs truncated at the IS cutoff.
+Costs and slippage: Default one-way commission is 3 bps and modelled slippage is 5 bps, for 8 bps on the absolute opening notional of each buy or sell. Both are deducted as cash costs in the opening budget, with fills priced at the open. One IS robustness variant uses 6 bps commission and 10 bps slippage.
+Signal lag: At each month-end signal close t, the target uses data through that close. The simulated fill is at the open of the next trading session, which is the first trading session of the new month. The default lag is one trading session.
+Price adjustment: yfinance auto_adjust=False, split-adjusted OHLC, explicit ex-date cash distributions
+Survivorship bias: The six allocated ETFs are a fixed, retrospectively chosen universe of funds that still existed when documented. The README identifies survivorship bias and hindsight in universe selection.
+Parameter combinations tried: 7
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.0485245508985781, ann_vol=0.09366761414069785, sharpe=0.5528583704807224, sharpe_excess=0.523525007622871, max_drawdown=-0.14466871399509973, total_return=0.45982966920543844, turnover=3.8268964800840037, n_trades=401
+    oos: cagr=0.14103847200677433, ann_vol=0.12075933080970108, sharpe=1.1532982211128138, sharpe_excess=0.9440078451523798, max_drawdown=-0.18901173312889308, total_return=1.5129999791989177, turnover=3.4046852301263284, n_trades=332
+    full: cagr=0.09071878655877863, ann_vol=0.10718480038380405, sharpe=0.8639827452351844, sharpe_excess=0.7403345118519027, max_drawdown=-0.18901173312889175, total_return=2.6685519283472643, turnover=3.6298944122352474, n_trades=733
+    benchmark  full: cagr=0.06846691933036975, ann_vol=0.10343232506671601, sharpe=0.6922028660544317, sharpe_excess=0.5638997069433328, max_drawdown=-0.22748835919864085, total_return=1.694654929090468, turnover=0.3898288071026507, n_trades=1080
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

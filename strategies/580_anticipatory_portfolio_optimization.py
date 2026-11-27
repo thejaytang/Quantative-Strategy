@@ -1,3 +1,23 @@
+"""580_anticipatory_portfolio_optimization
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/580_anticipatory_portfolio_optimization.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 25a9179813de3addbbaee65a8c08579eb6e27d08 on 2026-11-27 19:08 Europe/Oslo, exit 0, output sha256 818e3e39dacc653909b6f0a71e07a42449b356656930a9bfffc100340461b9ec
+Data source: Yahoo Finance via yfinance, daily Open and Close plus dividends and capital-gain distributions when supplied. Sector ETFs: XLB, XLE, XLF, XLI, XLK, XLP, XLU, XLV, XLY. SPY is the benchmark and BIL supplies the reference returns for ex-post excess Sharpe..
+Data fetched: 2026-11-27T18:08:42+00:00
+Sample period: Data requested from 2004-01-01 through 2025-12-31 for warm-up and evaluation. BIL may start later and must cover the session preceding evaluation. The logged evaluation spans 2010-01-04 through 2025-12-31..   data_range (from output): {'start': '2010-01-04', 'end': '2025-12-31'}
+IS/OOS split: IS consists of evaluation sessions before 2018-01-01 (2010–2017). OOS consists of sessions on or after 2018-01-01 (2018–2025). The default simulation carries its portfolio across the cutoff, and rolling estimation can use OOS observations through each signal close. The six robustness cases run on IS only..
+Costs and slippage: Each buy or sell incurs a 2 bp fee and 3 bp of modeled slippage on absolute traded notional at the open. The combined 5 bp is reserved when sizing and deducted from cash. Slippage is a fixed cash charge and the simulated fill price is the adjusted open. The IS higher-friction case charges 4 bp in fees and 6 bp in slippage using the same mechanism. The SPY benchmark entry uses the default rate..
+Signal lag: The strategy computes target weights after the last trading session close of a month using returns through that close and queues them for the open one trading session later under the default configuration. The first logged signal close was 2009-12-31 and the first fill open was 2010-01-04..
+Price adjustment: yfinance split-normalized OHLC with forward ex-date total-return adjustment
+Survivorship bias: The same nine sector ETFs are selected for the whole historical period. Selecting surviving funds can introduce fund-selection and survivorship bias. Historical security exposure comes from the funds' own price histories..
+Parameter combinations tried: 7
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.15500637682581808, ann_vol=0.1368103846812054, sharpe=1.122119509504016, sharpe_excess=1.117508378056549, max_drawdown=-0.14495003139461748, total_return=2.1617680295151738, turnover=9.999302822590948, n_trades=670
+    oos: cagr=0.061878059151794895, ann_vol=0.2020746294412541, sharpe=0.3991070242924952, sharpe_excess=0.27882668149591333, max_drawdown=-0.4503706451614168, total_return=0.6146553088110231, turnover=11.76804450343826, n_trades=656
+    full: cagr=0.10748687408246083, ann_vol=0.17253402142030916, sharpe=0.6787160603599569, sharpe_excess=0.6066147153459392, max_drawdown=-0.45037064516141634, total_return=4.105165534085686, turnover=10.883234114883182, n_trades=1326
+    benchmark SPY full: cagr=0.13983198877820424, ann_vol=0.17208618360719966, sharpe=0.8470061253062938, sharpe_excess=0.7747026624360458, max_drawdown=-0.3371726392349519, total_return=7.0844221945885355, turnover=0.06259295799410133, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

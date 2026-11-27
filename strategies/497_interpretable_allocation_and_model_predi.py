@@ -1,3 +1,23 @@
+"""497_interpretable_allocation_and_model_predi
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/497_interpretable_allocation_and_model_predi.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit e0984d15ab251762c76186215f63849cd5effddf on 2026-11-27 11:35 Europe/Oslo, exit 0, output sha256 36baa3c14394b35fbcfe5f0cad8b11f5a61df85995a52f19dbce485433e0967f
+Data source: Yahoo Finance via yfinance supplies daily open, close, adjusted close and volume for the fixed U.S. large-cap equity universe and the ETFs SPY (benchmark) and BIL (excess-return reference). FRED's public CSV supplies the daily DTB3 Treasury bill discount rate for idle cash.
+Data fetched: 2026-11-27T10:35:13+00:00
+Sample period: 2014-01-03 through 2026-09-04 inclusive. The data request starts on 2012-12-01 for indicator warm-up.   data_range (from output): {'start': '2014-01-03', 'end': '2026-09-04'}
+IS/OOS split: IS 2014-01-03 through 2024-12-31. OOS 2025-01-02 through 2026-09-04. The default simulation runs continuously across the boundary and the code slices its daily results for reporting. All five sensitivity runs end at the IS cutoff.
+Costs and slippage: The default applies 5 bps cost and 3 bps slippage, totaling 8 bps of absolute traded notional on both buys and sells. The simulator deducts this charge when solving for the post-cost portfolio value at the open. Slippage is modeled as a fixed proportional charge. The SPY benchmark pays the same rate on its single initial opening purchase. The IS slippage sensitivity uses 10 bps slippage plus 5 bps cost.
+Signal lag: When no trade is pending, the regular monthly target is computed using data through the first trading day's close and scheduled for the next session's open. A drawdown exit triggered at the close uses the same one-session delay. The first sample open uses a target computed through the prior session's close. A missing required opening price defers the fill.
+Price adjustment: Yahoo split-adjusted Open/Close; explicit ex-date cash distributions
+Survivorship bias: The fixed large-cap universe carries retrospective selection and survivorship bias. It lacks point-in-time constituent histories and many historically delisted names. At each signal the code requires complete trailing return and liquidity windows and ranks eligible names by trailing median dollar volume.
+Parameter combinations tried: 6
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.12624253826844312, ann_vol=0.1587281732477083, sharpe=0.8288728401207618, sharpe_excess=0.7374646740177585, max_drawdown=-0.1918556910377177, total_return=2.689153705962404, turnover=9.193039965759645, n_trades=3740
+    oos: cagr=-0.0017498003199121204, ann_vol=0.17074330698154738, sharpe=0.0755185412595347, sharpe_excess=-0.15203219776536495, max_drawdown=-0.2363395849172052, total_return=-0.002914632534970485, turnover=10.804822067099211, n_trades=644
+    full: cagr=0.10847871566869949, ann_vol=0.16035502442223334, sharpe=0.7229355302682273, sharpe_excess=0.612356862287781, max_drawdown=-0.23633958491720508, total_return=2.6784011785444997, turnover=9.405449279397116, n_trades=4384
+    benchmark: cagr=0.13897272773523728, ann_vol=0.17137572046347013, sharpe=0.8453919670942251, sharpe_excess=0.7419428875988063, max_drawdown=-0.33682696504826715, total_return=4.184586877064823, turnover=0.07892901242231819, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

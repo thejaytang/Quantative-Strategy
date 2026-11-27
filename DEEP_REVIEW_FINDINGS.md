@@ -2,7 +2,7 @@
 
 Already-published strategies are not removed from git history. If a later deep review finds a real problem (look-ahead, wrong data, or wrong numbers), the file is kept as last published on origin/main and listed here in a new commit. Fixes, if any, also land in a new commit.
 
-Generated 2026-11-27 11:24 Europe/Oslo.
+Generated 2026-11-27 11:35 Europe/Oslo.
 
 | File | Latest self-review | Category | Stage note |
 |---|---|---|---|
@@ -30,35 +30,34 @@ Generated 2026-11-27 11:24 Europe/Oslo.
 | strategies/509_beyond_de_prado_and_cotton_hierarchical.py | FAIL | see review | kept_from_origin: latest self-review is not PASS |
 | strategies/520_beyond_de_prado_and_cotton_hierarchical.py | FAIL | 实际买入份额依赖成交日收盘价 | kept_from_origin: latest self-review is not PASS |
 | strategies/548_entropic_value_at_risk_portfolio_optimiz.py | FAIL | see review | kept_from_origin: latest self-review is not PASS |
-| strategies/395_signature_based_optimal_execution_for_st.py | FAIL | see review | kept_from_origin: latest self-review is not PASS |
+| strategies/395_signature_based_optimal_execution_for_st.py | FAIL | 资金约束在同一收盘价重定成交股数 | kept_from_origin: latest self-review is not PASS |
 | strategies/450_a_declining_cvar_glidepath_framework_for.py | FAIL | 成交日收盘价改变实际买入份额 | kept_from_origin: latest self-review is not PASS |
 | strategies/551_squeezed_covariance_matrix_estimation_an.py | FAIL | 成交时用收盘价缩减买量; 事后固定股票池 | kept_from_origin: latest self-review is not PASS |
 | strategies/481_optimal_portfolio_construction_a_reinfor.py | FAIL | 现金不足时以成交日收盘价决定实际买量 | kept_from_origin: latest self-review is not PASS |
 | strategies/500_dynamic_portfolio_optimization_under_cva.py | FAIL | 收盘价参与确定同一收盘的实际买量 | kept_from_origin: latest self-review is not PASS |
 | strategies/541_entropy_regularization_under_no_shorting.py | FAIL | 最终买入份额使用成交日收盘价 | kept_from_origin: latest self-review is not PASS |
 | strategies/459_entropic_value_at_risk_parity_for_temper.py | FAIL | 实际买入份额由成交日收盘价决定 | kept_from_origin: latest self-review is not PASS |
-| strategies/497_interpretable_allocation_and_model_predi.py | FAIL | 开盘成交依赖成交日收盘字段; 候选池事后选定，存在幸存者偏差 | kept_from_origin: latest self-review is not PASS |
-| strategies/442_mitigating_return_drag_and_regime_whipsa.py | FAIL | 成交数量使用成交日收盘信息 | kept_from_origin: latest self-review is not PASS |
+| strategies/442_mitigating_return_drag_and_regime_whipsa.py | FAIL | look-ahead / same-close fill | kept_from_origin: latest self-review is not PASS |
 | strategies/022_sector_residual_statarb.py | FAIL | 结算数量仍可由当日收盘价决定 | kept_from_origin: latest self-review is not PASS |
-| strategies/465_semivariance_and_semivolatility_in_portf.py | FAIL | 成交数量使用成交日收盘信息 | kept_from_origin: latest self-review is not PASS |
-| strategies/480_topological_risk_parity.py | FAIL | 成交数量依赖成交日收盘价 | kept_from_origin: latest self-review is not PASS |
-| strategies/341_monitoring_attention_inflation_news.py | FAIL | 成交数量使用了成交日收盘信息 | kept_from_origin: latest self-review is not PASS |
-| strategies/545_portfolio_diversification_and_concentrat.py | FAIL | 成交数量使用成交日收盘价 | kept_from_origin: latest self-review is not PASS |
+| strategies/465_semivariance_and_semivolatility_in_portf.py | FAIL | 复权快照限制成交与数据时点的可追溯性 | kept_from_origin: latest self-review is not PASS |
+| strategies/113_kalman_garch_pairs.py | FAIL | see review | kept_from_origin: latest self-review is not PASS |
+| strategies/315_leveraged_funds_robust_replication.py | FAIL | 资金不足时用成交日收盘价改变实际成交份额 | kept_from_origin: latest self-review is not PASS |
+| strategies/480_topological_risk_parity.py | FAIL | 实际买入份额可由成交日收盘价决定 | kept_from_origin: latest self-review is not PASS |
+| strategies/341_monitoring_attention_inflation_news.py | FAIL | 现金不足时，实际买入股数取决于成交日收盘价 | kept_from_origin: latest self-review is not PASS |
+| strategies/545_portfolio_diversification_and_concentrat.py | FAIL | 实际买入份额依赖成交日收盘价 | kept_from_origin: latest self-review is not PASS |
 | strategies/552_a_novel_robust_mixed_integer_linear_prog.py | FAIL | 现金不足时按成交日收盘改写实际买入股数; 固定候选池存在幸存者偏差及事后选样; 模拟成交与实际市场价格、容量和公司行动有差距 | kept_from_origin: latest self-review is not PASS |
-| strategies/543_robust_enhanced_index_tracking_portfolio.py | FAIL | 成交日收盘价参与定量; 股票池存在已披露的幸存者和事后选择偏差 | kept_from_origin: latest self-review is not PASS |
-| strategies/461_breaking_the_trend_how_to_avoid_cherry_p.py | FAIL | see review | kept_from_origin: latest self-review is not PASS |
-| strategies/487_conditional_value_at_risk_under_reward_p.py | FAIL | 成交数量使用成交日收盘价; 股票池存在事后选择和幸存者偏差 | kept_from_origin: latest self-review is not PASS |
-| strategies/538_mirror_descent_algorithms_for_risk_budge.py | FAIL | 成交数量使用成交日收盘 | kept_from_origin: latest self-review is not PASS |
-| strategies/472_breaking_the_trend_how_to_avoid_cherry_p.py | FAIL | 成交数量使用成交日收盘信息 | kept_from_origin: latest self-review is not PASS |
-| strategies/467_an_entropic_factor_model_for_robust_port.py | FAIL | 成交数量依赖成交日收盘; 股票池带有幸存者偏差和事后筛选偏差 | kept_from_origin: latest self-review is not PASS |
-| strategies/478_portfolio_allocation_under_heterogeneous.py | FAIL | 成交量依赖成交日收盘价 | kept_from_origin: latest self-review is not PASS |
-| strategies/491_topological_risk_parity.py | FAIL | see review | kept_from_origin: latest self-review is not PASS |
-| strategies/188_opex_week.py | FAIL | 收盘轮动的隐含买入数量使用成交日收盘价 | kept_from_origin: latest self-review is not PASS |
-| strategies/443_revisiting_equity_bond_diversification_u.py | FAIL | 成交数量依赖成交日收盘 | kept_from_origin: latest self-review is not PASS |
+| strategies/543_robust_enhanced_index_tracking_portfolio.py | FAIL | 最终买入量依赖成交日收盘价; 固定股票池存在事后选股与幸存者偏差 | kept_from_origin: latest self-review is not PASS |
+| strategies/461_breaking_the_trend_how_to_avoid_cherry_p.py | FAIL | 成交日收盘价决定了实际成交数量; 资金与成交模型只覆盖日频 | kept_from_origin: latest self-review is not PASS |
+| strategies/487_conditional_value_at_risk_under_reward_p.py | FAIL | see review | kept_from_origin: latest self-review is not PASS |
+| strategies/538_mirror_descent_algorithms_for_risk_budge.py | FAIL | see review | kept_from_origin: latest self-review is not PASS |
+| strategies/472_breaking_the_trend_how_to_avoid_cherry_p.py | FAIL | see review | kept_from_origin: latest self-review is not PASS |
+| strategies/467_an_entropic_factor_model_for_robust_port.py | FAIL | 实际买入量依赖成交收盘价; 固定股票池存在幸存者与事后筛选偏差; 复权成交与资金约束是简化模型 | kept_from_origin: latest self-review is not PASS |
+| strategies/491_topological_risk_parity.py | FAIL | 成交数量依赖成交日收盘价 | kept_from_origin: latest self-review is not PASS |
+| strategies/188_opex_week.py | FAIL | 周末收盘买入的实际份额由当日收盘价决定; 固定成本和日线成交假设限制执行结论 | kept_from_origin: latest self-review is not PASS |
+| strategies/443_revisiting_equity_bond_diversification_u.py | FAIL | 最终买入量可由成交日收盘价决定; 动态配置缺少实际成交证据 | kept_from_origin: latest self-review is not PASS |
 | strategies/159_deep_momentum_market_trend.py | FAIL | 开盘定量输入依赖成交日收盘 | kept_from_origin: latest self-review is not PASS |
-| strategies/109_factor_etf_vol_matched.py | FAIL | 成交数量使用成交日收盘价 | kept_from_origin: latest self-review is not PASS |
-| strategies/186_federal_holiday_effect.py | FAIL | 事件日收盘买回 BIL 的份额由当日收盘价反推; 标的选择和成交假设限制解释范围 | kept_from_origin: latest self-review is not PASS |
-| strategies/490_noise_proofing_universal_portfolio_shrin.py | FAIL | 成交数量使用成交日收盘信息 | kept_from_origin: latest self-review is not PASS |
+| strategies/109_factor_etf_vol_matched.py | FAIL | see review | kept_from_origin: latest self-review is not PASS |
+| strategies/490_noise_proofing_universal_portfolio_shrin.py | FAIL | 成交日收盘价决定实际买入量 | kept_from_origin: latest self-review is not PASS |
 | strategies/456_an_entropic_factor_model_for_robust_port.py | FAIL | 成交数量使用执行日收盘价 | kept_from_origin: latest self-review is not PASS |
 | strategies/537_hierarchical_minimum_variance_portfolios.py | FAIL | see review | kept_from_origin: latest self-review is not PASS |
 | strategies/511_dynamic_portfolio_optimization_under_cva.py | FAIL | 成交日收盘价参与确定同一收盘的交易量 | kept_from_origin: latest self-review is not PASS |

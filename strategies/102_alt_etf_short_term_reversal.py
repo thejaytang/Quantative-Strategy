@@ -1,3 +1,23 @@
+"""102_alt_etf_short_term_reversal
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; non-author review: PASS; publication gate: Codex.
+Run (one command): python strategies/102_alt_etf_short_term_reversal.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 3140bbcffa77faae04956fc55adbc5be3b33f896 on 2026-11-26 16:06 Europe/Oslo, exit 0, output sha256 3a5a624fc62a0fc0a9e9943677e16112b5b69cc1ad9bdef2c7db266ca9f9685a
+Data source: Public Yahoo Finance Chart API daily ETF bars, fetched directly over HTTPS via requests. The strategy ETFs are DBMF, MNA, PBP, and WTMF. BIL supplies the cash-return proxy. Valid per-ticker CSV caches are reused. [config.yaml:3-4, strategy.py:18-48, strategy.py:65-76, strategy.py:198-218, README.md:9-13]
+Data fetched: 2026-11-26 16:06 Europe/Oslo (run time)
+Sample period: Evaluated sessions: 2020-01-02 through 2026-11-24, inclusive. The configured price request starts on 2019-11-01 for signal warm-up. [config.yaml:5-11, strategy.py:186-194, strategy.py:202-211, strategy.py:217-222, logs/run_20261125_095049.log:2]   data_range (from output): 2020-01-02 to 2026-11-24
+IS/OOS split: IS: 2020-01-02 through 2026-02-23. OOS: 2026-02-24 through 2026-11-24. Both ranges are inclusive. The README describes OOS as a historical holdout beginning after the cited article's publication date. The code generates targets across the full period and slices the resulting daily_results for reporting. [config.yaml:6-11, README.md:5, README.md:18, README.md:24, strategy.py:146-147, strategy.py:186-194, strategy.py:217-229]
+Costs and slippage: 10 bps one way in the base case, with 25 and 50 bps one-way stress scenarios. Each daily position pays on its opening and closing notionals, including consecutive signal days. The charged amount as a fraction of starting NAV is the one-way fee times sum(abs(weight) × (2 + open-to-close return)). Shorts also pay 300 bps annualized divided by 252 per held session, applied to opening short weight. Slippage is not modelled. The simulator uses daily bar open and close as fill proxies. The buy-and-hold benchmark pays the base fee once on entry. [config.yaml:16-20, strategy.py:96-106, strategy.py:113-122, strategy.py:181-185, strategy.py:212-232, README.md:17-19, README.md:24]
+Signal lag: The adjusted close on session t is compared with the preceding 5 or 10 session closes. The resulting position is shifted by one session, enters at the next session's open, and exits at that session's close. [config.yaml:13-14, strategy.py:88-106, strategy.py:217-222, README.md:9-11]
+Price adjustment: Signals and BIL cash returns use Yahoo Finance adjusted closes. Each strategy ETF's adjusted open equals Yahoo's open multiplied by adjusted close divided by Yahoo's close for the same session. That factor cancels from the strategy's open-to-close return. The benchmark uses the first adjusted open and subsequent adjusted closes for valuation. [strategy.py:38-46, strategy.py:88-93, strategy.py:113-117, strategy.py:209-231]
+Survivorship bias: The four strategy ETFs are the fixed, retrospectively selected universe from the cited research. The README flags selection and survivorship risk from missing comparable liquidated or delisted funds. [config.yaml:3, README.md:9, README.md:24, strategy.py:176-180, strategy.py:202-205]
+Parameter combinations tried: 6
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=-0.17333568791312226, ann_vol=0.04236025473654765, sharpe=-4.470903222637993, max_drawdown=-0.6919454115456477, total_return=-0.6882508251133215, turnover=0.9022837304539946, n_trades=2784
+    oos: cagr=-0.25877167018359715, ann_vol=0.0335004926123123, sharpe=-8.916542913206, max_drawdown=-0.20330959251825953, total_return=-0.2030485219931647, turnover=0.8875840764411027, n_trades=339
+    full: cagr=-0.1832096548612029, ann_vol=0.04152492300839152, sharpe=-4.850826308066646, max_drawdown=-0.7531062094823953, total_return=-0.7515510343066504, turnover=0.9006645644122054, n_trades=3123
+    benchmark  full: cagr=0.059312715810007965, ann_vol=0.07487129429664191, sharpe=0.8072281741588824, max_drawdown=-0.13600005720217412, total_return=0.48658665166792714, turnover=0.0005761251435991921, n_trades=4
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

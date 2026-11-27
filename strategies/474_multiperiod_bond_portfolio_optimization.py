@@ -1,3 +1,23 @@
+"""474_multiperiod_bond_portfolio_optimization
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/474_multiperiod_bond_portfolio_optimization.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit cc50485fb68601d5f9b01f48262e3a778be06982 on 2026-11-27 09:02 Europe/Oslo, exit 0, output sha256 5e4f365a2cc76d28f98f594dc66f073261394fc71232554ad0abebc4b0b31cda
+Data source: yfinance 日度 ETF 收盘价。SHY、IEI、IEF 为组合标的，BIL 为超额夏普的现金参照（config.yaml:2-6，strategy.py:41-55、324-326、336）。FRED CSV 提供日度美国国债恒定期限收益率 DGS1、DGS2、DGS3、DGS5、DGS7、DGS10、DGS20，使用七列均有值的观测日，百分数除以 100 转为小数（config.yaml:7，strategy.py:19、66-84、327-329）。
+Data fetched: 2026-11-27T08:02:32+00:00
+Sample period: 实际回测收益区间为 2010-01-04 至 2025-12-31，按 ETF 交易日统计（strategy.py:261-263、340-341，logs/run_20261127_081201.log:8、15）。配置的回测区间为 2010-01-01 至 2025-12-31，FRED 拟合数据请求从 1994-01-01 开始（config.yaml:8-12，strategy.py:302-304、327-329）。   data_range (from output): {'start': '2010-01-04', 'end': '2025-12-31'}
+IS/OOS split: 切分阈值为 2019-01-01。IS 为阈值前的收益日，实际为 2010-01-04 至 2018-12-31。OOS 包含阈值当日及之后的收益日，实际为 2019-01-02 至 2025-12-31（config.yaml:11，strategy.py:288-296，logs/run_20261127_081201.log:8）。IS 用截至信号日的月末因子快照扩窗拟合。OOS 信号使用仅以切分前月末快照拟合的冻结动态参数，并使用当期按发布滞后对齐的曲线因子。持仓跨切分日延续（strategy.py:209-214、224-255，README.md:22）。
+Costs and slippage: 模型计入每一买卖方向 2 bps 费用和 3 bps 固定比例滑点（config.yaml:13-14，README.md:24、30）。执行日先按当日收益更新原持仓，再将组合当日总增长因子乘以 1 − 0.0005 × Σ|目标权重 − 成交前漂移权重|。首次买入亦计入两项摩擦，等权买入持有基准仅在首次买入时计入。优化时同样使用合计摩擦（strategy.py:164-184、195、218-240，README.md:17、24）。
+Signal lag: 每月最后一个 ETF 交易日收盘生成目标，排到下一 ETF 交易日收盘模拟成交。成交日截至收盘的价格变动仍按原持仓计算，新权重从下一段收盘到收盘的收益开始生效（config.yaml:16，strategy.py:200-207、216-240、242-255，README.md:23）。FRED 曲线观测从观测日后第 3 个美国联邦工作日起可用于收盘信号（config.yaml:15，strategy.py:93-102、209-214，README.md:23）。
+Price adjustment: yfinance auto_adjust=True, dividend- and split-adjusted close (total return)
+Survivorship bias: 使用事后选定且仍存续的固定 ETF 组合 SHY、IEI、IEF，未纳入已清盘或被更换的基金，存在存续及标的选择偏差（config.yaml:2-5，README.md:31）。
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.014129581800406577, ann_vol=0.01706471076091734, sharpe=0.83074989266368, sharpe_excess=0.6883606643804934, max_drawdown=-0.023799147121614128, total_return=0.13434285173424576, turnover=5.0, n_trades=5
+    oos: cagr=0.025438581655849113, ann_vol=0.04614513389499357, sharpe=0.5674502582029434, sharpe_excess=0.019474279220779312, max_drawdown=-0.10127065477397768, total_return=0.1917753697832536, turnover=8.000000000000004, n_trades=8
+    full: cagr=0.01906043687828962, ann_vol=0.03309057718214997, sharpe=0.5871387515970263, sharpe_excess=0.21303889481208527, max_drawdown=-0.10127065477397845, total_return=0.3518818715865677, turnover=13.000000000000004, n_trades=13
+    benchmark equal_weight_buy_and_hold full: cagr=0.02135127714224816, ann_vol=0.040043999614059154, sharpe=0.5476165052139831, sharpe_excess=0.23848929051899345, max_drawdown=-0.15452597448022742, total_return=0.40123477408462005, turnover=1.0, n_trades=3
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

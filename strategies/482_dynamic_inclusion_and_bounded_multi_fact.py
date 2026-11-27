@@ -1,3 +1,23 @@
+"""482_dynamic_inclusion_and_bounded_multi_fact
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/482_dynamic_inclusion_and_bounded_multi_fact.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit cc50485fb68601d5f9b01f48262e3a778be06982 on 2026-11-27 09:02 Europe/Oslo, exit 0, output sha256 94f6bd08a38be4bb48ca24711fa282e10aa0f0b97bb5d32aae3d1e29b172c072
+Data source: Yahoo Finance daily ETF prices and volume via yfinance, with a local gzip CSV cache. The universe is XLB, XLC, XLE, XLF, XLI, XLK, XLP, XLRE, XLU, XLV and XLY. SPY quotes validate the session calendar and BIL daily returns are the risk-free proxy for excess Sharpe.
+Data fetched: 2026-11-27T08:02:51+00:00
+Sample period: Warm-up history requested from 2008-01-01. The logged evaluation runs from 2010-01-04 through 2025-12-31 inclusive.   data_range (from output): {'start': '2010-01-04', 'end': '2025-12-31', 'is_end': '2019-12-31', 'oos_start': '2020-01-02'}
+IS/OOS split: IS is 2010-01-04 through 2019-12-31 inclusive. OOS is 2020-01-02 through 2025-12-31 inclusive. The grid is scored on IS net excess Sharpe versus BIL. The selected parameters stay fixed in OOS, which carries forward the portfolio state from IS.
+Costs and slippage: Models a 2 bp fee and 3 bp fixed slippage, for 5 bp on each dollar of absolute executed buy or sell notional at rebalance. The simulator solves for the post-cost capital used to size target positions and deducts the charge from portfolio value. The dynamic equal-weight benchmark uses the same friction.
+Signal lag: The signal uses daily bars through the prior session close. When the next session is the first session of the month, the simulator rebalances at that session's close after applying its close-to-close return to the old holdings. New weights take effect for the following close-to-close interval. The whole rebalance is skipped if any positive-weight target lacks an execution-day close.
+Price adjustment: yfinance Adj Close total-return (auto_adjust=False)
+Survivorship bias: The fixed sector ETF list is drawn from funds with data available at the time the strategy was written. The README identifies survivorship and hindsight selection bias because the list omits liquidated funds and gives incomplete coverage of the funds available at historical dates. Monthly eligibility requires 253 consecutive valid closes under the configured lookback.
+Parameter combinations tried: 8
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.12422071352674213, ann_vol=0.13813527472814777, sharpe=0.9170456025399797, sharpe_excess=0.8864605490623347, max_drawdown=-0.17548049249579634, total_return=2.218908710918463, turnover=0.5616147222262134, n_trades=1124
+    oos: cagr=0.07916254904985309, ann_vol=0.1802998713660085, sharpe=0.5133020869541116, sharpe_excess=0.3681176193661763, max_drawdown=-0.34971719565984616, total_return=0.5775967518570646, turnover=0.628678580062533, n_trades=769
+    full: cagr=0.10711880725022493, ann_vol=0.15526519073240516, sharpe=0.7334986649896756, sharpe_excess=0.6533481600327368, max_drawdown=-0.34971719565984627, total_return=4.078139926869385, turnover=0.5867470029461861, n_trades=1893
+    benchmark: cagr=0.10756036492039112, ann_vol=0.15935410804842093, sharpe=0.7212420784008168, sharpe_excess=0.6431484198882744, max_drawdown=-0.36175993505138093, total_return=4.110577780600812, turnover=0.2444178532406553, n_trades=1893
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

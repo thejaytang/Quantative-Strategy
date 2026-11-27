@@ -1,3 +1,23 @@
+"""479_noise_proofing_universal_portfolio_shrin
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/479_noise_proofing_universal_portfolio_shrin.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit cc50485fb68601d5f9b01f48262e3a778be06982 on 2026-11-27 09:02 Europe/Oslo, exit 0, output sha256 caf3c20dfbb1531a89a4a42e6becd49737d1cac216539d7d6c3b606536418421
+Data source: Yahoo Finance daily ETF prices via yfinance for SPY, EFA, EEM, IWM, IEF, TLT, GLD and VNQ, with BIL as the cash-return proxy.
+Data fetched: 2026-11-27T08:02:47+00:00
+Sample period: The requested price history is 2008-01-02 through 2025-12-31, with data before 2015-01-02 used for warm-up. The logged evaluation runs from 2015-01-02 through 2025-12-31, inclusive.   data_range (from output): {'start': '2015-01-02', 'end': '2025-12-31'}
+IS/OOS split: IS runs from 2015-01-02 through 2019-12-31 and OOS runs from 2020-01-02 through 2025-12-31. A continuous simulation carries positions across the split. The Average Oracle spectrum and average ridge mixture weights are frozen after the IS signal cutoff, while monthly covariance inputs and mean excess returns continue to update.
+Costs and slippage: The model applies 2 bps of transaction costs plus 3 bps of constant slippage to each simulated buy or sell amount, including initial entry. At rebalance, it solves for remaining NAV after charging 5 bps on the sum of absolute dollar changes from drifted holdings to target holdings funded from that remaining NAV. The equal-weight benchmark uses the same friction and rebalance dates.
+Signal lag: The signal uses adjusted closes through the last observed trading session of the month. With the configured one-session lag, the simulation first applies the next session's close-to-close return to existing holdings, then rebalances at that session's close. New weights first earn returns over the following close-to-close interval.
+Price adjustment: yfinance auto_adjust=True adjusted close, total-return proxy
+Survivorship bias: The fixed universe was selected from surviving ETFs with complete histories available at the time of selection. The README identifies survivorship bias and retrospective universe-selection bias.
+Parameter combinations tried: 20
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.03394770265202629, ann_vol=0.09820080769288893, sharpe=0.38915459329774493, sharpe_excess=0.2992436344013061, max_drawdown=-0.16350196783080195, total_return=0.1813478490391729, turnover=2.480221739046408, n_trades=442
+    oos: cagr=0.11275808619969463, ann_vol=0.12374806413739745, sharpe=0.9254267383033832, sharpe_excess=0.7141827784384404, max_drawdown=-0.2446341652984081, total_return=0.8952566686466776, turnover=2.082225625498262, n_trades=448
+    full: cagr=0.07619600855498909, ann_vol=0.1128540938682332, sharpe=0.707248188896376, sharpe_excess=0.5453872798914859, max_drawdown=-0.24463416529840853, total_return=1.238957388882898, turnover=2.2632375961575413, n_trades=890
+    benchmark: cagr=0.07119442249344154, ann_vol=0.11244533678500519, sharpe=0.6680816941170526, sharpe_excess=0.505585856977364, max_drawdown=-0.2513117716822164, total_return=1.1273560360340231, turnover=0.3965065359919078, n_trades=1056
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

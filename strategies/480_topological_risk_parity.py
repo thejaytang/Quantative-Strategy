@@ -1,3 +1,23 @@
+"""480_topological_risk_parity
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/480_topological_risk_parity.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit cc50485fb68601d5f9b01f48262e3a778be06982 on 2026-11-27 09:02 Europe/Oslo, exit 0, output sha256 37cd5af247fbd3dac9beb24bc49aa4983e0e0020b17e2a73886a5b6cd01394c6
+Data source: Public Yahoo Finance daily ETF closes via yfinance. The allocation universe is XLB, XLC, XLE, XLF, XLI, XLK, XLP, XLRE, XLU, XLV and XLY. BIL daily returns are used only as the excess-Sharpe reference. The reported data fetch timestamp is 2026-11-27T07:09:38+00:00.
+Data fetched: 2026-11-27T08:02:49+00:00
+Sample period: The run reports 2019-01-02 through 2025-12-31 inclusive. The configured warm-up data start is 2018-06-20.   data_range (from output): {'start': '2019-01-02', 'end': '2025-12-31'}
+IS/OOS split: IS runs from 2019-01-02 through the 2022-12-31 cutoff. OOS uses sessions after that cutoff through 2025-12-31. The lookback is selected on IS net excess Sharpe relative to BIL, with ties going to the shorter window. The selected lookback was 63 sessions and is fixed for the full simulation. The OOS slice inherits the ending IS holdings.
+Costs and slippage: Each simulated buy and sell incurs 5 bps of transaction costs and 3 bps of modeled flat slippage on its traded notional, including initial purchases from cash. At each fill the simulator marks existing holdings to the close, solves for the post-friction portfolio value using the summed absolute trade notionals, and debits the combined 8 bps through that value.
+Signal lag: The signal uses daily returns through the close of the first session of each month. The target fills at the next session's close. Existing holdings earn the close-to-close return ending at the fill close, and the new holdings first earn the close-to-close return beginning at that close.
+Price adjustment: yfinance auto_adjust total-return
+Survivorship bias: The universe is a fixed, retrospectively chosen list of 11 extant sector ETFs, and the latest ETF inception constrains the sample start. The code requires valid prices for all symbols on every included date. The study excludes defunct and historical alternative funds and does not reconstruct historical sector membership.
+Parameter combinations tried: 2
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.13671182415859695, ann_vol=0.23113430220697076, sharpe=0.6708319767841268, sharpe_excess=0.630770117132093, max_drawdown=-0.37787273916039243, total_return=0.6695579976780794, turnover=19.385054975024566, n_trades=528
+    oos: cagr=0.16689941364976213, ann_vol=0.13575067891624554, sharpe=1.2050547293880252, sharpe_excess=0.8597358772578457, max_drawdown=-0.16030249331076818, total_return=0.5850254588015393, turnover=18.279828603002095, n_trades=396
+    full: cagr=0.14951340952440417, ann_vol=0.1960913759679985, sharpe=0.8093111274760761, sharpe_excess=0.6802341977691687, max_drawdown=-0.37787273916039243, total_return=1.6462919312654751, turnover=37.66488357802666, n_trades=924
+    benchmark  full: cagr=0.1454462070586071, ann_vol=0.18715241899944055, sharpe=0.8198122688853346, sharpe_excess=0.6845879051645858, max_drawdown=-0.36163460081567356, total_return=1.581587104523909, turnover=3.244542910611311, n_trades=924
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

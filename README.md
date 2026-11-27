@@ -4,7 +4,7 @@
 
 每个策略一个文件：`strategies/<编号>_<名称>.py`，一条命令运行：`python strategies/<文件>.py`（依赖见 requirements.txt）。文件头写明数据源与抓取时间、样本期、IS/OOS 划分、成本与滑点、信号滞后、复权口径、幸存者偏差说明、尝试的参数组合数，以及在记录的 commit 上实际运行得到的关键数字（backtest reproduced）。收录条件：真实运行、确有交易、无同收盘成交前视、Codex 自审 PASS（进入本仓库前的审查为作者自审，不是独立第三方审查）、单文件复跑与审查时结果一致。
 
-本表由文件实际内容生成（2026-11-27 07:29 Europe/Oslo），共 58 个。
+本表由文件实际内容生成（2026-11-27 07:47 Europe/Oslo），共 63 个。
 
 | 文件 | 作者 | 代码 commit | 全样本 Sharpe | 全样本 CAGR |
 |---|---|---|---|---|
@@ -66,3 +66,8 @@
 | strategies/350_continuous_timing_growth_defensive.py | Codex | 92e75bea82 | 0.9164036107251631 | 0.17281151630967062 |
 | strategies/353_hold_the_dip.py | Codex | 92e75bea82 | 0.6959605518103854 | 0.09267657072001478 |
 | strategies/354_strategy.py | Codex | 92e75bea82 | 0.17788436987988948 | 0.011436229915955831 |
+| strategies/382_statistical_arbitrage_in_polish_equities.py | Codex | 4d91396b47 | 0.497781741038713 | 0.02277320791556292 |
+| strategies/391_evolutionary_factor_searching_for_sparse.py | Codex | 4d91396b47 | 0.9944754757893223 | 0.28389911046975636 |
+| strategies/395_signature_based_optimal_execution_for_st.py | Codex | 4d91396b47 | -0.9234169888488118 | -0.04284485041633779 |
+| strategies/400_noxtrader_lstm_based_stock_return_moment.py | Codex | 4d91396b47 | -0.4419440960750732 | -0.1977945613653347 |
+| strategies/432_revisiting_equity_bond_diversification_u.py | Codex | 4d91396b47 | 0.40210518871874146 | 0.029671517239883816 |

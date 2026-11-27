@@ -1,3 +1,23 @@
+"""395_signature_based_optimal_execution_for_st
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/395_signature_based_optimal_execution_for_st.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 4d91396b470c7410b1364756fad54a1bec5cce1f on 2026-11-27 07:45 Europe/Oslo, exit 0, output sha256 a0603951913a091d0a20972f7aa6e5e7b7db0a4902f8b8f3d3405e8b4a3cdf82
+Data source: Yahoo Finance via yfinance daily closing prices for SHEL (Shell) and BP, with BIL as the cash proxy for excess-return metrics, including validation. The loader uses a local price cache or downloads the three symbols from Yahoo Finance.
+Data fetched: 2026-11-27T06:45:20+00:00
+Sample period: Requested price history is 2022-02-01 inclusive through 2026-01-01 exclusive. The logged reporting period is 2023-01-03 through 2025-12-31 inclusive.   data_range (from output): 2023-01-03 to 2025-12-31
+IS/OOS split: Initial calibration uses February–June 2022. Lookback selection uses July–December 2022 validation by excess Sharpe versus BIL. Reported IS spans 2023–2024 with expanding-history recalibration at each year boundary. Reported OOS spans 2025 with one policy fit using history through the final 2024 session and the previously selected lookback. Each fit uses complete historical episodes through the close before the segment begins.
+Costs and slippage: The account applies 0.5 bps transaction cost plus 2.0 bps modelled slippage, for 2.5 bps one way on each leg's absolute traded notional at entries, rebalances and exits. Each close first marks the old positions and calculates their drifted weights. The sum of absolute target-minus-drifted weights is multiplied by 0.00025 and deducted from the pre-fill NAV. The threshold benchmark uses the same account function. The policy fit separately uses quadratic temporary-impact coefficients of 0.1 and 0.01. Cash earns zero. Borrow fees, financing fees, taxes and trade-size-dependent execution impact are outside the backtest.
+Signal lag: A signal using close t maps to a target at the next trading session's close. The fill follows marking the existing holdings at that close, so the new holdings first accrue price returns over the following close-to-close interval. Scheduled liquidation overrides any signal arriving at the episode's final close. Both the signature strategy and the threshold benchmark use this timing.
+Price adjustment: yfinance auto_adjust=True total-return adjusted Close
+Survivorship bias: SHEL and BP are a fixed pair drawn from the paper's known surviving sample. The README identifies hindsight in pair selection and survivorship bias.
+Parameter combinations tried: 3
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=-0.028356826163000948, ann_vol=0.03775142501331932, sharpe=-0.7430701466877387, sharpe_excess=-2.057906516496046, max_drawdown=-0.0961874490383906, total_return=-0.05569397593124081, turnover=132.4941886100986, n_trades=1000
+    oos: cagr=-0.07128765794544856, ann_vol=0.059833931486702976, sharpe=-1.205832690604267, sharpe_excess=-1.8887201068945385, max_drawdown=-0.07628468494952223, total_return=-0.07074238631565533, turnover=138.44135441688815, n_trades=496
+    full: cagr=-0.04284485041633779, ann_vol=0.04625441691972641, sharpe=-0.9234169888488118, sharpe_excess=-1.933544072156635, max_drawdown=-0.16370763042513825, total_return=-0.12249643748611327, turnover=134.47130490224936, n_trades=1496
+    benchmark: cagr=-0.011786753907241931, ann_vol=0.030376877624429817, sharpe=-0.37511620212539665, sharpe_excess=-1.906947844371158, max_drawdown=-0.05112819890834608, total_return=-0.034763473522819055, turnover=45.29650735545673, n_trades=450
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

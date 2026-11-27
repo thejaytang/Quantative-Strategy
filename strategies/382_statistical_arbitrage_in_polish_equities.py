@@ -1,3 +1,23 @@
+"""382_statistical_arbitrage_in_polish_equities
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/382_statistical_arbitrage_in_polish_equities.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 4d91396b470c7410b1364756fad54a1bec5cce1f on 2026-11-27 07:44 Europe/Oslo, exit 0, output sha256 1cd7d935406f6de2433429611a22a82946f76fb865d36e36cff630401d7abb19
+Data source: Free Yahoo Finance daily adjusted closes and Warsaw share volume via yfinance. Fixed Warsaw equity universe: ACP.WA, BDX.WA, CDR.WA, CPS.WA, ENA.WA, EUR.WA, GPW.WA, ING.WA, JSW.WA, KGH.WA, KTY.WA, LPP.WA, MIL.WA, NEU.WA, OPL.WA, PEO.WA, PGE.WA, PKN.WA, PKO.WA, PZU.WA, TPE.WA. BIL is the USD excess-return reference. See config.yaml:2-23, config.yaml:41-43, strategy.py:19-25, strategy.py:33-59, README.md:15, README.md:18.
+Data fetched: 2026-11-27T06:44:59+00:00
+Sample period: Warm-up data requested from 2015-10-01. Configured evaluation window: 2017-01-01 through 2020-12-31 inclusive. Reported Warsaw sessions span 2017-01-02 through 2020-12-30. See config.yaml:24-28, strategy.py:19-23, strategy.py:37, strategy.py:119, strategy.py:182, strategy.py:230-232, logs/run_20261127_070444.log:4, backtest_results.md:18.   data_range (from output): 2017-01-02 to 2020-12-30
+IS/OOS split: IS covers sessions before 2020-01-01 (2017–2019). OOS covers sessions on or after 2020-01-01 through the sample end (2020). One continuous simulation carries holdings across the cutoff. Annual PCA refits and daily residual estimates continue using the configured trailing windows. See config.yaml:24-35, strategy.py:124-132, strategy.py:159-167, strategy.py:230-246, README.md:17.
+Costs and slippage: 10 bps commission plus 5 bps modelled slippage per side, charged to cash and NAV at the fill close on the absolute executed notional of each changed stock leg within each spread. Turnover is summed across spreads without netting. Slippage is a flat cost deduction, and simulated fills use the adjusted close. The equal-weight benchmark applies the same combined rate at its initial purchase. See config.yaml:36-39, strategy.py:116-118, strategy.py:132-156, strategy.py:185-190, strategy.py:233-234, README.md:18, README.md:23.
+Signal lag: The signal uses Warsaw closes through session t. Entry and exit instructions fill at the adjusted close of the next Warsaw session (t+1), using the signal-session hedge weights for entries. Fill-session costs are booked at execution and new holdings first earn close-to-close returns after the fill. See config.yaml:36-37, strategy.py:111-116, strategy.py:124-157, strategy.py:159-180.
+Price adjustment: yfinance auto_adjust total-return close
+Survivorship bias: The fixed 21-stock universe was selected from names with complete quotes available after the fact. Survivorship and historical constituent selection bias apply. Recent listings, delisted names, and missing historical symbols may be omitted. See config.yaml:2-23, strategy.py:45-56, README.md:24.
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.005847703488563782, ann_vol=0.04313008783535627, sharpe=0.15672465925196574, sharpe_excess=-0.185469287368009, max_drawdown=-0.07545445843835885, total_return=0.017363386110296197, turnover=16.26686922543059, n_trades=10542
+    oos: cagr=0.0744237133340877, ann_vol=0.05852380488017935, sharpe=1.2558900441425185, sharpe_excess=1.1854906511001004, max_drawdown=-0.04262737070069367, total_return=0.0744237133340877, turnover=15.792195958181376, n_trades=3486
+    full: cagr=0.02277320791556292, ann_vol=0.047501844896859755, sharpe=0.497781741038713, sharpe_excess=0.24269306637783808, max_drawdown=-0.08037063188256732, total_return=0.09307934711476862, turnover=16.146771169861513, n_trades=14028
+    benchmark  full: cagr=0.07786898325664304, ann_vol=0.19658407017961133, sharpe=0.4805717620257633, sharpe_excess=0.4189268753061507, max_drawdown=-0.3259419342302353, total_return=0.3449716764685997, turnover=0.25263309854495364, n_trades=21
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

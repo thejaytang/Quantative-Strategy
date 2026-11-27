@@ -1,4 +1,5 @@
 """109_factor_etf_vol_matched
+WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; non-author review: PASS; publication gate: Codex.
 Run (one command): python strategies/109_factor_etf_vol_matched.py   (free public data only; config embedded)

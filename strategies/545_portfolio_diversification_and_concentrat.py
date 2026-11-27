@@ -1,4 +1,5 @@
 """545_portfolio_diversification_and_concentrat
+WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
 Run (one command): python strategies/545_portfolio_diversification_and_concentrat.py   (free public data only; config embedded)

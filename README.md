@@ -4,7 +4,7 @@
 
 每个策略一个文件：`strategies/<编号>_<名称>.py`，一条命令运行：`python strategies/<文件>.py`（依赖见 requirements.txt）。文件头写明数据源与抓取时间、样本期、IS/OOS 划分、成本与滑点、信号滞后、复权口径、幸存者偏差说明、尝试的参数组合数，以及在记录的 commit 上实际运行得到的关键数字（backtest reproduced）。收录条件：真实运行、确有交易、无同收盘成交前视、Codex 自审 PASS（进入本仓库前的审查为作者自审，不是独立第三方审查）、单文件复跑与审查时结果一致。
 
-本表由文件实际内容生成（2026-11-27 20:29 Europe/Oslo），见下表（accepted + origin accepted kept）。
+本表由文件实际内容生成（2026-11-27 21:29 Europe/Oslo），见下表（accepted + origin accepted kept）。
 
 | 文件 | 作者 | 代码 commit | 全样本 Sharpe | 全样本 CAGR |
 |---|---|---|---|---|
@@ -65,6 +65,7 @@
 | strategies/339_dancing_dynamic_rebalancing_mechanism.py | Codex | 3140bbcffa | 0.8542589301354799 | 0.09623018976702165 |
 | strategies/341_monitoring_attention_inflation_news.py | Codex | 0ad743fb19 | 0.24769001759345974 | 0.014321528863530775 |
 | strategies/350_continuous_timing_growth_defensive.py | Codex | 9102661980 | 0.9164034821773692 | 0.1728115110163706 |
+| strategies/354_strategy.py | Codex | 4dbc1df0d2 | 0.1758253313432972 | 0.010438970679190307 |
 | strategies/382_statistical_arbitrage_in_polish_equities.py | Codex | ea97bbcbc9 | 0.500628613686733 | 0.023135888068235744 |
 | strategies/391_evolutionary_factor_searching_for_sparse.py | Codex | da9754ee51 | 0.9903968721257259 | 0.25587424645442103 |
 | strategies/438_the_mathematics_of_heuristic_portfolio_o.py | Codex | f9ce9ed5a4 | 0.573210240682426 | 0.0343462522184903 |
@@ -79,7 +80,7 @@
 
 Note on 511: the self-defined backtest helper previously named `execute_order()` was renamed to `apply_fill` (official re-run + Codex self-review). `broker_check` is now False. It was never a live or broker API. The approximately 1e-7 change in reported full-sample Sharpe (0.6781159099371227 → 0.678115570051477) comes from a different Yahoo Finance data snapshot (fetched 2026-11-27T11:05:24+00:00 vs 2026-11-27T08:00:04+00:00), not from the rename.
 
-Note on 354: this file stays in the defect table and DEEP_REVIEW_FINDINGS.md as INVALID pending Gatekeeper spot-check of the look-ahead fix; it is not in the accepted table. META flags remain True and were not hand-edited. False-positive reasons cite the official fix file sha256 566c9d806e59a7f085e28541d72875418e3193facb5dcd6f5c57cd0d3f371a11 (314 lines): friday_orders (119–157) and simulate_closes (160–202) are in-memory backtest fills only, with no broker or network library; the only local reads are CONFIG_PATH (241) and the Path(__file__) self-hash (240); prices come from the gzip snapshot inside config, read via BytesIO and SHA-checked (89–116); broker_check is False.
+Note on 354: Gatekeeper passed the look-ahead fix at a code-level spot-check, so this file is in the accepted table. The code commit is 4dbc1df0d2. META flags were not hand-edited. False-positive reasons cite the official fix file sha256 566c9d806e59a7f085e28541d72875418e3193facb5dcd6f5c57cd0d3f371a11 (314 lines) and are recorded in DEEP_REVIEW_FINDINGS.md, together with a known limitation on the sources of ANNOUNCED_CLOSURES announcement dates (including when Juneteenth was first announced).
 
 
 ## 已收录后的深审发现
@@ -153,7 +154,6 @@ Note on 354: this file stays in the defect table and DEEP_REVIEW_FINDINGS.md as 
 | strategies/482_dynamic_inclusion_and_bounded_multi_fact.py | INVALID | 固定候选池有幸存者和事后选择偏差 |
 | strategies/434_dynamic_scenario_based_portfolio_optimiz.py | INVALID | 事后资产池与回顾性样本切分 |
 | strategies/528_schur_complementary_allocation_a_unifica.py | INVALID | defect listed in self-review; not a published fix |
-| strategies/354_strategy.py | INVALID | awaiting GK spot-check after published look-ahead fix |
 | strategies/470_entropic_value_at_risk_parity_for_temper.py | INVALID | defect listed in self-review; not a published fix |
 | strategies/522_asset_allocation_using_a_markov_process.py | INVALID | 收盘执行依赖固定滑点和现金缓冲 |
 | strategies/479_noise_proofing_universal_portfolio_shrin.py | INVALID | 基金池存在事后选择和幸存者偏差; 模拟成交依赖复权日线和固定摩擦 |

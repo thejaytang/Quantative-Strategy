@@ -1,9 +1,8 @@
 """354_strategy
-WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
 Run (one command): python strategies/354_strategy.py   (free public data only; config embedded)
-Backtest reproduced: packed run of this file on 2026-11-27 21:16 Europe/Oslo, exit 0, packed-run output sha256 4b20435e0c0228401635a243f4fcc6a933d3c1354414e3070d0ce35533a3967d (sha256 of stdout with RUN_STARTED_AT and STRATEGY_SHA256 omitted, because those two lines change with this header; RESULTS_JSON and the snapshot lines are unchanged). This file stays in DEEP_REVIEW_FINDINGS.md and the README defect table as INVALID pending Gatekeeper spot-check; it is not in the accepted table.
+Backtest reproduced: packed run of this file on 2026-11-27 21:21:47 Europe/Oslo, exit 0, packed-run output sha256 4b20435e0c0228401635a243f4fcc6a933d3c1354414e3070d0ce35533a3967d (sha256 of stdout with RUN_STARTED_AT and STRATEGY_SHA256 omitted, because those two lines change with this header; RESULTS_JSON and the snapshot lines are unchanged). Gatekeeper passed the look-ahead fix at a code-level spot-check. The packed-run time is the RUN_STARTED_AT of the matching log.
 Data source: Daily Yahoo Finance adjusted closes for GLD and BIL, carried as a gzip snapshot in the embedded config under data.market_snapshot_gzip (decompressed sha256 7f0c04eba28346d48e986b3ec39f6a80c3826994cf8532ae913c3bd08f8acc17). The script reads that snapshot only; it does not call yfinance or read data_cache. GLD is the strategy asset and the buy-and-hold benchmark. BIL daily returns are used only for excess Sharpe.
 Data fetched: 2026-11-27T05:41:37+00:00
 Sample period: 2007-06-01 to 2026-11-25, inclusive, on New York exchange dates. The snapshot also includes the 2007-05-31 close so the first sample day can be sized from the prior close. data_range (from output): start=2007-06-01, end=2026-11-25

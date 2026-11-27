@@ -2,7 +2,7 @@
 
 Already-published strategies are not removed from git history. If a later deep review finds a real problem (look-ahead, wrong data, or wrong numbers), the file is kept as last published on origin/main and listed here in a new commit. Fixes, if any, also land in a new commit.
 
-Generated 2026-11-27 21:17 Europe/Oslo.
+Generated 2026-11-27 21:29 Europe/Oslo.
 
 | File | Latest self-review | Category | Stage note |
 |---|---|---|---|
@@ -71,17 +71,27 @@ Generated 2026-11-27 21:17 Europe/Oslo.
 | strategies/482_dynamic_inclusion_and_bounded_multi_fact.py | INVALID | 固定候选池有幸存者和事后选择偏差 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 | strategies/434_dynamic_scenario_based_portfolio_optimiz.py | INVALID | 事后资产池与回顾性样本切分 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 | strategies/528_schur_complementary_allocation_a_unifica.py | INVALID | defect listed in self-review; not a published fix | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
-| strategies/354_strategy.py | INVALID | awaiting GK spot-check after published look-ahead fix | kept_from_origin: META flags left True; false-positive reasons cite official fix sha256 566c9d806e59a7f085e28541d72875418e3193facb5dcd6f5c57cd0d3f371a11 (see note below) |
 | strategies/470_entropic_value_at_risk_parity_for_temper.py | INVALID | defect listed in self-review; not a published fix | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 | strategies/522_asset_allocation_using_a_markov_process.py | INVALID | 收盘执行依赖固定滑点和现金缓冲 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 | strategies/479_noise_proofing_universal_portfolio_shrin.py | INVALID | 基金池存在事后选择和幸存者偏差; 模拟成交依赖复权日线和固定摩擦 | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 | strategies/156_cta_replication_trend_factors.py | INVALID | defect listed in self-review; not a published fix | kept_from_origin: latest-tree PASS but META is missing or older than the current code |
 
-## 354 META false-positive reasons
+## 354 notes (accepted after Gatekeeper look-ahead spot-check)
 
-These reasons cite the official fix file sha256 `566c9d806e59a7f085e28541d72875418e3193facb5dcd6f5c57cd0d3f371a11` (314 lines). They do not cite a packed publication file. META was not hand-edited. The file stays INVALID in this table and in the README defect table pending Gatekeeper spot-check of the look-ahead fix; it is not in the accepted table.
+Gatekeeper passed the look-ahead fix at a code-level spot-check, so this file is no longer in the INVALID table. The published code commit is 4dbc1df0d2. META was not hand-edited. The false-positive reasons below cite the official fix file sha256 `566c9d806e59a7f085e28541d72875418e3193facb5dcd6f5c57cd0d3f371a11` (314 lines), not the packed publication file.
 
 - friday_orders (119–157) and simulate_closes (160–202) are in-memory backtest fills only, with no broker or network library;
 - the only local reads are CONFIG_PATH (241) and the Path(__file__) self-hash (240);
 - prices come from the gzip snapshot inside config, read via BytesIO and SHA-checked (89–116);
 - broker_check is False.
+
+### Known limitation: sources of ANNOUNCED_CLOSURES announcement dates
+
+The map is closure date to New York announcement date; the model treats a special closure as known from the next session after that announcement. Sources used in the official fix file:
+
+- Hurricane Sandy closures 2012-10-29 and 2012-10-30: announcements dated 2012-10-28 and 2012-10-29 ([ISDA Sandy guidance, 29 Oct 2012](https://www.isda.org/a/uViDE/hurricane-sandy-guidance-oct-29-2012.pdf); [CFTC / NYSE Liffe notice, 29 Oct 2012](https://www.cftc.gov/sites/default/files/stellent/groups/public/%40rulesandproducts/documents/ifdocs/rul102912nyseliffe001.pdf)).
+- President Bush day of mourning 2018-12-05: NYSE announcement dated 2018-12-01 ([ICE press release](https://ir.theice.com/press/news-details/2018/New-York-Stock-Exchange-to-Honor-President-George-H-W-Bush/default.aspx)).
+- President Carter day of mourning 2025-01-09: NYSE announcement dated 2024-12-30 ([ICE press release](https://ir.theice.com/press/news-details/2024/The-New-York-Stock-Exchange-Will-Close-Markets-on-January-9-to-Honor-the-Passing-of-Former-President-Jimmy-Carter-on-National-Day-of-Mourning/default.aspx)).
+- Juneteenth: the first New York session observed was 2022-06-20, after the Juneteenth National Independence Day Act was signed on 2021-06-17. The dates used here are the first NYSE Group holiday-calendar releases that list each observed date: 2022-06-20, 2023-06-19 and 2024-06-19 from the 2022–2024 calendar announced 2021-12-27 ([ICE press release](https://ir.theice.com/press/news-details/2021/NYSE-Group-Announces-2022-2023-and-2024-Holiday-and-Early-Closings-Calendar/default.aspx)); 2025-06-19 from the 2023–2025 calendar announced 2022-12-21 ([ICE press release](https://ir.theice.com/press/news-details/2022/NYSE-Group-Announces-2023-2024-and-2025-Holiday-and-Early-Closings-Calendar/default.aspx)); 2026-06-19 from the 2024–2026 calendar announced 2023-11-10 ([ICE press release](https://ir.theice.com/press/news-details/2023/NYSE-Group-Announces-2024-2025-and-2026-Holiday-and-Early-Closings-Calendar/default.aspx)); 2027-06-18 from the calendar release dated 2024-11-08; 2028-06-19 from the calendar release dated 2025-12-23.
+
+This is a known limitation: if a closure was public earlier or later than these notices, or if a later calendar revises a date, the known-from session used in the backtest could be too early or too late.

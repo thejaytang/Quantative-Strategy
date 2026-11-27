@@ -1,3 +1,23 @@
+"""504_exploratory_mean_variance_with_jumps_an
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/504_exploratory_mean_variance_with_jumps_an.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit da9754ee51e8d74f175ab50e14ef28c47c764ad1 on 2026-11-27 12:05 Europe/Oslo, exit 0, output sha256 38570417eb8e24668bc90bc615615dd137c17a644271606c761fb25c20277c21
+Data source: Yahoo Finance via yfinance for daily closes of SPY, IEF and SHY and the daily ^IRX 13-week Treasury-bill discount yield, used for the excess-return metric. FRED public CSV for daily DFF (effective federal funds rate), used for the cash return and the signal’s excess-return estimate.
+Data fetched: 2026-11-27T11:05:23.189367+00:00
+Sample period: Yahoo data requested from 2003-01-01 through 2025-12-31, including pre-backtest warm-up. The FRED request starts 14 calendar days earlier, on 2002-12-18. The evaluation start is configured as 2005-01-01 and the logged evaluation sessions run from 2005-01-03 through 2025-12-31, inclusive.   data_range (from output): {'start': '2005-01-03', 'end': '2025-12-31'}
+IS/OOS split: In sample 2005-01-03 through 2014-12-31. Out of sample 2015-01-02 through 2025-12-31. The report slices a continuous default simulation at 2014-12-31. The OOS segment carries forward existing holdings, uses the same rules and updates rolling inputs. The eight sensitivity variants run only in sample. The README states that the split was chosen retrospectively.
+Costs and slippage: Default commission of 1 bp and fixed slippage of 2 bps per dollar of ETF purchases and sales, for 3 bps total. At each simulated fill, the solver deducts charges from portfolio value and computes absolute ETF trade notionals using the resulting post-cost target values and drifted pre-trade holdings. The doubled-cost IS variant uses 2 bps commission and 4 bps slippage. The SPY benchmark pays the default rates on its initial purchase at the strategy’s first fill.
+Signal lag: At the last observed trading close of each month, the default rule computes target weights using 252 ETF returns through that close and the lagged DFF series as of the signal date. The fill occurs at the next trading session’s close. The old holdings earn the fill day’s close-to-close return before the target weights are applied.
+Price adjustment: yfinance auto_adjust=True total-return ETF closes and adjusted units; ^IRX raw yield closes
+Survivorship bias: The universe is the fixed SPY, IEF and SHY list. The README identifies fund survivorship and asset-class selection bias because the ETFs were chosen retrospectively for continued existence and long histories.
+Parameter combinations tried: 9
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.05834116935251976, ann_vol=0.07885680883659202, sharpe=0.7586290069006257, sharpe_excess=0.577619545189694, max_drawdown=-0.12701683975134226, total_return=0.7618289487480361, turnover=2.388472031191391, n_trades=360
+    oos: cagr=0.05498176286633871, ann_vol=0.07758606485723214, sharpe=0.7287989021998976, sharpe_excess=0.4701212970869022, max_drawdown=-0.13418022323781786, total_return=0.7994551340544738, turnover=2.0866084824682547, n_trades=396
+    full: cagr=0.05658096575636318, ann_vol=0.07818672040431657, sharpe=0.7431772376620975, sharpe_excess=0.5218106150362875, max_drawdown=-0.13418022323781764, total_return=2.1703321471504218, turnover=2.2304264934726334, n_trades=756
+    benchmark: cagr=0.10183451851207681, ann_vol=0.174631639522508, sharpe=0.6428259374093233, sharpe_excess=0.5436833823300142, max_drawdown=-0.5007710860670267, total_return=6.637297287426039, turnover=0.04271975294565473, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

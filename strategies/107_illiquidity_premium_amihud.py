@@ -1,3 +1,23 @@
+"""107_illiquidity_premium_amihud
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; non-author review: PASS; publication gate: Codex.
+Run (one command): python strategies/107_illiquidity_premium_amihud.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit da9754ee51e8d74f175ab50e14ef28c47c764ad1 on 2026-11-27 12:03 Europe/Oslo, exit 0, output sha256 736d75bcc4c9db7bc1399c97e03e499f638495ebc083a6ed3e4331cd91dafbec
+Data source: 免费 Yahoo Finance（yfinance）日线 Open、Close、Adj Close、Volume，优先读取 data_cache/ 中的行情 CSV。固定 US24 美股篮子：AAPL、MSFT、AMZN、GOOGL、META、NVDA、JPM、BAC、GS、MS、XOM、CVX、COP、SLB、WMT、COST、PG、KO、PEP、JNJ、PFE、MRK、HD、LOW。（README.md:3,18；config.yaml:2-4；strategy.py:17,21-45,163-181）
+Data fetched: 2026-11-27T12:03:33+01:00
+Sample period: 日志实际日收益区间为 2016-01-04 至 2025-12-31。配置从 2015-09-01 请求预热数据，样本内起点之前的数据仅用于信号预热。（logs/run_20261125_095950.log:1,31；config.yaml:6-13；strategy.py:181,190-200,207-220）   data_range (from output): 2016-01-04 to 2025-12-31
+IS/OOS split: IS 为 2016-01-01 至 2020-12-31，OOS 为 2021-01-01 至 2025-12-31，均含端点。模拟在 IS 起点以现金启动，可使用此前形成的月末信号，OOS 延续 IS 持仓。README 记载无拟合、参数搜索或按 OOS 表现修改规则。（config.yaml:6-17；README.md:15-16；strategy.py:62-80,95-105,196-205；logs/run_20261125_095950.log:2）
+Costs and slippage: 基准成本为单边 5 bps，敏感性情景为 0 和 15 bps。开盘调仓时按实际买入与卖出金额的绝对值之和计费，费用从组合净值扣除，目标权重按扣费后净值计算。未单独建模滑点、买卖价差或开盘冲击。（config.yaml:20-22；strategy.py:95-124,176-179,193-200；README.md:17,24）
+Signal lag: 使用月末最后一个交易日 t 的收盘数据形成排序，按下一交易日 t+1 的复权开盘价模拟调仓。隔夜收益归原持仓，开盘至收盘收益归调仓后持仓。（strategy.py:62-80,107-124,184-194；README.md:9,17）
+Price adjustment: Yahoo split-adjusted Open/Close/Volume and dividends (provider spin-off factors retained); Adj Close for Amihud and BIL returns only; equity distributions accrued separately
+Survivorship bias: 事后选定的固定 US24 存续大盘股篮子缺少退市股和小盘股，存在幸存者偏差及成分选择偏差。IS 与 OOS 使用同一篮子。（config.yaml:2-4；README.md:22；strategy.py:163-168,181-201）
+Parameter combinations tried: 3
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.1324717611277788, ann_vol=0.24235964161154347, sharpe=0.6353494888675097, sharpe_excess=0.5945469854821412, max_drawdown=-0.4427229243011289, total_return=0.8617549308470001, turnover=9.816605803358502, n_trades=382
+    oos: cagr=0.18375116759955046, ann_vol=0.1885532124419667, sharpe=0.9890520296965588, sharpe_excess=0.8259556400906399, max_drawdown=-0.18480581879442914, total_return=1.3165865052565433, turnover=7.580965895568957, n_trades=378
+    full: cagr=0.15778681683311424, ann_vol=0.21713128693470618, sharpe=0.7839042842398569, sharpe_excess=0.6904660052994563, max_drawdown=-0.4427229243011289, total_return=3.312916348895012, turnover=17.397571698927457, n_trades=760
+    benchmark  full: cagr=0.17473831923645045, ann_vol=0.1597028760977052, sharpe=1.0888460489461547, sharpe_excess=0.9619420784111493, max_drawdown=-0.31006223877029426, total_return=3.9859289891052656, turnover=5.931660810140919, n_trades=2880
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

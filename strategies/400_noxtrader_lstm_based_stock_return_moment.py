@@ -1,3 +1,23 @@
+"""400_noxtrader_lstm_based_stock_return_moment
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/400_noxtrader_lstm_based_stock_return_moment.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit da9754ee51e8d74f175ab50e14ef28c47c764ad1 on 2026-11-27 12:04 Europe/Oslo, exit 0, output sha256 49b0caf51d2e45b7365b879529a8ef7733278d5990d4808d09bdfb897d48e912
+Data source: 公开 Yahoo Finance（yfinance）日线。股票池使用复权收盘价和成交量：AAPL、MSFT、AMZN、GOOGL、META、NVDA、JPM、BAC、WMT、COST、PG、JNJ、UNH、XOM、CVX、HD、V、MA。SPY 为买入持有基准，BIL 总回报为超额 Sharpe 的现金代理。（config.yaml:2-4；strategy.py:65-97、112-114、339-348、370-375、391-402；README.md:21）
+Data fetched: 2026-11-27T11:04:08+00:00
+Sample period: 请求的行情区间为 2017-01-03 至 2025-12-31（含首尾），2017-01-03 起的回测前行情用于预热。运行日志报告的回测区间为 2018-10-04 至 2025-12-31（含首尾）。（config.yaml:6-11；strategy.py:65-71、97-107、362-364；README.md:22；logs/run_20261127_071050.log:5）   data_range (from output): 2018-10-04 to 2025-12-31
+IS/OOS split: IS 为 2018-10-04 至 2023-10-31，OOS 为 2023-11-01 至 2025-12-31。以 2018-10-04 至 2022-12-30（IS 的子区间）的扣费后 BIL 超额 Sharpe 选择分位数，并以选定分位数回算全期，因此 IS 和全期统计均包含选参区间。IS 与 OOS 来自同一条连续持仓路径。OOS 沿用选定分位数，模型权重仍按每 10 个交易日滚动重拟合。（config.yaml:6-11、22-23、30-31；strategy.py:265-289、362-368、374-401；README.md:22-23；logs/run_20261127_071050.log:5）
+Costs and slippage: 每美元成交名义金额扣除 1 bp 手续费与 5 bp 固定滑点，合计 6 bp。先按当日收益标记原持仓，再按扣费后净值对应的目标头寸与漂移后原头寸之差的绝对额之和扣费，涵盖买卖、开空和回补。SPY 首次建仓也扣费。滑点以固定扣费建模，代码没有按成交价格或市场冲击另行模拟滑点。（config.yaml:13-15；strategy.py:307-329、376、391-394；README.md:25、29）
+Signal lag: 以 t 日收盘后的日线收盘价及成交量生成信号，在下一交易日 t+1 的收盘模拟调仓。t+1 收盘时先计入原持仓截至该收盘的收益，再调至目标仓位。新仓位首段价格收益为 t+1 收盘至 t+2 收盘。（config.yaml:16；strategy.py:131-151、265-288、307-328、370-375；README.md:24）
+Price adjustment: yfinance auto_adjust total-return
+Survivorship bias: 固定股票池由 18 只仍有完整公开历史行情的大盘股构成，历史退出、退市或被收购的证券代表不足，存在幸存者偏差和事后选样偏差。代码逐期使用同一配置股票池，要求各配置标的有有效复权收盘价。（config.yaml:2-4；strategy.py:65-67、95-111、361-371；README.md:15、29）
+Parameter combinations tried: 3
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=-0.06792541195283086, ann_vol=0.23226956818325828, sharpe=-0.1866137533049973, sharpe_excess=-0.25563594039504434, max_drawdown=-0.42199908478311965, total_return=-0.29984777982377686, turnover=270.6668657428136, n_trades=7705
+    oos: cagr=-0.25619618933014765, ann_vol=0.21125650569153331, sharpe=-1.2943265171788179, sharpe_excess=-1.514287007040158, max_drawdown=-0.5099395016868924, total_return=-0.4715262076176311, turnover=267.21819786133017, n_trades=1817
+    full: cagr=-0.1286061054021741, ann_vol=0.2262443405625381, sharpe=-0.495006798666675, sharpe_excess=-0.6058265839479685, max_drawdown=-0.7010429479930944, total_return=-0.6299879009585345, turnover=269.63794999575566, n_trades=9522
+    benchmark: cagr=0.13780302025433433, ann_vol=0.19024613818297287, sharpe=0.7740818600224869, sharpe_excess=0.6417864116456042, max_drawdown=-0.3210091642697305, total_return=1.5405569074138241, turnover=0.1305104001017193, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

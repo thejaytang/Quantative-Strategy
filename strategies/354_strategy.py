@@ -1,3 +1,23 @@
+"""354_strategy
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/354_strategy.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit da9754ee51e8d74f175ab50e14ef28c47c764ad1 on 2026-11-27 12:03 Europe/Oslo, exit 0, output sha256 a7ad4eefde1ceca30eabca038ca160c06acdf0b13cf9054a1b257dce144d6306
+Data source: Free Yahoo Finance daily ETF prices via yfinance. GLD is the strategy asset and buy-and-hold benchmark. BIL daily returns are used only for excess Sharpe. The script reads a validated cache when available and otherwise downloads prices. The run reports a data fetch timestamp of 2026-11-27T05:41:37+00:00.
+Data fetched: 2026-11-27T11:03:59+00:00
+Sample period: 2007-06-01 through 2026-11-25 inclusive, on New York exchange dates. One preceding session's close is loaded to calculate the first sample day's return.   data_range (from output): {'start': '2007-06-01', 'end': '2026-11-25'}
+IS/OOS split: IS runs from 2007-06-01 through 2025-01-28. OOS runs from 2025-01-29 through 2026-11-25. The source publication date is documented as 2025-01-28. The split slices a continuous portfolio path with fixed parameters. IS is retrospective, and OOS is a historical simulation.
+Costs and slippage: The model applies a fee of 1 bp and fixed slippage of 2 bps per side on executed notional. Combined friction f = 0.0003 multiplies gross daily wealth by 1/(1+f) on an entry and by 1-f on an exit. The GLD buy-and-hold benchmark incurs the same friction on its initial buy.
+Signal lag: The signal at session t's close is determined from the exchange calendar and filled at the next session's close. The strategy usually signals Wednesday for Thursday's buy and Thursday for Friday's sell. It skips weeks without both Thursday and Friday sessions. Close-to-close returns accrue to the position held before the day's fill.
+Price adjustment: yfinance auto_adjust=True, adjusted close total-return basis
+Survivorship bias: GLD and BIL were selected retrospectively and survived throughout the study period. The single-asset design avoids historical constituent backfilling. Asset-selection and survivorship bias remain.
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.01786254925491959, ann_vol=0.07042201445664334, sharpe=0.2866284820676395, sharpe_excess=0.12239962412021266, max_drawdown=-0.19438860373030287, total_return=0.36646116397209605, turnover=88.29315573708453, n_trades=1730
+    oos: cagr=-0.05854899601158403, ann_vol=0.111744818628293, sharpe=-0.4825618692258482, sharpe_excess=-0.8267343604533957, max_drawdown=-0.12993934698103926, total_return=-0.10428376365357384, turnover=84.72831554235637, n_trades=172
+    full: cagr=0.010438970679190307, ann_vol=0.07526493659475457, sharpe=0.1758253313432972, sharpe_excess=-0.010891555037427154, max_drawdown=-0.21994732751992763, total_return=0.22396145090664255, turnover=87.95877023757906, n_trades=1902
+    benchmark  full: cagr=0.0813681527102732, ann_vol=0.1749200557364572, sharpe=0.5349418444930027, sharpe_excess=0.45481140413551085, max_drawdown=-0.44032139611969257, total_return=3.582859635658579, turnover=0.046868981550691184, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

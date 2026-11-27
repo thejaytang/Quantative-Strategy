@@ -1,3 +1,23 @@
+"""156_cta_replication_trend_factors
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; non-author review: PASS; publication gate: Codex.
+Run (one command): python strategies/156_cta_replication_trend_factors.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit da9754ee51e8d74f175ab50e14ef28c47c764ad1 on 2026-11-27 12:03 Europe/Oslo, exit 0, output sha256 b6a7eb04669e390ba5ffebfc2926ca842b5217d85244a8adeaf29c866826c0fd
+Data source: Yahoo Finance daily USD ETF closes via yfinance or its local adjusted-close CSV cache. Strategy universe: SPY, QQQ, EFA, EEM, SHY, IEF, FXE, FXY, GLD, DBC. CTA proxy: DBMF. Benchmark: SPY.
+Data fetched: ETF_PANEL=2026-11-27T11:03:43+00:00; BIL=2026-11-27T11:03:43+00:00
+Sample period: Configured warm-up data request starts 2016-01-01. The reported evaluation spans 2020-01-02 through 2026-10-30, inclusive. DBMF enters the filter when a finite proxy return and finite factor observations are available.   data_range (from output): 2020-01-02 to 2026-10-30
+IS/OOS split: IS 2020-01-02 through 2025-07-17 and OOS 2025-07-18 through 2026-10-30, both inclusive. The filter continues to update daily in OOS with the same settings. The strategy and benchmark are simulated across the boundary and sliced for reporting.
+Costs and slippage: 3 bp one way per dollar traded, deducted on the rebalance date on absolute trades against marked holdings, with targets sized on equity after fees. Short borrow costs 50 bp per year on beginning-of-session short notional, charged at 50/252 bp per session. The SPY benchmark uses the same transaction fee. Slippage is not modelled.
+Signal lag: A target computed after session t closes is filled in the simulation at session t+1's close. Existing holdings earn the return through that close before the rebalance. The new holdings first earn the close-to-close return ending at t+2.
+Price adjustment: Yahoo Finance auto_adjust=True, distributions and splits, USD adjusted closes
+Survivorship bias: The README states that the backtest uses retrospectively selected surviving ETFs and is subject to fund-selection and survivorship bias. The implementation uses the fixed ticker list from the configuration.
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.006743753491951665, ann_vol=0.05253237185473903, sharpe=0.15425031781680637, sharpe_excess=-0.3204381619355861, max_drawdown=-0.13677086998330523, total_return=0.037823949785030786, turnover=21.39409111499946, n_trades=13920
+    oos: cagr=0.06790213637441678, ann_vol=0.05253345844707779, sharpe=1.2769532588371535, sharpe_excess=0.5642744459566502, max_drawdown=-0.03881752605220368, total_return=0.08842001583873249, turnover=19.31567773580487, n_trades=3250
+    full: cagr=0.01804499452049435, ann_vol=0.05253744365592874, sharpe=0.36672920387125707, sharpe_excess=-0.15299490729995735, max_drawdown=-0.13677086998330523, total_return=0.12958835986284156, turnover=21.000681477120455, n_trades=17170
+    benchmark: cagr=0.08521333774232698, ann_vol=0.1210396841764258, sharpe=0.7363844730891789, sharpe_excess=0.5099716300556497, max_drawdown=-0.198872424938626, total_return=0.7457498253390369, turnover=0.14126801308117914, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

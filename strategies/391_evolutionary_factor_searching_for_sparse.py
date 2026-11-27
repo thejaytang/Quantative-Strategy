@@ -1,3 +1,23 @@
+"""391_evolutionary_factor_searching_for_sparse
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/391_evolutionary_factor_searching_for_sparse.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit da9754ee51e8d74f175ab50e14ef28c47c764ad1 on 2026-11-27 12:03 Europe/Oslo, exit 0, output sha256 971dde9b6cd1a10840115391d0c9861a4c092b40e6afc7c4855f0256219e99cf
+Data source: Yahoo Finance via yfinance daily closing prices for the 50 US50 stocks listed in config.yaml, SPY as the benchmark, and BIL as the risk-free proxy. Adjusted closes are read from the query cache or downloaded from Yahoo Finance.
+Data fetched: 2026-11-27T11:04:01+00:00
+Sample period: Requested price history starts 2016-01-01 for warm-up. The configured reporting window is 2019-01-01 through 2025-12-31, and the recorded reporting sessions span 2019-01-02 through 2025-12-31 inclusive.   data_range (from output): {'start': '2019-01-02', 'end': '2025-12-31'}
+IS/OOS split: IS runs from 2019-01-02 through 2022-12-30. OOS runs from 2023-01-03 through 2025-12-31. The configured calendar cutoff is 2022-12-31, with sessions on or before it assigned to IS. The strategy first fits before the first reporting session, refits at quarter ends during IS, and freezes the final IS factor formulas and weights while continuing to rank stocks and update holdings daily during OOS.
+Costs and slippage: 5 bps of transaction cost plus 5 bps of modeled slippage per side, combined as a 10 bps charge on simulated buy and sell notional. The simulator deducts the combined charge from pre-rebalance marked NAV and solves for trade sizes using post-cost target weights. Slippage is a flat charge with simulated fills at adjusted closes. The same rate applies to the initial SPY benchmark purchase.
+Signal lag: A signal computed using the adjusted close of session t is applied at the adjusted close of the next price session. Existing holdings accrue the return into the fill close before the rebalance, and the new holdings begin accruing price returns over the next close-to-close interval.
+Price adjustment: yfinance auto_adjust total-return close, adjusted share units
+Survivorship bias: The fixed, retrospectively selected US50 list from the paper's v1 Appendix C, Table 6 introduces survivorship and historical constituent-selection bias, including in OOS. A stock requires 274 consecutive nonmissing closes under the configured maximum lookback of 273 sessions, which delays eligibility for later listings.
+Parameter combinations tried: 544
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.13719889405798447, ann_vol=0.2702288251146984, sharpe=0.6116564100667062, sharpe_excess=0.5773508975242675, max_drawdown=-0.3837515942374733, total_return=0.6724213945209736, turnover=42.855616916638795, n_trades=10981
+    oos: cagr=0.43460233086461453, ann_vol=0.26019017645030545, sharpe=1.518263000348191, sharpe_excess=1.3382433904292035, max_drawdown=-0.2417745063559168, total_return=1.9356670224537882, turnover=32.91646598197196, n_trades=8020
+    full: cagr=0.25587424645442103, ann_vol=0.2660075748222088, sharpe=0.9903968721257259, sharpe_excess=0.8953367357160534, max_drawdown=-0.3837515942374733, total_return=3.9096723355413827, turnover=38.60888879000842, n_trades=19001
+    benchmark: cagr=0.16053930173139852, ann_vol=0.18404416101606186, sharpe=0.9014113123966876, sharpe_excess=0.7638743846801901, max_drawdown=-0.3124665350281607, total_return=1.8287373204247812, turnover=0.12899770355448056, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

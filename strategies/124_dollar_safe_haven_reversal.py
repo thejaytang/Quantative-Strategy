@@ -2,7 +2,7 @@
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; non-author review: PASS; publication gate: Codex.
 Run (one command): python strategies/124_dollar_safe_haven_reversal.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit c71364ad99535bbf59be998b004cff431ee83048 on 2026-11-27 11:53 Europe/Oslo, exit 0, output sha256 b9cd4754a6a27d72f49bbb807fa1ca78140e4acca27ea67dad54b85128d1fc32
+Backtest reproduced: run of this file's code at commit 10f82382008748cd9ff2f56e2b8ef160caa66e38 on 2026-11-27 11:24 Europe/Oslo, exit 0, output sha256 a0dab3951f3d77485b81cce219e0999e92776e08a3aa01816d3b503d718d25b8
 Data source: Yahoo Finance 免费日线，经 yfinance 获取美国上市 ETF 的开盘价和收盘价。SPY 与 UUP 生成信号，UUP 也用于匹配窗口对照，FXE 与 FXY 构成反转组合，BIL 用作防御持仓和买入持有基准。本次日志记录的数据获取日期为 2026-11-26（Europe/Oslo）。[config.yaml:4-8, strategy.py:19-41, strategy.py:248-258, strategy.py:271-276, README.md:30, logs/codex_fix_d2_run_20261126_131116.log:1-2]
 Data fetched: 2026-11-27
 Sample period: 实际回测交易日为 2010-06-07 至 2026-11-24，共 4,144 个交易日。代码请求从样本起点提前 14 个日历日的数据，计算信号所需的前收盘价。[config.yaml:18-24, strategy.py:240-253, strategy.py:256-266, logs/codex_fix_d2_run_20261126_131116.log:1, logs/codex_fix_d2_run_20261126_131116.log:39]   data_range (from output): 2010-06-07 to 2026-11-24
@@ -13,15 +13,15 @@ Price adjustment: Yahoo Finance split- and distribution-adjusted Open and Close 
 Survivorship bias: 固定使用事后可见的存续 ETF 作为代理，存在代理选择及存续偏差的可能。代码从固定标的列表取数。[config.yaml:4-8, strategy.py:220-226, strategy.py:248-254, README.md:34]
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=-0.01941810571486169, ann_vol=0.03735103913401967, sharpe=-0.5063033501951919, sharpe_excess=-0.7167334749122873, max_drawdown=-0.36378065621456435, total_return=-0.23341709970917324, turnover=636.449210721653, n_trades=491
-    oos: cagr=0.030561211712855085, ann_vol=0.03269132225851159, sharpe=0.9371403305709904, sharpe_excess=-0.3704919414515701, max_drawdown=-0.0291348922792789, total_return=0.09085928799849907, turnover=111.90260486089826, n_trades=85
-    full: cagr=-0.010816885544371324, ann_vol=0.03659102094891983, sharpe=-0.27893997841447876, sharpe_excess=-0.6616390757620033, max_drawdown=-0.36378065621456435, total_return=-0.1637659231969225, turnover=748.3518155825514, n_trades=576
-    benchmark BIL full: cagr=0.014049337946005602, ann_vol=0.0026412528437755782, sharpe=5.283641807008377, sharpe_excess=None, max_drawdown=-0.0045946267830062615, total_return=0.257877359999398, turnover=0.9990004997501251, n_trades=1
+    is: cagr=-0.01941784786262657, ann_vol=0.037351022932561186, sharpe=-0.5062965473919433, sharpe_excess=-0.7167257668261554, max_drawdown=-0.3637792595441651, total_return=-0.23341436718384734, turnover=636.4492107234412, n_trades=491
+    oos: cagr=0.030560960288576355, ann_vol=0.03269126194003001, sharpe=0.9371345354317572, sharpe_excess=-0.3704972911432689, max_drawdown=-0.02913449659487799, total_return=0.09085851916394705, turnover=111.90260486055072, n_trades=85
+    full: cagr=-0.010816713521787924, ann_vol=0.03659099746493098, sharpe=-0.278935429402221, sharpe_excess=-0.6616333481619691, max_drawdown=-0.3637792595441651, total_return=-0.16376353177381475, turnover=748.351815583992, n_trades=576
+    benchmark BIL full: cagr=0.014049331484786709, ann_vol=0.0026414119009005384, sharpe=5.283321390172531, sharpe_excess=None, max_drawdown=-0.004594416921901434, total_return=0.2578772282001718, turnover=0.9990004997501251, n_trades=1
 """
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os
-_CONFIG_YAML = 'strategy: 124_dollar_safe_haven_reversal\ncategory: macro\n\nuniverse:\n  equity_signal: SPY\n  dollar_signal_and_comparison: UUP\n  reversal_sleeve: [FXE, FXY]\n  defensive_benchmark: BIL\n\nparameters:\n  equity_stress_return: -0.01\n  dollar_confirmation_return: 0.0\n  holding_sessions: 5\n  transaction_fee_bps: 2.5  # Per side, on traded notional.\n  slippage_bps: 2.5  # Per side, on traded notional.\n  cash_buffer_bps: 5  # Leave 0.05% of available cash unspent when fixing shares at the open.\n  annualization_sessions: 252\n\n# Inclusive calendar dates. OOS overlaps the period motivating the research hypothesis.\nin_sample:\n  start: 2010-06-07\n  end: 2023-12-31\nout_of_sample:\n  start: 2024-01-01\n  end: 2026-11-24\n\nregimes:\n  pre_2024:\n    start: 2010-06-07\n    end: 2023-12-31\n  "2024_2025":\n    start: 2024-01-01\n    end: 2025-12-31\n  "2026":\n    start: 2026-01-01\n    end: 2026-11-24\n'
+_CONFIG_YAML = 'strategy: 124_dollar_safe_haven_reversal\ncategory: macro\n\nuniverse:\n  equity_signal: SPY\n  dollar_signal_and_comparison: UUP\n  reversal_sleeve: [FXE, FXY]\n  defensive_benchmark: BIL\n\nparameters:\n  equity_stress_return: -0.01\n  dollar_confirmation_return: 0.0\n  holding_sessions: 5\n  transaction_fee_bps: 2.5  # Per side, on traded notional.\n  slippage_bps: 2.5  # Per side, on traded notional.\n  cash_buffer_bps: 5  # Reserved from available cash before each opening purchase.\n  annualization_sessions: 252\n\n# Inclusive calendar dates. OOS overlaps the period motivating the research hypothesis.\nin_sample:\n  start: 2010-06-07\n  end: 2023-12-31\nout_of_sample:\n  start: 2024-01-01\n  end: 2026-11-24\n\nregimes:\n  pre_2024:\n    start: 2010-06-07\n    end: 2023-12-31\n  "2024_2025":\n    start: 2024-01-01\n    end: 2025-12-31\n  "2026":\n    start: 2026-01-01\n    end: 2026-11-24\n'
 _orig_open = _b.open
 def _open(f, *a, **k):
     try:
@@ -156,9 +156,16 @@ def sleeve_path(opens, closes, sleeve, entry, exit_session):
     ).mean(axis=1)
 
 
-def opening_shares(cash, open_prices, cost, cash_buffer):
-    target = cash * (1 - cash_buffer) / (1 + cost) / len(open_prices)
-    return target / open_prices
+def opening_purchase(cash, prices, cost, cash_buffer):
+    target = cash * (1 - cash_buffer) / (1 + cost) / len(prices)
+    shares = target / prices
+    notional = float(shares @ prices)
+    payment = notional * (1 + cost)
+    if payment > cash:
+        shares *= np.nextafter(cash / payment, 0.0)
+        notional = float(shares @ prices)
+        payment = notional * (1 + cost)
+    return shares, notional, cash - payment
 
 
 def simulate(opens, closes, defensive, sleeve, windows, cost, cash_buffer):
@@ -180,15 +187,8 @@ def simulate(opens, closes, defensive, sleeve, windows, cost, cash_buffer):
             target = slice(1, None) if session in entries else slice(0, 1)
             sold = float(positions @ open_prices)
             cash += sold * (1 - cost)
-            buy_prices = open_prices[target]
-            shares = opening_shares(cash, buy_prices, cost, cash_buffer)
-            bought = float(shares @ buy_prices)
-            payment = bought * (1 + cost)
-            if payment > cash:
-                raise ArithmeticError(f"Opening fill exceeds available cash on {opens.index[session].date()}.")
-            cash -= payment
             positions.fill(0.0)
-            positions[target] = shares
+            positions[target], bought, cash = opening_purchase(cash, open_prices[target], cost, cash_buffer)
             turnover = (sold + bought) / open_value
             trades = int(sold + bought > 0.0)
 
@@ -398,7 +398,6 @@ def main():
     )
     actual_range = f"{closes.index[0]:%Y-%m-%d} to {closes.index[-1]:%Y-%m-%d}"
     print(f"{config['strategy']} | Yahoo Finance adjusted daily bars | {actual_range}")
-    print(f"WORKING_DIRECTORY: {Path.cwd()}")
     fetched_at = {ticker: stamp for ticker, (_, stamp, _) in snapshots.items()}
     fetch_label = next(iter(fetched_at.values())) if len(set(fetched_at.values())) == 1 else json.dumps(fetched_at)
     print(f"DATA_FETCHED_AT: {fetch_label}")

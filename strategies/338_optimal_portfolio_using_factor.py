@@ -2,9 +2,9 @@
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; non-author review: PASS; publication gate: Codex.
 Run (one command): python strategies/338_optimal_portfolio_using_factor.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit c71364ad99535bbf59be998b004cff431ee83048 on 2026-11-27 11:54 Europe/Oslo, exit 0, output sha256 e81580fbf706721dbe267e7060c9997d94de987768668355e89667059ed9cff4
+Backtest reproduced: run of this file's code at commit 10f82382008748cd9ff2f56e2b8ef160caa66e38 on 2026-11-27 11:24 Europe/Oslo, exit 0, output sha256 c7e271c48b93237fc2cdfaabcc1a18ab9bb6940fb2ca31315fc8edf90ba01302
 Data source: Yahoo Finance 免费公开历史行情接口的日频 ETF 开盘价和收盘价。配置资产为 XLB、XLE、XLF、XLI、XLK、XLP、XLU、XLV、XLY，SPY 仅用作市场因子收益。优先读取同一数据源的 CSV 缓存。（strategy.py:25-45, strategy.py:51-58, strategy.py:132-138, strategy.py:218-219, strategy.py:242, config.yaml:3-4, README.md:23）
-Data fetched: 2026-11-27T11:54:19+01:00
+Data fetched: 2026-11-27T11:24:24+01:00
 Sample period: 请求行情区间为 2006-01-01 至 2025-12-31，含边界；2008 年之前的数据用于滚动估计预热。日志所报实际回测区间为 2008-01-02 至 2025-12-31。（config.yaml:5-12, strategy.py:25-45, strategy.py:236-250, strategy.py:252-254, README.md:19, logs/run_20261125_151042.log:11）   data_range (from output): 2008-01-02 to 2025-12-31
 IS/OOS split: IS 为 2008-01-01 至 2018-12-31，OOS 为 2019-01-01 至 2025-12-31，两段均含日期边界。连续模拟后按日期切分统计，进入 OOS 时延续持仓。OOS 沿用固定参数，每月用截至信号日的 252 个日收益更新协方差。（config.yaml:7-16, strategy.py:121-139, strategy.py:223-225, strategy.py:236-248, README.md:17-19）
 Costs and slippage: 每笔买入和卖出均按成交额收取 10 bps，首次建仓也计费。调仓开盘先让原持仓经历隔夜价格变动，再按买卖成交额绝对值之和扣费，并以扣费后的净值确定目标持仓金额。未建模滑点、开盘价差、市场冲击或税负。（config.yaml:18, strategy.py:143-171, strategy.py:226, README.md:17, README.md:31）
@@ -13,15 +13,15 @@ Price adjustment: Yahoo split-adjusted quote open/close for sizing, fills and ma
 Survivorship bias: 全期使用同一组九只存续行业 ETF，存在 ETF 选择及存续偏差。代码按固定代码清单要求全期价格对齐、有效，未构造逐时点可选 ETF 池。（config.yaml:3, strategy.py:51-67, strategy.py:217-219, strategy.py:236-238, README.md:31）
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=0.0767589293613391, ann_vol=0.1465491866124837, sharpe=0.5779859852262709, sharpe_excess=0.5497161771385266, max_drawdown=-0.4280246808561141, total_return=1.253828876317062, turnover=0.9670181669112723, n_trades=701
-    oos: cagr=0.11706002326234799, ann_vol=0.15650498444161234, sharpe=0.7859554094045109, sharpe_excess=0.6242467361150883, max_drawdown=-0.29823102836988247, total_return=1.166568623558359, turnover=1.0615613026048984, n_trades=517
-    full: cagr=0.09224453246418474, ann_vol=0.15048382132190616, sharpe=0.661785499255875, sharpe_excess=0.5795539667857708, max_drawdown=-0.4280246808561141, total_return=3.8830749262983577, turnover=1.0037582682185766, n_trades=1218
-    benchmark: cagr=0.09576195575750845, ann_vol=0.1846260476571799, sharpe=0.5879830601809518, sharpe_excess=0.5211886992837433, max_drawdown=-0.5051410861655645, total_return=4.17355051465383, turnover=0.33705658075287614, n_trades=1944
+    is: cagr=0.07822280186171748, ann_vol=0.1496919081420537, sharpe=0.5780374350912254, sharpe_excess=0.5503630163800561, max_drawdown=-0.43495788574009164, total_return=1.2877272420505261, turnover=0.9873920175625962, n_trades=701
+    oos: cagr=0.11938202342023807, ann_vol=0.1598357581574513, sharpe=0.7858836550282611, sharpe_excess=0.6275462330219864, max_drawdown=-0.30381759259543095, total_return=1.1982185231953606, turnover=1.083964949568538, n_trades=517
+    full: cagr=0.09403463821519598, ann_vol=0.15370063003691237, sharpe=0.6617808751579951, sharpe_excess=0.5812683928970208, max_drawdown=-0.43495788574009164, total_return=4.028924399494145, turnover=1.0249209114311009, n_trades=1218
+    benchmark: cagr=0.09753242275559804, ann_vol=0.18861861539738306, sharpe=0.5880639007728449, sharpe_excess=0.5226818940906788, max_drawdown=-0.5127092738135058, total_return=4.325860100895052, turnover=0.3439729759003887, n_trades=1944
 """
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os
-_CONFIG_YAML = 'strategy: 338_optimal_portfolio_using_factor\n\nuniverse: [XLB, XLE, XLF, XLI, XLK, XLP, XLU, XLV, XLY]\nmarket_factor: SPY\ndownload_start: 2006-01-01\n\nin_sample:\n  start: 2008-01-01\n  end: 2018-12-31\nout_of_sample:\n  start: 2019-01-01\n  end: 2025-12-31\n\nlookback_sessions: 252\ngraphical_lasso_alpha: 0.08\nmax_weight: 0.25\nrebalance: monthly\ntransaction_cost_bps: 10  # Per dollar bought or sold, including initial purchases.\nslippage_bps: 5           # Adverse price move on each opening fill.\ncash_buffer: 0.03         # Prior-close reserve for opening gaps, fees and slippage.\ndistribution_delay_days: 30  # Calendar days after ex-date before cash is spendable.\nsessions_per_year: 252\n'
+_CONFIG_YAML = 'strategy: 338_optimal_portfolio_using_factor\n\nuniverse: [XLB, XLE, XLF, XLI, XLK, XLP, XLU, XLV, XLY]\nmarket_factor: SPY\ndownload_start: 2006-01-01\n\nin_sample:\n  start: 2008-01-01\n  end: 2018-12-31\nout_of_sample:\n  start: 2019-01-01\n  end: 2025-12-31\n\nlookback_sessions: 252\ngraphical_lasso_alpha: 0.08\nmax_weight: 0.25\nrebalance: monthly\ntransaction_cost_bps: 10  # Per dollar bought or sold, including initial purchases.\nslippage_bps: 5           # Adverse price move on each opening fill.\ncash_buffer: 0.01        # Fraction of prior-close investable value withheld when sizing.\ndistribution_delay_days: 30  # Calendar days after ex-date before cash is spendable.\nsessions_per_year: 252\n'
 _orig_open = _b.open
 def _open(f, *a, **k):
     try:
@@ -188,32 +188,39 @@ def monthly_targets(closes, universe, market_factor, simulation_start, lookback,
         market = window[market_factor].to_numpy()
         factor_cov = factor_covariance(assets, market, alpha)
         sample_cov = np.cov(assets, rowvar=False, ddof=1)
-        signal_session = sessions[position]
-        targets[FACTOR_GMV][signal_session] = minimum_variance(factor_cov, max_weight)
-        targets[SAMPLE_GMV][signal_session] = minimum_variance(sample_cov, max_weight)
-        targets[EQUAL_WEIGHT][signal_session] = np.full(len(universe), 1 / len(universe))
+        targets[FACTOR_GMV][execution] = minimum_variance(factor_cov, max_weight)
+        targets[SAMPLE_GMV][execution] = minimum_variance(sample_cov, max_weight)
+        targets[EQUAL_WEIGHT][execution] = np.full(len(universe), 1 / len(universe))
     return targets
 
 
-def fill_rebalance(changes, open_prices, cash, cost_rate, slippage_rate, session):
-    sale_value = np.maximum(-changes, 0.0) @ (open_prices * (1 - slippage_rate))
-    buy_value = np.maximum(changes, 0.0) @ (open_prices * (1 + slippage_rate))
-    traded_value = sale_value + buy_value
-    cash_after_fill = cash + sale_value - buy_value - cost_rate * traded_value
-    if cash_after_fill < 0:
-        raise RuntimeError(f"Fixed opening fills on {session.date()} would leave cash at {cash_after_fill:.8g}.")
-    return cash_after_fill, traded_value
+def fill_rebalance(positions, proposed, open_prices, cash, cost_rate, slippage_rate):
+    changes = proposed - positions
+    sells = np.maximum(-changes, 0.0)
+    buys = np.maximum(changes, 0.0)
+    sale_value = sells @ (open_prices * (1 - slippage_rate))
+    buy_value = buys @ (open_prices * (1 + slippage_rate))
+    cash_after_sales = cash + sale_value * (1 - cost_rate)
+    buy_cost = buy_value * (1 + cost_rate)
+    if buy_cost > cash_after_sales:
+        scale = np.nextafter(cash_after_sales / buy_cost, 0.0)
+        buys *= scale
+        buy_value *= scale
+        buy_cost *= scale
+    cash = cash_after_sales - buy_cost
+    updated = positions - sells + buys
+    n_trades = np.count_nonzero(updated != positions)
+    return updated, cash, sale_value + buy_value, n_trades
 
 
 def simulate(opens, closes, distributions, targets, simulation_start, cost_rate,
              slippage_rate, cash_buffer, distribution_delay):
-    first_fill = opens.index.searchsorted(simulation_start)
-    if not 0 < first_fill < len(opens) or opens.index[first_fill - 1] not in targets:
+    sessions = opens.loc[simulation_start:].index
+    if sessions.empty or sessions[0] not in targets or sessions[0] == closes.index[0]:
         raise ValueError("Need a prior month-end signal for the first simulated session.")
-    sessions = opens.index[first_fill - 1:]
     positions = np.zeros(len(opens.columns))
-    cash = previous_value = 1.0
-    next_positions = None
+    cash = previous_value = investable_value = 1.0
+    last_close = closes.loc[:sessions[0]].iloc[-2].to_numpy()
     pending_distributions = deque()
     records = []
     for session in sessions:
@@ -226,28 +233,24 @@ def simulate(opens, closes, distributions, targets, simulation_start, cost_rate,
 
         turnover = 0.0
         n_trades = 0
-        if next_positions is not None:
-            changes = next_positions - positions
+        target = targets.get(session)
+        if target is not None:
+            proposed = target * (investable_value * (1 - cash_buffer)) / last_close
             open_prices = opens.loc[session].to_numpy()
             open_value = cash + receivable + positions @ open_prices
-            cash, traded_value = fill_rebalance(
-                changes, open_prices, cash, cost_rate, slippage_rate, session,
+            positions, cash, traded_value, n_trades = fill_rebalance(
+                positions, proposed, open_prices, cash, cost_rate, slippage_rate,
             )
-            positions = next_positions
             turnover = traded_value / open_value
-            n_trades = np.count_nonzero(changes)
+            if cash < 0 or (positions < 0).any():
+                raise RuntimeError(f"Negative cash or position on {session.date()}.")
 
-        close_prices = closes.loc[session].to_numpy()
-        investable_value = cash + positions @ close_prices
+        last_close = closes.loc[session].to_numpy()
+        investable_value = cash + positions @ last_close
         closing_value = investable_value + receivable
-        if session != sessions[0]:
-            records.append((closing_value / previous_value - 1, turnover, n_trades, cash))
+        records.append((closing_value / previous_value - 1, turnover, n_trades, cash))
         previous_value = closing_value
-        target = targets.get(session)
-        next_positions = None
-        if target is not None:
-            next_positions = target * (investable_value * (1 - cash_buffer)) / close_prices
-    return pd.DataFrame(records, index=sessions[1:], columns=["return", "turnover", "n_trades", "cash"])
+    return pd.DataFrame(records, index=sessions, columns=["return", "turnover", "n_trades", "cash"])
 
 
 def metrics(results, cash_returns, sessions_per_year):

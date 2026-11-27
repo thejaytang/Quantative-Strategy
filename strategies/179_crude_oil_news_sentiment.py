@@ -2,9 +2,9 @@
 研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
 Author: Codex; non-author review: PASS; publication gate: Codex.
 Run (one command): python strategies/179_crude_oil_news_sentiment.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit a3beaa341e3aa7a5b77f2c3cc6e6d90ee0adefad on 2026-11-27 11:43 Europe/Oslo, exit 0, output sha256 2b0214039798a6b7d581a13f43ed5546e3f32a69a3339186bba663762a84f1d8
+Backtest reproduced: run of this file's code at commit 10f82382008748cd9ff2f56e2b8ef160caa66e38 on 2026-11-27 11:24 Europe/Oslo, exit 0, output sha256 8998c356a317833c2b0c1473183f710ce0c666dc8d06b0cc63bf0983d4762418
 Data source: 美国能源信息署（EIA）公开的 Past Weeks in Petroleum 周度石油市场标题及例行数据公告，发布日期从归档版次链接提取。Yahoo Finance 经 yfinance 提供 USO 和 BIL 的日频开盘价与收盘价。（config.yaml:3–5、14；strategy.py:55–84、109–125、235–239；README.md:9）
-Data fetched: EIA=2026-11-27T11:43:03+01:00, USO=2026-11-27T11:43:03+01:00, BIL=2026-11-27T11:43:03+01:00
+Data fetched: EIA=2026-11-27T11:24:13+01:00, USO=2026-11-27T11:24:14+01:00, BIL=2026-11-27T11:24:14+01:00
 Sample period: 配置日历区间为 2010-01-01 至 2025-10-31。日志记录的实际回测交易日区间为 2010-01-04 至 2025-10-31。（config.yaml:7–12；strategy.py:237–245、287–289；logs/run_20261125_120733.log:22）   data_range (from output): 2010-01-04 to 2025-10-31
 IS/OOS split: 按日历日期切分，IS 为 2010-01-01 至 2017-12-31，OOS 为 2018-01-01 至 2025-10-31，端点均包含。先计算全样本的同一持仓路径，再分段汇报，OOS 承接原有持仓。README 将 OOS 描述为回顾性留出。（config.yaml:7–12；strategy.py:203–211、275–281；README.md:15、19）
 Costs and slippage: 每笔买或卖按成交名义金额计 5 bps（f=0.0005）。首日开盘建仓乘以 1/(1+f)，后续开盘换仓乘以 (1−f)/(1+f)，沿用持仓无换仓费。隔夜收益归原持仓，日内收益归开盘后的持仓。未建模滑点。（config.yaml:20；strategy.py:149–165、217；README.md:15、23；logs/run_20261125_120733.log:1）
@@ -13,15 +13,15 @@ Price adjustment: Yahoo Finance auto_adjust=True, split- and distribution-adjust
 Survivorship bias: 固定使用 USO 与 BIL 两只贯穿样本的基金。基金选择仍可能受事后可得性影响。（config.yaml:3–5；strategy.py:235–241；README.md:23）
 Parameter combinations tried: 1
 Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=-0.02769618082534997, ann_vol=0.05477042493603622, sharpe=-0.4853402575789297, sharpe_excess=-0.49518521619418404, max_drawdown=-0.23331005962937879, total_return=-0.2009735653364989, turnover=6.6235995915398, n_trades=53
-    oos: cagr=-0.03495580601930104, ann_vol=0.13749202922633225, sharpe=-0.18331453238401907, sharpe_excess=-0.35802409127890045, max_drawdown=-0.5084602749567675, total_return=-0.2428213381829344, turnover=9.705236874696537, n_trades=76
-    full: cagr=-0.03129360652689073, ann_vol=0.10422719647997926, sharpe=-0.2485025872370806, sharpe_excess=-0.36513796552076744, max_drawdown=-0.5975054664282968, total_return=-0.3949942334450275, turnover=8.147783736108913, n_trades=129
-    benchmark: cagr=-0.08951406083401903, ann_vol=0.3515875143212233, sharpe=-0.08793854182967842, sharpe_excess=-0.12245167015827926, max_drawdown=-0.9519782476409938, total_return=-0.7728613793898408, turnover=0.06317403688314015, n_trades=1
+    is: cagr=-0.02819742247864021, ann_vol=0.054295041468959866, sharpe=-0.4995555940559343, sharpe_excess=-0.5094987592755904, max_drawdown=-0.23259753375993697, total_return=-0.20425805100651184, turnover=6.592047251744572, n_trades=53
+    oos: cagr=-0.03329981124739423, ann_vol=0.13642023475046533, sharpe=-0.1734391488174532, sharpe_excess=-0.3495132397307309, max_drawdown=-0.5062112009948347, total_return=-0.23260448498815056, turnover=9.624500502137458, n_trades=76
+    full: cagr=-0.030724431650478, ann_vol=0.10340190645130357, sharpe=-0.2457468465858118, sharpe_excess=-0.3633118703087918, max_drawdown=-0.595311988036344, total_return=-0.3893511972356116, turnover=8.091904872451071, n_trades=129
+    benchmark: cagr=-0.08951406083401903, ann_vol=0.3515875143212233, sharpe=-0.08793854182967842, sharpe_excess=-0.12245160909651197, max_drawdown=-0.9519782476409938, total_return=-0.7728613793898408, turnover=0.06317403688314015, n_trades=1
 """
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os
-_CONFIG_YAML = 'strategy: 179_crude_oil_news_sentiment\n\nuniverse:\n  oil: USO\n  defensive: BIL\n\nin_sample:\n  start: 2010-01-01\n  end: 2017-12-31\nout_of_sample:\n  start: 2018-01-01\n  end: 2025-10-31\n\neia_archive_url: https://www.eia.gov/petroleum/weekly/includes/archive.php\ndata_cache_dir: data_cache\noriginal_yahoo_snapshot:\n  fetched_date: "2026-11-25"\n  sha256:\n    USO: a5881e506f1cad751445bb284f52179d607f6ca6640c697b07741b02cb6d69c3\n    BIL: 90e0b7d9a7eaad219fc26c1db0cbefe75f6a1b73a79802a4d6b0984983b73fd5\n\nheadline_window_tokens: 4\nmax_holding_sessions: 5\ntrend_lookback_sessions: 5\ntransaction_cost_bps: 5\nslippage_bps: 2\n# Basis points of opening cash reserved when sizing each new buy, after any sale.\ncash_buffer_bps: 10\nsessions_per_year: 252\n'
+_CONFIG_YAML = 'strategy: 179_crude_oil_news_sentiment\n\nuniverse:\n  oil: USO\n  defensive: BIL\n\nin_sample:\n  start: 2010-01-01\n  end: 2017-12-31\nout_of_sample:\n  start: 2018-01-01\n  end: 2025-10-31\n\neia_archive_url: https://www.eia.gov/petroleum/weekly/includes/archive.php\ndata_cache_dir: data_cache\noriginal_yahoo_snapshot:\n  fetched_date: "2026-11-25"\n  sha256:\n    USO: a5881e506f1cad751445bb284f52179d607f6ca6640c697b07741b02cb6d69c3\n    BIL: 90e0b7d9a7eaad219fc26c1db0cbefe75f6a1b73a79802a4d6b0984983b73fd5\n\nheadline_window_tokens: 4\nmax_holding_sessions: 5\ntrend_lookback_sessions: 5\ntransaction_cost_bps: 5\nslippage_bps: 2\ncash_buffer_bps: 10\nsessions_per_year: 252\n'
 _orig_open = _b.open
 def _open(f, *a, **k):
     try:
@@ -238,18 +238,21 @@ def event_positions(n_sessions, event_opens, entry_signal, hold):
     return in_oil
 
 
-def backtest(opens, closes, in_oil, fee, slippage, cash_buffer):
+def backtest(opens, closes, prior_closes, in_oil, fee, slippage, cash_buffer):
     cash = previous_value = 1.0
     asset = None
     units = 0.0
     buy_multiplier = (1 + slippage) * (1 + fee)
     daily_results = []
-    for date, open_row, close_row, wants_oil in zip(
-            opens.index, opens.to_numpy(), closes.to_numpy(), in_oil, strict=True):
+    for open_row, close_row, prior_row, wants_oil in zip(
+            opens.to_numpy(), closes.to_numpy(), prior_closes.to_numpy(), in_oil, strict=True):
         desired_asset = int(wants_oil)  # 0 = BIL, 1 = USO
         trades = 0
         turnover = 0.0
+        scaled_down = False
         if desired_asset != asset:
+            requested_units = ((1 - cash_buffer) * previous_value
+                               / (prior_row[desired_asset] * buy_multiplier))
             open_value = cash
             sale_value = 0.0
             if asset is not None:
@@ -257,23 +260,24 @@ def backtest(opens, closes, in_oil, fee, slippage, cash_buffer):
                 sale_value = units * open_row[asset] * (1 - slippage)
                 cash += sale_value * (1 - fee)
                 trades += 1
-            # Size once from opening cash and the opening quote before the buy fill.
-            buy_open = open_row[desired_asset]
-            buy_budget = cash * (1 - cash_buffer)
-            units = buy_budget / (buy_open * buy_multiplier)
-            purchase_value = units * buy_open * (1 + slippage)
+            affordable_units = ((1 - cash_buffer) * cash
+                                / (open_row[desired_asset] * buy_multiplier))
+            units = min(requested_units, affordable_units)
+            scaled_down = units < requested_units
+            purchase_value = units * open_row[desired_asset] * (1 + slippage)
             cash -= purchase_value * (1 + fee)
             if cash < 0:
-                raise RuntimeError(f"Simulated fill exceeded available cash on {date.date()}.")
+                raise RuntimeError("Simulated fill exceeded available cash.")
             turnover = (sale_value + purchase_value) / open_value
             trades += 1
             asset = desired_asset
         value = cash + units * close_row[asset]
-        daily_results.append((value / previous_value - 1, turnover, trades, wants_oil, cash / value))
+        daily_results.append((value / previous_value - 1, turnover, trades,
+                              wants_oil, cash / value, scaled_down))
         previous_value = value
     return pd.DataFrame(
         daily_results, index=opens.index,
-        columns=["return", "turnover", "trades", "in_oil", "cash_weight"],
+        columns=["return", "turnover", "trades", "in_oil", "cash_weight", "scaled_down"],
     )
 
 
@@ -415,13 +419,13 @@ def main():
     cash_returns.iloc[0] = closes[defensive_ticker].iloc[0] / opens[defensive_ticker].iloc[0] - 1
     reports = {}
     for name, in_oil in allocations.items():
-        portfolio = backtest(opens, closes, in_oil, fee, slippage, cash_buffer)
+        portfolio = backtest(opens, closes, prior_closes, in_oil, fee, slippage, cash_buffer)
         reports[name] = {
             label: metrics(portfolio.loc[first:last], cash_returns.loc[first:last], sessions_per_year)
             for label, (first, last) in periods.items()
         }
         if name == "EIA positive":
-            print(f"Opening cash buffer: {config['cash_buffer_bps']:g} bps, "
+            print(f"Opening fills scaled down: {portfolio['scaled_down'].sum()}, "
                   f"minimum closing cash weight: {portfolio['cash_weight'].min():.4%}")
     print("\nCost-adjusted performance (trade count includes buys and sells)")
     print_metrics(reports)
@@ -433,7 +437,7 @@ def main():
         "data_range": f"{sessions[0].date()} to {sessions[-1].date()}",
         **strategy,
         "benchmark": {"ticker": oil_ticker, **benchmark["full"],
-                      "is": benchmark["is"], "oos": benchmark["oos"], "full": benchmark["full"],
+                      "is": benchmark["is"], "oos": benchmark["oos"],
                       "cash_proxy": {"ticker": defensive_ticker,
                                      **reports[f"{defensive_ticker} buy & hold"]}},
     }

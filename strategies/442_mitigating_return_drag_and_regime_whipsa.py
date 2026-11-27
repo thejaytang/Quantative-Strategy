@@ -1,3 +1,23 @@
+"""442_mitigating_return_drag_and_regime_whipsa
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/442_mitigating_return_drag_and_regime_whipsa.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 6df04a4d89c55b7a1b162dbdcff0dafc1e2bd682 on 2026-11-27 08:09 Europe/Oslo, exit 0, output sha256 18269de031c2fbbc5d14600fd6a8b535c88b433de1d97ca2449dc046647550e0
+Data source: Yahoo Finance via yfinance, daily closes for sector ETFs XLK, XLF, XLV, XLE, XLI, XLY, XLP, XLU, XLB, XLRE, XLC and benchmark SPY, plus ^VIX index levels and ^IRX annualized 13-week U.S. Treasury bill yield quotes.
+Data fetched: 2026-11-27T07:09:42+00:00
+Sample period: Daily price history 2018-07-30 through 2025-12-31, with monthly returns from 2018-08 through 2020-07 used for warm-up. The reported evaluation begins on the first fill, 2020-08-03, and ends 2025-12-31.   data_range (from output): 2020-08-03 to 2025-12-31
+IS/OOS split: IS 2020-08-03 through 2022-12-30 and OOS 2023-01-03 through 2025-12-31. The calendar split is 2023-01-01. The same fixed parameter configuration is used throughout. The model state and holdings carry across the boundary, and the code splits the simulated history for reporting. The README describes the OOS interval as retrospective and overlapping the paper's sample.
+Costs and slippage: Each simulated buy or sell incurs 5 bps transaction cost plus 5 bps fixed slippage, charged together at 10 bps on absolute traded notional. Existing holdings drift through the fill-day close before rebalancing. The simulator solves post-cost NAV and traded notional jointly. Slippage is modelled as a fixed NAV deduction. The same rate applies to the benchmark's initial buy.
+Signal lag: The signal uses month-end ETF and SPY closes on session t. Target weights are filled at the next session's close (t+1). The close-to-close return ending on the fill day accrues to existing holdings before the fill. VIX and IRX are shifted by one trading session before use, and the monthly hurdle uses the previous month-end's lagged IRX.
+Price adjustment: yfinance auto_adjust total-return ETF closes, VIX and IRX index levels
+Survivorship bias: The fixed universe consists of 11 existing sector ETFs, and the sample starts within their common history. The README identifies possible ex-post selection bias from the fixed fund universe and says historical classification and constituent changes are reflected in fund returns.
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.07944429546267373, ann_vol=0.14406697534278398, sharpe=0.6029186299241285, sharpe_excess=0.5442516687927351, max_drawdown=-0.17359677088744718, total_return=0.20291212535245995, turnover=0.3084857199461089, n_trades=115
+    oos: cagr=0.13569605518085814, ann_vol=0.191795013615633, sharpe=0.7593796682531926, sharpe_excess=0.5151006962675895, max_drawdown=-0.23908072812265646, total_return=0.4618714191598525, turnover=0.17832558452446848, n_trades=86
+    full: cagr=0.11017180962771933, ann_vol=0.17203285726808604, sharpe=0.6937116087752424, sharpe_excess=0.521277675764718, max_drawdown=-0.23908072812265713, total_return=0.7585028558135938, turnover=0.23639702955873876, n_trades=201
+    benchmark: cagr=0.16085858719137214, ann_vol=0.17102660062116049, sharpe=0.957719413157952, sharpe_excess=0.7843088993056458, max_drawdown=-0.24496371769512282, total_return=1.2379981907765645, turnover=0.01536924613847691, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

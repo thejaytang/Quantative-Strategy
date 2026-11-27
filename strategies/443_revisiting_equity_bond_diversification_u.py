@@ -1,3 +1,23 @@
+"""443_revisiting_equity_bond_diversification_u
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/443_revisiting_equity_bond_diversification_u.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 6df04a4d89c55b7a1b162dbdcff0dafc1e2bd682 on 2026-11-27 08:09 Europe/Oslo, exit 0, output sha256 f775f181d4606ba5f796be0875f0eb5a1c14a956e4850e66a66fadee60a4e935
+Data source: Yahoo Finance daily ETF closes via yfinance for AOA, AOR, AOM and AOK, with BIL used only for excess-return metrics. The price cache stores the fetch timestamp. The run reports 2026-11-27T06:34:06+00:00.
+Data fetched: 2026-11-27T07:09:45+00:00
+Sample period: Requested prices span 2017-12-01 through 2024-12-31 inclusive. Data before 2020-01-02 warm up the 504-session rolling window. The logged backtest spans 2020-01-02 through 2024-12-31.   data_range (from output): 2020-01-02 to 2024-12-31
+IS/OOS split: IS runs from 2020-01-02 through 2022-12-30. OOS runs from 2023-01-03 through 2024-12-31. The split is dates before versus on or after 2023-01-01. Objective selection uses IS annualized excess Sharpe versus BIL after charges, with ties within 1e-12 resolved in config order. The selected objective is fixed for OOS, daily weights are still updated, and positions carry over at the boundary.
+Costs and slippage: The model charges 5 bps in transaction costs plus 2 bps in fixed slippage (7 bps total) on each buy and sell notional, including initial entry. The simulator marks existing positions to the execution close, solves for post-charge NAV using the sum of absolute dollar changes normalized by pre-trade NAV, and reduces that session's portfolio return by the resulting charge.
+Signal lag: The target uses 504 daily simple ETF returns ending at close t after that close is available. It executes at the next trading session's close (t+1). Existing positions earn the t-to-t+1 return, and new weights first earn returns after the t+1 close.
+Price adjustment: yfinance auto_adjust total-return
+Survivorship bias: The universe is a fixed list of four ETFs drawn from a paper published after the sample. Delisted or liquidated funds were excluded, leaving potential survivorship and universe-selection bias.
+Parameter combinations tried: 2
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=-0.0070281709846601315, ann_vol=0.09121537006834894, sharpe=-0.03159323163411792, sharpe_excess=-0.09352058234660152, max_drawdown=-0.18933509588907038, total_return=-0.020936674549634438, turnover=0.16655008160954, n_trades=1
+    oos: cagr=0.08729765347244056, ann_vol=0.06206731869926302, sharpe=1.3796519569849102, sharpe_excess=0.5795471716657562, max_drawdown=-0.0637334471376958, total_return=0.18143116182928054, turnover=0.0, n_trades=0
+    full: cagr=0.029589114790648408, ann_vol=0.08087229026954204, sharpe=0.4011140749144018, sharpe_excess=0.11417746901534627, max_drawdown=-0.18933509588907038, total_return=0.15669592209126226, turnover=0.10008892026773629, n_trades=1
+    benchmark: cagr=0.05172953198510588, ann_vol=0.11215919535177646, sharpe=0.5060258283065188, sharpe_excess=0.29911424920445456, max_drawdown=-0.20955974970686053, total_return=0.28631253666927003, turnover=0.3027443106994026, n_trades=5032
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

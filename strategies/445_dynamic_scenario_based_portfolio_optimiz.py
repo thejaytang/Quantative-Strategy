@@ -1,3 +1,23 @@
+"""445_dynamic_scenario_based_portfolio_optimiz
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/445_dynamic_scenario_based_portfolio_optimiz.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 6df04a4d89c55b7a1b162dbdcff0dafc1e2bd682 on 2026-11-27 08:09 Europe/Oslo, exit 0, output sha256 aa7716603db7d594e738c45a4c424555a7d70ef7752c4d8bc05c56ba14ebe2ee
+Data source: Yahoo Finance daily adjusted ETF closes via yfinance. Portfolio universe: VT, VTI, ACWI, ACWX, SUSA, ROUS, IYG, BND, FPE, BYLD, NTSX, GAL, MDIV, AOM, AOR, INKM, HNDL, ALTY, IYLD, CVY, PDBC, QAI, HDG, MNA, RAAX, RLY, SRET, YYY, GAA, GMOM. BIL is the risk-free return proxy.
+Data fetched: 2026-11-27T07:09:51.224179+00:00
+Sample period: Actual price sample 2018-12-19 through 2026-09-30. Backtest evaluation 2022-12-21 through 2026-09-30. Both ranges are inclusive. Prices before evaluation supply the rolling estimation history.   data_range (from output): {'start': '2022-12-21', 'end': '2026-09-30', 'price_start': '2018-12-19', 'price_end': '2026-09-30'}
+IS/OOS split: IS runs from 2022-12-21 through 2024-12-31 inclusive. OOS starts on the first session after 2024-12-31 and ends on 2026-09-30 inclusive. The script runs one continuous backtest and slices the resulting daily series, so OOS carries forward positions and continues updating the rolling estimation window.
+Costs and slippage: 10 bps commission plus 5 bps modeled slippage per dollar of ETF buys and sells, including initial entry. The 15 bps rate applies to the sum of absolute traded notionals from drifted holdings to targets sized on post-cost NAV. The cost reduces NAV at the simulated fill. The buy-and-hold benchmark incurs the same charges at entry only. Slippage is a flat cost, with no separate spread or market-impact model.
+Signal lag: The signal uses ETF returns through the close of session t. The target fills at the next trading session's close, t+1. Pre-fill holdings earn the return through the fill close, and the new holdings first earn the return from that close to the following close.
+Price adjustment: yfinance auto_adjust=True adjusted-close total-return proxy
+Survivorship bias: The 30 ETFs are a fixed list from the paper's Appendix A, chosen with historical data available at publication. The README identifies survivorship and hindsight selection bias. The code uses the configured list throughout the historical sample.
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.10064639730585045, ann_vol=0.07882018470953595, sharpe=1.2562323512320193, sharpe_excess=0.6254574465106717, max_drawdown=-0.07299917887633811, total_return=0.2137296973007583, turnover=1.3211323910257409, n_trades=15013
+    oos: cagr=0.12190152790534392, ann_vol=0.08329915112745613, sharpe=1.4226997563299582, sharpe_excess=0.9571760628779072, max_drawdown=-0.09156329310297306, total_return=0.22075317283329188, turnover=0.8311336322096201, n_trades=12155
+    full: cagr=0.11041458689309525, ann_vol=0.0808791682114951, sharpe=1.3355881700688872, sharpe_excess=0.7834479508139364, max_drawdown=-0.09156329310297351, total_return=0.4816643789418926, turnover=1.0947798988453552, n_trades=27168
+    benchmark  full: cagr=0.11860740822915061, ann_vol=0.089849350792221, sharpe=1.2926120658450513, sharpe_excess=0.7956049524112356, max_drawdown=-0.1070449201753676, total_return=0.5231213559873169, turnover=0.2659857993137144, n_trades=30
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

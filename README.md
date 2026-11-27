@@ -4,7 +4,7 @@
 
 每个策略一个文件：`strategies/<编号>_<名称>.py`，一条命令运行：`python strategies/<文件>.py`（依赖见 requirements.txt）。文件头写明数据源与抓取时间、样本期、IS/OOS 划分、成本与滑点、信号滞后、复权口径、幸存者偏差说明、尝试的参数组合数，以及在记录的 commit 上实际运行得到的关键数字（backtest reproduced）。收录条件：真实运行、确有交易、无同收盘成交前视、Codex 自审 PASS（进入本仓库前的审查为作者自审，不是独立第三方审查）、单文件复跑与审查时结果一致。
 
-本表由文件实际内容生成（2026-11-27 08:03 Europe/Oslo），共 65 个。
+本表由文件实际内容生成（2026-11-27 08:11 Europe/Oslo），共 74 个。
 
 | 文件 | 作者 | 代码 commit | 全样本 Sharpe | 全样本 CAGR |
 |---|---|---|---|---|
@@ -73,3 +73,12 @@
 | strategies/431_mitigating_return_drag_and_regime_whipsa.py | Codex | c3e441c5e4 | 0.728074135788041 | 0.12853122062775846 |
 | strategies/432_revisiting_equity_bond_diversification_u.py | Codex | 4d91396b47 | 0.40210518871874146 | 0.029671517239883816 |
 | strategies/434_dynamic_scenario_based_portfolio_optimiz.py | Codex | 9102661980 | 1.3383455296814277 | 0.11066568439098967 |
+| strategies/438_the_mathematics_of_heuristic_portfolio_o.py | Codex | 6df04a4d89 | 0.5563279807720216 | 0.03492991426966907 |
+| strategies/442_mitigating_return_drag_and_regime_whipsa.py | Codex | 6df04a4d89 | 0.6937116087752424 | 0.11017180962771933 |
+| strategies/443_revisiting_equity_bond_diversification_u.py | Codex | 6df04a4d89 | 0.4011140749144018 | 0.029589114790648408 |
+| strategies/445_dynamic_scenario_based_portfolio_optimiz.py | Codex | 6df04a4d89 | 1.3355881700688872 | 0.11041458689309525 |
+| strategies/448_continuous_cash_overlay_filters_for_a_st.py | Codex | 6df04a4d89 | 1.1328022628669068 | 0.18558698378061722 |
+| strategies/449_the_mathematics_of_heuristic_portfolio_o.py | Codex | 6df04a4d89 | 0.7001079284400838 | 0.04575443705311044 |
+| strategies/450_a_declining_cvar_glidepath_framework_for.py | Codex | 6df04a4d89 | 0.7540691369308014 | 0.04387519298450271 |
+| strategies/451_a_declining_cvar_glidepath_framework_for.py | Codex | 6df04a4d89 | 0.9852314012909932 | 0.0866587923905131 |
+| strategies/454_semivariance_and_semivolatility_in_portf.py | Codex | 6df04a4d89 | 0.7295249752825032 | 0.09387382894578122 |

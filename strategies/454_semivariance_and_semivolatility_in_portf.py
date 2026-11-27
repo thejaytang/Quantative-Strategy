@@ -1,3 +1,23 @@
+"""454_semivariance_and_semivolatility_in_portf
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/454_semivariance_and_semivolatility_in_portf.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 6df04a4d89c55b7a1b162dbdcff0dafc1e2bd682 on 2026-11-27 08:11 Europe/Oslo, exit 0, output sha256 b415039b8f91f26ccf52df805365afebc45af4efb1c3141ff38a874f28c97cac
+Data source: Yahoo Finance free daily ETF prices via yfinance for XLB, XLE, XLF, XLI, XLK, XLP, XLU, XLV and XLY. Same-day BIL returns are used only to calculate the excess Sharpe ratio. The loader uses the local price cache when available.
+Data fetched: 2026-11-27T07:11:31+00:00
+Sample period: Price request from 2008-03-01 through 2026-11-06 inclusive. The run evaluated 2010-03-04 through 2026-11-06 after a 504-session estimation window and the execution lag.   data_range (from output): {'start': '2010-03-04', 'end': '2026-11-06'}
+IS/OOS split: The cutoff is 2017-12-31. Evaluated IS runs from 2010-03-04 through 2017-12-29, and OOS runs from 2018-01-02 through 2026-11-06. The code simulates continuously and then slices the daily results. Both periods use the same fixed settings. The README describes OOS as a chronological holdout that predates publication of the cited paper.
+Costs and slippage: Each simulated buy and sell incurs 50 bps of transaction cost and 5 bps of fixed slippage, for 55 bps applied to absolute executed notional. The simulator solves for post-cost wealth using the actual simulated position changes and deducts the friction from execution-day NAV, including at initial entry.
+Signal lag: A signal computed using prices through the close of session t is filled at the next session's close. The close-to-close return ending at execution is applied to the prior holdings, and the new target starts earning returns over the following close-to-close interval.
+Price adjustment: yfinance auto_adjust=True total-return adjusted close
+Survivorship bias: The fixed set of early sector ETFs uses funds with data still available. The README identifies survivorship bias and retrospective universe selection risk.
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.12071893648488552, ann_vol=0.11195555609486672, sharpe=1.07425136638517, sharpe_excess=1.0678815758467421, max_drawdown=-0.11924589004606534, total_return=1.4396717564584973, turnover=8.850114519745436, n_trades=334
+    oos: cagr=0.0706192261495795, ann_vol=0.1536540121937392, sharpe=0.5212043628167224, sharpe_excess=0.35580765176895546, max_drawdown=-0.34134355332982247, total_return=0.8266635850538124, turnover=10.442525810413375, n_trades=492
+    full: cagr=0.09387382894578122, ann_vol=0.13565762902257691, sharpe=0.7295249752825032, sharpe_excess=0.6279179852129508, max_drawdown=-0.341343553329822, total_return=3.4564595570069967, turnover=19.29264033015881, n_trades=826
+    benchmark  full: cagr=0.12729590749791142, ann_vol=0.1631597659619706, sharpe=0.8164206449505296, sharpe_excess=0.7318205653018149, max_drawdown=-0.3672100734441718, total_return=6.356637219803166, turnover=5.8581919437023355, n_trades=1800
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

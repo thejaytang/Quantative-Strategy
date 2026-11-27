@@ -1,3 +1,23 @@
+"""449_the_mathematics_of_heuristic_portfolio_o
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/449_the_mathematics_of_heuristic_portfolio_o.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 6df04a4d89c55b7a1b162dbdcff0dafc1e2bd682 on 2026-11-27 08:11 Europe/Oslo, exit 0, output sha256 885548188ab704fe0e513e8d022c57b5ca7c7b46ead4c130f782f352c24c6859
+Data source: Yahoo Finance free daily ETF prices via yfinance. The allocation universe is SPY, EFA, EEM, IEF, TLT, LQD, GLD, and VNQ. BIL supplies the daily return reference for excess Sharpe. The loader uses a local price cache when available.
+Data fetched: 2026-11-27T07:11:21+00:00
+Sample period: The reported backtest runs from 2010-01-04 through 2025-12-31. The price request starts on 2007-06-01 to supply pre-sample warm-up data.   data_range (from output): 2010-01-04 to 2025-12-31
+IS/OOS split: IS is 2010-01-04 through 2017-12-29 inclusive. OOS is 2018-01-02 through 2025-12-31. HRP selects 126 sessions from candidates of 126 and 252 using IS net excess Sharpe, with ties favoring the longer window. The full simulation uses the selected lookback, and the reporting split carries holdings and rolling history into OOS.
+Costs and slippage: Slippage is modelled as a fixed 3 bps charge, combined with a 2 bps fee for 5 bps of each simulated buy or sell amount, including initial entry. At the execution close, the code solves for post-cost NAV so it equals pre-trade NAV less 5 bps of the sum of absolute position changes. It records that traded amount as a fraction of pre-trade NAV for turnover.
+Signal lag: A signal uses daily close-to-close returns through the last trading session of the month, t. The target is simulated at the close of the next trading session, t+1. Holdings before the rebalance earn the return from t to t+1. The new weights first earn the close-to-close return from t+1 to t+2.
+Price adjustment: yfinance auto_adjust total-return (USD adjusted Close)
+Survivorship bias: The fixed ETF universe was chosen retrospectively from known funds with continuous sample histories. The README identifies survivorship and asset-selection bias and describes the OOS split as retrospective.
+Parameter combinations tried: 5
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.06165074779018975, ann_vol=0.052452854091570876, sharpe=1.1669154019400765, sharpe_excess=1.1566285661956017, max_drawdown=-0.08589944175475428, total_return=0.6126646058723633, turnover=10.36994727368969, n_trades=768
+    oos: cagr=0.030080689628168678, ann_vol=0.07914410399687286, sharpe=0.41409848219896006, sharpe_excess=0.10723292085949285, max_drawdown=-0.23376744920253145, total_return=0.26681904622397146, turnover=10.129412383810028, n_trades=768
+    full: cagr=0.04575443705311044, ann_vol=0.06712938486833833, sharpe=0.7001079284400838, sharpe_excess=0.5155618425922752, max_drawdown=-0.23376744920253134, total_return=1.04295423789039, turnover=20.499359657499717, n_trades=1536
+    benchmark  full: cagr=0.06968761681401348, ann_vol=0.0948018465305901, sharpe=0.7581750653624204, sharpe_excess=0.6271636813611334, max_drawdown=-0.2443410668951388, total_return=1.9321264746114903, turnover=5.7203723989433914, n_trades=1536
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

@@ -1,3 +1,23 @@
+"""511_dynamic_portfolio_optimization_under_cva
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/511_dynamic_portfolio_optimization_under_cva.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit 4ea0dd4e23cac32987ae65e4194d8347ebe8087d on 2026-11-27 20:16 Europe/Oslo, exit 0, output sha256 d082155d066afb8e867732e879d44b516f3254739058a4ac3cd39dbec9fe675c
+Data source: Free Yahoo Finance daily adjusted closes for SPY and BIL via yfinance. The loader uses a validated local CSV snapshot if available and downloads the same daily series if the snapshot is missing or invalid. The supplied log reports a snapshot fetch timestamp of 2026-11-27T08:00:04+00:00.
+Data fetched: 2026-11-27T08:00:04+00:00
+Sample period: Evaluation runs from 2009-01-02 through 2025-12-31 inclusive. Price history for warmup starts on 2007-10-01.   data_range (from output): {'start': '2009-01-02', 'end': '2025-12-31'}
+IS/OOS split: IS runs through 2017-12-31 inclusive. OOS begins on the first common trading session after that cutoff and runs through 2025-12-31. The main configuration is simulated continuously across the split, carrying positions and rolling state forward. The five sensitivity cases use IS data only. The README says the selection of ETFs and main parameters cannot be shown to have been frozen before exposure to the later history.
+Costs and slippage: The main run models a 2 bps fee and 3 bps slippage per ETF buy or sell leg, including opening positions and the benchmark entry. Cash is debited 5 bps times the gross absolute fill notional computed from the fixed share changes and adjusted fill closes. Slippage is represented by this cash debit at an unchanged simulated fill price. The doubled-friction IS case uses 4 bps fee and 6 bps slippage.
+Signal lag: The strategy computes its monthly signal at the close of the first common trading session of the month. With the configured one-session lag, it fixes quantities at that close and fills them at the next common trading session's close. With a lag of L sessions, it sizes at the close of session t+L-1 and fills at the close of session t+L.
+Price adjustment: yfinance auto_adjust=True, adjusted Close with distributions and splits
+Survivorship bias: SPY and BIL are the fixed ETF universe and both predate the warmup. The README describes the selection as retrospective and records no contemporaneous candidate list or delisting replacement rule, leaving selection and survivorship bias possible.
+Parameter combinations tried: 6
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.05552423180632604, ann_vol=0.080432344511959, sharpe=0.7122270910413914, sharpe_excess=0.7035002032773211, max_drawdown=-0.13375567595335403, total_return=0.6253433915888058, turnover=2.3194730585483287, n_trades=186
+    oos: cagr=0.05266421036348734, ann_vol=0.08587287367952644, sharpe=0.6427115264882228, sharpe_excess=0.36004295921514423, max_drawdown=-0.15242483421681063, total_return=0.5081501348883373, turnover=2.8049607859889667, n_trades=166
+    full: cagr=0.05417596316252293, ann_vol=0.08302567289153324, sharpe=0.678115570051477, sharpe_excess=0.5361504017239506, max_drawdown=-0.1524248342168112, total_return=1.451261855264541, turnover=2.5481771209031576, n_trades=352
+    benchmark full: cagr=0.14393553381806035, ann_vol=0.17733848021205165, sharpe=0.8484985769578456, sharpe_excess=0.7814087501992071, max_drawdown=-0.3357488200518346, total_return=8.828493994004042, turnover=0.0577019411823891, n_trades=1
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

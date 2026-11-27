@@ -71,9 +71,9 @@
 | strategies/466_hierarchical_risk_parity_for_portfolio_a.py | Codex | da9754ee51 | 0.25202646099041437 | 0.03140765257653144 |
 | strategies/492_optimal_portfolio_construction_a_reinfor.py | Codex | da9754ee51 | 0.89927754240382 | 0.1296232752782156 |
 | strategies/504_exploratory_mean_variance_with_jumps_an.py | Codex | da9754ee51 | 0.7431772376620975 | 0.05658096575636318 |
-| strategies/511_dynamic_portfolio_optimization_under_cva.py | Codex | da9754ee51 | 0.6781159099371227 | 0.05417596659859414 |
+| strategies/511_dynamic_portfolio_optimization_under_cva.py | Codex | 4ea0dd4e23 | 0.678115570051477 | 0.05417596316252293 |
 
-Note on 511 (accepted-table false positive): `broker_check` is True because of a self-defined backtest helper `execute_order()` at line 267, not a live or broker API. 511 is not on the allowlist; the helper will be renamed in a later fix-only commit with a clean re-run.
+Note on 511: the self-defined backtest helper previously named `execute_order()` was renamed to `apply_fill` in this fix-only commit (official re-run + Codex self-review). `broker_check` is now False. It was never a live or broker API.
 | strategies/549_drawdown_risk_beyond_brownian_motion_a_m.py | Codex | f0c72714f0 | 0.6380887390535539 | 0.07247489420330977 |
 | strategies/560_drawdown_risk_beyond_brownian_motion_a_m.py | Codex | dabba95798 | 0.6719090607841077 | 0.08084054202667357 |
 

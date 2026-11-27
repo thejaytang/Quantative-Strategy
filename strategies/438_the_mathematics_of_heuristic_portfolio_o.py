@@ -1,27 +1,7 @@
-"""438_the_mathematics_of_heuristic_portfolio_o
-研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
-Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/438_the_mathematics_of_heuristic_portfolio_o.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit 6df04a4d89c55b7a1b162dbdcff0dafc1e2bd682 on 2026-11-27 08:09 Europe/Oslo, exit 0, output sha256 d79ee5e99dda7ed9f766fc0b88fa7d05ad23dbcea619ee84f38a481416975c04
-Data source: Yahoo Finance 日线，经 yfinance 获取。配置资产为 SPY、EFA、EEM、IEF、TLT、GLD、VNQ、DBC。BIL 日收益用作现金代理及超额收益参照，配置权重信号只使用资产池收益。已有价格缓存时读取 data_cache/prices_<缓存键>.csv。config.yaml:2-3，strategy.py:59-81，strategy.py:202-205，strategy.py:227-234，README.md:13
-Data fetched: 2026-11-27T07:09:41+00:00
-Sample period: 回测覆盖实际交易日 2011-01-03 至 2025-12-31。价格请求从 2009-12-01 开始，样本前数据用于建立首个 252 个交易日的估计窗口。config.yaml:5-10，README.md:15，logs/run_20261127_073114.log:16   data_range (from output): {'start': '2011-01-03', 'end': '2025-12-31'}
-IS/OOS split: 按日期切分。样本内 2011-01-03 至 2020-12-31，样本外 2021-01-04 至 2025-12-31，均含首尾交易日。每个规则连续模拟一次，再分段汇报，跨界延续持仓。README.md:15-16 记录两段数据均早于论文发表，且未按两段表现修改规则。config.yaml:6-8，strategy.py:228-248
-Costs and slippage: 每次调仓（含首次建仓）对资产池 ETF 买卖两侧分别按实际成交名义额收取 2 bps 交易成本和 3 bps 固定滑点，合计每侧 5 bps。代码以成交前净值为基准求解扣费后的净值比例和买卖名义额之和，在成交日一次性扣减净值。config.yaml:13-14，strategy.py:179-199，strategy.py:241-243，README.md:21
-Signal lag: 月末交易日 t 收盘后，使用截至 t 的 252 个日收益率计算目标，默认在下一交易日 t+1 收盘成交。t 至 t+1 的收益按旧持仓（首次建仓前按 BIL 现金代理）计算，成交费用在 t+1 扣除，新权重适用于 t+1 至 t+2 的收盘到收盘收益。首笔在样本首个交易日收盘执行，使用前一交易日信号。config.yaml:10-12，strategy.py:153-175，strategy.py:179-199，strategy.py:232-243，README.md:20
-Price adjustment: yfinance auto_adjust=True daily Close, total-return basis
-Survivorship bias: 固定资产池采用事后仍存续且有充分历史的 ETF，选择可能受存续偏差影响。代码全期使用同一组配置标的并要求对齐价格有效。config.yaml:2-3，strategy.py:45-60，strategy.py:81-83，README.md:26
-Parameter combinations tried: 4
-Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=0.04126428528209658, ann_vol=0.0573460467134883, sharpe=0.7348348320550061, sharpe_excess=0.6550821249763297, max_drawdown=-0.11951897001011591, total_return=0.4984331497152643, turnover=0.8958418239078443, n_trades=960
-    oos: cagr=0.022373123882158952, ann_vol=0.07998313633214012, sharpe=0.3176643792482349, sharpe_excess=-0.0652739127419278, max_drawdown=-0.20100930057431043, total_return=0.11697005547885553, turnover=1.0423469835965764, n_trades=480
-    full: cagr=0.03492991426966907, ann_vol=0.06573975149270864, sharpe=0.5563279807720216, sharpe_excess=0.35500141221611226, max_drawdown=-0.20144238272629778, total_return=0.6737049583688182, turnover=0.944667964004874, n_trades=1440
-    benchmark: cagr=0.06015547192911108, ann_vol=0.09888949334385949, sharpe=0.6416286766995711, sharpe_excess=0.5075019303313238, max_drawdown=-0.2059042945998486, total_return=1.4019754715866561, turnover=0.3887659748944498, n_trades=1440
-"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os
-_CONFIG_YAML = 'strategy: "438_ the_mathematics_of_heuristic_portfolio_o"\nuniverse: [SPY, EFA, EEM, IEF, TLT, GLD, VNQ, DBC]\nrisk_free_ticker: BIL\n\ndata_start: \'2009-12-01\'\nstart: \'2011-01-01\'\nis_end: \'2020-12-31\'\nend: \'2025-12-31\'\n\nlookback_sessions: 252\nrebalance_months: 1\nexecution_lag_sessions: 1\ncost_bps: 2.0\nslippage_bps: 3.0\n'
+_CONFIG_YAML = 'strategy: "438_ the_mathematics_of_heuristic_portfolio_o"\nuniverse: [SPY, EFA, EEM, IEF, TLT, GLD, VNQ, DBC]\nrisk_free_ticker: BIL\n\ndata_start: \'2009-12-01\'\nstart: \'2011-01-01\'\nis_end: \'2020-12-31\'\nend: \'2025-12-31\'\n\nlookback_sessions: 252\nrebalance_months: 1\nexecution_lag_sessions: 1\ncash_buffer: 0.05\ncost_bps: 2.0\nslippage_bps: 3.0\n'
 _orig_open = _b.open
 def _open(f, *a, **k):
     try:
@@ -211,26 +191,60 @@ def allocation_targets(asset_returns, first_session, config):
     return targets
 
 
-def simulate(asset_returns, cash, targets, cost_rate):
+def simulate(asset_returns, cash, targets, cost_rate, cash_buffer):
+    # Size at the close when the lagged target is known, after reserving
+    # cash_buffer of that day's wealth. Fill at the next close with predetermined
+    # shares so trade size does not use the fill-day close. The cash buffer is
+    # chosen so fills do not go to negative cash; a shortfall raises rather
+    # than resizing shares. Leftover cash earns the cash-proxy return.
+    if not 0 <= cash_buffer < 1:
+        raise ValueError("cash_buffer must satisfy 0 <= cash_buffer < 1.")
     weights = np.zeros(asset_returns.shape[1])
+    pending = None
     rows = []
     for date, returns, cash_return in zip(asset_returns.index, asset_returns.to_numpy(), cash, strict=True):
-        holdings = weights * (1.0 + returns)
-        gross = holdings.sum() + (1.0 - weights.sum()) * (1.0 + cash_return)
-        weights = holdings / gross
-        nav_fraction, turnover, trades = 1.0, 0.0, 0
+        marked = weights * (1.0 + returns)
+        gross = marked.sum() + (1.0 - weights.sum()) * (1.0 + cash_return)
+        if gross <= 0:
+            raise ValueError("Non-positive marked wealth.")
+        wealth_fraction, turnover, trades = 1.0, 0.0, 0
+        if pending is not None:
+            sized_fraction, sized_target, sized_turnover, sized_trades = pending
+            # Exact shares fixed at the previous close; leftover cash is not forced into the basket.
+            asset_value = sized_fraction * sized_target * (1.0 + returns)
+            # Predetermined shares only. Fees and turnover use those shares at this close;
+            # a shortfall does not resize the fill.
+            fill_traded = np.abs(asset_value - marked)
+            post_wealth = gross - cost_rate * float(fill_traded.sum())
+            if post_wealth <= 0:
+                raise ValueError("Non-positive wealth on a fill close.")
+            leftover = post_wealth - float(asset_value.sum())
+            if leftover < -1e-12:
+                raise ValueError(f"Negative cash on fill {date}: {leftover}")
+            weights = asset_value / post_wealth
+            wealth_fraction = post_wealth / gross
+            turnover = float(fill_traded.sum())
+            trades = int(np.count_nonzero(fill_traded > TRADE_TOLERANCE))
+            pending = None
+        else:
+            weights = marked / gross
         target = targets.get(date)
         if target is not None:
-            # Solve for the remaining NAV so both fees use the actual filled notional.
-            def turnover_at(fraction):
-                return np.abs(fraction * target - weights).sum()
+            target = np.asarray(target, dtype=float)
 
-            nav_fraction = brentq(lambda fraction: fraction + cost_rate * turnover_at(fraction) - 1.0,
-                                  0.0, 1.0)
-            turnover = turnover_at(nav_fraction)
-            trades = np.count_nonzero(np.abs(nav_fraction * target - weights) > TRADE_TOLERANCE)
-            weights = target
-        rows.append((gross * nav_fraction - 1.0, turnover, trades))
+            def turnover_at(fraction, current=weights, tgt=target):
+                return np.abs(fraction * tgt - current).sum()
+
+            if cost_rate == 0:
+                sized_fraction = 1.0
+            else:
+                sized_fraction = brentq(lambda fraction: fraction + cost_rate * turnover_at(fraction) - 1.0,
+                                        0.0, 1.0)
+            sized_fraction = sized_fraction * (1.0 - cash_buffer)
+            sized_turnover = turnover_at(sized_fraction)
+            sized_trades = int(np.count_nonzero(np.abs(sized_fraction * target - weights) > TRADE_TOLERANCE))
+            pending = (sized_fraction, target, sized_turnover, sized_trades)
+        rows.append((gross * wealth_fraction - 1.0, turnover, trades))
     return pd.DataFrame(rows, index=asset_returns.index, columns=["return", "turnover", "trades"])
 
 
@@ -274,8 +288,11 @@ def main():
     print(f"PARAM_COMBOS_TRIED: {len(targets)}")
     reports = {}
     cost_rate = (config["cost_bps"] + config["slippage_bps"]) / 10_000.0
+    cash_buffer = float(config["cash_buffer"])
+    if not 0 <= cash_buffer < 1:
+        raise ValueError("cash_buffer must satisfy 0 <= cash_buffer < 1.")
     for rule, rebalances in targets.items():
-        daily = simulate(asset_returns.iloc[first_session:], cash.iloc[first_session:], rebalances, cost_rate)
+        daily = simulate(asset_returns.iloc[first_session:], cash.iloc[first_session:], rebalances, cost_rate, cash_buffer)
         reports[rule] = {}
         for name, period in periods.items():
             start = period.start - first_session

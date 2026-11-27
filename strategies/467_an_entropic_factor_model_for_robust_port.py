@@ -1,3 +1,23 @@
+"""467_an_entropic_factor_model_for_robust_port
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/467_an_entropic_factor_model_for_robust_port.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit e0683ac343a175cb2458afc860f8d1a1066c8e3a on 2026-11-27 08:55 Europe/Oslo, exit 0, output sha256 304732ff0d7ada520e65ce164cfd353a52a72ccc8586a915b3c8e29eed987db0
+Data source: yfinance 提供的免费 Yahoo Finance 日线。股票池为 XOM、CVX、MSFT、AAPL、IBM、INTC、CSCO、AMZN、JPM、BAC、GS、AXP、JNJ、PFE、MRK、PG、KO、WMT、MCD、BA。SPY 为市场因子和买入持有基准，BIL 仅作为超额夏普的现金代理。见 config.yaml:2-4、README.md:13、README.md:17、strategy.py:47-68、strategy.py:184-195、strategy.py:267-284。
+Data fetched: 2026-11-27T07:55:50+00:00
+Sample period: 配置日期为 2018-01-01 至 2023-12-31。日志记录的实际价格样本为 2018-01-02 至 2023-12-29，首笔模拟成交和评估起点为 2019-01-04。见 config.yaml:5-8、README.md:18、strategy.py:273-278、logs/run_20261127_080519.log:14。   data_range (from output): {'start': '2018-01-02', 'end': '2023-12-29', 'evaluation_start': '2019-01-04', 'is_end': '2021-04-20'}
+IS/OOS split: 按日期切分同一次连续回测。样本内为 2019-01-04 至 2021-04-20（含），样本外为 2021-04-21 至 2023-12-29。持仓跨分界延续，样本外继续以每次信号当时的最近 252 个交易日收益滚动估计。见 config.yaml:8-11、README.md:18、strategy.py:184-200、strategy.py:267-283、logs/run_20261127_080519.log:14。
+Costs and slippage: 模拟计入 10 bps 交易成本与 5 bps 固定滑点，合计 15 bps，按建仓和再平衡时买入及卖出名义金额的绝对值之和扣除。成交金额依据扣除摩擦后的目标净值计算。SPY 买入持有基准按同期调整价收益计量，未扣此项摩擦。见 config.yaml:15-18、README.md:19、strategy.py:203-229、strategy.py:261-270。
+Signal lag: 使用截至 t 日收盘（含）的收益计算目标权重，默认在下一交易日 t+1 收盘模拟成交。t 至 t+1 的收盘到收盘收益归成交前持仓，新持仓从 t+1 收盘后开始承担收益。见 config.yaml:16、strategy.py:184-196、strategy.py:203-229、strategy.py:258-259、README.md:19。
+Price adjustment: yfinance auto_adjust total-return close
+Survivorship bias: 按配置使用论文实验的固定 20 只股票，未按历史时点重建股票池。README 披露幸存者偏差及事后筛选偏差，整个历史样本早于论文发布。见 config.yaml:2、strategy.py:184-194、README.md:5-7、README.md:24、logs/run_20261127_080519.log:14。
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.18555862301711135, ann_vol=0.2534800291597501, sharpe=0.7989961982958048, sharpe_excess=0.7586283015220004, max_drawdown=-0.34796182412188925, total_return=0.4765912122814211, turnover=1.9517349421957848, n_trades=560
+    oos: cagr=0.0962366015843863, ann_vol=0.16262618715647573, sharpe=0.6463930627178242, sharpe_excess=0.5057271508316827, max_drawdown=-0.2146561490531641, total_return=0.28091383094937705, turnover=1.3038788788022697, n_trades=640
+    full: cagr=0.13640289656724902, ann_vol=0.20925255483562352, sharpe=0.7162144427894364, sharpe_excess=0.6346343103456454, max_drawdown=-0.34796182412188925, total_return=0.8913861064695805, turnover=1.6015006531478573, n_trades=1200
+    benchmark: cagr=0.16183424000791158, ann_vol=0.2097530103693755, sharpe=0.8207033538077634, sharpe_excess=0.7392701910282528, max_drawdown=-0.3371727036119295, total_return=1.1119655115432958, turnover=0.0, n_trades=0
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

@@ -1,3 +1,23 @@
+"""463_simple_dynamic_stock_bond_gold_portfolio
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/463_simple_dynamic_stock_bond_gold_portfolio.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit e0683ac343a175cb2458afc860f8d1a1066c8e3a on 2026-11-27 08:55 Europe/Oslo, exit 0, output sha256 37755cbcde4e958e0668d4c7aef66a38182ef541ead95671719bdd0fac3a7efb
+Data source: Yahoo Finance 免费日线，经 yfinance 获取 SPY、AGG、GLD 和现金代理 BIL 的调整后收盘价。此份行情的下载时间记录为 2026-11-27T07:04:34+00:00。（config.yaml:3-8，strategy.py:38-61、151-160，README.md:15，logs/run_20261127_080647.log:1）
+Data fetched: 2026-11-27T07:55:47+00:00
+Sample period: 实际回测交易日为 2007-07-02 至 2025-12-31（含两端）。行情从 2007-06-01 起请求，结束日 2026-01-01 不含在内。回测配置起始日为 2007-07-01，此前行情用于波动率预热。（config.yaml:10-14，strategy.py:182-190、199-208，README.md:16，backtest_results.md:24，logs/run_20261127_080647.log:10）   data_range (from output): {'start': '2007-07-02', 'end': '2025-12-31'}
+IS/OOS split: 以 2018-01-01 为界。IS 为 2007-07-02 至 2017-12-29，OOS 为 2018-01-02 至 2025-12-31。两段从同一次连续模拟中切出，跨界时持仓与净值延续。README 记载参数取自论文，OOS 区间与论文样本重叠。（config.yaml:10-14，strategy.py:139-147、199-203，README.md:16、19）
+Costs and slippage: 每笔 ETF 买入或卖出按成交金额扣除 2.5 bps 交易成本和 1.0 bps 固定滑点，合计 3.5 bps。滑点作为固定费率从净值扣减，模拟按扣费后的净值确定目标成交额。策略与基准均对首日建仓和后续交易收费，适用于 BIL 的买卖。（config.yaml:21-23，strategy.py:80-94、97-115、176-180、191-201，README.md:17-18）
+Signal lag: 月末最后一个交易日收盘 t 形成信号，默认在下一交易日 t+1 收盘成交。模拟先用原持仓计入 t 至 t+1 的收盘收益，再扣除调仓成本并更换权重。首日从美元现金建仓，动态策略使用前一交易日的信号。固定权重基准首日建仓，之后在年末收盘后的下一交易日收盘调仓。（config.yaml:16-19，strategy.py:73-77、97-115、182-201，README.md:17）
+Price adjustment: yfinance auto_adjust total-return
+Survivorship bias: README 记载此固定标的组为论文事后指定且仍存续的美国上市基金。样本使用各基金上市后的自身历史报价，未纳入已清算基金或其他代理标的，存在基金选择与样本依赖。（config.yaml:3-8，strategy.py:151-160、182-183，README.md:11、24）
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.05858755500376622, ann_vol=0.06928342093446645, sharpe=0.8565273102358415, sharpe_excess=0.7889101121748024, max_drawdown=-0.15771081529713005, total_return=0.8177456334169935, turnover=1.585841227967942, n_trades=464
+    oos: cagr=0.09232732321716974, ann_vol=0.07811833784805332, sharpe=1.1697302620666046, sharpe_excess=0.859304455438021, max_drawdown=-0.12915806199983615, total_return=1.0233052519247727, turnover=1.5299978935500322, n_trades=360
+    full: cagr=0.07303051945707328, ann_vol=0.07322894231592593, sharpe=0.9993212410854401, sharpe_excess=0.820082529308135, max_drawdown=-0.15771081529713005, total_return=2.677854286755904, turnover=1.5617216090859798, n_trades=824
+    benchmark  full: cagr=0.08859220960517811, ann_vol=0.10451542438435779, sharpe=0.8645879165868351, sharpe_excess=0.73787620810064, max_drawdown=-0.2728431625363106, total_return=3.798758161999647, turnover=0.06640241041690788, n_trades=57
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

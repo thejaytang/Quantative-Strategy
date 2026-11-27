@@ -1,3 +1,23 @@
+"""470_entropic_value_at_risk_parity_for_temper
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/470_entropic_value_at_risk_parity_for_temper.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit e0683ac343a175cb2458afc860f8d1a1066c8e3a on 2026-11-27 08:55 Europe/Oslo, exit 0, output sha256 055a0fdd51a8a52c3f2ed62143c9a7518c393d48e40c3bb297b039506b4e9d0d
+Data source: Yahoo Finance 的免费 ETF 日线，经 yfinance 获取。组合标的为 VTI、EFA、VWO、VNQ、AGG、TIP、GLD。BIL 仅作为超额夏普比率的现金收益代理（config.yaml:2-3；README.md:17；strategy.py:36-44、177-191、223-225、236-254）。
+Data fetched: 2026-11-27T07:55:57+00:00
+Sample period: 配置的行情请求区间为 2005-04-01 至 2026-03-31，回测前的历史行情用于滚动估计。日志记录的全样本交易日区间为 2008-01-02 至 2026-03-31（config.yaml:4-7；README.md:19；strategy.py:39-42、127-143、236-239；logs/run_20261127_080829.log:6）。   data_range (from output): 2008-01-02 to 2026-03-31
+IS/OOS split: 以 2016-12-31 为界，样本内包含分界日及之前的交易日，样本外包含其后的交易日。实际 IS 为 2008-01-02 至 2016-12-30，OOS 为 2017-01-03 至 2026-03-31。组合连续模拟后按日期分段报告（config.yaml:5-7；strategy.py:236-254；logs/run_20261127_080829.log:4-5）。
+Costs and slippage: 每笔 ETF 买卖按成交金额建模 5 bps 费用和 5 bps 固定滑点，合计 10 bps，于成交日从组合净值扣除。成交额以扣费后目标持仓和收盘漂移后持仓的差额绝对值计算。初次建仓、后续调仓及等权基准均适用（config.yaml:11-12；README.md:23；strategy.py:151-172、210-212、236-241）。
+Signal lag: 用截至月末最后一个交易日 t 收盘的过去 12 个日历月 ETF 日收益计算目标权重，配置为下一交易日收盘执行。执行日收盘前的价格变化按旧权重计入，新权重从该收盘之后的收益区间起生效（config.yaml:8-10；README.md:22；strategy.py:127-143、151-172、236-239）。
+Price adjustment: yfinance auto_adjust total-return adjusted closes
+Survivorship bias: 固定使用论文选定的七只长期存续 ETF。README 明确披露早期样本存在存续偏差和事后选择偏差，OOS 也是早于论文发表的历史切分（config.yaml:2；README.md:9-11、30；strategy.py:200-202、223-225、236-241）。
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=0.039296018615857964, ann_vol=0.07285814361397339, sharpe=0.565431502327354, sharpe_excess=0.5370261400907219, max_drawdown=-0.2287461248431547, total_return=0.41444787166127894, turnover=4.395899848130754, n_trades=756
+    oos: cagr=0.0610244715794912, ann_vol=0.06981099577775819, sharpe=0.8835317939150763, sharpe_excess=0.5583974741966912, max_drawdown=-0.19116266690077266, total_return=0.726407350549823, turnover=3.0044885157994012, n_trades=777
+    full: cagr=0.05023660103164107, ann_vol=0.07132738935806081, sharpe=0.7229090950496083, sharpe_excess=0.5474183822527304, max_drawdown=-0.2287461248431547, total_return=1.4419132026055874, turnover=7.400388363930155, n_trades=1533
+    benchmark: cagr=0.06437400554575001, ann_vol=0.13130431145736843, sharpe=0.5408785470822973, sharpe_excess=0.4455053420186708, max_drawdown=-0.40102898627722106, total_return=2.1153194353379825, turnover=3.8702385366040506, n_trades=1533
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

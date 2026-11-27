@@ -1,28 +1,7 @@
-"""480_topological_risk_parity
-WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
-研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
-Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/480_topological_risk_parity.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit cc50485fb68601d5f9b01f48262e3a778be06982 on 2026-11-27 09:02 Europe/Oslo, exit 0, output sha256 37cd5af247fbd3dac9beb24bc49aa4983e0e0020b17e2a73886a5b6cd01394c6
-Data source: Public Yahoo Finance daily ETF closes via yfinance. The allocation universe is XLB, XLC, XLE, XLF, XLI, XLK, XLP, XLRE, XLU, XLV and XLY. BIL daily returns are used only as the excess-Sharpe reference. The reported data fetch timestamp is 2026-11-27T07:09:38+00:00.
-Data fetched: 2026-11-27T08:02:49+00:00
-Sample period: The run reports 2019-01-02 through 2025-12-31 inclusive. The configured warm-up data start is 2018-06-20.   data_range (from output): {'start': '2019-01-02', 'end': '2025-12-31'}
-IS/OOS split: IS runs from 2019-01-02 through the 2022-12-31 cutoff. OOS uses sessions after that cutoff through 2025-12-31. The lookback is selected on IS net excess Sharpe relative to BIL, with ties going to the shorter window. The selected lookback was 63 sessions and is fixed for the full simulation. The OOS slice inherits the ending IS holdings.
-Costs and slippage: Each simulated buy and sell incurs 5 bps of transaction costs and 3 bps of modeled flat slippage on its traded notional, including initial purchases from cash. At each fill the simulator marks existing holdings to the close, solves for the post-friction portfolio value using the summed absolute trade notionals, and debits the combined 8 bps through that value.
-Signal lag: The signal uses daily returns through the close of the first session of each month. The target fills at the next session's close. Existing holdings earn the close-to-close return ending at the fill close, and the new holdings first earn the close-to-close return beginning at that close.
-Price adjustment: yfinance auto_adjust total-return
-Survivorship bias: The universe is a fixed, retrospectively chosen list of 11 extant sector ETFs, and the latest ETF inception constrains the sample start. The code requires valid prices for all symbols on every included date. The study excludes defunct and historical alternative funds and does not reconstruct historical sector membership.
-Parameter combinations tried: 2
-Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=0.13671182415859695, ann_vol=0.23113430220697076, sharpe=0.6708319767841268, sharpe_excess=0.630770117132093, max_drawdown=-0.37787273916039243, total_return=0.6695579976780794, turnover=19.385054975024566, n_trades=528
-    oos: cagr=0.16689941364976213, ann_vol=0.13575067891624554, sharpe=1.2050547293880252, sharpe_excess=0.8597358772578457, max_drawdown=-0.16030249331076818, total_return=0.5850254588015393, turnover=18.279828603002095, n_trades=396
-    full: cagr=0.14951340952440417, ann_vol=0.1960913759679985, sharpe=0.8093111274760761, sharpe_excess=0.6802341977691687, max_drawdown=-0.37787273916039243, total_return=1.6462919312654751, turnover=37.66488357802666, n_trades=924
-    benchmark  full: cagr=0.1454462070586071, ann_vol=0.18715241899944055, sharpe=0.8198122688853346, sharpe_excess=0.6845879051645858, max_drawdown=-0.36163460081567356, total_return=1.581587104523909, turnover=3.244542910611311, n_trades=924
-"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os
-_CONFIG_YAML = 'strategy: 480_topological_risk_parity\nuniverse: [XLB, XLC, XLE, XLF, XLI, XLK, XLP, XLRE, XLU, XLV, XLY]\nrisk_free_ticker: BIL\n\ndata_start: 2018-06-20\nstart: 2019-01-02\nis_end: 2022-12-31\nend: 2025-12-31\n\ncorrelation_lookback_candidates: [63, 126]\npropagation_rho: 1.0\nexecution_lag_sessions: 1\ncost_bps: 5.0\nslippage_bps: 3.0\n'
+_CONFIG_YAML = "strategy: 480_topological_risk_parity\nuniverse: [XLB, XLC, XLE, XLF, XLI, XLK, XLP, XLRE, XLU, XLV, XLY]\nrisk_free_ticker: BIL\n\ndata_start: 2018-06-20\nstart: 2019-01-02\nis_end: 2022-12-31\nend: 2025-12-31\n\ncorrelation_lookback_candidates: [63, 126]\npropagation_rho: 1.0\n# Signal on the first session's close each month. Fill one session later at the close.\nexecution_lag_sessions: 1\n# Use 95% of prior-close value to fix quantities. Reserve 5% before fees and price moves.\n# The fill uses these same quantities. A cash shortfall stops the simulation.\ncash_buffer_fraction: 0.05\ncost_bps: 5.0\nslippage_bps: 3.0\n"
 _orig_open = _b.open
 def _open(f, *a, **k):
     try:
@@ -38,6 +17,7 @@ _io.open = _open
 
 import hashlib
 import json
+import warnings
 from datetime import datetime, timezone
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -46,7 +26,10 @@ import numpy as np
 import pandas as pd
 import yaml
 import yfinance as yf
-from scipy.optimize import brentq
+from pandas.tseries.holiday import (
+    AbstractHolidayCalendar, GoodFriday, Holiday, USLaborDay, USMartinLutherKingJr,
+    USMemorialDay, USPresidentsDay, USThanksgivingDay, nearest_workday, sunday_to_monday,
+)
 from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import breadth_first_order, minimum_spanning_tree
 
@@ -57,17 +40,37 @@ SESSIONS_PER_YEAR = 252
 SECTOR_ETFS = frozenset("XLB XLC XLE XLF XLI XLK XLP XLRE XLU XLV XLY".split())
 
 
-def check_prices(prices, tickers, start, end):
+def exchange_sessions(start, end):
+    start, end = pd.Timestamp(start), pd.Timestamp(end)
+    if not 2018 <= start.year <= end.year <= 2028:
+        raise ValueError("NYSE Arca calendar covers 2018–2028")
+    calendar = AbstractHolidayCalendar(rules=[
+        Holiday("New Year's Day", month=1, day=1, observance=sunday_to_monday),
+        USMartinLutherKingJr, USPresidentsDay, GoodFriday, USMemorialDay,
+        Holiday("Juneteenth", month=6, day=19, start_date="2022-01-01", observance=nearest_workday),
+        Holiday("Independence Day", month=7, day=4, observance=nearest_workday),
+        USLaborDay, USThanksgivingDay,
+        Holiday("Christmas Day", month=12, day=25, observance=nearest_workday),
+    ])
+    mourning_closures = pd.DatetimeIndex(["2018-12-05", "2025-01-09"])
+    return pd.bdate_range(start, end).difference(calendar.holidays(start, end).union(mourning_closures))
+
+
+def check_prices(prices, tickers, sessions):
     prices = prices.reindex(columns=tickers)
     if (
-        prices.empty
+        not isinstance(prices.index, pd.DatetimeIndex)
         or not prices.index.is_unique
         or not prices.index.is_monotonic_increasing
-        or not prices.index.isin(pd.date_range(start, end)).all()
-        or prices.index[0] > pd.Timestamp(start) + pd.Timedelta(days=7)
-        or prices.index[-1] < pd.Timestamp(end) - pd.Timedelta(days=7)
     ):
-        raise ValueError("Incomplete or invalid date coverage in the ETF close data")
+        raise ValueError("Expected unique, increasing dates in the ETF close data")
+    if not prices.index.equals(sessions):
+        missing = sessions.difference(prices.index).strftime("%Y-%m-%d").tolist()
+        unexpected = prices.index.difference(sessions).strftime("%Y-%m-%d").tolist()
+        raise ValueError(
+            f"NYSE Arca session mismatch: {len(missing)} missing {missing[:5]}, "
+            f"{len(unexpected)} unexpected {unexpected[:5]}"
+        )
     valid = np.isfinite(prices) & (prices > 0)
     if not valid.to_numpy().all():
         missing = valid.columns[~valid.all()].tolist()
@@ -76,6 +79,7 @@ def check_prices(prices, tickers, start, end):
 
 
 def load_prices(tickers, start, end):
+    sessions = exchange_sessions(start, end)
     CACHE_DIR.mkdir(exist_ok=True)
     cache_key = f"yfinance-adjusted-close-v1|{start}|{end}|{','.join(tickers)}"
     cache_path = CACHE_DIR / f"closes_{hashlib.sha256(cache_key.encode()).hexdigest()[:16]}.csv"
@@ -86,7 +90,7 @@ def load_prices(tickers, start, end):
                 source, index_col=0, parse_dates=True, converters=dict.fromkeys(tickers, float),
             )
         datetime.fromisoformat(fetched_at)
-        return check_prices(prices, tickers, start, end), fetched_at
+        return check_prices(prices, tickers, sessions), fetched_at
 
     exclusive_end = (pd.Timestamp(end) + pd.Timedelta(days=1)).date()
     with TemporaryDirectory(dir=CACHE_DIR) as temporary:
@@ -98,7 +102,7 @@ def load_prices(tickers, start, end):
                 timeout=10,
             )
             try:
-                prices = check_prices(data["Close"], tickers, start, end)
+                prices = check_prices(data["Close"], tickers, sessions)
                 break
             except (KeyError, ValueError) as exc:
                 if attempt == 1:
@@ -115,7 +119,16 @@ def load_prices(tickers, start, end):
 
 def trp_weights(window, rho):
     corr = window.corr().to_numpy()
-    corr = np.clip(np.nan_to_num(corr), -1.0, 1.0)
+    undefined = ~np.isfinite(corr)
+    undefined_pairs = np.count_nonzero(np.triu(undefined, k=1))
+    if undefined_pairs:
+        warnings.warn(
+            f"{window.index[-1]} ({len(window)} sessions): "
+            f"using zero for {undefined_pairs} undefined pair correlations",
+            RuntimeWarning,
+            stacklevel=2,
+        )
+    corr = np.clip(np.where(undefined, 0.0, corr), -1.0, 1.0)
     distances = np.sqrt((1.0 - corr) / 2.0)
     # Sparse graphs treat zero as an absent edge. Keep perfectly correlated pairs.
     distances = np.maximum(distances, np.finfo(float).eps)
@@ -152,30 +165,67 @@ def strategy_targets(history, schedule, lookback, rho):
     return targets
 
 
-def simulate(returns, targets, friction):
-    weights = np.zeros(returns.shape[1])
+def rebalance_values(fixed_changes, close, cash, friction):
+    traded_value = np.abs(fixed_changes) @ close
+    net_purchase_value = fixed_changes @ close
+    return cash - net_purchase_value - traded_value * friction, traded_value
+
+
+def plan_rebalance(target, positions, cash, prior_close, cash_buffer, friction, sizing_date):
+    """Freeze the next session's share changes using the sizing session's close."""
+    prior_close_value = cash + positions @ prior_close
+    target_value = prior_close_value * (1.0 - cash_buffer)
+    fixed_changes = target_value * target / prior_close - positions
+    estimated_cash, _ = rebalance_values(fixed_changes, prior_close, cash, friction)
+    if not np.isfinite(estimated_cash) or estimated_cash <= 0.0:
+        raise ValueError(
+            f"{sizing_date.date()}: prior-close estimate leaves cash "
+            f"{estimated_cash:.8g} before the scheduled fill"
+        )
+    fixed_changes.setflags(write=False)
+    return fixed_changes
+
+
+def settle_rebalance(fixed_changes, fill_close, cash, friction, fill_date):
+    """Price the frozen share changes and reject a fill that would require borrowing."""
+    cash_after_fill, traded_value = rebalance_values(fixed_changes, fill_close, cash, friction)
+    if not np.isfinite(cash_after_fill) or cash_after_fill < 0.0:
+        raise ValueError(
+            f"{fill_date.date()}: fixed-share rebalance would leave cash {cash_after_fill:.8g} "
+            f"(starting cash {cash:.8g}, gross traded value {traded_value:.8g})"
+        )
+    return cash_after_fill, traded_value
+
+
+def simulate(closes, targets, friction, cash_buffer):
+    positions = np.zeros(closes.shape[1])
+    cash = previous_value = 1.0
+    fixed_changes = None
     daily_results = []
-    for date, asset_returns in zip(returns.index, returns.to_numpy(), strict=True):
+    for i, close in enumerate(closes.to_numpy()):
         # Old positions earn the close-to-close move ending at the fill close.
-        marked_weights = weights * (1.0 + asset_returns)
-        gross = 1.0 + weights @ asset_returns
-        weights = marked_weights / gross
+        value_before_fill = cash + positions @ close
+        closing_value = value_before_fill
         turnover = 0.0
         n_trades = 0
-        target = targets.get(date)
-        remaining = 1.0
-        if target is not None:
-            # Scale the target after fees so that resulting positions are fully funded.
-            remaining = brentq(
-                lambda fraction: fraction + friction * np.abs(fraction * target - weights).sum() - 1.0,
-                0.0, 1.0,
-            )
-            changes = np.abs(remaining * target - weights)
-            turnover = changes.sum()
-            n_trades = int(np.count_nonzero(changes > 1e-10))
-            weights = target
-        daily_results.append((gross * remaining - 1.0, turnover, n_trades))
-    return pd.DataFrame(daily_results, index=returns.index, columns=["return", "turnover", "n_trades"])
+        if fixed_changes is not None:
+            cash, traded_value = settle_rebalance(fixed_changes, close, cash, friction, closes.index[i])
+            positions += fixed_changes
+            closing_value = cash + positions @ close
+            turnover = traded_value / value_before_fill
+            n_trades = int(np.count_nonzero(fixed_changes))
+        daily_results.append((closing_value / previous_value - 1.0, turnover, n_trades))
+        previous_value = closing_value
+
+        # Commit quantities at this close for the next session's fill.
+        fixed_changes = None
+        if i + 1 < len(closes):
+            next_target = targets.get(closes.index[i + 1])
+            if next_target is not None:
+                fixed_changes = plan_rebalance(
+                    next_target, positions, cash, close, cash_buffer, friction, closes.index[i],
+                )
+    return pd.DataFrame(daily_results, index=closes.index, columns=["return", "turnover", "n_trades"])
 
 
 def metrics(daily_results, risk_free):
@@ -213,13 +263,16 @@ def main():
     windows = cfg["correlation_lookback_candidates"]
     rho = cfg["propagation_rho"]
     lag = cfg["execution_lag_sessions"]
+    cash_buffer = cfg["cash_buffer_fraction"]
     cost_bps, slippage_bps = cfg["cost_bps"], cfg["slippage_bps"]
     friction = (cost_bps + slippage_bps) / 10_000.0
     start, is_end, end = map(pd.Timestamp, (cfg["start"], cfg["is_end"], cfg["end"]))
     if not pd.Timestamp(cfg["data_start"]) < start < is_end < end:
         raise ValueError("Expected data_start < start < is_end < end")
-    if lag < 1 or not 0 <= rho <= 1 or min(cost_bps, slippage_bps) < 0 or not friction < 1:
-        raise ValueError("Invalid execution lag, propagation rho, costs, or slippage")
+    if type(lag) is not int or lag < 1 or not 0 <= rho <= 1 or not 0 <= friction < 1:
+        raise ValueError("Invalid execution lag, propagation rho, or total trading friction")
+    if not 0 < cash_buffer < 1 or not (cost_bps >= 0 and slippage_bps >= 0):
+        raise ValueError("Expected a cash buffer between zero and one and nonnegative trading costs")
     if not windows or min(windows) < 2 or len(set(windows)) != len(windows):
         raise ValueError("Correlation windows must be distinct and at least two sessions")
     if len(set(tickers)) != len(tickers) or len(tickers) < 2 or not SECTOR_ETFS.issuperset(tickers):
@@ -230,7 +283,7 @@ def main():
     prices, fetched_at = load_prices(tickers + [risk_free_ticker], cfg["data_start"], cfg["end"])
     daily_returns = prices.pct_change(fill_method=None)
     history = daily_returns[tickers]
-    sample = history.loc[start:end]
+    sample = prices.loc[start:end, tickers]
     risk_free = daily_returns[risk_free_ticker]
     training = sample.loc[:is_end]
     if len(training) < 2 or len(sample) - len(training) < 2:
@@ -240,16 +293,18 @@ def main():
     scores = {}
     for lookback in windows:
         targets = strategy_targets(history.loc[:is_end], training_schedule, lookback, rho)
-        results = simulate(training, targets, friction)
+        results = simulate(training, targets, friction, cash_buffer)
         scores[lookback] = metrics(results, risk_free.loc[:is_end])["sharpe_excess"]
-    chosen = max(windows, key=lambda days: (scores[days], -days))
+    chosen = max(windows, key=lambda days: (scores[days] if scores[days] is not None else -np.inf, -days))
 
     schedule = rebalance_dates(sample.index, lag)
     targets = strategy_targets(history, schedule, chosen, rho)
-    strategy_periods = period_metrics(simulate(sample, targets, friction), risk_free, is_end)
+    strategy_periods = period_metrics(simulate(sample, targets, friction, cash_buffer), risk_free, is_end)
     equal_weights = np.full(len(tickers), 1.0 / len(tickers))
     benchmark_targets = dict.fromkeys((fill_date for _, fill_date in schedule), equal_weights)
-    benchmark_periods = period_metrics(simulate(sample, benchmark_targets, friction), risk_free, is_end)
+    benchmark_periods = period_metrics(
+        simulate(sample, benchmark_targets, friction, cash_buffer), risk_free, is_end,
+    )
 
     report = {
         "strategy": cfg["strategy"],
@@ -260,6 +315,7 @@ def main():
     print(f"DATA_FETCHED_AT: {fetched_at}")
     print("PRICE_ADJUSTMENT: yfinance auto_adjust total-return")
     print(f"PARAM_COMBOS_TRIED: {len(scores)}")
+    print(f"IS_LOOKBACK_SHARPE_EXCESS: {json.dumps(scores, allow_nan=False)}")
     print(f"SELECTED_LOOKBACK_SESSIONS: {chosen}")
     for period in ("is", "oos", "full"):
         print(f"{period.upper()}: {json.dumps(strategy_periods[period], allow_nan=False)}")

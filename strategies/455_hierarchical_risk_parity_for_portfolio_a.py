@@ -1,28 +1,7 @@
-"""455_hierarchical_risk_parity_for_portfolio_a
-WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
-研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
-Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/455_hierarchical_risk_parity_for_portfolio_a.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit 9e9ff3660187503321abd71fccfdc940b2ed36ad on 2026-11-27 08:24 Europe/Oslo, exit 0, output sha256 06af2c94820b632dea2687d43b604867fb595e9d59f3c1623352d70279940e94
-Data source: Yahoo Finance 免费日频 ETF 收盘价，通过 yfinance 获取。ECH、COLO（原代码 GXG）和 EPU 用于配置组合，BIL 日收益仅用于事后计算超额夏普。（config.yaml:2-3，strategy.py:35-43、97-103、152-161、192-193，README.md:13-14）
-Data fetched: 2026-11-27T07:24:47+00:00
-Sample period: 预热行情请求起点为 2018-06-01，回测样本为 2019-07-01 至 2025-06-30（含首尾），运行日志确认实际回测首尾日期。（config.yaml:4-8，strategy.py:22-39、202、219，logs/run_20261127_080209.log:9）   data_range (from output): {'start': '2019-07-01', 'end': '2025-06-30'}
-IS/OOS split: 样本内为 2019-07-01 至 2022-06-30，样本外为 2022-07-01 至 2025-06-30，均含首尾。仅以样本内扣费后年化波动率选择滚动窗口，同值取较短窗口。样本外固定所选窗口长度、继续滚动更新并承接此前持仓。该次运行选中 252 个交易日。（config.yaml:5-10，strategy.py:108-120、125-150、208-223，README.md:15-16，logs/run_20261127_080209.log:4）
-Costs and slippage: 成本 5 bp，滑点以固定 5 bp 模拟，二者合计按每笔买入和卖出的绝对成交金额扣除 10 bp，包含首次建仓。代码以成交前净值为基准求解扣费后可投资净值。（config.yaml:12-13，strategy.py:104-106、125-150，README.md:21）
-Signal lag: 每月首个交易日 t 收盘生成信号，HRP 收益窗口包含截至 t 收盘的收益。信号在下一交易日 t+1 收盘模拟成交，至该收盘的收益先计入原持仓，新仓位从该收盘后的区间起计收益。（config.yaml:11，strategy.py:97-120、125-150、187-188，README.md:20）
-Price adjustment: yfinance auto_adjust total-return close in USD
-Survivorship bias: 固定标的池选自写作时仍存续且可取得历史行情的 ETF，存在幸存者偏差，且缺少逐时点指数成分记录。（config.yaml:2，strategy.py:192-202，README.md:25）
-Parameter combinations tried: 3
-Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=-0.09884731767727062, ann_vol=0.26196154947233397, sharpe=-0.26378711453746884, sharpe_excess=-0.2804710787964837, max_drawdown=-0.49499398642121284, total_return=-0.26849757918330486, turnover=3.9296663068218685, n_trades=108
-    oos: cagr=0.17410835997712137, ann_vol=0.19861438689344474, sharpe=0.9076020373247549, sharpe_excess=0.6841442694336285, max_drawdown=-0.18964149542179443, total_return=0.6133977325807809, turnover=2.587488787466822, n_trades=108
-    full: cagr=0.028074718863321912, ann_vol=0.23263645058079369, sharpe=0.23678269808010283, sharpe_excess=0.13251120153366142, max_drawdown=-0.49499398642121284, total_return=0.18020434712300748, turnover=6.51715509428869, n_trades=216
-    benchmark: cagr=0.0412885494919486, ann_vol=0.23863000290028194, sharpe=0.29052220590185546, sharpe_excess=0.18885502868120382, max_drawdown=-0.5201813497509501, total_return=0.27393611600976175, turnover=3.2269502547061473, n_trades=216
-"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os
-_CONFIG_YAML = 'strategy: "455_ hierarchical_risk_parity_for_portfolio_a"\nuniverse: [ECH, COLO, EPU]\nrisk_free_ticker: BIL\nhistory_start: 2018-06-01\nstart: 2019-07-01\nis_end: 2022-06-30\noos_start: 2022-07-01\nend: 2025-06-30\nlookback_sessions: [63, 126, 252]\nlinkage: single\nsignal_lag_sessions: 1\ncost_bps: 5\nslippage_bps: 5\n'
+_CONFIG_YAML = 'strategy: "455_hierarchical_risk_parity_for_portfolio_a"\n# Fixed regional ETF proxies. COLO includes the same fund\'s GXG history.\nuniverse: [ECH, COLO, EPU]\nrisk_free_ticker: BIL\nhistory_start: 2018-06-01\nstart: 2019-07-01\nis_end: 2022-06-30\noos_start: 2022-07-01\nend: 2025-06-30\nlookback_sessions: [63, 126, 252]\n# Keep 63 sessions for all IS signals. Use the lowest IS volatility to select the OOS window.\ninitial_lookback_sessions: 63\nlinkage: single\n# Count sessions from the first session\'s close each month to the fill close.\n# Quantities are locked at the prior session\'s close.\nsignal_lag_sessions: 1\ncost_bps: 5\nslippage_bps: 5\n# Use 97% of the prior-close portfolio value to fix quantities before fees.\n# Budget uses same-fill sale proceeds. Cash shortfalls stop the simulation.\ncash_buffer_bps: 300\n'
 _orig_open = _b.open
 def _open(f, *a, **k):
     try:
@@ -34,18 +13,22 @@ def _open(f, *a, **k):
 _b.open = _open
 _io.open = _open
 # --- end shim ---
-"""Walk-forward hierarchical risk parity on three NUAM country proxies."""
+"""Hierarchical risk parity on three NUAM country proxies."""
 
 from datetime import datetime, timezone
 from hashlib import sha256
+from io import BytesIO
 import json
 from pathlib import Path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 
 import numpy as np
 import pandas as pd
+from pandas.tseries.holiday import (
+    AbstractHolidayCalendar, GoodFriday, Holiday, USLaborDay, USMartinLutherKingJr,
+    USMemorialDay, USPresidentsDay, USThanksgivingDay, nearest_workday, sunday_to_monday,
+)
 from scipy.cluster.hierarchy import leaves_list, linkage
-from scipy.optimize import brentq
 from scipy.spatial.distance import squareform
 import yaml
 import yfinance as yf
@@ -53,6 +36,47 @@ import yfinance as yf
 
 ROOT = Path(__file__).resolve().parent
 SESSIONS_PER_YEAR = 252
+# Shared full-day closures for this sample's NYSE Arca and Cboe BZX listings.
+US_EQUITY_HOLIDAYS = AbstractHolidayCalendar(rules=[
+    Holiday("New Year's Day", month=1, day=1, observance=sunday_to_monday),
+    USMartinLutherKingJr,
+    USPresidentsDay,
+    GoodFriday,
+    USMemorialDay,
+    Holiday("Juneteenth", month=6, day=19, observance=nearest_workday, start_date="2022-01-01"),
+    Holiday("Independence Day", month=7, day=4, observance=nearest_workday),
+    USLaborDay,
+    USThanksgivingDay,
+    Holiday("Christmas", month=12, day=25, observance=nearest_workday),
+])
+US_EQUITY_SPECIAL_CLOSURES = pd.DatetimeIndex(["2018-12-05", "2025-01-09"])
+
+
+def validate_closes(prices, tickers, start, end):
+    dates = prices.index
+    if (
+        not isinstance(dates, pd.DatetimeIndex) or dates.tz is not None
+        or dates.hasnans or not dates.equals(dates.normalize())
+        or not dates.is_monotonic_increasing or not dates.is_unique
+    ):
+        raise ValueError("Expected unique, chronological US session dates in Yahoo Finance closes")
+    if len(prices.columns) != len(tickers) or set(prices.columns) != set(tickers):
+        raise ValueError("Yahoo Finance closes must contain exactly one column per requested ticker")
+    prices = prices.loc[start:end, tickers].astype(float)
+    if not 2018 <= start.year <= end.year <= 2025:
+        raise ValueError("The NYSE Arca and Cboe BZX sample calendar covers 2018–2025")
+    closures = US_EQUITY_HOLIDAYS.holidays(start, end).union(US_EQUITY_SPECIAL_CLOSURES)
+    expected = pd.bdate_range(start, end).difference(closures)
+    if not prices.index.equals(expected):
+        missing = expected.difference(prices.index).strftime("%Y-%m-%d").tolist()
+        extra = prices.index.difference(expected).strftime("%Y-%m-%d").tolist()
+        raise ValueError(f"US equity session mismatch. Missing: {missing}. Unexpected: {extra}")
+    values = prices.to_numpy()
+    if not np.isfinite(values).all() or (values <= 0).any():
+        raise ValueError("Yahoo Finance closes must be complete, finite and strictly positive")
+    prices.index = expected.rename("Date")
+    prices.columns.name = None
+    return prices
 
 
 def adjusted_closes(tickers, start, end):
@@ -61,39 +85,40 @@ def adjusted_closes(tickers, start, end):
     exclusive_end = end + pd.Timedelta(days=1)
     cache_key = f"adjusted-close|{','.join(tickers)}|{start.date()}|{exclusive_end.date()}"
     cache_path = cache_dir / f"closes_{sha256(cache_key.encode()).hexdigest()[:16]}.csv"
-    if cache_path.exists():
-        with cache_path.open(encoding="utf-8") as source:
-            fetched_at = source.readline().strip()
-            datetime.fromisoformat(fetched_at)
-            prices = pd.read_csv(source, index_col="Date", parse_dates=["Date"])
-            return prices.loc[:, tickers], fetched_at
+    try:
+        snapshot = cache_path.read_bytes()
+        downloaded = False
+    except FileNotFoundError:
+        with TemporaryDirectory(dir=cache_dir) as session_cache:
+            yf.set_tz_cache_location(session_cache)
+            quotes = yf.download(
+                tickers, start=start.date().isoformat(), end=exclusive_end.date().isoformat(),
+                interval="1d", auto_adjust=True, keepna=True, ignore_tz=True,
+                progress=False, threads=False, timeout=10,
+            )
+        if quotes.empty or "Close" not in quotes:
+            raise RuntimeError("Yahoo Finance returned no adjusted closing prices")
+        fetched_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        snapshot = f"{fetched_at}\n{quotes['Close'].to_csv(index_label='Date')}".encode("utf-8")
+        downloaded = True
 
-    with TemporaryDirectory(dir=cache_dir) as session_cache:
-        yf.set_tz_cache_location(session_cache)
-        quotes = yf.download(
-            tickers, start=start.date().isoformat(), end=exclusive_end.date().isoformat(),
-            auto_adjust=True, progress=False, threads=False, timeout=10,
-        )
-    if quotes.empty or "Close" not in quotes:
-        raise RuntimeError("Yahoo Finance returned no adjusted closing prices")
-    prices = quotes["Close"].reindex(columns=tickers).dropna(how="all").sort_index()
-    if prices.empty or not np.isfinite(prices).all().all() or (prices <= 0).any().any():
-        missing = prices.columns[prices.isna().any()].tolist()
-        raise RuntimeError(f"Incomplete or invalid Yahoo Finance closes. Missing data: {missing}")
-    if prices.index.has_duplicates:
-        raise RuntimeError("Yahoo Finance returned duplicate session dates")
-
-    fetched_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
-    with NamedTemporaryFile(mode="w", encoding="utf-8", dir=cache_dir, delete=False) as destination:
-        temp_path = Path(destination.name)
-        try:
-            destination.write(f"{fetched_at}\n")
-            prices.to_csv(destination, index_label="Date")
-            destination.flush()
-            temp_path.replace(cache_path)
-        finally:
-            temp_path.unlink(missing_ok=True)
-    return prices, fetched_at
+    # Always simulate from the same CSV bytes that are used to compute the data hash.
+    header, _, csv_data = snapshot.partition(b"\n")
+    fetched_at = header.decode("utf-8").strip()
+    if datetime.fromisoformat(fetched_at).utcoffset() is None:
+        raise ValueError("Price cache fetch timestamp requires a UTC offset")
+    prices = pd.read_csv(BytesIO(csv_data), index_col="Date", parse_dates=["Date"])
+    prices = validate_closes(prices, tickers, start, end)
+    if downloaded:
+        with NamedTemporaryFile(dir=cache_dir, delete=False) as destination:
+            temp_path = Path(destination.name)
+            try:
+                destination.write(snapshot)
+                destination.flush()
+                temp_path.replace(cache_path)
+            finally:
+                temp_path.unlink(missing_ok=True)
+    return prices, fetched_at, sha256(snapshot).hexdigest()
 
 
 def cluster_variance(covariance, members):
@@ -130,16 +155,14 @@ def hrp_weights(log_returns, linkage_method):
     return weights
 
 
-def simulate(prices, equity_tickers, config, lookback=None):
-    """Mark the old holdings at each close before applying that close's fills."""
+def rebalance_targets(equity_prices, config, lookback, oos_lookback):
     start = pd.Timestamp(config["start"])
-    sessions = prices.index
-    equity_prices = prices[equity_tickers]
-    simple_returns = equity_prices.pct_change().to_numpy()
+    oos_start = pd.Timestamp(config["oos_start"])
+    sessions = equity_prices.index
     log_returns = np.log(equity_prices).diff().to_numpy()
-    equal_weights = np.full(len(equity_tickers), 1.0 / len(equity_tickers))
+    n_assets = len(equity_prices.columns)
+    equal_weights = np.full(n_assets, 1.0 / n_assets)
     lag = config["signal_lag_sessions"]
-    trade_rate = (config["cost_bps"] + config["slippage_bps"]) / 10_000
 
     # The first session of each month can be identified at that day's close.
     targets = {}
@@ -147,61 +170,110 @@ def simulate(prices, equity_tickers, config, lookback=None):
         execution = signal + lag
         if execution >= len(sessions) or sessions[execution] < start:
             continue
-        if lookback is None:
+        window_length = lookback
+        if oos_lookback is not None and sessions[signal] >= oos_start:
+            window_length = oos_lookback
+        if window_length is None:
             targets[execution] = equal_weights
         else:
-            if signal < lookback:
+            if signal < window_length:
                 raise ValueError(f"Insufficient warm-up history for {sessions[signal].date()}")
-            window = log_returns[signal - lookback + 1:signal + 1]
+            window = log_returns[signal - window_length + 1:signal + 1]
             targets[execution] = hrp_weights(window, config["linkage"])
+    return targets
 
-    if not targets:
-        raise ValueError("No scheduled rebalance within the simulation period")
 
-    weights = np.zeros(len(equity_tickers))
+def trade_cash_flows(changes, prices, trade_rate):
+    amounts = changes * prices
+    traded = float(np.abs(amounts).sum())
+    fees = trade_rate * traded
+    return float(amounts.sum()) + fees, fees, traded
+
+
+def simulate(prices, equity_tickers, config, lookback=None, oos_lookback=None):
+    """Size at the prior close and apply the locked quantities at the fill close."""
+    prices = prices.loc[pd.Timestamp(config["history_start"]):pd.Timestamp(config["end"])]
+    equity_prices = prices[equity_tickers]
+    sessions = equity_prices.index
+    closes = equity_prices.to_numpy()
+    targets = rebalance_targets(equity_prices, config, lookback, oos_lookback)
+    trade_rate = (config["cost_bps"] + config["slippage_bps"]) / 10_000
+    invested_fraction = 1.0 - config["cash_buffer_bps"] / 10_000
+    first_session = sessions.searchsorted(pd.Timestamp(config["start"]))
+
+    positions = np.zeros(len(equity_tickers))
     cash = 1.0
-    rows = []
-    first_session = sessions.searchsorted(start)
-    for session in range(first_session, len(sessions)):
-        holdings = weights * (1.0 + simple_returns[session])
-        equity_before_fills = holdings.sum() + cash
-        held = holdings / equity_before_fills
-        target = targets.get(session)
-        turnover, trades, equity_fraction = 0.0, 0, 1.0
-        if target is None:
-            weights = held
-            cash /= equity_before_fills
-        else:
-            # Solve for post-cost equity so buys, sells and fees use the same cash balance.
-            def cash_balance(fraction):
-                traded = np.abs(fraction * target - held).sum()
-                return fraction + trade_rate * traded - 1.0
+    previous_value = cash
+    previous_close = closes[max(0, first_session - 1)]
+    planned_changes = None
+    daily_results = []
+    for session in range(max(0, first_session - 1), len(sessions)):
+        closing_prices = closes[session]
+        value_before_fill = float(positions @ closing_prices + cash)
+        price_profit = float(positions @ (closing_prices - previous_close))
+        fees, turnover, trades = 0.0, 0.0, 0
+        if planned_changes is not None:
+            spent, fees, traded = trade_cash_flows(planned_changes, closing_prices, trade_rate)
+            cash_after_fill = cash - spent
+            if not np.isfinite(cash_after_fill):
+                raise RuntimeError(f"Nonfinite cash at the simulated fill on {sessions[session].date()}")
+            if cash_after_fill < 0:
+                raise RuntimeError(
+                    f"Predetermined quantities exceed cash on {sessions[session].date()} "
+                    f"by {-cash_after_fill:.8g} per unit of starting capital"
+                )
+            cash = cash_after_fill
+            positions += planned_changes
+            turnover = traded / value_before_fill
+            trades = int(np.count_nonzero(planned_changes))
 
-            equity_fraction = brentq(cash_balance, 0.0, 1.0)
-            changes = np.abs(equity_fraction * target - held)
-            turnover = float(changes.sum())
-            trades = int(np.count_nonzero(changes > 1e-10))
-            weights = target
-            cash = 0.0
-        rows.append((equity_before_fills * equity_fraction - 1.0, turnover, trades))
+        closing_value = value_before_fill - fees
+        if session >= first_session:
+            daily_return = (price_profit - fees) / previous_value
+            daily_results.append((daily_return, turnover, trades, cash / closing_value))
+        previous_value = closing_value
+        previous_close = closing_prices
 
-    performance = pd.DataFrame(rows, index=sessions[first_session:], columns=["return", "turnover", "trades"])
-    performance["cash_proxy"] = prices[config["risk_free_ticker"]].pct_change()
-    return performance
+        # Shares for the next session are fixed here, including the cash reserve.
+        next_target = targets.get(session + 1)
+        planned_changes = None
+        if next_target is not None:
+            target_positions = previous_value * invested_fraction * next_target / closing_prices
+            if not np.isfinite(target_positions).all() or (target_positions < 0).any():
+                raise RuntimeError(f"Invalid long-only quantities at sizing on {sessions[session].date()}")
+            planned_changes = target_positions - positions
+            # Ignore machine-precision differences before locking the quantities.
+            unchanged = np.isclose(target_positions, positions, rtol=8 * np.finfo(float).eps, atol=0.0)
+            planned_changes[unchanged] = 0.0
+            estimated_spend, _, _ = trade_cash_flows(planned_changes, closing_prices, trade_rate)
+            if not np.isfinite(estimated_spend):
+                raise RuntimeError(f"Nonfinite estimated cash use at sizing on {sessions[session].date()}")
+            if estimated_spend > cash:
+                raise RuntimeError(
+                    f"Predetermined quantities exceed cash at sizing on {sessions[session].date()} "
+                    f"by {estimated_spend - cash:.8g} per unit of starting capital"
+                )
+            planned_changes.setflags(write=False)
+
+    daily = pd.DataFrame(
+        daily_results, index=sessions[first_session:], columns=["return", "turnover", "trades", "cash_fraction"],
+    )
+    daily["cash_proxy"] = prices[config["risk_free_ticker"]].pct_change(fill_method=None)
+    return daily
 
 
 def metrics(performance):
-    if len(performance) < 2:
-        raise ValueError("Each reporting period requires at least two sessions")
+    if performance.empty:
+        raise ValueError("Each reporting period requires at least one session")
     daily = performance["return"].to_numpy()
     excess = daily - performance["cash_proxy"].to_numpy()
     wealth = np.r_[1.0, np.cumprod(1.0 + daily)]
     annualization = np.sqrt(SESSIONS_PER_YEAR)
-    daily_vol = daily.std(ddof=1)
-    excess_vol = excess.std(ddof=1)
+    daily_vol = daily.std(ddof=1) if len(daily) > 1 else None
+    excess_vol = excess.std(ddof=1) if len(excess) > 1 and np.isfinite(excess).all() else None
     return {
         "cagr": float(wealth[-1] ** (SESSIONS_PER_YEAR / len(daily)) - 1.0),
-        "ann_vol": float(daily_vol * annualization),
+        "ann_vol": float(daily_vol * annualization) if daily_vol is not None else None,
         "sharpe": float(daily.mean() * annualization / daily_vol) if daily_vol else None,
         "sharpe_excess": float(excess.mean() * annualization / excess_vol) if excess_vol else None,
         "max_drawdown": float((wealth / np.maximum.accumulate(wealth) - 1.0).min()),
@@ -225,31 +297,39 @@ def main():
     for key in ("cost_bps", "slippage_bps"):
         if not 0 <= config[key] < 5_000:
             raise ValueError(f"Invalid basis points for {key}")
+    if not 0 < config["cash_buffer_bps"] < 10_000:
+        raise ValueError("cash_buffer_bps must be positive and less than 10,000")
     assets = config["universe"]
     tickers = [*assets, config["risk_free_ticker"]]
     windows = config["lookback_sessions"]
+    initial_window = config["initial_lookback_sessions"]
     if len(assets) < 2 or len(tickers) != len(set(tickers)):
         raise ValueError("Use at least two distinct assets and a separate cash proxy")
     if not windows or any(type(window) is not int or window < 2 for window in windows):
         raise ValueError("lookback_sessions must contain integers of at least two")
     if len(windows) != len(set(windows)):
         raise ValueError("lookback_sessions must contain distinct windows")
+    if type(initial_window) is not int or initial_window not in windows:
+        raise ValueError("initial_lookback_sessions must be one of the candidate windows")
 
-    prices, fetched_at = adjusted_closes(tickers, history_start, end)
-    if prices.index[0] > start or prices.index[-1] < oos_start:
-        raise ValueError("Downloaded prices do not cover both reporting periods")
-    if end - prices.index[-1] > pd.Timedelta(days=7):
-        raise ValueError(f"Downloaded prices end too early: {prices.index[-1].date()}")
+    prices, fetched_at, data_hash = adjusted_closes(tickers, history_start, end)
 
     # Candidate trials see only warm-up and IS data. Lower IS volatility wins.
-    trials = []
+    trial_vols = {}
     for window in windows:
         trial = simulate(prices.loc[:is_end], assets, config, lookback=window)
-        trials.append((metrics(trial)["ann_vol"], window))
-    _, selected_window = min(trials)
+        trial_vols[window] = metrics(trial)["ann_vol"]
+    if any(vol is None for vol in trial_vols.values()):
+        raise ValueError("Window selection requires at least two IS sessions")
+    selected_window = min(trial_vols, key=lambda window: (trial_vols[window], window))
 
-    strategy = simulate(prices, assets, config, lookback=selected_window)
+    # The IS starting positions must come from the predeclared window.
+    strategy = simulate(prices, assets, config, lookback=initial_window, oos_lookback=selected_window)
     benchmark = simulate(prices, assets, config)
+    minimum_fill_cash = {}
+    for name, daily in (("hrp", strategy), ("benchmark", benchmark)):
+        fill_cash = daily.loc[daily["trades"] > 0, "cash_fraction"]
+        minimum_fill_cash[name] = None if fill_cash.empty else float(fill_cash.min())
     results = {
         "strategy": config["strategy"],
         "data_range": {"start": str(strategy.index[0].date()), "end": str(strategy.index[-1].date())},
@@ -260,12 +340,18 @@ def main():
     }
 
     print(f"DATA_FETCHED_AT: {fetched_at}")
+    print(f"DATA_SHA256: {data_hash}")
     print("PRICE_ADJUSTMENT: yfinance auto_adjust total-return close in USD")
-    print(f"PARAM_COMBOS_TRIED: {len(trials)}")
+    print(f"PARAM_COMBOS_TRIED: {len(trial_vols)}")
+    print(f"IS_CANDIDATE_ANN_VOL: {json.dumps(trial_vols, allow_nan=False)}")
+    print(f"INITIAL_LOOKBACK_SESSIONS: {initial_window}")
     print(f"SELECTED_LOOKBACK_SESSIONS: {selected_window}")
+    print(f"MIN_POST_FILL_CASH_FRACTION: {json.dumps(minimum_fill_cash, allow_nan=False)}")
     print(f"IS: {json.dumps(results['is'], allow_nan=False)}")
     print(f"OOS: {json.dumps(results['oos'], allow_nan=False)}")
     print(f"FULL: {json.dumps(results['full'], allow_nan=False)}")
+    print(f"BENCHMARK (equal weight, IS): {json.dumps(metrics(benchmark.loc[:is_end]), allow_nan=False)}")
+    print(f"BENCHMARK (equal weight, OOS): {json.dumps(metrics(benchmark.loc[oos_start:]), allow_nan=False)}")
     print(f"BENCHMARK (equal weight, full period): {json.dumps(results['benchmark'], allow_nan=False)}")
     print(f"RESULTS_JSON: {json.dumps(results, allow_nan=False)}")
 

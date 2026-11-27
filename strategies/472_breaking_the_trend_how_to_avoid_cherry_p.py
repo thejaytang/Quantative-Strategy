@@ -1,28 +1,7 @@
-"""472_breaking_the_trend_how_to_avoid_cherry_p
-WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
-研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
-Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/472_breaking_the_trend_how_to_avoid_cherry_p.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit e0683ac343a175cb2458afc860f8d1a1066c8e3a on 2026-11-27 08:56 Europe/Oslo, exit 0, output sha256 9fa7880cb8362894dd09717cf9bdcd65b0c364af38a028774917f555ba597aa5
-Data source: yfinance 免费日频美国上市 ETF 收盘价。标的为 SPY、EFA、IEF、TLT、GLD、DBC、UUP、FXE，现金代理为 BIL（config.yaml:2-7，strategy.py:36-46、192-195，README.md:15）。运行日志记录的价格下载时间为 2026-11-27T07:06:46+00:00（logs/run_20261127_080852.log:1，strategy.py:26-29、53-59、231）。
-Data fetched: 2026-11-27T07:56:23+00:00
-Sample period: 配置的下载窗口为 2008-01-01 至 2026-10-31，2008 至 2011 年用于预热，评估窗口为 2012-01-01 至 2026-10-31（config.yaml:8-12，README.md:17，strategy.py:218-224）。日志报告的实际评估交易日范围为 2012-01-03 至 2026-10-30（logs/run_20261127_080852.log:12，strategy.py:236-238）。   data_range (from output): {'start': '2012-01-03', 'end': '2026-10-30'}
-IS/OOS split: 按日期切分，IS 为 2012-01-01 至 2023-12-31（含），OOS 为 2024-01-01 至 2026-10-31（含）。先连续模拟，再分段统计，切分处沿用组合状态（config.yaml:8-12，strategy.py:218-226、240-248）。README 记载部分 OOS 日期早于论文首次公开（README.md:17）。
-Costs and slippage: 配置显式建模单边 1 bp 交易成本及 2 bps 固定滑点。每次调仓按 ETF 实际交易名义金额绝对值之和扣除合计 3 bps。模拟器以调仓前组合价值为基数计算扣费比例，并迭代使目标权重按扣费后净值计量。基准的首次买入采用相同费率（config.yaml:13-16，strategy.py:139-165、201-216、226-229，README.md:21）。
-Signal lag: 用交易日 t 的收盘价计算目标权重，配置将目标后移 1 个交易日，于 t+1 收盘执行。直到 t+1 收盘的收益由旧权重承担，扣除调仓费用后，新权重自下一收益区间起生效（config.yaml:13-14，strategy.py:79-90、133-165、208-209、218-226，README.md:21）。
-Price adjustment: yfinance auto_adjust=True total-return adjusted close
-Survivorship bias: 八只 ETF 的名单事后固定，覆盖存续且有长历史的基金。README 披露存续偏差和资产选择偏差（config.yaml:2-7，strategy.py:192-195，README.md:25）。
-Parameter combinations tried: 1
-Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=0.038585417207515516, ann_vol=0.05478770435153061, sharpe=0.7185013752802843, sharpe_excess=0.5550262906784298, max_drawdown=-0.08397768135521233, total_return=0.5736754256141616, turnover=5.085605736658835, n_trades=24144
-    oos: cagr=0.10771048132982042, ann_vol=0.06564504769539736, sharpe=1.5914615375338634, sharpe_excess=0.9386632265187207, max_drawdown=-0.04697540638228814, total_return=0.33458283152837964, turnover=5.277652609306083, n_trades=5688
-    full: cagr=0.05142397295818801, ann_vol=0.057030808875734626, sharpe=0.9079084863390342, sharpe_excess=0.6377005461323761, max_drawdown=-0.08397768135521233, total_return=1.1002002054227757, turnover=5.1222228797138625, n_trades=29832
-    benchmark: cagr=0.060740543311831985, ann_vol=0.07609381738171149, sharpe=0.8130867160481745, sharpe_excess=0.6100628789576021, max_drawdown=-0.16906578280270168, total_return=1.3930662492999342, turnover=0.06755817180831214, n_trades=8
-"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os
-_CONFIG_YAML = 'strategy: 472_breaking_the_trend_how_to_avoid_cherry_p\nuniverse:\n  equity: [SPY, EFA]\n  bonds: [IEF, TLT]\n  commodities: [GLD, DBC]\n  currencies: [UUP, FXE]\ncash_proxy: BIL\ndates:\n  data_start: 2008-01-01\n  start: 2012-01-01\n  is_end: 2023-12-31\n  end: 2026-10-31\nexecution:\n  lag_sessions: 1\n  cost_bps: 1.0\n  slippage_bps: 2.0\nmodel:\n  trend_decay_sessions: 112\n  risk_decay_sessions: 40\n  correlation_decay_weeks: 150\n  min_correlation_weeks: 52\n  correlation_shrinkage: 0.10\n  smoothing_sessions: 20\n  annual_vol_target: 0.10\n  max_gross_weight: 1.0\n  sessions_per_year: 252\n'
+_CONFIG_YAML = 'strategy: 472_breaking_the_trend_how_to_avoid_cherry_p\nuniverse:\n  equity: [SPY, EFA]\n  bonds: [IEF, TLT]\n  commodities: [GLD, DBC]\n  currencies: [UUP, FXE]\ncash_proxy: BIL\ndates:\n  data_start: 2008-01-01\n  start: 2012-01-01\n  is_end: 2023-12-31\n  end: 2026-10-31\n  source_published: 2025-04-15\nexecution:\n  lag_sessions: 1  # Close-to-close signal lag in US market sessions.\n  cost_bps: 1.0\n  slippage_bps: 2.0\n  cash_buffer: 0.10  # Cap planned gross at 90% of prior-close value for both strategy and benchmark.\nmodel:\n  trend_decay_sessions: 112\n  risk_decay_sessions: 40\n  correlation_decay_weeks: 150\n  min_correlation_weeks: 52\n  correlation_shrinkage: 0.10\n  smoothing_sessions: 20\n  annual_vol_target: 0.10\n  max_gross_weight: 1.0\n  sessions_per_year: 252\n'
 _orig_open = _b.open
 def _open(f, *a, **k):
     try:
@@ -46,11 +25,43 @@ import numpy as np
 import pandas as pd
 import yaml
 import yfinance as yf
+from pandas.tseries.holiday import (
+    AbstractHolidayCalendar,
+    GoodFriday,
+    Holiday,
+    USLaborDay,
+    USMartinLutherKingJr,
+    USMemorialDay,
+    USPresidentsDay,
+    USThanksgivingDay,
+    nearest_workday,
+    sunday_to_monday,
+)
 
 
 ROOT = Path(__file__).resolve().parent
 CACHE = ROOT / "data_cache"
 PRICE_ADJUSTMENT = "yfinance auto_adjust=True total-return adjusted close"
+
+
+class USMarketCalendar(AbstractHolidayCalendar):
+    # Full-day US equity market closures within the backtest calendar's coverage.
+    rules = [
+        Holiday("New Year's Day", month=1, day=1, observance=sunday_to_monday),
+        USMartinLutherKingJr,
+        USPresidentsDay,
+        GoodFriday,
+        USMemorialDay,
+        Holiday("Juneteenth", month=6, day=19, start_date="2022-01-01", observance=nearest_workday),
+        Holiday("Independence Day", month=7, day=4, observance=nearest_workday),
+        USLaborDay,
+        USThanksgivingDay,
+        Holiday("Christmas Day", month=12, day=25, observance=nearest_workday),
+        Holiday("Hurricane Sandy, first day", year=2012, month=10, day=29),
+        Holiday("Hurricane Sandy, second day", year=2012, month=10, day=30),
+        Holiday("George H. W. Bush day of mourning", year=2018, month=12, day=5),
+        Holiday("Jimmy Carter day of mourning", year=2025, month=1, day=9),
+    ]
 
 
 def load_prices(tickers, start, end):
@@ -102,13 +113,19 @@ def check_prices(prices, tickers, start, end):
     prices.index = prices.index.as_unit("ns").rename("date")
     prices.columns.name = None
     prices = prices.loc[start:end]
-    if prices.empty:
-        raise ValueError("No daily prices in the requested date range")
+    if start.year < 2008 or end.year > 2026:
+        raise ValueError("US market calendar covers 2008–2026")
+    calendar = USMarketCalendar()
+    expected = pd.bdate_range(start, end).difference(calendar.holidays(start, end))
+    missing = expected.difference(prices.index)
+    unexpected = prices.index.difference(expected)
+    if len(missing):
+        raise ValueError(f"Missing US market sessions: {', '.join(missing.strftime('%Y-%m-%d')[:10])}")
+    if len(unexpected):
+        raise ValueError(f"Unexpected price dates: {', '.join(unexpected.strftime('%Y-%m-%d')[:10])}")
     invalid = ~np.isfinite(prices) | (prices <= 0)
     if invalid.any().any():
         raise ValueError(f"Missing or invalid prices for {', '.join(invalid.columns[invalid.any()])}")
-    if prices.index[0] - start > pd.Timedelta(days=7) or end - prices.index[-1] > pd.Timedelta(days=7):
-        raise ValueError("Price history does not cover the requested date range")
     return prices
 
 
@@ -166,47 +183,72 @@ def trend_targets(prices, tickers, cash_proxy, model):
     return pd.DataFrame(targets, index=prices.index, columns=tickers)
 
 
-def simulate(returns, cash_returns, targets, friction):
-    weights = np.zeros(returns.shape[1])
+def size_positions(previous_close, previous_value, target, gross_limit):
+    size_fraction = gross_limit / max(gross_limit, np.abs(target).sum())
+    return target * (previous_value * size_fraction) / previous_close
+
+
+def simulate(closes, previous_closes, cash_returns, targets, friction, cash_buffer):
+    positions = np.zeros(closes.shape[1])
+    gross_limit = 1 - cash_buffer
+    cash = previous_value = 1.0
     rows = []
-    for asset_returns, cash_return, target in zip(
-        returns.to_numpy(), cash_returns.to_numpy(), targets.to_numpy()
+    for date, close, previous_close, cash_return, target in zip(
+        closes.index, closes.to_numpy(), previous_closes.to_numpy(),
+        cash_returns.to_numpy(), targets.to_numpy(),
     ):
-        asset_values = weights * (1 + asset_returns)
-        growth = asset_values.sum() + (1 - weights.sum()) * (1 + cash_return)
-        if not np.isfinite(growth) or growth <= 0:
-            raise ValueError("Portfolio value became nonpositive or invalid")
-        drifted = asset_values / growth
-        if np.isnan(target).all():
-            weights = drifted
-            rows.append((growth - 1, 0.0, 0))
-            continue
+        # Lock the next positions using only the information at the sizing close.
+        next_positions = positions
+        if np.isfinite(target).all():
+            next_positions = size_positions(
+                previous_close, previous_value, target, gross_limit,
+            )
+        planned_changes = next_positions - positions
 
-        # Target weights are fractions of value after the execution charge.
-        charge = 0.0
-        for _ in range(20):
-            traded = target * (1 - charge) - drifted
-            turnover = np.abs(traded).sum()
-            next_charge = friction * turnover
-            if abs(next_charge - charge) < 1e-13:
-                break
-            charge = next_charge
-        else:
-            raise ValueError("Execution charge computation did not converge")
+        # Mark the old positions and accrue interest before applying the fixed fill.
+        previous_long_value = np.maximum(positions, 0) @ previous_close
+        market_pnl = positions @ (close - previous_close)
+        interest = (previous_value - previous_long_value) * cash_return
+        cash_before_fill = cash + interest
+        value_before_fill = cash_before_fill + positions @ close
+        if not np.isfinite(value_before_fill) or value_before_fill <= 0:
+            raise ValueError(f"Portfolio value became nonpositive or invalid on {date.date()}")
 
-        net_growth = growth * (1 - next_charge)
-        if net_growth <= 0:
-            raise ValueError("Execution charges exhausted portfolio value")
-        weights = target.copy()
-        rows.append((net_growth - 1, turnover, np.count_nonzero(np.abs(traded) > 1e-10)))
+        traded = np.abs(planned_changes) @ close
+        fee = friction * traded
+        cash_after_fill = cash_before_fill - (planned_changes @ close + fee)
+        short_collateral = 2 * (np.maximum(-next_positions, 0) @ close)
+        value_after_fill = cash_after_fill + next_positions @ close
+        if not np.isfinite(value_after_fill) or value_after_fill <= 0 or cash_after_fill < short_collateral:
+            raise ValueError(f"Insufficient cash or short collateral for fixed shares on {date.date()}")
 
-    return pd.DataFrame(rows, index=returns.index, columns=["return", "turnover", "n_trades"])
+        daily_return = cash_return + (market_pnl - previous_long_value * cash_return - fee) / previous_value
+        rows.append((daily_return, traded / value_before_fill, np.count_nonzero(planned_changes)))
+        positions = next_positions
+        cash = cash_after_fill
+        previous_value = value_after_fill
+
+    return pd.DataFrame(rows, index=closes.index, columns=["return", "turnover", "n_trades"])
+
+
+def simulate_pair(prices, cash_returns, targets, friction, cash_buffer):
+    closes = prices.loc[targets.index]
+    previous_closes = prices.shift(1).loc[targets.index]
+    cash_returns = cash_returns.loc[targets.index]
+    passive_targets = pd.DataFrame(np.nan, index=targets.index, columns=targets.columns)
+    if not passive_targets.empty:
+        passive_targets.iloc[0] = 1 / len(prices.columns)
+    return (
+        simulate(closes, previous_closes, cash_returns, targets, friction, cash_buffer),
+        simulate(closes, previous_closes, cash_returns, passive_targets, friction, cash_buffer),
+    )
 
 
 def metrics(daily_results, cash_returns, sessions_per_year):
     returns = daily_results["return"]
-    if len(returns) < 2:
-        raise ValueError("Expected at least two sessions per reporting period")
+    if returns.empty:
+        keys = ("cagr", "ann_vol", "sharpe", "sharpe_excess", "max_drawdown", "total_return", "turnover")
+        return dict.fromkeys(keys) | {"n_trades": 0}
     excess = returns - cash_returns.loc[returns.index]
     values = np.r_[1.0, (1 + returns).cumprod().to_numpy()]
     scale = np.sqrt(sessions_per_year)
@@ -214,7 +256,7 @@ def metrics(daily_results, cash_returns, sessions_per_year):
     excess_vol = excess.std(ddof=1)
     return {
         "cagr": float(values[-1] ** (sessions_per_year / len(returns)) - 1),
-        "ann_vol": float(vol * scale),
+        "ann_vol": float(vol * scale) if np.isfinite(vol) else None,
         "sharpe": float(returns.mean() * scale / vol) if vol > 0 else None,
         "sharpe_excess": float(excess.mean() * scale / excess_vol) if excess_vol > 0 else None,
         "max_drawdown": float((values / np.maximum.accumulate(values) - 1).min()),
@@ -234,9 +276,11 @@ def main():
     data_start, start, is_end, end = (
         pd.Timestamp(config["dates"][key]) for key in ("data_start", "start", "is_end", "end")
     )
+    source_published = pd.Timestamp(config["dates"]["source_published"])
     execution = config["execution"]
     lag = execution["lag_sessions"]
     cost_bps, slippage_bps = execution["cost_bps"], execution["slippage_bps"]
+    cash_buffer = execution["cash_buffer"]
     model = config["model"]
     sessions_per_year = model["sessions_per_year"]
     if not (data_start < start <= is_end < end):
@@ -245,6 +289,8 @@ def main():
         raise ValueError("Execution lag must be at least one session")
     if min(cost_bps, slippage_bps) < 0 or cost_bps + slippage_bps >= 10_000:
         raise ValueError("Invalid transaction cost or slippage")
+    if not 0 < cash_buffer < 1:
+        raise ValueError("Cash buffer must be in (0, 1)")
     if not (0 < model["correlation_shrinkage"] <= 1 and 0 < model["max_gross_weight"] <= 1):
         raise ValueError("Correlation shrinkage and gross exposure cap must be in (0, 1]")
     if min(model["annual_vol_target"], sessions_per_year) <= 0:
@@ -252,30 +298,33 @@ def main():
     friction = (cost_bps + slippage_bps) / 10_000
 
     prices, fetched_at = load_prices(symbols, data_start, end)
-    realized = prices.pct_change(fill_method=None).loc[start:end]
-    cash_returns = realized[cash_proxy]
-    asset_returns = realized[tickers]
-    targets = trend_targets(prices, tickers, cash_proxy, model).shift(lag).loc[realized.index]
+    cash_returns = prices[cash_proxy].pct_change(fill_method=None).loc[start:end]
+    dates = cash_returns.index
+    targets = trend_targets(prices, tickers, cash_proxy, model).shift(lag).loc[dates]
     if not np.isfinite(targets).all().all():
         raise ValueError("Insufficient warm-up history for one or more requested sessions")
 
-    daily_results = simulate(asset_returns, cash_returns, targets, friction)
-    passive_targets = pd.DataFrame(np.nan, index=targets.index, columns=tickers)
-    passive_targets.iloc[0] = 1 / len(tickers)
-    passive_results = simulate(asset_returns, cash_returns, passive_targets, friction)
+    daily_results, passive_results = simulate_pair(prices[tickers], cash_returns, targets, friction, cash_buffer)
+    # Start from cash on the first OOS fill whose signal follows publication.
+    public_signal = pd.Series(prices.index > source_published, index=prices.index)
+    public_fill = public_signal.shift(lag, fill_value=False).loc[dates]
+    post_targets = targets.loc[(dates > is_end) & public_fill]
+    post_results, post_passive_results = simulate_pair(
+        prices[tickers], cash_returns, post_targets, friction, cash_buffer,
+    )
 
     print(f"DATA_FETCHED_AT: {fetched_at}")
     print(f"PRICE_ADJUSTMENT: {PRICE_ADJUSTMENT}")
     print("PARAM_COMBOS_TRIED: 1")
     print(f"EXCESS_SHARPE_REFERENCE: {cash_proxy}")
-    print(f"BENCHMARK: Equal-weight buy-and-hold ({', '.join(tickers)})")
+    print(f"BENCHMARK: Buy-and-hold with equal initial target weights ({', '.join(tickers)})")
     output = {
         "strategy": config["strategy"],
-        "data_range": {"start": str(realized.index[0].date()), "end": str(realized.index[-1].date())},
+        "data_range": {"start": str(dates[0].date()), "end": str(dates[-1].date())},
     }
     for name, mask in (
-        ("is", realized.index <= is_end),
-        ("oos", realized.index > is_end),
+        ("is", dates <= is_end),
+        ("oos", dates > is_end),
         ("full", slice(None)),
     ):
         output[name] = metrics(daily_results.loc[mask], cash_returns, sessions_per_year)
@@ -283,6 +332,12 @@ def main():
         print(f"{name.upper()}: {json.dumps(output[name], allow_nan=False)}")
         print(f"BENCHMARK_{name.upper()}: {json.dumps(passive, allow_nan=False)}")
     output["benchmark"] = passive
+    for label, results in (
+        ("OOS_POST_PUBLICATION", post_results),
+        ("BENCHMARK_OOS_POST_PUBLICATION", post_passive_results),
+    ):
+        stats = metrics(results, cash_returns, sessions_per_year)
+        print(f"{label}: {json.dumps(stats, allow_nan=False)}")
     print(f"RESULTS_JSON: {json.dumps(output, allow_nan=False)}")
 
 

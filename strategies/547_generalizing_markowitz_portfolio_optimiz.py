@@ -1,28 +1,7 @@
-"""547_generalizing_markowitz_portfolio_optimiz
-WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
-研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
-Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/547_generalizing_markowitz_portfolio_optimiz.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit 69a306c0280e31031e1c1674f053aa22730544ac on 2026-11-27 09:47 Europe/Oslo, exit 0, output sha256 eaa61849ff7726942397fc803a2d4f2b482dd605464c66a87bc982996d2fc46d
-Data source: Yahoo Finance via yfinance daily ETF closes for XLK, XLF, XLE and XLV. BIL daily total returns are used solely as the cash proxy for excess-return statistics. The downloader uses an on-disk cache and records the original fetch time, which the supplied run reports as 2026-11-27T08:20:37+00:00.
-Data fetched: 2026-11-27T08:47:57+00:00
-Sample period: The realized backtest runs from 2010-01-04 through 2025-12-31. The requested price history starts on 2008-01-01 to supply the rolling estimation window.   data_range (from output): {'start': '2010-01-04', 'end': '2025-12-31'}
-IS/OOS split: In-sample runs from 2010-01-04 through 2017-12-29 and out-of-sample from 2018-01-02 through 2025-12-31. The split partitions one continuous simulation, carrying portfolio state and rolling estimates across the boundary. The five robustness variants are run on the in-sample period only. This is a retrospective chronological holdout.
-Costs and slippage: The default applies 2 bps of cost and 3 bps of modeled slippage to the executed dollar value of every buy and sell, including initial entry. On each execution date, the simulator solves for the remaining portfolio value after charging 5 bps on total absolute traded dollars and deducts the charge from portfolio value. The in-sample friction stress test applies 4 bps of cost and 6 bps of slippage.
-Signal lag: At the close of the first backtest session and each subsequent month's first trading session, the optimizer uses daily returns through that close to compute target weights. The target fills at the next trading session's close. The old positions earn the return through the execution close, and the new positions first earn returns over the following close-to-close interval.
-Price adjustment: yfinance auto_adjust=True, dividend- and split-adjusted total-return closes
-Survivorship bias: The fixed four-ETF universe was formed retrospectively from surviving funds and omits historical exits. The README identifies survivorship and hindsight selection bias.
-Parameter combinations tried: 6
-Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=0.13057256533969697, ann_vol=0.16138670017749449, sharpe=0.8415858942580361, sharpe_excess=0.8378256283229593, max_drawdown=-0.25904429755690395, total_return=1.66534256810258, turnover=2.7217498158316893, n_trades=219
-    oos: cagr=0.16683576108616127, ann_vol=0.22284519313778237, sharpe=0.8044545805505107, sharpe_excess=0.6952984080051652, max_drawdown=-0.31153216806510253, total_return=2.425691805781753, turnover=2.797859395619548, n_trades=217
-    full: cagr=0.14855204484709716, ann_vol=0.19452356627552708, sharpe=0.8098453527505234, sharpe_excess=0.7458668791405988, max_drawdown=-0.31153216806510253, total_return=8.130642195150307, turnover=2.7597856918141406, n_trades=436
-    benchmark: cagr=0.1288610798657226, ann_vol=0.18497753736361533, sharpe=0.7482960014445226, sharpe_excess=0.6810549314895016, max_drawdown=-0.39914032845198444, total_return=5.927505394448202, turnover=0.35132228744946703, n_trades=768
-"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os
-_CONFIG_YAML = 'strategy: 547_generalizing_markowitz_portfolio_optimiz\nuniverse: [XLK, XLF, XLE, XLV]\nrisk_free_ticker: BIL\n\nhistory_start: 2008-01-01\nstart: 2010-01-04\nis_end: 2017-12-29\nend: 2025-12-31\nsignal_lag_sessions: 1\n\nlookback_sessions: 252\nrisk_aversion: 8.0\ncovariance_shrinkage: 0.10\nturnover_penalty: 0.15\ncost_bps: 2.0\nslippage_bps: 3.0\n\nrobustness:\n  lookback_sessions: [210, 294]\n  turnover_penalty: [0.10, 0.20]\n  friction_multiplier: 2.0\n'
+_CONFIG_YAML = 'strategy: 547_generalizing_markowitz_portfolio_optimiz\nuniverse: [XLK, XLF, XLE, XLV]\nrisk_free_ticker: BIL\n\nhistory_start: 2008-01-01\nstart: 2010-01-04\nis_end: 2017-12-29\nend: 2025-12-31\n# Signal at close t, lock quantities one session before the scheduled fill close.\nsignal_lag_sessions: 1\n# Reserve this fraction of sizing-close value. A fill that would make cash negative stops the simulation.\ncash_buffer_fraction: 0.05\n\nlookback_sessions: 252\nrisk_aversion: 8.0\ncovariance_shrinkage: 0.10\nturnover_penalty: 0.15\ncost_bps: 2.0\nslippage_bps: 3.0\n\nrobustness:\n  lookback_sessions: [210, 294]\n  turnover_penalty: [0.10, 0.20]\n  friction_multiplier: 2.0\n'
 _orig_open = _b.open
 def _open(f, *a, **k):
     try:
@@ -36,6 +15,7 @@ _io.open = _open
 # --- end shim ---
 """Monthly long-only sector allocation with a quadratic turnover penalty."""
 
+import argparse
 import json
 import signal
 from datetime import datetime, timezone
@@ -46,16 +26,71 @@ import numpy as np
 import pandas as pd
 import yaml
 import yfinance as yf
-from scipy.optimize import brentq, minimize
+from pandas.tseries.holiday import (
+    AbstractHolidayCalendar,
+    GoodFriday,
+    Holiday,
+    USLaborDay,
+    USMartinLutherKingJr,
+    USMemorialDay,
+    USPresidentsDay,
+    USThanksgivingDay,
+    nearest_workday,
+    sunday_to_monday,
+)
+from scipy.optimize import minimize
 
 
 ROOT = Path(__file__).resolve().parent
 CACHE_DIR = ROOT / "data_cache"
 SESSIONS_PER_YEAR = 252
-TIME_LIMIT_SECONDS = 13 * 60
+TIME_LIMIT_SECONDS = 9 * 60
+MIN_ORDER_VALUE_FRACTION = 1e-10
+
+
+class NyseHolidayCalendar(AbstractHolidayCalendar):
+    rules = [
+        Holiday("New Year's Day", month=1, day=1, observance=sunday_to_monday),
+        USMartinLutherKingJr,
+        USPresidentsDay,
+        GoodFriday,
+        USMemorialDay,
+        Holiday("Juneteenth", month=6, day=19, start_date="2022-01-01", observance=nearest_workday),
+        Holiday("Independence Day", month=7, day=4, observance=nearest_workday),
+        USLaborDay,
+        USThanksgivingDay,
+        Holiday("Christmas Day", month=12, day=25, observance=nearest_workday),
+    ]
+
+
+def nyse_sessions(first_date, last_date):
+    start, end = pd.Timestamp(first_date), pd.Timestamp(last_date)
+    if start < pd.Timestamp("2008-01-01") or end > pd.Timestamp("2025-12-31"):
+        raise ValueError("The historical closure calendar covers 2008 through 2025.")
+    holidays = NyseHolidayCalendar().holidays(start, end)
+    # Hurricane Sandy and two national days of mourning.
+    closures = pd.DatetimeIndex(["2012-10-29", "2012-10-30", "2018-12-05", "2025-01-09"])
+    return pd.bdate_range(start, end).difference(holidays.union(closures))
+
+
+def validate_price_panel(prices, expected_sessions):
+    if prices.index.has_duplicates:
+        raise ValueError("Daily adjusted closes contain duplicate dates.")
+    missing = expected_sessions.difference(prices.index)
+    unexpected = prices.index.difference(expected_sessions)
+    if len(missing) or len(unexpected):
+        raise ValueError(
+            f"Daily adjusted close dates disagree with the NYSE calendar. "
+            f"Missing ({len(missing)}): {missing[:5].strftime('%Y-%m-%d').tolist()}. "
+            f"Unexpected ({len(unexpected)}): {unexpected[:5].strftime('%Y-%m-%d').tolist()}."
+        )
+    values = prices.to_numpy(dtype=float)
+    if prices.empty or not np.isfinite(values).all() or (values <= 0).any():
+        raise ValueError("Expected a complete panel of positive adjusted closes for all configured ETFs.")
 
 
 def adjusted_closes(tickers, first_date, last_date):
+    expected_sessions = nyse_sessions(first_date, last_date)
     CACHE_DIR.mkdir(exist_ok=True)
     cache_name = f"yfinance_adjusted_close_{'_'.join(tickers)}_{first_date}_{last_date}.csv"
     cache_path = CACHE_DIR / cache_name
@@ -78,12 +113,7 @@ def adjusted_closes(tickers, first_date, last_date):
         fetched_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
 
     prices = prices.reindex(columns=tickers).sort_index().loc[str(first_date):str(last_date)]
-    values = prices.to_numpy(dtype=float)
-    if prices.empty or prices.index.has_duplicates or not np.isfinite(values).all() or (values <= 0).any():
-        raise ValueError("Expected a complete panel of positive adjusted closes for all configured ETFs.")
-    if (prices.index[0] - pd.Timestamp(first_date) > pd.Timedelta(days=7)
-            or pd.Timestamp(last_date) - prices.index[-1] > pd.Timedelta(days=7)):
-        raise ValueError("Adjusted close coverage does not span the configured price dates.")
+    validate_price_panel(prices, expected_sessions)
     if not cache_path.exists():
         with NamedTemporaryFile(mode="w", dir=CACHE_DIR, delete=False) as temporary:
             temporary_path = Path(temporary.name)
@@ -97,18 +127,18 @@ def adjusted_closes(tickers, first_date, last_date):
     return prices, fetched_at
 
 
-def optimal_weights(sample, positions, settings):
+def optimal_weights(sample, current_weights, settings):
     expected_return = sample.mean(axis=0) * SESSIONS_PER_YEAR
     covariance = np.cov(sample, rowvar=False) * SESSIONS_PER_YEAR
-    identity = np.eye(len(positions))
+    identity = np.eye(len(current_weights))
     shrinkage = settings["covariance_shrinkage"]
     shrunk_covariance = (1 - shrinkage) * covariance + shrinkage * covariance.diagonal().mean() * identity
     penalty = settings["turnover_penalty"]
     quadratic = settings["risk_aversion"] * shrunk_covariance + penalty * identity
-    adjusted_return = expected_return + penalty * positions
+    adjusted_return = expected_return + penalty * current_weights
 
     # Proposition 8 gives the budget-constrained stationary point.
-    ones = np.ones(len(positions))
+    ones = np.ones(len(current_weights))
     return_direction, budget_direction = np.linalg.solve(
         quadratic, np.column_stack((adjusted_return, ones)),
     ).T
@@ -122,7 +152,7 @@ def optimal_weights(sample, positions, settings):
         lambda weights: 0.5 * weights @ quadratic @ weights - adjusted_return @ weights,
         starting_weights / starting_weights.sum(),
         jac=lambda weights: quadratic @ weights - adjusted_return,
-        bounds=[(0.0, 1.0)] * len(positions),
+        bounds=[(0.0, 1.0)] * len(current_weights),
         constraints={"type": "eq", "fun": lambda weights: weights.sum() - 1, "jac": lambda weights: ones},
         method="SLSQP",
         options={"ftol": 1e-12, "maxiter": 100},
@@ -133,46 +163,103 @@ def optimal_weights(sample, positions, settings):
     return weights / weights.sum()
 
 
-def simulate(returns, start, settings, *, equal_weight=False):
-    first_session = returns.index.searchsorted(start)
+def size_rebalance(target, positions, cash, sizing_close, friction, cash_buffer):
+    """Fix both sides of the rebalance using the close before execution."""
+    value = cash + positions @ sizing_close
+    reserve = value * cash_buffer
+    changes = (value - reserve) * target / sizing_close - positions
+    changes[np.abs(changes) * sizing_close <= value * MIN_ORDER_VALUE_FRACTION] = 0.0
+    sells = np.maximum(-changes, 0.0)
+    buys = np.maximum(changes, 0.0)
+    estimated_sale_proceeds = (sells @ sizing_close) * (1 - friction)
+    spendable_cash = max(0.0, cash + estimated_sale_proceeds - reserve)
+    estimated_buy_cost = (buys @ sizing_close) * (1 + friction)
+    # Apply the cash limit while sizing, using the same close as the target quantities.
+    if estimated_buy_cost > spendable_cash:
+        buys *= spendable_cash / estimated_buy_cost
+    sells.setflags(write=False)
+    buys.setflags(write=False)
+    return sells, buys
+
+
+def fill_rebalance(sells, buys, cash, fill_close, friction):
+    """Settle the fixed quantities at the execution close."""
+    sale_value = sells @ fill_close
+    buy_value = buys @ fill_close
+    traded_value = sale_value + buy_value
+    cash_after_fill = cash + sale_value - buy_value - friction * traded_value
+    if not np.isfinite(cash_after_fill):
+        raise ArithmeticError("Settlement produced a nonfinite cash balance.")
+    if cash_after_fill < 0:
+        raise ArithmeticError(f"Locked quantities exceed cash by {-cash_after_fill:.6g}.")
+    return cash_after_fill, traded_value
+
+
+def simulate(prices, start, settings, *, equal_weight=False, audit_label=None):
+    first_session = prices.index.searchsorted(start)
     lag = settings["signal_lag_sessions"]
     lookback = settings["lookback_sessions"]
-    if first_session < lookback - 1 or first_session + lag >= len(returns):
-        raise ValueError("Insufficient sessions for the configured estimation window and execution lag.")
+    if not lookback <= first_session < len(prices):
+        raise ValueError("Expected a backtest session preceded by a full estimation window.")
     friction = (settings["cost_bps"] + settings["slippage_bps"]) / 10_000
-    values = returns.to_numpy()
-    months = returns.index.to_period("M")
-    equal_target = np.full(returns.shape[1], 1 / returns.shape[1])
-    positions = np.zeros(returns.shape[1])
+    cash_buffer = settings["cash_buffer_fraction"]
+    returns = prices.pct_change(fill_method=None).to_numpy()
+    closes = prices.to_numpy()
+    months = prices.index.to_period("M")
+    equal_target = np.full(prices.shape[1], 1 / prices.shape[1])
+    positions = np.zeros(prices.shape[1])
+    cash = previous_value = 1.0
     scheduled = {}
+    pending_rebalance = None
     records = []
 
-    for session in range(first_session, len(returns)):
-        gross_factor = 1 + positions @ values[session]
-        positions = positions * (1 + values[session]) / gross_factor
+    for session in range(first_session, len(prices)):
+        close = closes[session]
+        value_before_fill = cash + positions @ close
         turnover = 0.0
         trades = 0
+        if pending_rebalance is not None:
+            signal_session, sizing_session, sells, buys = pending_rebalance
+            try:
+                cash, traded_value = fill_rebalance(sells, buys, cash, close, friction)
+            except ArithmeticError as error:
+                raise ArithmeticError(f"{prices.index[session].date()} close: {error}") from error
+            positions = positions - sells + buys
+            trades = int(np.count_nonzero(sells) + np.count_nonzero(buys))
+            turnover = traded_value / value_before_fill
+            if audit_label is not None:
+                audit = {
+                    "simulation": audit_label,
+                    "signal_date": str(prices.index[signal_session].date()),
+                    "sizing_date": str(prices.index[sizing_session].date()),
+                    "fill_date": str(prices.index[session].date()),
+                    "sizing_closes": dict(zip(prices.columns, closes[sizing_session].tolist())),
+                    "fill_closes": dict(zip(prices.columns, close.tolist())),
+                    "quantity_changes": dict(zip(prices.columns, (buys - sells).tolist())),
+                    "traded_value": float(traded_value),
+                    "cash_after_fill": float(cash),
+                }
+                print("FILL_AUDIT: " + json.dumps(audit, allow_nan=False))
+            pending_rebalance = None
 
-        if session in scheduled:
-            target = scheduled.pop(session)
-            # Solve for the fraction of value left after paying costs on the executed dollars.
-            retained = brentq(
-                lambda fraction: fraction + friction * np.abs(fraction * target - positions).sum() - 1,
-                0.0, 1.0, xtol=1e-14,
-            )
-            traded = np.abs(retained * target - positions)
-            turnover = float(traded.sum())
-            trades = int(np.count_nonzero(traded > 1e-10))
-            gross_factor *= retained
-            positions = target
-
-        records.append((gross_factor - 1, turnover, trades))
+        value = cash + positions @ close
+        records.append((value / previous_value - 1, turnover, trades))
+        previous_value = value
         is_signal_session = session == first_session or months[session] != months[session - 1]
-        if is_signal_session and session + lag < len(returns):
-            sample = values[session - lookback + 1:session + 1]
-            scheduled[session + lag] = equal_target if equal_weight else optimal_weights(sample, positions, settings)
+        if is_signal_session and session + lag < len(prices):
+            sample = returns[session - lookback + 1:session + 1]
+            current_weights = positions * close / value
+            target = equal_target if equal_weight else optimal_weights(sample, current_weights, settings)
+            scheduled[session + lag - 1] = (session, target)
 
-    return pd.DataFrame(records, index=returns.index[first_session:], columns=["return", "turnover", "n_trades"])
+        # Lock quantities at this close for execution at the next session's close.
+        scheduled_target = scheduled.pop(session, None)
+        if scheduled_target is not None:
+            signal_session, target = scheduled_target
+            sells, buys = size_rebalance(target, positions, cash, close, friction, cash_buffer)
+            pending_rebalance = (signal_session, session, sells, buys)
+
+    return pd.DataFrame(records, index=prices.index[first_session:], columns=["return", "turnover", "n_trades"])
 
 
 def metrics(daily_results, risk_free_returns):
@@ -185,7 +272,7 @@ def metrics(daily_results, risk_free_returns):
     excess_volatility = excess.std(ddof=1)
     return {
         "cagr": float(growth[-1] ** (SESSIONS_PER_YEAR / len(returns)) - 1),
-        "ann_vol": float(volatility * annual_scale),
+        "ann_vol": float(volatility * annual_scale) if pd.notna(volatility) else None,
         "sharpe": float(returns.mean() / volatility * annual_scale) if volatility > 0 else None,
         "sharpe_excess": float(excess.mean() / excess_volatility * annual_scale) if excess_volatility > 0 else None,
         "max_drawdown": float((growth / running_peak - 1).min()),
@@ -208,7 +295,7 @@ def robustness_cases(settings):
     }
 
 
-def main():
+def main(*, audit_fills=False):
     with (ROOT / "config.yaml").open(encoding="utf-8") as source:
         settings = yaml.safe_load(source)
     start = pd.Timestamp(settings["start"])
@@ -219,6 +306,8 @@ def main():
     lag = settings["signal_lag_sessions"]
     if not isinstance(lag, int) or lag < 1:
         raise ValueError("Execution lag must be at least one full trading session.")
+    if not 0 < settings["cash_buffer_fraction"] < 1:
+        raise ValueError("The cash buffer fraction must be positive and below 1.")
     universe = settings["universe"]
     risk_free_ticker = settings["risk_free_ticker"]
     tickers = [*universe, risk_free_ticker]
@@ -233,18 +322,20 @@ def main():
             raise ValueError("Combined costs must be nonnegative and below 10,000 bps.")
 
     prices, fetched_at = adjusted_closes(tickers, settings["history_start"], settings["end"])
-    returns = prices.pct_change().iloc[1:]
-    sector_returns = returns[universe]
-    risk_free_returns = returns[risk_free_ticker]
+    sector_prices = prices[universe]
+    risk_free_returns = prices[risk_free_ticker].pct_change(fill_method=None)
+    print(f"RUN_DIRECTORY: {Path.cwd()}")
     print(f"DATA_FETCHED_AT: {fetched_at}", flush=True)
     print("PRICE_ADJUSTMENT: yfinance auto_adjust=True, dividend- and split-adjusted total-return closes")
 
-    daily_results = simulate(sector_returns, start, settings)
-    benchmark = simulate(sector_returns, start, settings, equal_weight=True)
+    daily_results = simulate(sector_prices, start, settings, audit_label="strategy" if audit_fills else None)
+    benchmark = simulate(
+        sector_prices, start, settings, equal_weight=True, audit_label="benchmark" if audit_fills else None,
+    )
     is_results = daily_results.loc[:split]
     oos_results = daily_results.loc[daily_results.index > split]
-    if min(len(is_results), len(oos_results)) < 2:
-        raise ValueError("Both sample periods need at least two realized sessions.")
+    if is_results.empty or oos_results.empty:
+        raise ValueError("Both sample periods need at least one session.")
     data_range = {"start": str(daily_results.index[0].date()), "end": str(daily_results.index[-1].date())}
     results = {
         "strategy": settings["strategy"],
@@ -259,11 +350,17 @@ def main():
     print(f"SHARPE_EXCESS_PROXY: {risk_free_ticker} daily total return")
     for period in ("is", "oos", "full"):
         print(f"{period.upper()}: {json.dumps(results[period], allow_nan=False)}")
-    print(f"BENCHMARK (monthly equal weight, full): {json.dumps(results['benchmark'], allow_nan=False)}")
+    benchmark_periods = {
+        "IS": metrics(benchmark.loc[is_results.index], risk_free_returns),
+        "OOS": metrics(benchmark.loc[oos_results.index], risk_free_returns),
+        "FULL": results["benchmark"],
+    }
+    for period, values in benchmark_periods.items():
+        print(f"BENCHMARK (monthly equal weight, {period}): {json.dumps(values, allow_nan=False)}")
 
     print("ROBUSTNESS (IS only, no parameter selection)")
     for name, case in cases:
-        case_results = simulate(sector_returns.loc[:split], start, case)
+        case_results = simulate(sector_prices.loc[:split], start, case, audit_label=name if audit_fills else None)
         print(f"  {name}: {json.dumps(metrics(case_results, risk_free_returns), allow_nan=False)}")
     print(f"PARAM_COMBOS_TRIED: {1 + len(cases)}")
     print("RESULTS_JSON: " + json.dumps(results, allow_nan=False))
@@ -274,9 +371,12 @@ def time_limit_reached(_signum, _frame):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--audit-fills", action="store_true", help="Print the locked quantities and prices at each rebalance.")
+    args = parser.parse_args()
     signal.signal(signal.SIGALRM, time_limit_reached)
     signal.alarm(TIME_LIMIT_SECONDS)
     try:
-        main()
+        main(audit_fills=args.audit_fills)
     finally:
         signal.alarm(0)

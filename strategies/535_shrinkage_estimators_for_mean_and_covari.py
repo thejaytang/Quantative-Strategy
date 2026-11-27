@@ -1,28 +1,7 @@
-"""535_shrinkage_estimators_for_mean_and_covari
-WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
-研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
-Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/535_shrinkage_estimators_for_mean_and_covari.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit 69a306c0280e31031e1c1674f053aa22730544ac on 2026-11-27 09:47 Europe/Oslo, exit 0, output sha256 1f483635520a4915e9ee27679a380fa81e56a1c04f3390c1120acb8ea0cab9a0
-Data source: Yahoo Finance via yfinance, daily USD ETF prices. The fixed sector universe is XLB, XLE, XLF, XLI, XLK, XLP, XLU, XLV and XLY. BIL supplies the daily cash proxy for excess-return metrics.
-Data fetched: 2026-11-27T08:47:40+00:00
-Sample period: Price history starts on 2012-09-20 for warm-up. The configured backtest start is 2014-01-01, and the logged evaluation runs from the first simulated fill on 2014-01-02 through 2026-10-30, inclusive.   data_range (from output): {'start': '2014-01-02', 'end': '2026-10-30'}
-IS/OOS split: IS is 2014-01-02 through 2024-06-06 inclusive. OOS is 2024-06-07 through 2026-10-30 inclusive. The cutoff is the original paper's sample end and the split is retrospective. The default specification runs continuously across the boundary, carrying drifted holdings and continuing rolling estimation. The four alternative specifications run only on IS data.
-Costs and slippage: The default models 2 bps of fees and 3 bps of fixed slippage per dollar bought or sold, for 5 bps combined. The IS stress case uses 4 bps of fees and 6 bps of slippage, for 10 bps combined. At each fill, including initial entry, the charge is deducted from NAV using the summed absolute dollar changes between drifted pre-fill holdings and post-charge target holdings. The equal-weight benchmark uses the default friction on the same fill dates.
-Signal lag: Targets use trailing daily sector ETF returns through the last trading session of the month, t. The default fill is at the next trading session's close, t+1. Existing holdings receive the close-to-close return ending at t+1, then costs are deducted on the turnover and target weights take effect for the following close-to-close interval.
-Price adjustment: yfinance auto_adjust=True dividend- and split-adjusted close total-return
-Survivorship bias: The same nine retrospectively selected surviving sector ETFs make up the eligible universe throughout the sample. This creates fund-selection and survivorship exposure, and the universe omits later-launched sector funds and historical sector classification changes.
-Parameter combinations tried: 5
-Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=0.09877330090042968, ann_vol=0.14376956811215993, sharpe=0.7274094373013541, sharpe_excess=0.6398388795983337, max_drawdown=-0.3289705975411237, total_return=1.667632625981481, turnover=1.702995707227871, n_trades=667
-    oos: cagr=0.09909133205491871, ann_vol=0.10873532775466782, sharpe=0.9234431140841088, sharpe_excess=0.5431153283473106, max_drawdown=-0.10958684526440088, total_return=0.2532137403419994, turnover=1.3006442896956496, n_trades=161
-    full: cagr=0.09883262293956352, ann_vol=0.13789573411217346, sharpe=0.7527550631832428, sharpe_excess=0.6225275910840667, max_drawdown=-0.3289705975411237, total_return=2.343113861064592, turnover=1.6279366575363936, n_trades=828
-    benchmark  full: cagr=0.1225191885055057, ann_vol=0.16141666114745035, sharpe=0.7971842107083177, sharpe_excess=0.685930455365503, max_drawdown=-0.3671546014215489, total_return=3.39297929934423, turnover=0.3829550787054165, n_trades=1386
-"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os
-_CONFIG_YAML = 'strategy: "535_ shrinkage_estimators_for_mean_and_covari"\nuniverse: [XLB, XLE, XLF, XLI, XLK, XLP, XLU, XLV, XLY]\nrisk_free: BIL\nbenchmark: equal_weight\n\ndata_start: 2012-09-20\nbacktest_start: 2014-01-01\nis_end: 2024-06-06\nbacktest_end: 2026-10-30\n\nlookback_days: 260\nrebalance_frequency: monthly\nexecution_lag_days: 1\ncost_bps: 2.0\nslippage_bps: 3.0\n\nrobustness:\n  lookback_days: [234, 252, 286]\n  high_cost_bps: 4.0\n  high_slippage_bps: 6.0\n'
+_CONFIG_YAML = "strategy: 535_shrinkage_estimators_for_mean_and_covari\nuniverse: [XLB, XLE, XLF, XLI, XLK, XLP, XLU, XLV, XLY]\nrisk_free: BIL\nbenchmark: equal_weight  # Primary benchmark in RESULTS_JSON.\n\ndata_start: 2012-09-20\nbacktest_start: 2014-01-02  # First simulated session, after the 2013-12-31 signal.\nis_end: 2024-06-06  # Inclusive, the cited paper's data cutoff.\nbacktest_end: 2026-10-30\n# Full-day NYSE closures for Hurricane Sandy and two national days of mourning.\nexceptional_market_closures: [2012-10-29, 2012-10-30, 2018-12-05, 2025-01-09]\n\nlookback_days: 260\nrebalance_frequency: monthly\n# Count NYSE sessions from the signal close to the fill close.\nexecution_lag_days: 1\n# At the close before each fill, reserve 5% of that session's value and lock quantities.\ncash_buffer_fraction: 0.05\ncost_bps: 2.0\nslippage_bps: 3.0\n\nrobustness:\n  lookback_days: [234, 252, 286]\n  high_cost_bps: 4.0\n  high_slippage_bps: 6.0\n"
 _orig_open = _b.open
 def _open(f, *a, **k):
     try:
@@ -47,7 +26,19 @@ import numpy as np
 import pandas as pd
 import yaml
 import yfinance as yf
-from scipy.optimize import brentq, minimize
+from pandas.tseries.holiday import (
+    AbstractHolidayCalendar,
+    GoodFriday,
+    Holiday,
+    USLaborDay,
+    USMartinLutherKingJr,
+    USMemorialDay,
+    USPresidentsDay,
+    USThanksgivingDay,
+    nearest_workday,
+    sunday_to_monday,
+)
+from scipy.optimize import minimize
 
 
 ROOT = Path(__file__).resolve().parent
@@ -55,11 +46,27 @@ CACHE = ROOT / "data_cache"
 SESSIONS_PER_YEAR = 252
 
 
+class NYSEHolidayCalendar(AbstractHolidayCalendar):
+    rules = [
+        Holiday("New Year's Day", month=1, day=1, observance=sunday_to_monday),
+        USMartinLutherKingJr,
+        USPresidentsDay,
+        GoodFriday,
+        USMemorialDay,
+        Holiday("Juneteenth", month=6, day=19, start_date="2022-01-01", observance=nearest_workday),
+        Holiday("Independence Day", month=7, day=4, observance=nearest_workday),
+        USLaborDay,
+        USThanksgivingDay,
+        Holiday("Christmas Day", month=12, day=25, observance=nearest_workday),
+    ]
+
+
 def load_config():
     with (ROOT / "config.yaml").open(encoding="utf-8") as source:
         config = yaml.safe_load(source)
     for key in ("data_start", "backtest_start", "is_end", "backtest_end"):
         config[key] = pd.Timestamp(config[key])
+    config["exceptional_market_closures"] = pd.DatetimeIndex(config["exceptional_market_closures"])
     start, first, split, end = (
         config[key] for key in ("data_start", "backtest_start", "is_end", "backtest_end")
     )
@@ -73,6 +80,8 @@ def load_config():
     lag = config["execution_lag_days"]
     if type(lag) is not int or lag < 1:
         raise ValueError("execution_lag_days must be a positive integer.")
+    if not 0 < config["cash_buffer_fraction"] < 1:
+        raise ValueError("cash_buffer_fraction must be between zero and one.")
     lookbacks = [config["lookback_days"], *config["robustness"]["lookback_days"]]
     if any(type(days) is not int or days < 2 for days in lookbacks):
         raise ValueError("All lookbacks must be integers of at least two sessions.")
@@ -87,14 +96,17 @@ def load_config():
     return config
 
 
-def check_prices(prices, tickers, start, end):
+def check_prices(prices, tickers, start, end, exceptional_closures):
     if list(prices.columns) != tickers or prices.empty:
         raise ValueError("Yahoo price panel is empty or has unexpected columns.")
     if prices.index.hasnans or not prices.index.is_unique or not prices.index.is_monotonic_increasing:
         raise ValueError("Yahoo price dates must be unique and increasing.")
-    if not (start <= prices.index[0] <= start + pd.Timedelta(days=7)
-            and end - pd.Timedelta(days=7) <= prices.index[-1] <= end):
-        raise ValueError("Yahoo price panel does not span the requested dates.")
+    holidays = NYSEHolidayCalendar().holidays(start, end)
+    expected = pd.bdate_range(start, end).difference(holidays.union(exceptional_closures))
+    if not prices.index.equals(expected):
+        missing = expected.difference(prices.index).strftime("%Y-%m-%d")[:5].tolist()
+        unexpected = prices.index.difference(expected).strftime("%Y-%m-%d")[:5].tolist()
+        raise ValueError(f"Yahoo price dates disagree with NYSE sessions. Missing: {missing}. Unexpected: {unexpected}.")
     values = prices.to_numpy(dtype=float)
     bad_rows, bad_cols = np.where(~np.isfinite(values) | (values <= 0))
     if bad_rows.size:
@@ -106,19 +118,29 @@ def check_prices(prices, tickers, start, end):
 def load_prices(config):
     tickers = [*config["universe"], config["risk_free"]]
     start, end = config["data_start"], config["backtest_end"]
+    exceptional_closures = config["exceptional_market_closures"]
     cache_key = json.dumps(["yfinance daily auto_adjust close", tickers, str(start.date()), str(end.date())])
     digest = hashlib.sha256(cache_key.encode()).hexdigest()[:16]
     CACHE.mkdir(exist_ok=True)
     cache_file = CACHE / f"adjusted_closes_{digest}.csv"
-    if cache_file.is_file():
-        with cache_file.open(encoding="utf-8") as source:
-            fetched_at = source.readline().removeprefix("# fetched_at=").strip()
-            datetime.fromisoformat(fetched_at)
-            prices = pd.read_csv(source, index_col="Date", parse_dates=["Date"])
-        check_prices(prices, tickers, start, end)
-        return prices, fetched_at
+    if not cache_file.is_file():
+        download_prices(cache_file, tickers, start, end, exceptional_closures)
 
-    with tempfile.TemporaryDirectory(dir=CACHE) as working_cache:
+    # Both the download and cache-hit paths simulate the same serialized snapshot.
+    with cache_file.open(encoding="utf-8") as source:
+        header = source.readline()
+        if not header.startswith("# fetched_at="):
+            raise ValueError(f"Missing Yahoo download timestamp in {cache_file.name}.")
+        fetched_at = header.removeprefix("# fetched_at=").strip()
+        if datetime.fromisoformat(fetched_at).utcoffset() is None:
+            raise ValueError(f"Yahoo download timestamp needs a timezone in {cache_file.name}.")
+        prices = pd.read_csv(source, index_col="Date", parse_dates=["Date"])
+    check_prices(prices, tickers, start, end, exceptional_closures)
+    return prices, fetched_at
+
+
+def download_prices(cache_file, tickers, start, end, exceptional_closures):
+    with tempfile.TemporaryDirectory(dir=cache_file.parent) as working_cache:
         yf.set_tz_cache_location(working_cache)
         for attempt in range(2):
             raw = yf.download(
@@ -130,7 +152,7 @@ def load_prices(config):
                 if raw is None or raw.empty or "Close" not in raw.columns.get_level_values(0):
                     raise ValueError("Yahoo returned no adjusted closes.")
                 prices = raw["Close"].reindex(columns=tickers).sort_index()
-                check_prices(prices, tickers, start, end)
+                check_prices(prices, tickers, start, end, exceptional_closures)
             except ValueError as error:
                 if attempt == 1:
                     raise RuntimeError(f"Public Yahoo download failed: {error}") from error
@@ -143,7 +165,6 @@ def load_prices(config):
             destination.write(f"# fetched_at={fetched_at}\n")
             prices.to_csv(destination, index_label="Date", date_format="%Y-%m-%d")
         temporary_csv.replace(cache_file)
-    return prices, fetched_at
 
 
 def cov2(returns):
@@ -193,70 +214,107 @@ def minimum_variance_weights(covariance):
     return weights / weights.sum()
 
 
-def build_targets(asset_returns, start, lookback, lag):
-    months = asset_returns.index.to_period("M")
-    month_ends = np.flatnonzero(months[:-1] != months[1:])
+def rebalance_schedule(sessions, start, lag):
+    # The price loader checks these dates against the NYSE calendar before use.
+    months = sessions.to_period("M")
+    month_end_rows = np.flatnonzero(months[:-1] != months[1:])
+    schedule = {}
+    for signal_row in month_end_rows:
+        fill_row = signal_row + lag
+        if fill_row < len(sessions) and sessions[fill_row] >= start:
+            schedule[fill_row] = signal_row
+    return schedule
+
+
+def build_targets(asset_returns, schedule, lookback, *, shrink=True):
     values = asset_returns.to_numpy()
     targets = {}
-    for signal_row in month_ends:
-        execution_row = signal_row + lag
-        if execution_row >= len(months) or asset_returns.index[execution_row] < start:
-            continue
+    for fill_row, signal_row in schedule.items():
         first_row = signal_row + 1 - lookback
-        if first_row < 0:
+        if first_row < 1:
             raise ValueError(f"Insufficient warmup for lookback_days={lookback}.")
+        window = values[first_row:signal_row + 1]
+        covariance = cov2(window) if shrink else np.cov(window, rowvar=False, ddof=0)
         try:
-            weights = minimum_variance_weights(cov2(values[first_row:signal_row + 1]))
+            weights = minimum_variance_weights(covariance)
         except RuntimeError as error:
             raise RuntimeError(f"Signal {asset_returns.index[signal_row].date()}: {error}") from error
-        targets[execution_row] = weights
-    if not targets:
-        raise ValueError("No scheduled rebalance in the evaluation period.")
+        targets[fill_row] = weights
     return targets
 
 
-def simulate(asset_returns, targets, friction_bps):
-    first_execution = min(targets)
-    calendar = asset_returns.index[first_execution:]
-    values = asset_returns.to_numpy()
-    weights = np.zeros(values.shape[1])
+def size_rebalance(positions, cash, target, sizing_prices, cash_buffer):
+    value = cash + positions @ sizing_prices
+    planned_positions = value * (1.0 - cash_buffer) * target / sizing_prices
+    # Skip numerical dust using the same prices that determine the order quantities.
+    trade_values = np.abs(planned_positions - positions) * sizing_prices
+    planned_positions = np.where(trade_values > 1e-9 * value, planned_positions, positions)
+    return planned_positions, planned_positions - positions
+
+
+def simulate(asset_prices, targets, friction_bps, cash_buffer, start):
+    first_row = asset_prices.index.searchsorted(start)
+    calendar = asset_prices.index[first_row:]
+    closes = asset_prices.to_numpy()
+    positions = np.zeros(closes.shape[1])
+    cash = previous_value = 1.0
     daily_results = np.zeros((len(calendar), 3))
-    fee = friction_bps / 10_000.0
-    for output_row, row in enumerate(range(first_execution, len(values))):
-        drifted = weights * (1.0 + values[row])
-        gross_growth = 1.0 + weights @ values[row]
-        weights = drifted / gross_growth
-        retained = 1.0
-        if row in targets:
-            target = targets[row]
-            # Express both pre-fill and post-fill exposures per dollar just before the fill.
-            if fee:
-                retained = brentq(
-                    lambda fraction: fraction + fee * np.abs(fraction * target - weights).sum() - 1.0,
-                    0.0, 1.0,
+    friction_rate = friction_bps / 10_000.0
+
+    pending = None
+    first_target = targets.get(first_row)
+    if first_target is not None:
+        if first_row == 0:
+            raise ValueError("A planned fill requires a preceding session close for sizing.")
+        # The initial allocation is sized at the last close before the simulation starts.
+        pending = size_rebalance(positions, cash, first_target, closes[first_row - 1], cash_buffer)
+
+    for output_row, row in enumerate(range(first_row, len(closes))):
+        close = closes[row]
+        if pending is not None:
+            planned_positions, quantities = pending
+            fill_values = quantities * close
+            gross_traded = np.abs(fill_values).sum()
+            trading_cost = gross_traded * friction_rate
+            cash_after_fill = cash - fill_values.sum() - trading_cost
+            if not np.isfinite(cash_after_fill) or cash_after_fill < 0.0:
+                date = asset_prices.index[row].date()
+                raise RuntimeError(
+                    f"{date}: fixed quantities would leave negative cash or a nonfinite balance ({cash_after_fill:.8g})."
                 )
-            changes = np.abs(retained * target - weights)
-            daily_results[output_row, 1] = changes.sum()
-            daily_results[output_row, 2] = np.count_nonzero(changes > 1e-9)
-            weights = target
-        daily_results[output_row, 0] = gross_growth * retained - 1.0
+            daily_results[output_row, 1] = gross_traded / (cash + positions @ close)
+            daily_results[output_row, 2] = np.count_nonzero(quantities)
+            positions = planned_positions
+            cash = cash_after_fill
+        value = cash + positions @ close
+        daily_results[output_row, 0] = value / previous_value - 1.0
+        previous_value = value
+
+        # Plan only the next session's fill, using today's closing prices and settled positions.
+        next_row = row + 1
+        next_target = targets.get(next_row) if next_row < len(closes) else None
+        pending = None if next_target is None else size_rebalance(
+            positions, cash, next_target, close, cash_buffer,
+        )
 
     return pd.DataFrame(daily_results, index=calendar, columns=["return", "turnover", "n_trades"])
 
 
 def metrics(daily_results, cash_returns):
     returns = daily_results["return"].to_numpy()
-    if len(returns) < 2:
-        raise ValueError("A metrics period must contain at least two sessions.")
+    sessions = len(returns)
+    if not sessions:
+        return dict(cagr=None, ann_vol=None, sharpe=None, sharpe_excess=None,
+                    max_drawdown=None, total_return=None, turnover=None, n_trades=0)
     excess = returns - cash_returns.loc[daily_results.index].to_numpy()
     growth = np.concatenate(([1.0], np.cumprod(1.0 + returns)))
-    years = len(returns) / SESSIONS_PER_YEAR
+    years = sessions / SESSIONS_PER_YEAR
     annual_scale = np.sqrt(SESSIONS_PER_YEAR)
-    vol = returns.std(ddof=1)
-    excess_vol = excess.std(ddof=1)
+    vol = returns.std(ddof=1) if sessions > 1 else None
+    excess_vol = excess.std(ddof=1) if sessions > 1 else None
     return {
         "cagr": float(growth[-1] ** (1.0 / years) - 1.0),
-        "ann_vol": float(vol * annual_scale),
+        "ann_vol": float(vol * annual_scale) if vol is not None else None,
         "sharpe": float(annual_scale * returns.mean() / vol) if vol else None,
         "sharpe_excess": float(annual_scale * excess.mean() / excess_vol) if excess_vol else None,
         "max_drawdown": float(np.min(growth / np.maximum.accumulate(growth) - 1.0)),
@@ -277,39 +335,50 @@ def period_metrics(daily_results, cash_returns, is_end):
 def main():
     config = load_config()
     prices, fetched_at = load_prices(config)
-    returns = prices.pct_change(fill_method=None).iloc[1:]
+    returns = prices.pct_change(fill_method=None)
+    asset_prices = prices[config["universe"]]
     asset_returns = returns[config["universe"]]
     cash_returns = returns[config["risk_free"]]
     start, is_end = config["backtest_start"], config["is_end"]
     lag, lookback = config["execution_lag_days"], config["lookback_days"]
     cost, slippage = config["cost_bps"], config["slippage_bps"]
+    cash_buffer = config["cash_buffer_fraction"]
     is_asset_returns = asset_returns.loc[:is_end]
+    is_asset_prices = asset_prices.loc[:is_end]
+    is_schedule = rebalance_schedule(is_asset_returns.index, start, lag)
 
-    # Freeze the official specification and run all alternatives on the IS slice.
+    # Evaluate the alternative configurations using only the IS slice.
     print(f"DATA_FETCHED_AT: {fetched_at}")
-    print("PRICE_ADJUSTMENT: yfinance auto_adjust=True dividend- and split-adjusted close total-return")
+    print("PRICE_ADJUSTMENT: yfinance auto_adjust=True, dividend- and split-adjusted closes, "
+          "fractional total-return units for fills")
     print(f"RISK_FREE_PROXY: {config['risk_free']} adjusted daily total return")
     print("ROBUSTNESS (IS only)")
     robustness = config["robustness"]
     cases = [(days, cost, slippage) for days in robustness["lookback_days"]]
     cases.append((lookback, robustness["high_cost_bps"], robustness["high_slippage_bps"]))
     for days, case_cost, case_slippage in cases:
-        targets = build_targets(is_asset_returns, start, days, lag)
-        run = simulate(is_asset_returns, targets, case_cost + case_slippage)
+        targets = build_targets(is_asset_returns, is_schedule, days)
+        run = simulate(is_asset_prices, targets, case_cost + case_slippage, cash_buffer, start)
         summary = metrics(run, cash_returns.loc[:is_end])
         print(f"  lookback_days={days} cost_bps={case_cost:g} slippage_bps={case_slippage:g} "
               f"{json.dumps(summary, allow_nan=False)}")
-    targets = build_targets(asset_returns, start, lookback, lag)
+    schedule = rebalance_schedule(asset_returns.index, start, lag)
+    targets = build_targets(asset_returns, schedule, lookback)
     friction = cost + slippage
-    daily_results = simulate(asset_returns, targets, friction)
+    daily_results = simulate(asset_prices, targets, friction, cash_buffer, start)
     equal = np.full(len(config["universe"]), 1.0 / len(config["universe"]))
-    benchmark_results = simulate(asset_returns, dict.fromkeys(targets, equal), friction)
-    official = period_metrics(daily_results, cash_returns, is_end)
+    benchmark_results = simulate(asset_prices, dict.fromkeys(schedule, equal), friction, cash_buffer, start)
+    sample_targets = build_targets(asset_returns, schedule, lookback, shrink=False)
+    sample_results = simulate(asset_prices, sample_targets, friction, cash_buffer, start)
+    default_results = period_metrics(daily_results, cash_returns, is_end)
     benchmark = period_metrics(benchmark_results, cash_returns, is_end)
+    sample_benchmark = period_metrics(sample_results, cash_returns, is_end)
     print(f"PARAM_COMBOS_TRIED: {1 + len(cases)}")
     for period in ("is", "oos", "full"):
-        print(f"{period.upper()}: {json.dumps(official[period], allow_nan=False)}")
+        print(f"{period.upper()}: {json.dumps(default_results[period], allow_nan=False)}")
         print(f"BENCHMARK equal_weight {period.upper()}: {json.dumps(benchmark[period], allow_nan=False)}")
+        print(f"BENCHMARK sample_covariance_gmv {period.upper()}: "
+              f"{json.dumps(sample_benchmark[period], allow_nan=False)}")
 
     result = {
         "strategy": config["strategy"],
@@ -317,19 +386,19 @@ def main():
             "start": str(daily_results.index[0].date()),
             "end": str(daily_results.index[-1].date()),
         },
-        **official,
+        **default_results,
         "benchmark": {"name": config["benchmark"], **benchmark},
     }
     print("RESULTS_JSON: " + json.dumps(result, allow_nan=False))
 
 
 def stop_on_timeout(_signum, _frame):
-    raise SystemExit("Backtest stopped at the 14-minute time limit.")
+    raise SystemExit("Backtest stopped at the 9-minute time limit.")
 
 
 if __name__ == "__main__":
     signal.signal(signal.SIGALRM, stop_on_timeout)
-    signal.alarm(14 * 60)
+    signal.alarm(9 * 60)
     try:
         main()
     finally:

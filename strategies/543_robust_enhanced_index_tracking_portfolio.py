@@ -1,28 +1,7 @@
-"""543_robust_enhanced_index_tracking_portfolio
-WARNING: known look-ahead; numbers invalid. See DEEP_REVIEW_FINDINGS.md.
-研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
-Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
-Run (one command): python strategies/543_robust_enhanced_index_tracking_portfolio.py   (free public data only; config embedded)
-Backtest reproduced: run of this file's code at commit 69a306c0280e31031e1c1674f053aa22730544ac on 2026-11-27 09:47 Europe/Oslo, exit 0, output sha256 d287f1aca9885e121346b373776d5f09f8b9036ef374346644784b890e71f4cc
-Data source: 免费 Yahoo Finance 日线，由 yfinance 获取或从本地价格缓存读取。股票池为 AAPL、NVDA、MSFT、AVGO、ORCL、JNJ、ABBV、LLY、UNH、ABT、BRK-B、JPM、V、BAC、MA、AMZN、TSLA、HD、MCD、BKNG、WMT、COST、KO、PG、PM。SPY 为跟踪和买入持有基准，BIL 的日收益仅用于计算超额 Sharpe。（config.yaml:2-7；strategy.py:78-105、310-326、335-336；README.md:15）
-Data fetched: 2026-11-27T08:47:50+00:00
-Sample period: 日线请求区间为 2009-12-01 至 2024-12-31（含），配置的评估起点为 2015-01-01。日志记录的实际评估交易日为 2015-01-02 至 2024-12-31。2009 年末至 2014 年末的价格用于初始 60 个月滚动估计。（config.yaml:8-15；strategy.py:81-82、267-270、337-340；README.md:16；logs/run_20261127_092024.log:22）   data_range (from output): {'start': '2015-01-02', 'end': '2024-12-31'}
-IS/OOS split: 样本内为 2015-01-01 至 2019-12-31，样本外为 2020-01-01 至 2024-12-31，均按实际交易日计。默认配置连续模拟全期，按 2019-12-31 切分结果。样本外沿用默认配置参数，以每月已知收益更新滚动估计，7 个稳健性变体仅运行至样本内截止日。（config.yaml:8-15、24-32；README.md:16、27；strategy.py:201-224、315-318、328-349）
-Costs and slippage: 默认在每次模拟成交时，买卖两侧各按实际成交金额扣除 5 bp 成本和 5 bp 固定滑点，合计 10 bp。代码用扣费后目标头寸与漂移后头寸之差的绝对金额加总，并联立求解扣费后的组合价值。首次建仓同样收费，SPY 基准在策略首次成交的收盘建仓并扣费一次。仅样本内的高摩擦变体使用 15 bp 成本和 10 bp 固定滑点，合计 25 bp。（config.yaml:22-32；strategy.py:52-54、232-264、328-336；README.md:21、27）
-Signal lag: 在月末最后一个交易日 t 收盘后，用截至 t 的滚动月收益计算目标权重。默认在下一交易日 t+1 的收盘模拟成交。成交日的收盘到收盘收益由原持仓承担，新权重在 t+1 收盘调仓后生效。（config.yaml:13-15；strategy.py:201-224、232-263、307-309；README.md:21）
-Price adjustment: yfinance auto_adjust=True, dividend- and split-adjusted daily Close
-Survivorship bias: 25 只股票来自论文事后选定的五个行业的大盘股，为固定名单，存在幸存者偏差和事后股票池选择偏差。股票仅在信号日已有完整的 60 个月滚动收益后才可获权重。该筛选只处理历史价格覆盖，无法重建历史时点股票池。（config.yaml:2-5、15；strategy.py:68-75、212-224；README.md:9、17）
-Parameter combinations tried: 8
-Key numbers (copied verbatim from that run's RESULTS_JSON):
-    is: cagr=0.21074029101027647, ann_vol=0.15029756603590094, sharpe=1.348097852843359, sharpe_excess=1.2888643278274334, max_drawdown=-0.1935592527122909, total_return=1.597740950757772, turnover=1.2230471165179937, n_trades=1372
-    oos: cagr=0.27224583453874085, ann_vol=0.21086310513124484, sharpe=1.2483044498491502, sharpe_excess=1.1382364366202002, max_drawdown=-0.3049388378533605, total_return=2.3267890185821645, turnover=1.085551144800468, n_trades=1390
-    full: cagr=0.24111211900700025, ann_vol=0.1830754448863819, sharpe=1.2722546674515127, sharpe_excess=1.1846384222263628, max_drawdown=-0.3049388378533606, total_return=7.642136068102127, turnover=1.1542991306592307, n_trades=2762
-    benchmark: cagr=0.13014547134358656, ann_vol=0.1761576124971584, sharpe=0.7831372216289496, sharpe_excess=0.6921821417622633, max_drawdown=-0.33717263786002827, total_return=2.3923455869719112, turnover=0.10005892358833536, n_trades=1
-"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os
-_CONFIG_YAML = 'strategy: 543_robust_enhanced_index_tracking_portfolio\n# Cai and Song, section 5. The benchmark and cash proxy are separate from the universe.\nuniverse:\n  [AAPL, NVDA, MSFT, AVGO, ORCL, JNJ, ABBV, LLY, UNH, ABT, BRK-B, JPM, V,\n   BAC, MA, AMZN, TSLA, HD, MCD, BKNG, WMT, COST, KO, PG, PM]\nbenchmark: SPY\nexcess_sharpe_reference: BIL\ndates:\n  data_start: 2009-12-01\n  evaluation_start: 2015-01-01\n  is_end: 2019-12-31\n  end: 2024-12-31\nrebalance_lag_sessions: 1\nmodel:\n  lookback_months: 60\n  kappa: 5.0\n  mean_radius: 0.22\n  covariance_radius: 0.025\n  target_monthly_excess: 0.04\n  worst_monthly_return_floor: -0.01\n  max_weight: 0.10\n  cost_bps: 5.0\n  slippage_bps: 5.0\n# Each case overrides only the listed baseline parameters and runs through is_end.\nrobustness:\n  kappa_4: {kappa: 4.0}\n  kappa_6: {kappa: 6.0}\n  mean_radius_0.18: {mean_radius: 0.18}\n  mean_radius_0.26: {mean_radius: 0.26}\n  covariance_radius_0.020: {covariance_radius: 0.020}\n  covariance_radius_0.030: {covariance_radius: 0.030}\n  higher_friction: {cost_bps: 15.0, slippage_bps: 10.0}\n'
+_CONFIG_YAML = 'strategy: 543_robust_enhanced_index_tracking_portfolio\n# Cai and Song, section 5. The benchmark and cash proxy are separate from the universe.\nuniverse:\n  [AAPL, NVDA, MSFT, AVGO, ORCL, JNJ, ABBV, LLY, UNH, ABT, BRK-B, JPM, V,\n   BAC, MA, AMZN, TSLA, HD, MCD, BKNG, WMT, COST, KO, PG, PM]\nbenchmark: SPY\nexcess_sharpe_reference: BIL\ndates:\n  data_start: 2009-12-01\n  evaluation_start: 2015-01-01\n  is_end: 2019-12-31\n  end: 2024-12-31\n# Count exchange sessions from the signal close. Size at the close immediately before the fill.\nrebalance_lag_sessions: 1\n# Stress buy prices up and sell prices down by 500 bp using the preceding close.\n# Include fees in that budget. The fill uses the locked quantity or stops on a cash shortfall.\ncash_buffer_bps: 500.0\nmodel:\n  lookback_months: 60\n  kappa: 5.0\n  mean_radius: 0.22\n  covariance_radius: 0.025\n  target_monthly_excess: 0.04\n  worst_monthly_return_floor: -0.01\n  max_weight: 0.10\n  cost_bps: 5.0\n  slippage_bps: 5.0\n# Each case overrides only the listed baseline parameters and runs through is_end.\nrobustness:\n  kappa_4: {kappa: 4.0}\n  kappa_6: {kappa: 6.0}\n  mean_radius_0.18: {mean_radius: 0.18}\n  mean_radius_0.26: {mean_radius: 0.26}\n  covariance_radius_0.020: {covariance_radius: 0.020}\n  covariance_radius_0.030: {covariance_radius: 0.030}\n  higher_friction: {cost_bps: 15.0, slippage_bps: 10.0}\n'
 _orig_open = _b.open
 def _open(f, *a, **k):
     try:
@@ -39,7 +18,7 @@ _io.open = _open
 import signal
 
 if __name__ == "__main__":
-    signal.alarm(840)
+    signal.alarm(570)
 
 import json
 from dataclasses import dataclass, replace
@@ -51,7 +30,19 @@ from tempfile import NamedTemporaryFile, TemporaryDirectory
 import numpy as np
 import pandas as pd
 import yaml
-from scipy.optimize import brentq, minimize
+from pandas.tseries.holiday import (
+    AbstractHolidayCalendar,
+    GoodFriday,
+    Holiday,
+    USLaborDay,
+    USMartinLutherKingJr,
+    USMemorialDay,
+    USPresidentsDay,
+    USThanksgivingDay,
+    nearest_workday,
+    sunday_to_monday,
+)
+from scipy.optimize import minimize
 from threadpoolctl import threadpool_limits
 
 
@@ -90,30 +81,50 @@ class Model:
         return (self.cost_bps + self.slippage_bps) / 10_000
 
 
+class NyseHolidays(AbstractHolidayCalendar):
+    rules = [
+        Holiday("New Year's Day", month=1, day=1, observance=sunday_to_monday),
+        USMartinLutherKingJr,
+        USPresidentsDay,
+        GoodFriday,
+        USMemorialDay,
+        Holiday("Juneteenth", month=6, day=19, start_date="2022-01-01", observance=nearest_workday),
+        Holiday("Independence Day", month=7, day=4, observance=nearest_workday),
+        USLaborDay,
+        USThanksgivingDay,
+        Holiday("Christmas Day", month=12, day=25, observance=nearest_workday),
+    ]
+
+
+def expected_sessions(start, end):
+    holidays = NyseHolidays().holidays(start, end)
+    # Full-day exceptional closures within the configured 2009–2024 window.
+    exceptional = pd.to_datetime(["2012-10-29", "2012-10-30", "2018-12-05"])
+    return pd.bdate_range(start, end).difference(holidays.union(exceptional))
+
+
 def validate_prices(prices, tickers, benchmark, reference, start, end):
     if list(prices.columns) != tickers or prices.empty:
         raise RuntimeError("Adjusted close data is missing or the ticker columns differ from the request")
     if prices.index.has_duplicates or not prices.index.is_monotonic_increasing:
         raise RuntimeError("Adjusted close dates must be unique and ordered")
-    first_session, last_session = prices.index[[0, -1]]
-    if (
-        not start <= first_session <= start + pd.Timedelta(days=7)
-        or not end - pd.Timedelta(days=7) <= last_session <= end
-    ):
-        raise RuntimeError("Adjusted closes do not span the requested dates")
+    sessions = expected_sessions(start, end)
+    missing = sessions.difference(prices.index)
+    unexpected = prices.index.difference(sessions)
+    if len(missing) or len(unexpected):
+        missing_dates = missing[:5].strftime("%Y-%m-%d").tolist()
+        unexpected_dates = unexpected[:5].strftime("%Y-%m-%d").tolist()
+        raise RuntimeError(f"NYSE calendar mismatch: missing={missing_dates}, unexpected={unexpected_dates}")
     for ticker in tickers:
         series = prices[ticker]
-        first_close = series.first_valid_index()
-        if first_close is None or (ticker in (benchmark, reference) and first_close != first_session):
+        observed = series.dropna()
+        if observed.empty or (ticker in (benchmark, reference) and len(observed) != len(sessions)):
             raise RuntimeError(f"Missing adjusted close history for {ticker}")
-        observed = series.loc[first_close:].to_numpy()
         if not np.isfinite(observed).all() or (observed <= 0).any():
-            raise RuntimeError(f"Missing or invalid adjusted closes after {ticker}'s first observation")
+            raise RuntimeError(f"Invalid adjusted closes for {ticker}")
 
 
 def load_prices(tickers, benchmark, reference, start, end):
-    import yfinance as yf
-
     start_date = start.date().isoformat()
     end_exclusive = (end + pd.Timedelta(days=1)).date().isoformat()
     key = sha256(json.dumps([tickers, start_date, end_exclusive]).encode()).hexdigest()[:16]
@@ -126,6 +137,8 @@ def load_prices(tickers, benchmark, reference, start, end):
             prices = pd.read_csv(handle, index_col="date", parse_dates=["date"])
         validate_prices(prices, tickers, benchmark, reference, start, end)
         return prices, fetched_at
+
+    import yfinance as yf
 
     with TemporaryDirectory(dir=CACHE, prefix=".yfinance-") as transient_cache:
         yf.set_tz_cache_location(transient_cache)
@@ -235,6 +248,7 @@ def optimize_weights(monthly_returns, model):
 
 
 def monthly_targets(prices, start, lag, model):
+    # The price index has already been checked against the exchange calendar.
     month = prices.index.to_period("M")
     month_end_rows = np.flatnonzero(month[:-1] != month[1:])
     monthly_returns = prices.iloc[month_end_rows].pct_change(fill_method=None)
@@ -245,9 +259,13 @@ def monthly_targets(prices, start, lag, model):
         execution_row = signal_row + lag
         if execution_row >= len(prices) or prices.index[execution_row] < start:
             continue
-        window = monthly_returns.iloc[max(0, row + 1 - model.lookback_months):row + 1]
-        if len(window) != model.lookback_months or window.iloc[:, -1].isna().any():
-            raise ValueError("Insufficient benchmark history for the first scheduled signal")
+        # The first month-end price is the base for the first monthly return.
+        # Check warm-up at the signal date, including when lag crosses the evaluation start.
+        if row < model.lookback_months:
+            continue
+        window = monthly_returns.iloc[row + 1 - model.lookback_months:row + 1]
+        if window.iloc[:, -1].isna().any():
+            raise ValueError(f"Missing monthly benchmark returns as of {prices.index[signal_row].date()}")
         present = window.iloc[:, :-1].notna().all(axis=0).to_numpy()
         eligible = window.iloc[:, np.append(present, True)]
         execution_date = prices.index[execution_row]
@@ -260,73 +278,126 @@ def monthly_targets(prices, start, lag, model):
         targets[execution_date] = weights
         if relaxed:
             relaxed_floors.append(execution_date)
-    if not targets:
-        raise ValueError("No monthly signals reach execution in the requested evaluation period")
     return targets, relaxed_floors
 
 
-def simulate(returns, targets, friction):
-    """Mark prior weights to the close, then apply any scheduled rebalance."""
-    weights = np.zeros(returns.shape[1])
-    daily = []
-    for date, changes in zip(returns.index, returns.to_numpy(), strict=True):
-        available = np.isfinite(changes)
-        if np.any((weights > 0) & ~available):
-            raise RuntimeError(f"Missing daily price change for a position on {date.date()}")
-        marked_weights = weights * (1 + np.where(available, changes, 0.0))
-        gross_growth = 1 + (marked_weights - weights).sum()
-        drifted_weights = marked_weights / gross_growth
+def size_changes(positions, sizing_marks, previous_value, target, cash, friction, cash_buffer):
+    """Lock signed quantities against stressed prices from the preceding close."""
+    desired = np.divide(
+        previous_value * target, sizing_marks, out=positions.copy(), where=sizing_marks > 0,
+    )
+    changes = desired - positions
+    changes[np.abs(changes) * sizing_marks <= TRADE_TOLERANCE * previous_value] = 0.0
+    sales = np.minimum(changes, 0.0)
+    purchases = np.maximum(changes, 0.0)
+    sale_proceeds = -(sales @ sizing_marks) * (1 - cash_buffer) * (1 - friction)
+    buy_budget = cash + sale_proceeds
+    buy_cost = (purchases @ sizing_marks) * (1 + cash_buffer) * (1 + friction)
+    if buy_cost > buy_budget:
+        purchases *= (buy_budget / buy_cost) * (1 - 8 * np.finfo(float).eps)
+    locked_changes = sales + purchases
+    locked_changes.setflags(write=False)
+    return locked_changes
 
-        remaining = 1.0
-        traded_fraction = 0.0
+
+def simulate(prices, start, targets, friction, cash_buffer):
+    """Track fractional adjusted-price units and cash across closing fills."""
+    first_row = prices.index.searchsorted(start)
+    if not 0 < first_row < len(prices):
+        raise ValueError("Evaluation requires at least one session and a preceding close")
+    closing_prices = prices.to_numpy()
+    positions = np.zeros(prices.shape[1])
+    cash = previous_value = 1.0
+    locked_changes = None
+    daily_results = []
+    # Include the preceding session so the first fill can be sized before evaluation starts.
+    for row in range(first_row - 1, len(prices)):
+        date = prices.index[row]
+        needs_close = positions > 0
+        if locked_changes is not None:
+            needs_close |= locked_changes != 0
+
+        close = closing_prices[row]
+        quoted = np.isfinite(close)
+        missing_close = needs_close & ~quoted
+        if missing_close.any():
+            tickers = ", ".join(prices.columns[missing_close])
+            raise RuntimeError(f"Cannot value or fill {tickers} on {date.date()}: missing close or delisting proceeds")
+        marks = np.where(quoted, close, 0.0)
+        before_fill_value = cash + positions @ marks
+        traded_value = 0.0
         trade_count = 0
-        target = targets.get(date)
-        if target is not None:
-            if np.any((target > 0) & ~available):
-                raise RuntimeError(f"Missing execution close or preceding close on {date.date()}")
+        if locked_changes is not None:
+            notionals = locked_changes * marks
+            traded_value = np.abs(notionals).sum()
+            closing_cash = cash - (notionals.sum() + traded_value * friction)
+            if not np.isfinite(closing_cash):
+                raise RuntimeError(f"Non-finite cash after pricing fixed fill quantities on {date.date()}")
+            if closing_cash < 0:
+                raise RuntimeError(
+                    f"Fixed fill quantities exceed cash on {date.date()}: shortfall {-closing_cash:.8g}"
+                )
+            positions += locked_changes
+            cash = closing_cash
+            trade_count = int(np.count_nonzero(locked_changes))
 
-            def cash_balance(scale):
-                traded = scale * target - drifted_weights
-                return scale + friction * np.abs(traded).sum() - 1
+        value = cash + positions @ marks if trade_count else before_fill_value
+        if row >= first_row:
+            daily_results.append((
+                value / previous_value - 1, traded_value / before_fill_value, trade_count, cash / value,
+            ))
+        previous_value = value
 
-            remaining = brentq(cash_balance, 0, 1, xtol=1e-14)
-            traded = np.abs(remaining * target - drifted_weights)
-            traded_fraction = traded.sum()
-            trade_count = int(np.count_nonzero(traded > TRADE_TOLERANCE))
-            weights = target
-        else:
-            weights = drifted_weights
-        daily.append((gross_growth * remaining - 1, traded_fraction, trade_count))
-    return pd.DataFrame(daily, index=returns.index, columns=["return", "turnover", "n_trades"])
+        # Lock the next session's changes using this session's settled cash and closing marks.
+        locked_changes = None
+        if row + 1 == len(prices):
+            continue
+        execution_date = prices.index[row + 1]
+        target = targets.get(execution_date)
+        if target is None:
+            continue
+        missing_sizing = (target > 0) & ~quoted
+        if missing_sizing.any():
+            tickers = ", ".join(prices.columns[missing_sizing])
+            raise RuntimeError(f"Cannot size {tickers} for {execution_date.date()}: missing preceding close")
+        locked_changes = size_changes(positions, marks, value, target, cash, friction, cash_buffer)
+    return pd.DataFrame(
+        daily_results, index=prices.index[first_row:], columns=["return", "turnover", "n_trades", "cash_weight"],
+    )
 
 
-def run_model(prices, start, lag, model):
+def run_model(prices, start, lag, model, cash_buffer):
     targets, relaxed_floors = monthly_targets(prices, start, lag, model)
-    daily_returns = prices.iloc[:, :-1].pct_change(fill_method=None).loc[start:]
-    return simulate(daily_returns, targets, model.friction), min(targets), relaxed_floors
+    daily_results = simulate(prices.iloc[:, :-1], start, targets, model.friction, cash_buffer)
+    return daily_results, min(targets, default=None), relaxed_floors
 
 
 def metrics(daily_results, reference):
     returns = daily_results["return"]
-    if len(returns) < 2:
-        raise ValueError("Metrics require at least two daily returns in each period")
+    if returns.empty:
+        return dict.fromkeys(
+            ("cagr", "ann_vol", "sharpe", "sharpe_excess", "max_drawdown", "total_return", "turnover"),
+        ) | {"n_trades": 0}
     excess = returns - reference.reindex(returns.index)
     if not np.isfinite(excess).all():
         raise ValueError("Missing returns for the excess-Sharpe reference")
-    wealth = np.r_[1.0, (1 + returns).cumprod().to_numpy()]
+    growth_index = np.r_[1.0, (1 + returns).cumprod().to_numpy()]
     years = len(returns) / SESSIONS_PER_YEAR
     volatility = float(returns.std())
     excess_volatility = float(excess.std())
     return {
-        "cagr": float(wealth[-1] ** (1 / years) - 1),
-        "ann_vol": float(volatility * np.sqrt(SESSIONS_PER_YEAR)),
-        "sharpe": float(returns.mean() * np.sqrt(SESSIONS_PER_YEAR) / volatility) if volatility else None,
+        "cagr": float(growth_index[-1] ** (1 / years) - 1),
+        "ann_vol": float(volatility * np.sqrt(SESSIONS_PER_YEAR)) if np.isfinite(volatility) else None,
+        "sharpe": (
+            float(returns.mean() * np.sqrt(SESSIONS_PER_YEAR) / volatility)
+            if np.isfinite(volatility) and volatility > 0 else None
+        ),
         "sharpe_excess": (
             float(excess.mean() * np.sqrt(SESSIONS_PER_YEAR) / excess_volatility)
-            if excess_volatility else None
+            if np.isfinite(excess_volatility) and excess_volatility > 0 else None
         ),
-        "max_drawdown": float(np.min(wealth / np.maximum.accumulate(wealth) - 1)),
-        "total_return": float(wealth[-1] - 1),
+        "max_drawdown": float(np.min(growth_index / np.maximum.accumulate(growth_index) - 1)),
+        "total_return": float(growth_index[-1] - 1),
         "turnover": float(daily_results["turnover"].sum() / years),
         "n_trades": int(daily_results["n_trades"].sum()),
     }
@@ -343,6 +414,9 @@ def main():
     lag = config["rebalance_lag_sessions"]
     if not data_start < start <= is_end < end or type(lag) is not int or lag < 1:
         raise ValueError("Check chronology and set rebalance_lag_sessions to a positive integer")
+    cash_buffer = config["cash_buffer_bps"] / 10_000
+    if not 0 < cash_buffer < 1:
+        raise ValueError("Set cash_buffer_bps between 0 and 10,000, exclusive")
     benchmark = config["benchmark"]
     reference_ticker = config["excess_sharpe_reference"]
     tickers = [*config["universe"], benchmark, reference_ticker]
@@ -364,13 +438,15 @@ def main():
     robustness_results = []
     with threadpool_limits(limits=1, user_api="blas"):
         for label, variant in robustness:
-            sample, _, relaxed = run_model(model_prices.loc[:is_end], start, lag, variant)
+            sample, _, relaxed = run_model(model_prices.loc[:is_end], start, lag, variant, cash_buffer)
             robustness_results.append((label, metrics(sample, reference.loc[:is_end]), len(relaxed)))
-        daily_results, first_execution, relaxed = run_model(model_prices, start, lag, model)
+        daily_results, first_execution, relaxed = run_model(model_prices, start, lag, model, cash_buffer)
 
-    benchmark_returns = prices[[benchmark]].pct_change(fill_method=None).loc[daily_results.index]
-    benchmark_results = simulate(benchmark_returns, {first_execution: np.ones(1)}, model.friction)
     sessions = daily_results.index
+    benchmark_entry = first_execution if first_execution is not None else sessions[0]
+    benchmark_results = simulate(
+        prices[[benchmark]], start, {benchmark_entry: np.ones(1)}, model.friction, cash_buffer,
+    )
     result = {
         "strategy": config["strategy"],
         "data_range": {"start": sessions[0].date().isoformat(), "end": sessions[-1].date().isoformat()},
@@ -387,6 +463,10 @@ def main():
         print(f"BENCHMARK_{name.upper()}: {json.dumps(benchmark_metrics[name], allow_nan=False)}")
     result["benchmark"] = benchmark_metrics["full"]
 
+    print(
+        f"MIN_CLOSING_CASH_WEIGHT: strategy={daily_results['cash_weight'].min():.8f} "
+        f"benchmark={benchmark_results['cash_weight'].min():.8f}"
+    )
     relaxed_is = sum(date <= is_end for date in relaxed)
     print(f"RETURN_FLOOR_INFEASIBLE_REBALANCES: IS={relaxed_is} OOS={len(relaxed) - relaxed_is}")
     print("ROBUSTNESS (IS ONLY)")

@@ -1,3 +1,23 @@
+"""466_hierarchical_risk_parity_for_portfolio_a
+研究用途，非投资建议 / Research only, not investment advice. 进入投资系统须另经 Gatekeeper 审查。
+Author: Codex; review before entry: Codex self-review (not an independent review); publication gate: Codex.
+Run (one command): python strategies/466_hierarchical_risk_parity_for_portfolio_a.py   (free public data only; config embedded)
+Backtest reproduced: run of this file's code at commit f8add1176d5b1caebb66b01079720314ca29fcc4 on 2026-11-27 08:40 Europe/Oslo, exit 0, output sha256 b3e7307cf3a93a9d495b83da9820b75bc2d0bd29d6e783749159dc8a8045e3df
+Data source: Yahoo Finance via yfinance, using daily USD ETF closes. ECH, COLO and EPU are the allocation universe. The README documents that Yahoo's COLO series carries the earlier GXG history. BIL is used only as the cash proxy for the excess Sharpe calculation.
+Data fetched: 2026-11-27T07:40:04+00:00
+Sample period: Evaluated from 2019-07-01 through 2025-06-30 on available sessions, as recorded in the run log. The download request starts on 2018-06-01 to provide warm-up observations.   data_range (from output): 2019-07-01 to 2025-06-30
+IS/OOS split: IS is 2019-07-01 through 2022-06-30. OOS is 2022-07-01 through 2025-06-30. The code simulates one continuous path and slices its daily results at the split, carrying positions across it. The same fixed parameters apply throughout.
+Costs and slippage: The simulator charges 5 bps in costs plus 2 bps in modeled slippage per buy or sell, a combined 7 bps on executed notional. It deducts this charge at each rebalance using the sum of absolute position changes from drifted holdings to funded target holdings. The charge applies to the initial allocation from cash and to the equal-weight benchmark.
+Signal lag: The rolling return window includes session t's close. Its target is executed at the next session's close, t+1. Existing holdings earn the move into that close, and new holdings first earn returns on the subsequent close-to-close interval.
+Price adjustment: yfinance auto_adjust total-return closes
+Survivorship bias: The fixed universe consists of three ETFs selected with full histories available retrospectively. The README identifies survivorship and selection bias and says these proxies omit the original study's individual securities and historical index constituent changes.
+Parameter combinations tried: 1
+Key numbers (copied verbatim from that run's RESULTS_JSON):
+    is: cagr=-0.09377471684092364, ann_vol=0.2679966866039492, sharpe=-0.23093051813551205, sharpe_excess=-0.24723875433900963, max_drawdown=-0.5022436035062043, total_return=-0.2562235012496161, turnover=4.166770497298774, n_trades=105
+    oos: cagr=0.1751330329048688, ann_vol=0.19880171983837897, sharpe=0.9169327754395165, sharpe_excess=0.6936858660292082, max_drawdown=-0.1843974706933894, total_return=0.6229808436176614, turnover=2.368894551125467, n_trades=102
+    full: cagr=0.03183479389926003, ann_vol=0.2361328416744233, sharpe=0.25288239015706293, sharpe_excess=0.1501509469457215, max_drawdown=-0.5022436035062043, total_return=0.20713500940488427, turnover=6.535665048424241, n_trades=207
+    benchmark: cagr=0.03960770973558647, ann_vol=0.23903729724910497, sharpe=0.28429312471087587, sharpe_excess=0.1828004122723826, max_drawdown=-0.5226835426748071, total_return=0.2627997742808954, turnover=2.9808942525743305, n_trades=207
+"""
 # === CODE START ===
 # --- single-file shim: the strategy's config.yaml is embedded here ---
 import builtins as _b, io as _io, os as _os

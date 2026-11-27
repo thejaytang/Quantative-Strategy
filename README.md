@@ -4,7 +4,7 @@
 
 每个策略一个文件：`strategies/<编号>_<名称>.py`，一条命令运行：`python strategies/<文件>.py`（依赖见 requirements.txt）。文件头写明数据源与抓取时间、样本期、IS/OOS 划分、成本与滑点、信号滞后、复权口径、幸存者偏差说明、尝试的参数组合数，以及在记录的 commit 上实际运行得到的关键数字（backtest reproduced）。收录条件：真实运行、确有交易、无同收盘成交前视、Codex 自审 PASS（进入本仓库前的审查为作者自审，不是独立第三方审查）、单文件复跑与审查时结果一致。
 
-本表由文件实际内容生成（2026-11-27 08:24 Europe/Oslo），共 81 个。
+本表由文件实际内容生成（2026-11-27 08:40 Europe/Oslo），共 85 个。
 
 | 文件 | 作者 | 代码 commit | 全样本 Sharpe | 全样本 CAGR |
 |---|---|---|---|---|
@@ -89,3 +89,7 @@
 | strategies/458_two_sides_of_schur_damping_high_dimensio.py | Codex | 9e9ff36601 | 0.5684480919250842 | 0.030542213978524968 |
 | strategies/459_entropic_value_at_risk_parity_for_temper.py | Codex | 9e9ff36601 | 0.7608718779979594 | 0.0527949031704531 |
 | strategies/460_understanding_the_long_only_minimum_vari.py | Codex | 9e9ff36601 | 0.7994607608086711 | 0.10517382226498317 |
+| strategies/461_breaking_the_trend_how_to_avoid_cherry_p.py | Codex | f8add1176d | 0.7882069933264355 | 0.035891291312835305 |
+| strategies/465_semivariance_and_semivolatility_in_portf.py | Codex | f8add1176d | 0.6961125987245249 | 0.08993418428770661 |
+| strategies/466_hierarchical_risk_parity_for_portfolio_a.py | Codex | f8add1176d | 0.25288239015706293 | 0.03183479389926003 |
+| strategies/469_two_sides_of_schur_damping_high_dimensio.py | Codex | f8add1176d | 0.9438518852654667 | 0.036227608824054514 |

@@ -112,7 +112,7 @@ Note on 354: Gatekeeper passed the look-ahead fix at a code-level spot-check, so
 | strategies/450_a_declining_cvar_glidepath_framework_for.py | INVALID | 收盘成交与资金模型 |
 | strategies/551_squeezed_covariance_matrix_estimation_an.py | INVALID | 事后固定股票池（幸存者偏差）; 论文表 3 权重晚于样本终点 |
 | strategies/481_optimal_portfolio_construction_a_reinfor.py | INVALID | 固定现金缓冲与全额收盘成交假设限制执行稳健性 |
-| strategies/500_dynamic_portfolio_optimization_under_cva.py | INVALID | defect listed in self-review; not a published fix |
+| strategies/500_dynamic_portfolio_optimization_under_cva.py | INVALID | 固定 ETF 池的幸存者及事后选取偏差; 论文晚于回测样本 |
 | strategies/541_entropy_regularization_under_no_shorting.py | INVALID | 历史行情与成交假设限制外推 |
 | strategies/459_entropic_value_at_risk_parity_for_temper.py | INVALID | 固定资产池存在幸存者偏差和事后选择偏差; 固定成本和收盘结算限制了结果的执行含义 |
 | strategies/497_interpretable_allocation_and_model_predi.py | INVALID | 固定研究池存在幸存者偏差 |

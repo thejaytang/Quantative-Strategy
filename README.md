@@ -211,3 +211,4 @@ These strategies are new research drafts. They have **not** been reviewed by Gat
 | strategies/720_kendall_correlation_coefficients_for_por.py | Codex | not reviewed (pending) |
 | strategies/721_conformal_predictive_portfolio_selection.py | Codex | not reviewed (pending) |
 | strategies/802_downside_risk_reduction_using_regime_swi.py | Codex | not reviewed (pending); first defect: 无独立非作者审查; loader changed because of a checker result (see DEEP_REVIEW_FINDINGS.md) |
+| strategies/804_at_risk_transformation_for_u_s_recession.py | Codex | not reviewed (pending); first defect: 无独立非作者审查; see DEEP_REVIEW_FINDINGS.md |

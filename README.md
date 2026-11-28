@@ -217,3 +217,4 @@ These strategies are new research drafts. They have **not** been reviewed by Gat
 | strategies/807_rethinking_portfolio_risk_forecasting_vo.py | Codex | not reviewed (pending); first defect: 无独立非作者审查; loader deviations from the fixed template listed in DEEP_REVIEW_FINDINGS.md |
 | strategies/808_cost_sensitive_online_window_size_select.py | Codex | not reviewed (pending); first defect: 无独立非作者审查; loader deviations from the fixed template listed in DEEP_REVIEW_FINDINGS.md |
 | strategies/811_deep_declarative_risk_budgeting_portfoli.py | Codex | not reviewed (pending); first defect: 无独立非作者审查; loader deviations from the fixed template listed in DEEP_REVIEW_FINDINGS.md |
+| strategies/813_rachev_ratio_portfolio_optimization_with.py | Codex | not reviewed (pending); first defect: 无独立非作者审查; loader deviations from the fixed template listed in DEEP_REVIEW_FINDINGS.md |

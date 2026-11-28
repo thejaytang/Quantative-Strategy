@@ -100,8 +100,8 @@ Note on 354: Gatekeeper passed the look-ahead fix at a code-level spot-check, so
 | strategies/432_revisiting_equity_bond_diversification_u.py | INVALID | 无独立非作者审查; 事后选池及存续偏差（六只基金取自回测后发布的论文）; 动态配置缺乏成交证据（1258 次信号均选 AOK 100%，全期仅 1 笔建仓，结果等同 AOK 买入持有）; 样本外为事后日期留出; 快照无法还原逐日到达或修订时间; 成交及资金约束是简化模型（固定 3 bps 摩擦，资金不足则整批中止） |
 | strategies/505_competitive_optimal_portfolio_selection.py | INVALID | 无独立非作者审查; 固定九只 ETF 池依赖存续与完整行情（无退市处置，偏差方向和幅度未知）; 样本外为历史日期留出（参数首次锁定与首次查看样本外结果的时间无记录）; PARAM_COMBOS_TRIED=7（含六个样本内变体）; 快照无法还原逐日到达或修订时间; 成交与资金约束采用简化模型（固定 8 bps 摩擦，同一收盘结算，资金不足则整批中止） |
 | strategies/539_schur_complementary_allocation_a_unifica.py | INVALID | 无独立非作者审查; 固定资产池存在幸存者与事后选池偏差; 样本外为事后留出段; 历史快照缺少逐时点版本; 执行对成交价跳变和现金余量敏感 |
-| strategies/449_the_mathematics_of_heuristic_portfolio_o.py | INVALID | defect listed in self-review; not a published fix |
-| strategies/483_wasserstein_penalisation_as_an_endogenou.py | INVALID | defect listed in self-review; not a published fix |
+| strategies/449_the_mathematics_of_heuristic_portfolio_o.py | INVALID | 无独立非作者审查; 基金池存在幸存者偏差与事后选样（八只全期存续基金，要求全期完整行情）; 主样本外结果继承事后选定窗口的样本内模拟持仓（在样本内结束时择窗，整个样本早于论文首次提交，属回顾性研究）; 复权行情缺少逐时点数据版本，结算模型简化（分数复权份额、按收盘价结算、固定滑点）; 现金不足会终止整次模拟（据作者自审 REVIEW_codex_self_r5.md sha256 dde616b3ee809dfbe6da340f285c7fc1875ed692fb5016ed422777bd23309444，非独立审查） |
+| strategies/483_wasserstein_penalisation_as_an_endogenou.py | INVALID | 无独立非作者审查; 历史留出的事前冻结证据不足（持仓和现金跨 IS/OOS 分界连续）; 固定池和复权快照限制外推（全期必须有报价，缺价则整次回测中止，无清盘退出处理）; 成交模型简化（成本与滑点各 5 bp，各边合计 10 bp，含首次建仓，现金结余零收益，同次卖出净款可用）（据作者自审 REVIEW_codex_self_r4.md sha256 a8649314de76536f588fe4c4fa0d01d9c78f99f5fd610da5b60479da26942cff，非独立审查） |
 | strategies/503_risk_limited_asset_allocation_with_a_bud.py | INVALID | 收盘结算的资金与流动性假设 |
 | strategies/431_mitigating_return_drag_and_regime_whipsa.py | INVALID | 模拟执行依赖收盘成交及资金假设 |
 | strategies/532_robust_enhanced_index_tracking_portfolio.py | INVALID | 事后固定股票池及幸存者偏差 |
@@ -116,12 +116,12 @@ Note on 354: Gatekeeper passed the look-ahead fix at a code-level spot-check, so
 | strategies/541_entropy_regularization_under_no_shorting.py | INVALID | 历史行情与成交假设限制外推 |
 | strategies/459_entropic_value_at_risk_parity_for_temper.py | INVALID | 固定资产池存在幸存者偏差和事后选择偏差; 固定成本和收盘结算限制了结果的执行含义 |
 | strategies/497_interpretable_allocation_and_model_predi.py | INVALID | 固定研究池存在幸存者偏差 |
-| strategies/442_mitigating_return_drag_and_regime_whipsa.py | INVALID | defect listed in self-review; not a published fix |
+| strategies/442_mitigating_return_drag_and_regime_whipsa.py | INVALID | 无独立非作者审查; 历史样本外与论文参数评估期重叠（独立锁参留出证据缺失）; 全期完整报价造成事后条件（固定池来自论文所列存续基金，缺少退市、清算、替换和停牌处理）; 执行模型对资金缺口和交易摩擦作了简化（同批净额结算，跳空致资金不足则整次回测中止，无成交量、价差或冲击模型，剩余现金收益为零）（据作者自审 REVIEW_codex_self_r5.md sha256 35ba5fccaf3d3a8b7e86a33aa0255991b5d9950e1b910be6ecb23b91143bc109，非独立审查） |
 | strategies/022_sector_residual_statarb.py | INVALID | 无独立非作者审查; 事后选池与退市处理缺口; 样本外为事后切分; 成交及资金模型简化 |
 | strategies/465_semivariance_and_semivolatility_in_portf.py | INVALID | 成交和现金取决于简化假设 |
 | strategies/113_kalman_garch_pairs.py | INVALID | 固定存续配对限制结果的外推; 成交与资金约束为简化模型 |
 | strategies/315_leveraged_funds_robust_replication.py | INVALID | 事后选池限制结论的适用范围 |
-| strategies/545_portfolio_diversification_and_concentrat.py | INVALID | defect listed in self-review; not a published fix |
+| strategies/545_portfolio_diversification_and_concentrat.py | INVALID | 无独立非作者审查; 固定资产池有幸存者偏差和事后选样; 复权行情与成交模型限制（事后抓取的复权快照无法重建每个信号时点可见的行情版本，按可分割复权单位和收盘价成交）; 样本外表现弱于同池等权（OOS 年化约 7.51% 对 9.56%，最大回撤约 -29.46% 对 -23.13%）（据作者自审 REVIEW_codex_self_r4.md sha256 616ba2c4a05c3ab290d56399c55dd35a069b3a326c2ae4258d06a3e05ce722f5，非独立审查） |
 | strategies/552_a_novel_robust_mixed_integer_linear_prog.py | INVALID | 无独立非作者审查; 固定股票池存在幸存者偏差; 行情可得时点与 OOS 解释有限; 成交与异常行情采用简化规则 |
 | strategies/461_breaking_the_trend_how_to_avoid_cherry_p.py | INVALID | 固定基金名单带来幸存者偏差 |
 | strategies/487_conditional_value_at_risk_under_reward_p.py | INVALID | 事后选股与幸存者偏差; 资金约束与成交假设 |
@@ -130,22 +130,22 @@ Note on 354: Gatekeeper passed the look-ahead fix at a code-level spot-check, so
 | strategies/491_topological_risk_parity.py | INVALID | 事后固定投资池; 成交与资金模型的适用范围 |
 | strategies/188_opex_week.py | INVALID | 开收盘成交及资金假设偏强 |
 | strategies/443_revisiting_equity_bond_diversification_u.py | INVALID | 动态配置缺少成交证据 |
-| strategies/159_deep_momentum_market_trend.py | INVALID | defect listed in self-review; not a published fix |
-| strategies/109_factor_etf_vol_matched.py | INVALID | defect listed in self-review; not a published fix |
+| strategies/159_deep_momentum_market_trend.py | INVALID | 无独立非作者审查; 固定选取九只现存且长历史的基金，回测可运行取决于每只基金的整段行情（高；缺少回测起点冻结名单的历史记录）; 2022–2025 年 OOS 已被此前回测和评审查看，且大部分日期早于论文正式发表，属回溯评估; README 记录的本次行情快照未随审查副本交付，只能核对日志副本; 除息日即将分配计入可用现金，可能提前动用实际支付日前的应收股息或提前扣减空头应付分配（据作者自审 REVIEW_codex_self_r5.md sha256 572d1dc1ad458c17d4a7ad1a6a0f20ca5d17179d88809241a796495c545e7ee0，非独立审查） |
+| strategies/109_factor_etf_vol_matched.py | INVALID | 无独立非作者审查; 基金选择与幸存者偏差（事后选定存续 ETF，要求全期报价完整，缺少选入记录及退市、清盘、替换规则）; OOS 的事前性无法追溯（基金名单、参数与切分缺少带日期的冻结记录）; 执行和现金缓冲的外推有限（按下一收盘参考价模拟复权小数份额，同次卖出净款可买入，现金不足则整次回测报错）（据作者自审 REVIEW_codex_self_r4.md sha256 73e264f3044e5c6c4996b5c6a8c39f5d41969d782ee98b2d6bdcbe0cf57a426b，非独立审查） |
 | strategies/186_federal_holiday_effect.py | INVALID | 开盘换仓依赖成交与资金假设 |
 | strategies/490_noise_proofing_universal_portfolio_shrin.py | INVALID | 固定存续 ETF 池产生幸存者与选择偏差 |
 | strategies/456_an_entropic_factor_model_for_robust_port.py | INVALID | 成交与成本模型简化 |
 | strategies/537_hierarchical_minimum_variance_portfolios.py | INVALID | 执行模型简化收盘流动性与现金约束 |
 | strategies/400_noxtrader_lstm_based_stock_return_moment.py | INVALID | 固定股票池引入幸存者和事后选样偏差 |
-| strategies/458_two_sides_of_schur_damping_high_dimensio.py | INVALID | defect listed in self-review; not a published fix |
+| strategies/458_two_sides_of_schur_damping_high_dimensio.py | INVALID | 无独立非作者审查; 固定标的池存在幸存者偏差（两种配置共用事后选定的完整历史名单，比较只适用于这组标的）; 复权快照缺少历史可得性记录（仅记录整批抓取时间，无法重建逐日收盘价和公司行动调整的首次可得时间及后续修订）（据作者自审 REVIEW_codex_self_r5.md sha256 e3b0436f48e06cf0685564bc60ebbfba5f7069ed55d682334f95bc63b39cebd6，非独立审查） |
 | strategies/454_semivariance_and_semivolatility_in_portf.py | INVALID | 资金与成交模型简化 |
 | strategies/448_continuous_cash_overlay_filters_for_a_st.py | INVALID | 日线版本与成交模型有限制 |
 | strategies/468_cleaning_correlation_matrices_with_exter.py | INVALID | 事后选定的存续标的池; 摩擦已披露，卖空及成交约束仍简化 |
-| strategies/324_volatility_conditions_weekend_effect.py | INVALID | defect listed in self-review; not a published fix |
+| strategies/324_volatility_conditions_weekend_effect.py | INVALID | 无独立非作者审查; 审查副本缺少本次行情快照（README 所链接的缓存文件在审查副本中缺失）; 固定代理与样本外冻结证据不足（固定使用存续 ETF，缺少当时可选名单、退市处理规则）; ETF 代理实验与论文的检验口径有差异（论文用 Kenneth French 因子，本实现用 ETF 代理）（据作者自审 REVIEW_codex_self_r4.md sha256 196c76c02123cbe9e8eddfbd831f703592054c4a6691e9b9aac7a3705c33a1ff，非独立审查） |
 | strategies/460_understanding_the_long_only_minimum_vari.py | INVALID | 成交模型与资金缓冲有现实限制 |
-| strategies/469_two_sides_of_schur_damping_high_dimensio.py | INVALID | defect listed in self-review; not a published fix |
+| strategies/469_two_sides_of_schur_damping_high_dimensio.py | INVALID | 无独立非作者审查; 固定基金池有幸存者偏差与事后选样偏差（高；全区间要求完整报价）; 历史留出的证据有限（IS 为 2010-01-04 至 2017-12-29，OOS 为 2018-01-02 至 2025-12-31，同一模拟完成后切分，持仓和滚动窗口跨界）; 结算模型在现金不足时直接中止（固定缓冲用于吸收执行日价格变动及费用）（据作者自审 REVIEW_codex_self_r4.md sha256 1a9aa270a10ce272624d79506fc76ef4d81072a3e31bd27de746fdc174ee7ca0，非独立审查） |
 | strategies/474_multiperiod_bond_portfolio_optimization.py | INVALID | 规划成本与实际成交近似不同 |
-| strategies/512_nested_clustered_optimization_is_one_end.py | INVALID | defect listed in self-review; not a published fix |
+| strategies/512_nested_clustered_optimization_is_one_end.py | INVALID | 无独立非作者审查; 固定资产池的幸存者与选择偏差（事后固定九只原始行业基金，各标的全期行情齐备，无纳入、退出或清算处理）; 样本外为事后切分的历史留出（论文提交日期晚于样本终点，仅在样本内评估六个替代参数）; 结算模型适用范围有限（可分割复权份额，所有份额假定按当日收盘价全量成交，同批卖出款可抵买入款）（据作者自审 REVIEW_codex_self_r4.md sha256 8e5217108ce3adf1115ac949ea9467d0e2f1a9353781f4462f24718ed0ad25d3，非独立审查） |
 | strategies/197_tsmom_boundaries.py | INVALID | 开盘成交和股息现金的近似 |
 | strategies/553_large_scale_portfolio_optimization_probl.py | INVALID | 无独立非作者审查; 候选池有幸存者和事后选样偏差; 同一代码跨股权类别; 样外仅为历史时间切分; 成交与资金模型简化; 快照无法还原逐日发布版本 |
 | strategies/310_factor_beta_overnight_intraday.py | INVALID | OOS 的独立性不足; 费用与成交模型简化 |
@@ -153,11 +153,11 @@ Note on 354: Gatekeeper passed the look-ahead fix at a code-level spot-check, so
 | strategies/445_dynamic_scenario_based_portfolio_optimiz.py | INVALID | ETF 池有幸存者和事后选择偏差; 复权成交与资金处理是模型假设 |
 | strategies/482_dynamic_inclusion_and_bounded_multi_fact.py | INVALID | 固定候选池有幸存者和事后选择偏差 |
 | strategies/434_dynamic_scenario_based_portfolio_optimiz.py | INVALID | 事后资产池与回顾性样本切分 |
-| strategies/528_schur_complementary_allocation_a_unifica.py | INVALID | defect listed in self-review; not a published fix |
-| strategies/470_entropic_value_at_risk_parity_for_temper.py | INVALID | defect listed in self-review; not a published fix |
+| strategies/528_schur_complementary_allocation_a_unifica.py | INVALID | 无独立非作者审查; 固定基金池存在幸存者偏差与资产选择偏差（事后选定五只基金，要求全期行情齐备，历史准入、退市清算和替换无规则）; 历史 OOS 的规格冻结缺少证据（2017-12-29 及以前为 IS，2018-01-02 起为 OOS，替代组仅运行到 IS 截止日）; 执行模型使用复权份额和简化摩擦（收盘价全额成交、可分割份额、固定比例滑点）（据作者自审 REVIEW_codex_self_r4.md sha256 b569e74bc7a001d17261515e41fd693233b4c893fa0119c1fc9f90dc10650ac5，非独立审查） |
+| strategies/470_entropic_value_at_risk_parity_for_temper.py | INVALID | 无独立非作者审查; 固定基金池有幸存者偏差及事后选池偏差（高；完整样本报价是回测正常完成的前提）; 历史快照缺少逐日报价的发布时间、修订版本和逐时点复权记录; 现金不足会中止整个回测（用前收组合价值预留 10% 缓冲，无部分成交或延后）（据作者自审 REVIEW_codex_self_r4.md sha256 50298295177d17c81ea777422f5ca9627ab2b624abb71ab7dddc00727d998ea2，非独立审查） |
 | strategies/522_asset_allocation_using_a_markov_process.py | INVALID | 收盘执行依赖固定滑点和现金缓冲 |
 | strategies/479_noise_proofing_universal_portfolio_shrin.py | INVALID | 基金池存在事后选择和幸存者偏差; 模拟成交依赖复权日线和固定摩擦 |
-| strategies/156_cta_replication_trend_factors.py | INVALID | defect listed in self-review; not a published fix |
+| strategies/156_cta_replication_trend_factors.py | INVALID | 无独立非作者审查; 固定存续 ETF 池（十只事后选定、全期有报价的 ETF，缺少历史候选池、选入规则、退市和清算处理）; 样本外为回溯分段（缺少分界前冻结 ETF 池、参数及执行规则的记录）; 成交与融资模型简化（单边 3 bp 手续费、2 bp 滑点、年化 50 bp 借券费、零闲置现金利息，多头分配于除息日计入价值，空头分配于除息日扣现金，实际付款日现金流缺失）（据作者自审 REVIEW_codex_self_r4.md sha256 50b5a38da6192c0927b8071f58112314d1a7b4c5739b8a947704812eb792f727，非独立审查） |
 
 ## 待审新策略 / pending review (new)
 

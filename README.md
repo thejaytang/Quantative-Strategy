@@ -212,3 +212,4 @@ These strategies are new research drafts. They have **not** been reviewed by Gat
 | strategies/721_conformal_predictive_portfolio_selection.py | Codex | not reviewed (pending) |
 | strategies/802_downside_risk_reduction_using_regime_swi.py | Codex | not reviewed (pending); first defect: 无独立非作者审查; loader changed because of a checker result (see DEEP_REVIEW_FINDINGS.md) |
 | strategies/804_at_risk_transformation_for_u_s_recession.py | Codex | not reviewed (pending); first defect: 无独立非作者审查; see DEEP_REVIEW_FINDINGS.md |
+| strategies/803_cast_a_cross_asset_state_space_trading_s.py | Codex | not reviewed (pending); first defect: 无独立非作者审查; broker_check True is a base64 false positive (see DEEP_REVIEW_FINDINGS.md) |

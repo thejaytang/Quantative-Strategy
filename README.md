@@ -223,3 +223,4 @@ These strategies are new research drafts. They have **not** been reviewed by Gat
 | strategies/820_return_prediction_for_mean_variance_port.py | Codex | not reviewed (pending); first defect: 无独立非作者审查; loader deviations from the fixed template listed in DEEP_REVIEW_FINDINGS.md |
 | strategies/818_generalized_exponentiated_gradient_algor.py | Codex | not reviewed (pending); first defect: 无独立非作者审查; broker_check True is a base64 false positive; loader deviations from the fixed template listed in DEEP_REVIEW_FINDINGS.md |
 | strategies/821_hopfield_networks_for_asset_allocation.py | Codex | not reviewed (pending); first defect: 无独立非作者审查; broker_check True is a base64 false positive; loader deviations from the fixed template listed in DEEP_REVIEW_FINDINGS.md |
+| strategies/810_sequential_portfolio_selection_under_lat.py | Codex | not reviewed (pending); first defect: 无独立非作者审查; loader deviations from the fixed template listed in DEEP_REVIEW_FINDINGS.md |

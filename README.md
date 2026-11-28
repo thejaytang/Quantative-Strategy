@@ -98,7 +98,7 @@ Note on 354: Gatekeeper passed the look-ahead fix at a code-level spot-check, so
 | strategies/484_nonlinear_shrinkage_for_higher_moments_e.py | INVALID | 无独立非作者审查; 事后固定 50 只大盘股池（幸存者及事后选池偏差，早期 GOOGL 类别映射缺口）; 仅复用论文目标函数，未实现论文的高阶矩非线性收缩与历史成分/退市处理; 样本外为事后日期留出; 快照无法还原逐日到达或修订时间; 结算对现金和成交假设敏感（固定 10 bps 摩擦，资金不足则整批中止） |
 | strategies/476_conditional_value_at_risk_under_reward_p.py | INVALID | 无独立非作者审查; 样本外为事后日期留出（阈值亦取自论文对整段训练期的估计）; 固定存续 ETF 池存在选择与幸存者偏差; 快照无法还原逐日到达或修订时间; 收盘成交与现金可用性采用简化模型（固定 5 bps 摩擦，资金不足则整批中止） |
 | strategies/432_revisiting_equity_bond_diversification_u.py | INVALID | 无独立非作者审查; 事后选池及存续偏差（六只基金取自回测后发布的论文）; 动态配置缺乏成交证据（1258 次信号均选 AOK 100%，全期仅 1 笔建仓，结果等同 AOK 买入持有）; 样本外为事后日期留出; 快照无法还原逐日到达或修订时间; 成交及资金约束是简化模型（固定 3 bps 摩擦，资金不足则整批中止） |
-| strategies/505_competitive_optimal_portfolio_selection.py | INVALID | 成交与资金约束采用简化模型 |
+| strategies/505_competitive_optimal_portfolio_selection.py | INVALID | 无独立非作者审查; 固定九只 ETF 池依赖存续与完整行情（无退市处置，偏差方向和幅度未知）; 样本外为历史日期留出（参数首次锁定与首次查看样本外结果的时间无记录）; PARAM_COMBOS_TRIED=7（含六个样本内变体）; 快照无法还原逐日到达或修订时间; 成交与资金约束采用简化模型（固定 8 bps 摩擦，同一收盘结算，资金不足则整批中止） |
 | strategies/539_schur_complementary_allocation_a_unifica.py | INVALID | 无独立非作者审查; 固定资产池存在幸存者与事后选池偏差; 样本外为事后留出段; 历史快照缺少逐时点版本; 执行对成交价跳变和现金余量敏感 |
 | strategies/449_the_mathematics_of_heuristic_portfolio_o.py | INVALID | defect listed in self-review; not a published fix |
 | strategies/483_wasserstein_penalisation_as_an_endogenou.py | INVALID | defect listed in self-review; not a published fix |

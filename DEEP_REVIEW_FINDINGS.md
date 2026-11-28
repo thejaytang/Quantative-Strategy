@@ -210,3 +210,79 @@ This section is documentation only. It does not change the packed file or offici
 ## 533 pack (stays INVALID)
 
 This note cites the published file sha256 `d625105ebfb3de80c014c20c9f86f9d5028851d8a286879f6943129bf9077c4f` (strategies/533_special_markowitz_thermodynamic_formalis.py). Official strategy.py sha256 `0a90bf46c6c5999b57a078f13d31234efffc66ebae17e95f5b3170c0fe8b7414` (417 lines). META was not hand-edited. lag_ok=False comes from the META JSON and is not a PASS. Category text is backed by author self-review REVIEW_codex_self_r4.md sha256 `3671de2d705ad64c1e0ed301f58fd93a9446b426330e87b39545646a6dcfc41a`. pack/snapshot embed, stays INVALID.
+
+## Packed-file SHAs before the WARNING-line header change
+
+On the commit that changes only the publication-header WARNING line in the 69 INVALID packed files, those files' SHA-256 digests change. Every packed-file sha256 cited in this document or in a packed-file header before that change is the sha before the header change. Official strategy.py, config, cache, log, META, and review-file digests cited in this document are unchanged by that header-line edit. The old-to-new packed-file table is also saved under `/workspace/codex_runs/quant_burn/repo_build/push_attachments_20261128_header_warning/packed_sha_old_to_new.tsv` (local attachment, not in this repo).
+
+| File | sha before the header change | sha after the header change |
+| --- | --- | --- |
+| 501_nested_clustered_optimization_is_one_end.py | `290fdcdb9d2d4cf83e0bb70d48a483e402014a478e5ba377175460bb0635ccf1` | `4b09d922feee94bf2735fbd1b7046724a3517da7999a5ef943544b955087abe6` |
+| 451_a_declining_cvar_glidepath_framework_for.py | `562f0ad56519a4db81c37095c37bef792ee0749190be9eb80701dddf7829bdbf` | `39e74fea35579d910afafb6622cb88e722b9ab8702cb1ce039c4966573571139` |
+| 510_some_general_results_on_risk_budgeting_p.py | `bfd2710d01cf97e018f09c164b0a9f55b74f08a7d6da99b6af92a6c562d326b7` | `399da6ba803dd58af6a17bee389f94bb572df85d0901bc81ba7d9dc2583e20c7` |
+| 452_simple_dynamic_stock_bond_gold_portfolio.py | `755f0f7acc052da53c654b852cd545cf38f908cd86bf72b008118c7d5961ac53` | `a90460cf391af616073c48f8b9c2f8ed03844626e53549c06ed88f5b6f358b6f` |
+| 494_wasserstein_penalisation_as_an_endogenou.py | `afbe9dba6443d87b296aaf80cdde1a72d60607ba567f7aa1880257afb2d41dfe` | `50eea01dc94602c9bff8050ddfa814db3b78ea0dc9ad24b4db504835cac898a9` |
+| 533_special_markowitz_thermodynamic_formalis.py | `d625105ebfb3de80c014c20c9f86f9d5028851d8a286879f6943129bf9077c4f` | `caeb9b1d26d7bfe1e94f200d86a220a5355fbb1dae02230838c7d579fb98f167` |
+| 484_nonlinear_shrinkage_for_higher_moments_e.py | `9446b05b14077578621b8f986f6a523c7f66ec83ddaf9fde20f47432d94ab624` | `a48a6be6e6be6f51e691f7d2f8be729e0e9e799beaf5a7b72cd5727c9c153339` |
+| 476_conditional_value_at_risk_under_reward_p.py | `25834273fc82bcd5c277b95d0ac7da075adc6e9907bd55a908f85bb086ab19c1` | `93e04803f42556794af2b44907bffefa1487ff39fcff7b58e087c196f2292baf` |
+| 432_revisiting_equity_bond_diversification_u.py | `f82bdeb7e4ae38ad1bbf339755f23c2bb438802c85238a246289a70128ae223a` | `032c45f9eec9cf6e6c1440f25fdff421e48fcce0c7afcfe55369ac6444c21556` |
+| 505_competitive_optimal_portfolio_selection.py | `091c91108ecada392a8e3da9f826ef45831b838f6f25d2ed1af6d84a932efc90` | `79e771296529054f815ba1ae797935f13bb6a3d6e5a3276eb2be029de4bd0a1c` |
+| 539_schur_complementary_allocation_a_unifica.py | `ff47000afe9e207564dc7ca9f1e995edc7b0ac3f9e9f787a789b6e1c93e3caa3` | `41e7f7bfa3feee7d6b8863a4e5ad98bd81c288523eb3a4456ac3b7ab0e0aa30a` |
+| 449_the_mathematics_of_heuristic_portfolio_o.py | `1a5438b776049693c0db823ba91696d6eec460993acb65a693aeaa958e5ae064` | `bce74052200e9532a5c76005b3f61f72ddec1f72938d60e32e81b2dae3de530f` |
+| 483_wasserstein_penalisation_as_an_endogenou.py | `796456eca6e5af5372fb9d3417614a61166dd3a1578fd406a9f1b7b24e336984` | `45de1d6f547f066fdf2cd61d81c2a8437dd122ffa26c60d3cfac4e61dccc6e63` |
+| 503_risk_limited_asset_allocation_with_a_bud.py | `273b33d1ecc3b6ca284ed72b2e224b2b5d72a65b7bad35f37c6ee588b7ab4a8f` | `283a3a3cd057b6ee5593e19a58c446d224366bca236dd91db0e8d48c777902fe` |
+| 431_mitigating_return_drag_and_regime_whipsa.py | `9e0b6cb1773957f785e5bc38768a5c3a778e0fa7527ed7782f5d04cf73bba5b6` | `3cdd2045fea0d967f32689f8a51ff9abc0a3a1a96e2814215756704e2286bf5d` |
+| 532_robust_enhanced_index_tracking_portfolio.py | `6ffbb53bf06b8455711506da72d5b39b06e55542ee8bbc5653865d79655d7824` | `c69ec2d79982f1b08335ca82d674a6a7a71bbf4126874518e6f55d8a33573bfc` |
+| 534_portfolio_diversification_and_concentrat.py | `3d1fc0add7a2be48f51bb1b0226648927f0451cfcc33cfce0e7b37a6a4f975a9` | `1a1956219c5d0ba877ec720d7f5d248fb04d855f354650df64f3a9127778a334` |
+| 509_beyond_de_prado_and_cotton_hierarchical.py | `de63fbf92682b3d7c49cf056855e6d2b6422dfea7cd7d2f9cd5e5f12e54b5bef` | `3c3ae9b129a4817ae39e15e8474e8c79d7389692f7b4eab5f03035a0d918d512` |
+| 520_beyond_de_prado_and_cotton_hierarchical.py | `3b7af82e0a16501b0310cef916cb2185a99ccccc07755c0219f18ef83c892958` | `d3ec37aad05ce77b36d470547f7d32c1ede651994302b18310834c086f47d046` |
+| 395_signature_based_optimal_execution_for_st.py | `b9b4c638798a96dd0596cb78df3e0e40cf2eada10edeea4594d6d93e6c4ff009` | `9bfc4c1d84643d674298adb15e93535e231454ad9821ef581c383514237cac76` |
+| 450_a_declining_cvar_glidepath_framework_for.py | `4bd98e0772df36933e27d9d7d798125931736696af9df3d47d15ea4f8a607aa8` | `45532e57ef265e47430decd904cd14bd0e4450aa5e192838eafdcf95a8fbd5ee` |
+| 551_squeezed_covariance_matrix_estimation_an.py | `2e70ff673b68af6c3076c02de1e6f7e4b8efb036e3e9faad4c828ec1b2feeead` | `12c1cd48afea78113382738cc5ce70401caf663783f3a2ea5f044a354ab7ccb7` |
+| 481_optimal_portfolio_construction_a_reinfor.py | `5a0a8b1bdae1633a207d6b46c5023ebb53a0731c92567e71f831d8e8bb5bd25c` | `49d2316ee092d01dcb718120ada03ceb4fe549ed5393cab72b68d2742d1c3510` |
+| 500_dynamic_portfolio_optimization_under_cva.py | `6b75970750bbff5507602111296fa86434179e9b11b0c0c80d53b7ac89570f8f` | `d95963dc8791087eaeb50893c0880c7394df4b01f86001d14b889279b03bf691` |
+| 541_entropy_regularization_under_no_shorting.py | `c21718bbf103b79a9554ba9fd027a8d738edc9335a44a00d8968742d3a874835` | `370f7de07f48fc859bfc9bed515208cf22574f9828cf3d800ce84ea14e35a546` |
+| 459_entropic_value_at_risk_parity_for_temper.py | `9333a981b9ef15cf0e721f2e80cd964b8c15bb60dda2f00668fd8c09fc011b4c` | `8c59debc73e8afa87446b578596114987165aaa4c851f9769adf703ff4340a41` |
+| 497_interpretable_allocation_and_model_predi.py | `39e041280c7770b714d5aeea19ee0882f2f0d67ee60cd83aedb9b8f8434e2b96` | `191a283e9824dd4e412e73e3500da4a1af0702494801d1b727e07902ba42e64d` |
+| 442_mitigating_return_drag_and_regime_whipsa.py | `4be4384cd22c480c04b1bbd6006475b793cafdaa475d07b58ff6fe996a2b60c4` | `908f074e8358e4d1aa754a3fd9bd2fcfee827debc54fb623d655f5061f344f84` |
+| 022_sector_residual_statarb.py | `6041b3f969f9e11bf152656afb82da3358be885cc5bcc48136af14001cc39763` | `c07a63b6c8125ac424d11281345383cbc611a42196f623804d51872bb27c3022` |
+| 465_semivariance_and_semivolatility_in_portf.py | `4ac486fdceb7280d3fabbc912fd0514039309cf8a2f1ca8fe983dd9310f14e24` | `7f6d5ae744547fde2815f6e2f2ddd23d6343abf3a6ac493be27fcdbf7a2afda6` |
+| 113_kalman_garch_pairs.py | `93978660b6531483cfeec27bc8f6e10c75af0ae2837a59644c2d06cebf3628bb` | `0e19bc4ec724b41664471e93b32f887c1d2d8c4f1c385f8f148837cf53687417` |
+| 315_leveraged_funds_robust_replication.py | `6807f1c22c2756282d3b5be0b039f0062555f025172a30ad7956716d5d062eab` | `4ab52777510faf8ca308de37557edac67f5d411d31e2f54d6e0840c76cc17b88` |
+| 545_portfolio_diversification_and_concentrat.py | `d11914eb2075a749c0b038e0f0d2e92f50d11cd5ab7fd8c718fc510e0ac546fb` | `4ac375263e56df60ed94d3f977648d11cafc43875fb816d668fa4d9ebac05898` |
+| 552_a_novel_robust_mixed_integer_linear_prog.py | `788409ae9dad5a2b863e88e7b92d686f3ad30dfce7624cd0025a3ed2c8e7c500` | `3276b29219f06a047f0af2359c1dc52df48a38e869507e7118ac2906982fcf17` |
+| 461_breaking_the_trend_how_to_avoid_cherry_p.py | `19cf8abb210357ee103c3901f6998fb4da6514e8b4462e7e81b36fc6ef310e8a` | `715b7137dad62c3ec79761cd222b06539b8bf2a63da6ea734babf514b251c60f` |
+| 487_conditional_value_at_risk_under_reward_p.py | `6c1734ef035c469c9ce1da8cd6f7247d4335da87394140f235b5e086f2a2393e` | `37459adb5ca23d89bb44d504066609eb7a9c0186aa11cd2ac8f212f96ff20dd2` |
+| 467_an_entropic_factor_model_for_robust_port.py | `ede3b9c68518475b7692cbf5ee3bafa3b80585606da8fe61f52119dedc9ada2e` | `3d6194f027f4b06425f8e439a55d98dfc0e035e30b60e353ab93bf8438a78f3d` |
+| 478_portfolio_allocation_under_heterogeneous.py | `72157a64c5b7e8cffe31fcd5e3fd5558e392deaf3ff2307ad98bd0917aa307b9` | `cd7104a8efe4d055b0c306a9749d8b2b8e095053ee4c2bcb2f1f7fc32c8e3946` |
+| 491_topological_risk_parity.py | `7fa90730c538141146749e80c4f4fa473e338d9e0f0fe7e9591f23dfd7c9ca97` | `53e9b9834c3e75a2cfcd2150f0b3f132137f9531b3341a618a5b3dcf9bcbd7ec` |
+| 188_opex_week.py | `685aee484150d758d9e522beb7be1ea25899841ecc9cb8f95806a53bfef6f223` | `42019cf252df119770e89c2fb83349c72fa5f03bdb048e19708d29b5f48693e9` |
+| 443_revisiting_equity_bond_diversification_u.py | `a6c6366c6668aa11ca0ede3d926dc6aca2b4182314bec68cca25f28df2401113` | `877dfe3dc09fcf7131a32f5995a10f67c86791feb10edce00d2b800df1483ff6` |
+| 159_deep_momentum_market_trend.py | `c3cfc6be1f99a96bd25d845fbee63959a9a9b6dd9f24029b83b78cf61983490b` | `ef25aaf01a81279ad6a57cf19acd1d3d22db625f8bf492b496b97d541de7c2c4` |
+| 109_factor_etf_vol_matched.py | `0b78b9b8b6ec2b0662969806f4702fa96c4327945d2be2a8dc12df1384650ebe` | `fefd9f8fa50176fa71f3b8ec1ccd17f2539fb0e7bd599fe43f772115a8d8411f` |
+| 186_federal_holiday_effect.py | `5672053fed4125c77e0a0d6892011e00851722dc9ceb22771a2b53c41dcc3fca` | `917a6e9d13951a8772a81fd1e3e5ab564f9eac84731119b1cfcaa1f4c92618bb` |
+| 490_noise_proofing_universal_portfolio_shrin.py | `1c96cafc239e968a4935d6a70498925beac9c35453be35f089463297b74fdae5` | `f1e0e19db8ebd17787c0cc155e9579cb1fffb5cb62203d2612bd11aca32c1ea6` |
+| 456_an_entropic_factor_model_for_robust_port.py | `31617b291ace2a7b1bc84631378e62090695a677171e815a74209d766fe8b8af` | `8c48ec122b4c146b057fe3ad0a2841cc24076c1f222e05a8adaf74a92c8992c7` |
+| 537_hierarchical_minimum_variance_portfolios.py | `f7af837ff53f573d6d03196ba4708e3baf54de5d8ce9f99f9e958d2858806991` | `27ff56953642105f5dc046de7009652bf9994aaab4673b1fe94a4e795fe628cf` |
+| 400_noxtrader_lstm_based_stock_return_moment.py | `abbbdba9e8006ab0e7b1e11e24ebbabfa846e5e99967be4899b8da5b354392f0` | `36e938354ec5d3dd630ae8113847250452de676f1e345b7d6d325adedb2e0858` |
+| 458_two_sides_of_schur_damping_high_dimensio.py | `9f048db3b484db21b9f3d6e2eadc33637999df32a3a14ec3fd0ea8aed6b67c9a` | `ee1b923d1933717dbae53bed4861fd8d0f9f464232d38009e4c787e7a83d0e1f` |
+| 454_semivariance_and_semivolatility_in_portf.py | `8eba7ccfd6c396bfc015f8c10c31c77fb31d0839e9ae69855b3255bbca025f2e` | `0721c6ba9c02515798e127e7306817ce0df0b5a7544f322b11e7647a7b657dee` |
+| 448_continuous_cash_overlay_filters_for_a_st.py | `462546481e70b5bc2f063ae71d21baa09aa4137c3c6ca0480b18ed1ae19bc1f5` | `be0e74514ce0474eb1449e96fe05ad8720e1dada9a61ffc57fa201ead0109678` |
+| 468_cleaning_correlation_matrices_with_exter.py | `4cf89767b3522417b23f85e4d70591d7d3dd1ebe02e310a18d03028e2f8cb1d6` | `5a047192d563ba69542b963386e51aee388bdc4b9cde6c40c11093bb0f835cd1` |
+| 324_volatility_conditions_weekend_effect.py | `29e3c232dd247ae451f4a770b18ecee78fe7c4eb8af028b911fa6968a021a5bd` | `e358d6ce205ef6bc0008ed96734fa54debaafabc510aec2d277b396bc2e99633` |
+| 460_understanding_the_long_only_minimum_vari.py | `36aa3afc09a04f984db35df64956e0ed9913ec78256a37efcf90084d77781104` | `96f927febab0d1b28819c501228e8ccb7876fbfe6ab36c3dc79490842b0af8ce` |
+| 469_two_sides_of_schur_damping_high_dimensio.py | `fcb238497d95e076ad19b03eb5e9f5a6c67e2aac268264fa83450904dd507565` | `1c176028c7812e597a319328e2d160a8dc08e57c1292f828c17a1b68f9cce566` |
+| 474_multiperiod_bond_portfolio_optimization.py | `765f69677138b98e7aae72f07b9b9afc33aafe630dced9034d9efc6be8534abe` | `e55357afa254052282b740e132b2e934b847c79dcf03a71eba9524dc159d6841` |
+| 512_nested_clustered_optimization_is_one_end.py | `1c92e382c406241b67b6163581d6026ac39d932c77fe8298b1d3fc7d3c7529f7` | `bed034b40ff2c0264c5ce1478124c9350008905706b3b6d14b4728c33bae14d4` |
+| 197_tsmom_boundaries.py | `6cfadb7fd9b55c2e1c6e0cf7973dbd743fff2e2ed799eb9cd9032493c5d2197a` | `18ec6b861e3583871a330219926d6376d20dddc344cec75ef928b8fb2c60673a` |
+| 553_large_scale_portfolio_optimization_probl.py | `31fed80f47cd46a70d5cc27fe3e161e274fae0c4092940605e1ca3d9a73007e6` | `e5d93a4b5fe58faad58a341786a07e38dad69200df5d3434f408eeca75cb1f01` |
+| 310_factor_beta_overnight_intraday.py | `9fd3a84fe475e275e1be92ad3fc1084d79d4c43e9e4e7e5af236d7b5d2ea0642` | `abe434f8a31fc4e2433e7a24af2ec41990cab9cd03a80dbc870054d331d728fc` |
+| 353_hold_the_dip.py | `33a925a7488294c6b60662d5117dd64ef98f2f53c563a76afc0d7b3b04f2ac8a` | `75519f336babc901359e45846084b37a9d009cbc443ddaef05874b6048e6de26` |
+| 445_dynamic_scenario_based_portfolio_optimiz.py | `a453685a9f5ea637f6773ca156e79fbae1d5946ea16ebe54932df4af70986641` | `0544be6565e2fe96e48b5c08ed4b990e4eff5100a6b15a53a4a293b3b2b49b5c` |
+| 482_dynamic_inclusion_and_bounded_multi_fact.py | `5b01ab6f9d49fbeddd468ccef37decab2a14ebccac30ed05da672e994d113c92` | `2ab2b6661c5d0c984a7de65774758f22579855d47e46fd6987490c7fa8c8b779` |
+| 434_dynamic_scenario_based_portfolio_optimiz.py | `76fac966dec21de3c25c35a6ce8578e5be2a5b24a6c10c8385b6549b19802277` | `8683e68d5f701d238362fe0c34622ad80def8dbaaebbf373ced01a0ac6a13587` |
+| 528_schur_complementary_allocation_a_unifica.py | `24c537e3a13543a13da851ca4a234fe3959b8201ba526c42fea31713d1cdf70c` | `2a093ab18d33fd501127aa758fe53bded2fd0db15fb0eb5ae108676b956ea13b` |
+| 470_entropic_value_at_risk_parity_for_temper.py | `a78f8057b938677888d1e1795e97b01a4c11aa176e31a6bc10326c678fd8caf6` | `2edf84dca7634958992cb67d8f17c925d0ff8d0c237cd0b79f79716391d3dcfd` |
+| 522_asset_allocation_using_a_markov_process.py | `a505ba00e07927dc5bb0c9b9302d9f80b2be6fe16673ed24dc8a597e78f8b7d0` | `a7a523a171edd355d95977b2e7e36581fc682fdf132dcf7c8dfb8d72f9e402c5` |
+| 479_noise_proofing_universal_portfolio_shrin.py | `c3ec9e636d014be4a068a12944e724182d5ed5ed117f2cc2a76e8bc33098e72f` | `f5536fe5b87b5cb1c35c77347bf3e7a932e3bb9b2fdafec587abce226ab00bf4` |
+| 156_cta_replication_trend_factors.py | `26a77686a472f6218884e25e8578be63f20e0c1cc8290ead72a69f83ca787482` | `e391462d2552177f4bbb0ff2d6c40ee40724929494cfd41a2b3389a9a2dfd9aa` |

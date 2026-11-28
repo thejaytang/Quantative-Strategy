@@ -352,3 +352,19 @@ Loader deviation (accepted): the snapshot is JSON decoded from bytes, so the fix
 Behavior: the single-file run's stdout (sha256 `ed815acb008f5c133ddda4991fb1e84313786a1f8aa690dfdf8e9f201cc86842`) is byte-identical to the original official log run_20261128_033522.log (sha256 `902eceecc1abd3e719c3cf00cb5121ccb8c5da699a81bfec628bffed8c2a29af`) after removing the lines Data source, Input SHA-256, DATA_SHA256 and MARKET_DATA_SNAPSHOT (the four provenance lines the embed adds); a second run was byte-identical to the first.
 
 Defects (author self-review REVIEW_codex_self_r2.md sha256 `d8005843748903c88be68eac3e9292730f11f5038cf9aef37b271fb5d4dc1212`, PASS): 无独立非作者审查; 高 回测经济表现弱; 中 固定基金范围含幸存者与选择偏差; 中 同一开盘价用于确定数量和模拟成交；同开盘价定股数属执行近似，非前视. Reference-only hosts named in the docstring (reference only, not used at runtime): huggingface.co, www.quantconnect.com.
+
+## 800 new strategy, snapshot embed (PENDING only; loader deviations from the fixed template)
+
+strategies/800_kellyboost_growth_optimal_portfolio_cons.py sha256 `aa6b108ee4d48346106a73efd9057cdc112536743b47f34aa834826c62a61926`. It is PENDING: not reviewed by Gatekeeper, not accepted, not in any accepted table, no independent non-author review (the first defect item). Numbers are an unreviewed author run; the file stays out of the investment system until Gatekeeper reviews it. Free public data only (finance.yahoo.com, SPY/QQQ/IWM/TLT/GLD/BIL), embedded as a snapshot; no network access at runtime.
+
+Loader uses the fixed plain-BytesIO template (sha256 `7b10d1f173e673c2c43105062bde0ed73893e97213017c7d4af40b9a08092283`); choice influenced by checker. broker_check.py (sha256 `67ddb747cfadb12cb206b9c3bb1e57931100ebdbc285ca226b4c708cb770ea48`) verdict on this file: False. No code was changed after a checker result for this file.
+
+Loader deviations from that template, listed one by one (also in the file header):
+(1) pd.read_csv uses header=[0, 1], index_col=0 and omits parse_dates=True, because index conversion stays in validate_bars; the result is assigned to bars, matching the original call.
+(2) The timestamp line is decoded and stripped, then validated with datetime.fromisoformat in a separate statement; the original string is returned so DATA_FETCHED_AT keeps its spelling.
+
+The packed file was rebuilt by stage_new.py after those deviations were already in the embed rewrite, then the header deviation line was itemized by a scripted replacement (header only; the strategy source below the shim was not changed by that replacement).
+
+Behavior: the single-file run's stdout (sha256 `07786b4f4cfbd3b7df88f9db0cb38a09999d8d70d82a6907e51ef62efbc8ccae`) is byte-identical to the original official log run_20261128_033744.log (sha256 `17f9f7d1c575df3b7a3bf7ac61830baa261a1a230b9c649d9773cd4fb3d3ee48`) after removing the lines Data source, Input SHA-256, DATA_SHA256 and MARKET_DATA_SNAPSHOT (the four provenance lines the embed adds); a second run was byte-identical to the first.
+
+Defects (author self-review REVIEW_codex_self.md sha256 `cc461ad76feb48ff70cceea84cd8e0399c38470463951452e56f4b4a63a02a83`, PASS; META sha256 `d11b9a43086a4511269525311e4cade64583081591f429d53f9c1df4ad4a4f1e`, lag_ok=True, sizing_ok=True; neither is a PASS, see the sizing_ok definition above): 无独立非作者审查; 中 固定资产池有基金存续和事后选池偏差; 中 开盘成交和现金分派采用理想化假设. Reference-only host named in the docstring (reference only, not used at runtime): www.quantconnect.com.

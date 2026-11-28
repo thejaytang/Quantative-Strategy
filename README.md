@@ -94,7 +94,7 @@ Note on 354: Gatekeeper passed the look-ahead fix at a code-level spot-check, so
 | strategies/510_some_general_results_on_risk_budgeting_p.py | INVALID | 无独立非作者审查; 固定存续 ETF 池（幸存者偏差）; 样本外为事后切分; 固定数量结算依赖现金余量; 快照无法还原逐日发布版本 |
 | strategies/452_simple_dynamic_stock_bond_gold_portfolio.py | INVALID | 无独立非作者审查; 固定存续 ETF 池（幸存者偏差）; 样本外为事后切分; 快照无法还原 ^IRX 逐次发布时间; PARAM_COMBOS_TRIED=1，缺乏邻域稳健性证据 |
 | strategies/494_wasserstein_penalisation_as_an_endogenou.py | INVALID | 无独立非作者审查; 固定存续的九只 ETF 池（事后选择、幸存者偏差）; 样本外为事后切分; 快照无法还原逐日发布版本; PARAM_COMBOS_TRIED=7（含六个样本内变体）; 固定成交假设与现金约束 |
-| strategies/533_special_markowitz_thermodynamic_formalis.py | INVALID | 资金缓冲有失效边界，成交成本为固定假设 |
+| strategies/533_special_markowitz_thermodynamic_formalis.py | INVALID | 无独立非作者审查; 固定九只行业 ETF 池与完整历史条件（幸存者及事后选池偏差）; 样本外为事后日期留出; 快照无法还原逐日到达或修订时间; 资金缓冲有失效边界，成交成本为固定假设 |
 | strategies/484_nonlinear_shrinkage_for_higher_moments_e.py | INVALID | defect listed in self-review; not a published fix |
 | strategies/476_conditional_value_at_risk_under_reward_p.py | INVALID | 收盘成交与现金可用性采用简化模型 |
 | strategies/432_revisiting_equity_bond_diversification_u.py | INVALID | 事后选池及存续偏差; 动态配置缺乏成交证据; 成交及资金约束是简化模型 |

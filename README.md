@@ -92,7 +92,7 @@ Note on 354: Gatekeeper passed the look-ahead fix at a code-level spot-check, so
 | strategies/501_nested_clustered_optimization_is_one_end.py | INVALID | 成交日收盘价参与成交数量计算（前视） |
 | strategies/451_a_declining_cvar_glidepath_framework_for.py | INVALID | 成交日收盘价反算成交量与买入缩量（前视偏差） |
 | strategies/510_some_general_results_on_risk_budgeting_p.py | INVALID | 成交日收盘定量与缩量（前视偏差）、固定存续 ETF 池（幸存者偏差） |
-| strategies/452_simple_dynamic_stock_bond_gold_portfolio.py | INVALID | 成交日收盘价决定成交份额（前视偏差） |
+| strategies/452_simple_dynamic_stock_bond_gold_portfolio.py | INVALID | 无独立非作者审查; 固定存续 ETF 池（幸存者偏差）; 样本外为事后切分; 快照无法还原 ^IRX 逐次发布时间; PARAM_COMBOS_TRIED=1，缺乏邻域稳健性证据 |
 | strategies/494_wasserstein_penalisation_as_an_endogenou.py | INVALID | 固定成交假设与现金约束 |
 | strategies/533_special_markowitz_thermodynamic_formalis.py | INVALID | 资金缓冲有失效边界，成交成本为固定假设 |
 | strategies/484_nonlinear_shrinkage_for_higher_moments_e.py | INVALID | defect listed in self-review; not a published fix |

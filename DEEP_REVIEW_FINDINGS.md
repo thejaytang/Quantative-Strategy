@@ -215,9 +215,11 @@ This note cites the published file sha256 `d625105ebfb3de80c014c20c9f86f9d502885
 
 On the commit that changes only the publication-header WARNING line in the 69 INVALID packed files, those files' SHA-256 digests change. Every packed-file sha256 cited in this document or in a packed-file header before that change is the sha before the header change. Official strategy.py, config, cache, log, META, and review-file digests cited in this document are unchanged by that header-line edit. The old-to-new packed-file table is also saved under `/workspace/codex_runs/quant_burn/repo_build/push_attachments_20261128_header_warning/packed_sha_old_to_new.tsv` (local attachment, not in this repo).
 
+The 501 packed-file sha after the WARNING-line commit e9f2091 was `4b09d922feee94bf2735fbd1b7046724a3517da7999a5ef943544b955087abe6`. That value is superseded. A later docs-only edit of the Signal lag parenthetical on line 12 (`(known look-ahead / INVALID)` to `(INVALID; see DEEP_REVIEW_FINDINGS.md)`) changed the packed-file sha to `0c0d3ba91a93303644897212711b78105301a10f3c08e10aa936752d00711915`. The middle column in the table below remains the sha before the WARNING-line header change. The right column for 501 is the sha after that subsequent phrase edit.
+
 | File | sha before the header change | sha after the header change |
 | --- | --- | --- |
-| 501_nested_clustered_optimization_is_one_end.py | `290fdcdb9d2d4cf83e0bb70d48a483e402014a478e5ba377175460bb0635ccf1` | `4b09d922feee94bf2735fbd1b7046724a3517da7999a5ef943544b955087abe6` |
+| 501_nested_clustered_optimization_is_one_end.py | `290fdcdb9d2d4cf83e0bb70d48a483e402014a478e5ba377175460bb0635ccf1` | `0c0d3ba91a93303644897212711b78105301a10f3c08e10aa936752d00711915` |
 | 451_a_declining_cvar_glidepath_framework_for.py | `562f0ad56519a4db81c37095c37bef792ee0749190be9eb80701dddf7829bdbf` | `39e74fea35579d910afafb6622cb88e722b9ab8702cb1ce039c4966573571139` |
 | 510_some_general_results_on_risk_budgeting_p.py | `bfd2710d01cf97e018f09c164b0a9f55b74f08a7d6da99b6af92a6c562d326b7` | `399da6ba803dd58af6a17bee389f94bb572df85d0901bc81ba7d9dc2583e20c7` |
 | 452_simple_dynamic_stock_bond_gold_portfolio.py | `755f0f7acc052da53c654b852cd545cf38f908cd86bf72b008118c7d5961ac53` | `a90460cf391af616073c48f8b9c2f8ed03844626e53549c06ed88f5b6f358b6f` |

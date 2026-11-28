@@ -125,7 +125,7 @@ Note on 354: Gatekeeper passed the look-ahead fix at a code-level spot-check, so
 | strategies/552_a_novel_robust_mixed_integer_linear_prog.py | INVALID | 无独立非作者审查; 固定股票池存在幸存者偏差; 行情可得时点与 OOS 解释有限; 成交与异常行情采用简化规则 |
 | strategies/461_breaking_the_trend_how_to_avoid_cherry_p.py | INVALID | 无独立非作者审查; 固定基金名单带来幸存者偏差 |
 | strategies/487_conditional_value_at_risk_under_reward_p.py | INVALID | 无独立非作者审查; 事后选股与幸存者偏差; 资金约束与成交假设 |
-| strategies/467_an_entropic_factor_model_for_robust_port.py | INVALID | 无独立非作者审查; look-ahead / same-close fill |
+| strategies/467_an_entropic_factor_model_for_robust_port.py | INVALID | 无独立非作者审查; 股票池为晚于样本发表的论文所列幸存者名单，且要求全样本行情完整，带来样本内外的幸存者/选择偏差，偏差大小与方向未确定; 复权收盘价快照缺少逐时点的行情与公司行动版本（据作者自审 REVIEW_codex_self_r10.md sha256 f404d55666459338cda84f04e8d16b8f2dcda996c45a016d6b9e0aa5b55fe1bb；原执行时点缺陷标签已删除（原文见 DEEP_REVIEW_FINDINGS.md 阶段说明栏）：Codex xhigh 对当前代码的复核结论 VERDICT FIXED / SIZING PASS，信号在 t 日收盘、t+1 日收盘成交，数量按前一日收盘冻结；复核记录 VERIFY.md sha256 45b3931e1abecfbbb76f31e00e68ab92a2b1a60b5da90aac361eb5a579c779ed；均为作者方复核，非独立审查） |
 | strategies/478_portfolio_allocation_under_heterogeneous.py | INVALID | 无独立非作者审查; 缺少官方行情快照; 开盘成交假设及资金约束 |
 | strategies/491_topological_risk_parity.py | INVALID | 无独立非作者审查; 事后固定投资池; 成交与资金模型的适用范围 |
 | strategies/188_opex_week.py | INVALID | 无独立非作者审查; 开收盘成交及资金假设偏强 |
@@ -149,7 +149,7 @@ Note on 354: Gatekeeper passed the look-ahead fix at a code-level spot-check, so
 | strategies/197_tsmom_boundaries.py | INVALID | 无独立非作者审查; 开盘成交和股息现金的近似 |
 | strategies/553_large_scale_portfolio_optimization_probl.py | INVALID | 无独立非作者审查; 候选池有幸存者和事后选样偏差; 同一代码跨股权类别; 样外仅为历史时间切分; 成交与资金模型简化; 快照无法还原逐日发布版本 |
 | strategies/310_factor_beta_overnight_intraday.py | INVALID | 无独立非作者审查; OOS 的独立性不足; 费用与成交模型简化 |
-| strategies/353_hold_the_dip.py | INVALID | 无独立非作者审查; look-ahead / same-close fill |
+| strategies/353_hold_the_dip.py | INVALID | 无独立非作者审查; 样本外区间零交易，切换规则在样本外未被检验; 事后选定 SPY 与 BIL，存在幸存者/市场选择偏差; 成交模型假设两腿按收盘价全额成交、固定滑点、卖出款立即可用（据作者自审 REVIEW_codex_self_r5.md sha256 61722bcf906b9de25f5d237aa3fbc3dfdc87f5cadbb6487c7c328aababd775f5；原执行时点缺陷标签已删除（原文见 DEEP_REVIEW_FINDINGS.md 阶段说明栏）：Codex xhigh 对当前代码的复核结论 VERDICT FIXED / SIZING PASS，信号在 t 日收盘、t+1 日收盘成交，数量按前一日收盘冻结；复核记录 VERIFY.md sha256 379609b00c79460dc6b8e088c26addee9698e6c28ad522a7ee08ccf2d010852e；均为作者方复核，非独立审查） |
 | strategies/445_dynamic_scenario_based_portfolio_optimiz.py | INVALID | 无独立非作者审查; ETF 池有幸存者和事后选择偏差; 复权成交与资金处理是模型假设 |
 | strategies/482_dynamic_inclusion_and_bounded_multi_fact.py | INVALID | 无独立非作者审查; 固定候选池有幸存者和事后选择偏差 |
 | strategies/434_dynamic_scenario_based_portfolio_optimiz.py | INVALID | 无独立非作者审查; 事后资产池与回顾性样本切分 |

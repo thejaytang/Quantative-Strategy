@@ -368,3 +368,21 @@ The packed file was rebuilt by stage_new.py after those deviations were already 
 Behavior: the single-file run's stdout (sha256 `07786b4f4cfbd3b7df88f9db0cb38a09999d8d70d82a6907e51ef62efbc8ccae`) is byte-identical to the original official log run_20261128_033744.log (sha256 `17f9f7d1c575df3b7a3bf7ac61830baa261a1a230b9c649d9773cd4fb3d3ee48`) after removing the lines Data source, Input SHA-256, DATA_SHA256 and MARKET_DATA_SNAPSHOT (the four provenance lines the embed adds); a second run was byte-identical to the first.
 
 Defects (author self-review REVIEW_codex_self.md sha256 `cc461ad76feb48ff70cceea84cd8e0399c38470463951452e56f4b4a63a02a83`, PASS; META sha256 `d11b9a43086a4511269525311e4cade64583081591f429d53f9c1df4ad4a4f1e`, lag_ok=True, sizing_ok=True; neither is a PASS, see the sizing_ok definition above): 无独立非作者审查; 中 固定资产池有基金存续和事后选池偏差; 中 开盘成交和现金分派采用理想化假设. Reference-only host named in the docstring (reference only, not used at runtime): www.quantconnect.com.
+
+## 807 new strategy, snapshot embed (PENDING only; loader deviations from the fixed template)
+
+strategies/807_rethinking_portfolio_risk_forecasting_vo.py sha256 `02ee508074a4f9116a59506566457cc7cc806c938b342f17e6416ad6938d3a86`. It is PENDING: not reviewed by Gatekeeper, not accepted, not in any accepted table, no independent non-author review (the first defect item). Numbers are an unreviewed author run; the file stays out of the investment system until Gatekeeper reviews it. Free public data only (finance.yahoo.com), embedded as a snapshot; no network access at runtime.
+
+Loader uses the fixed plain-BytesIO template (sha256 `7b10d1f173e673c2c43105062bde0ed73893e97213017c7d4af40b9a08092283`); choice influenced by checker. broker_check.py (sha256 `67ddb747cfadb12cb206b9c3bb1e57931100ebdbc285ca226b4c708cb770ea48`) verdict on this file: False.
+
+Loader deviations from that template, listed one by one (also in the file header):
+(1) The YAML gzip wrapper holds the original gzip-compressed cache file; after that wrapper is removed, DATA_SHA256 hashes those original cache bytes (the outer gzip-compressed cache, not the raw CSV), and the inner gzip is then decompressed for BytesIO.
+(2) Input SHA-256 hashes the inner decompressed CSV body after the first-line timestamp (not the gzip cache and not the YAML wrapper).
+(3) The first line is kept as stamp for DATA_FETCHED_AT, and its UTC offset is checked after the CSV is read.
+(4) pd.read_csv uses header=[0, 1], index_col=0, parse_dates=[0] and assigns to prices, matching the original call.
+
+Input SHA-256 and DATA_SHA256 say which bytes are hashed, so they cannot be read as the raw CSV. The runtime provenance prints are: `Input SHA-256: <digest> (bytes hashed: the inner decompressed CSV body after the first-line timestamp; not the gzip cache and not the YAML !!binary wrapper)` and `DATA_SHA256: <digest> (bytes hashed: the original cache file after removing the YAML !!binary gzip wrapper, i.e. the outer gzip-compressed cache bytes, not the raw CSV)`. Those two print strings were added by a scripted replacement in the embed `strategy.py`, after which stage_new.py rebuilt and re-verified the packed file. The header deviation list was then itemized by a second scripted, header-only replacement (no further change to the strategy source below the shim).
+
+Behavior: the single-file run's stdout (sha256 `a5f95f477cb920e0d0851120b15cf6515a91220a131ef19952e4eecac2e83327`) is byte-identical to the original official log run_20261128_033704.log (sha256 `52ae0ecffb60e3375fa4e13610a3f37070a8966b562beded8379b69886ce314b`) after removing the lines Data source, Input SHA-256, DATA_SHA256 and MARKET_DATA_SNAPSHOT (the four provenance lines the embed adds, which now include the byte-source labels above); a second run was byte-identical to the first.
+
+Defects (author self-review REVIEW_codex_self.md sha256 `d784147a825ba08fb2015b458bc6d8280fa8e519682f23ef226edc13aae8fd1f`, PASS; META sha256 `207de6befee6f312e6dfc5db942a5529571699e67a7b28927219e1180c4065c2`, lag_ok=True, sizing_ok=True; neither is a PASS, see the sizing_ok definition above): 无独立非作者审查; 中 固定协整秩缺乏样本支持; 中 样本外属于回溯划分; 中 除权回报依赖数据商口径. Reference-only host named in the docstring (reference only, not used at runtime): www.quantconnect.com.
